@@ -16,4 +16,8 @@ Each quarter of FDIC financials is saved as its own Parquet file: `data/raw/fina
 1. **One big Parquet file rebuilt every run.** Least code, but any failure restarts everything and every refresh re-downloads all ~700k rows. Rejected.
 2. **Save raw JSON first, convert to Parquet in a second step.** A textbook raw-then-clean pattern, but twice the code and storage, and the FDIC API can simply be called again. Rejected.
 
+## Phase 2 notes
+- **Case clash.** Athena and Glue are case-insensitive, so the partition key `repdte` (from the folder name) and the data column `REPDTE` collide. When defining the Athena table, declare `repdte` as the partition and leave `REPDTE` out of the column list (or rename one of them).
+- **Date type.** Dates are stored as Parquet `timestamp[ns]` at midnight. Decide in Phase 2 whether to convert them to a date type for Athena.
+
 Related: [[decisions/0003-curated-45-financial-fields]], [[decisions/0004-store-raw-values-unchanged]]. Full design: [[specs/2026-11-09-phase1-fdic-ingestion-design]].

@@ -28,7 +28,12 @@ Both accept `--root DIR` (default `data/raw`).
 - **`--force`** re-pulls every quarter. Use it after adding a field ([[decisions/0003-curated-45-financial-fields]]).
 
 ## If it fails
-An `IncompleteResponseError` (rows received did not match what the API reported) or an `FDICAPIError` (network problem or bad response after 3 retries) stops the run and the CLI exits with code 1. Nothing is written for the failed quarter. **Just rerun the same command;** it resumes where it stopped. If it keeps failing on the same quarter, check whether the FDIC API is up before changing code.
+Any failure stops the run and the CLI exits with code 1. Nothing is written for the failed quarter (or the failures file), and earlier files are untouched.
+
+- **Network errors** (timeouts, refused or dropped connections, HTTP 429/5xx): each request is retried 3 times with waits of 1, 2 and 4 seconds, then raises `FDICAPIError`. **Rerun the same command;** it resumes where it stopped. If it keeps failing, check whether the FDIC API is up.
+- **0 rows returned** (`IncompleteResponseError`): the API answered but sent no data. Nothing is written, so an existing good file is never replaced by an empty one. Check the API, then rerun.
+- **Row count or duplicate mismatch** (`IncompleteResponseError`): we received a different number of rows than the API reported, or the same CERT twice. Duplicates mean the paging drifted while we downloaded, so the quarter is not trustworthy and is not written. Rerun.
+- **`SchemaError`**: FDIC changed a column or sent a non-numeric value where a number belongs. Rerunning will not fix it; inspect the named field in the API response.
 
 ## Tests
 ```

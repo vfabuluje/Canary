@@ -1,5 +1,6 @@
 from canary import ingest
 from canary.fdic_client import FDICAPIError
+from canary.schema import SchemaError
 
 
 def test_cli_financials_passes_force(monkeypatch, tmp_path):
@@ -32,6 +33,14 @@ def test_cli_failures(monkeypatch, tmp_path):
 def test_cli_returns_1_on_api_error(monkeypatch, tmp_path):
     def boom(root, client, force=False):
         raise FDICAPIError("down")
+
+    monkeypatch.setattr(ingest, "run_financials", boom)
+    assert ingest.main(["financials", "--root", str(tmp_path)], client=object()) == 1
+
+
+def test_cli_returns_1_on_schema_error(monkeypatch, tmp_path):
+    def boom(root, client, force=False):
+        raise SchemaError("bad column")
 
     monkeypatch.setattr(ingest, "run_financials", boom)
     assert ingest.main(["financials", "--root", str(tmp_path)], client=object()) == 1

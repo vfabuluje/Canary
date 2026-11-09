@@ -8,7 +8,7 @@ from typing import NamedTuple
 
 import pandas as pd
 
-from canary.fdic_client import FDICClient, IncompleteResponseError
+from canary.fdic_client import FDICAPIError, FDICClient, IncompleteResponseError
 from canary.quarters import quarter_ends
 from canary.schema import FINANCIAL_FIELDS, to_typed_frame
 from canary.storage import financials_path, write_parquet_atomic
@@ -29,7 +29,15 @@ def latest_report_date(client: FDICClient) -> date:
         "financials",
         {"fields": "REPDTE", "sort_by": "REPDTE", "sort_order": "DESC", "limit": 1},
     )
-    return datetime.strptime(payload["data"][0]["data"]["REPDTE"], "%Y%m%d").date()
+    if not payload["data"]:
+        raise FDICAPIError("API returned no rows when asked for the latest REPDTE")
+    raw = payload["data"][0]["data"]["REPDTE"]
+    try:
+        latest = datetime.strptime(raw, "%Y%m%d").date()
+        quarter_ends(latest, latest)  # raises ValueError unless it is a quarter-end
+    except ValueError as exc:
+        raise FDICAPIError(f"Latest REPDTE {raw!r} is not a quarter-end date") from exc
+    return latest
 
 
 def quarters_to_pull(
@@ -55,6 +63,8 @@ def pull_quarter(
         "financials",
         {"filters": f"REPDTE:{repdte:%Y%m%d}", "fields": ",".join(FINANCIAL_FIELDS)},
     )
+    if not records:
+        raise IncompleteResponseError(f"API returned 0 rows for quarter {repdte}")
     df = to_typed_frame(records, FINANCIAL_FIELDS, ingested_at)
     if df["CERT"].duplicated().any():
         raise IncompleteResponseError(f"duplicate CERT in quarter {repdte}")

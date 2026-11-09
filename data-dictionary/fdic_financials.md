@@ -26,7 +26,7 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 | Column | Type | FDIC title | Meaning (plain English) | Units / caveats |
 |---|---|---|---|---|
 | `CERT` | int64 | FDIC Certificate # | The bank's unique FDIC ID number; the key for joining to the failures table. | Never null here. |
-| `REPDTE` | date | Report Date | The quarter-end date this snapshot describes. | Stored as a real date (e.g. 2022-12-31). |
+| `REPDTE` | date | Report Date | The quarter-end date this snapshot describes. | Stored as a timestamp at midnight (no time part), e.g. 2022-12-31 00:00. |
 | `NAME` | string | INSTITUTION NAME | The bank's legal name. | Names can change over time. |
 | `STALP` | string | FIPS STATE ALPHA CODE | Two-letter state where the bank is based. | |
 | `BKCLASS` | string | INSTITUTION CLASS | Charter class: type of bank charter and who supervises it. | FDIC class code. |

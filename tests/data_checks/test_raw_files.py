@@ -65,4 +65,5 @@ def test_2023_failures_present(failures):
 
 def test_failures_cert_present_since_2001(failures):
     recent = failures[failures["FAILYR"] >= 2001]
+    assert len(recent) > 0
     assert recent["CERT"].notna().all()

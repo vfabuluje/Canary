@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import pytest
 
-from canary.fdic_client import FDICClient, IncompleteResponseError
+from canary.fdic_client import FDICAPIError, FDICClient, IncompleteResponseError
 from canary.ingest_financials import (
     latest_report_date,
     pull_quarter,
@@ -112,3 +112,25 @@ def test_run_stops_on_error_keeps_written(tmp_path):
         run_financials(tmp_path, client, start=date(2022, 9, 30))
     assert financials_path(tmp_path, date(2022, 9, 30)).exists()
     assert not financials_path(tmp_path, date(2022, 12, 31)).exists()
+
+
+def test_pull_quarter_empty_raises_and_run_writes_nothing(tmp_path):
+    client, _ = make_client([page([], 0), page([], 0)])
+    with pytest.raises(IncompleteResponseError, match="0 rows"):
+        pull_quarter(client, date(2022, 12, 31), pd.Timestamp.now(tz="UTC"))
+    client, _ = make_client([page([{"REPDTE": "20221231"}], 1), page([], 0)])
+    with pytest.raises(IncompleteResponseError):
+        run_financials(tmp_path, client, start=date(2022, 12, 31), refresh_latest=1)
+    assert not financials_path(tmp_path, date(2022, 12, 31)).exists()
+
+
+def test_latest_report_date_empty_data_raises():
+    client, _ = make_client([page([], 0)])
+    with pytest.raises(FDICAPIError, match="no rows"):
+        latest_report_date(client)
+
+
+def test_latest_report_date_non_quarter_end_raises():
+    client, _ = make_client([page([{"REPDTE": "20260715"}], 1)])
+    with pytest.raises(FDICAPIError, match="quarter"):
+        latest_report_date(client)

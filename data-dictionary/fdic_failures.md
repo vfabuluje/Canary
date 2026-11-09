@@ -18,7 +18,7 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 - **`RESTYPE` separates real failures from assistance.** `FAILURE` means the bank closed. `ASSISTANCE` means the FDIC helped a bank that stayed open (593 such rows). Both are kept; Phase 3 decides which count as "failed". For scale, there are 574 `FAILURE` rows since 2001.
 - **Dollar amounts are in thousands of dollars** (`QBFASSET`, `QBFDEP`, `COST`).
 - **Current, amended values only.** The API serves the latest figures, which may differ from what was first reported.
-- **Dates are parsed to real dates.** `FAILDATE` and `RESDATE` arrive as text like `3/10/2023` and are stored as dates (2023-03-10). `PTRDATE` is left as text.
+- **Dates are parsed to timestamps.** `FAILDATE` and `RESDATE` arrive as text like `3/10/2023` and are stored as timestamps at midnight, no time part (2023-03-10 00:00). `PTRDATE` is left as text.
 - **Blank is stored as null**, not as an empty string.
 
 ## Columns
@@ -29,12 +29,12 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 | `CERT` | Int64 (nullable) | Cert | The bank's FDIC certificate number; the key for joining to the financials table. | Null for 488 pre-1977 rows; present for every row since 2001. |
 | `FIN` | string | FIN | Financial Institution Number: an ID FDIC assigns to each assistance agreement, conservatorship, bridge bank or receivership (the resolution number). | Text. Not guaranteed unique per row: 61 FIN values appear on more than one row in the live API. |
 | `CITYST` | string | Location | City and state of the bank's headquarters, in one field. | |
-| `FAILDATE` | date | Effective Date | The date the bank stopped being a privately run going concern, i.e. when it failed or was taken over. SVB's is 2023-03-10. | Stored as a date. Source text format `m/d/yyyy`. |
+| `FAILDATE` | date | Effective Date | The date the bank stopped being a privately run going concern, i.e. when it failed or was taken over. SVB's is 2023-03-10. | Stored as a timestamp at midnight (no time part). Source text format `m/d/yyyy`. |
 | `FAILYR` | Int64 | Year | The four-digit year of `FAILDATE`. | |
 | `SAVR` | string | Insurance Fund | Which insurance fund covered the bank: BIF, SAIF, FSLIC, RTC, DIF (merged the older funds in 2006), or FDIC (the pre-1989 FDIC fund). | Code. Historical. |
 | `RESTYPE1` | string | Transaction Type | How the failure was resolved. Codes: A/A (assistance, bank stays open), REP (reprivatization), P&A, PA, PI (purchase and assumption: another bank takes over deposits and some assets), IDT (insured deposit transfer), MGR (FSLIC management takeover), PO (payout). PA = acquirer assumed all deposits; PI = insured deposits only. | Code. |
 | `CHCLASS1` | string | Charter Class | The bank's charter type and primary regulator, such as national bank or state-chartered nonmember bank. | Code (e.g. `N`, `NM`, `SM`, `SA`, `SB`). |
-| `RESDATE` | date | Date of Resolution | The date of resolution; usually the same as `FAILDATE`, except for open-bank assistance. | Stored as a date. |
+| `RESDATE` | date | Date of Resolution | The date of resolution; usually the same as `FAILDATE`, except for open-bank assistance. | Stored as a timestamp at midnight (no time part). |
 | `RESTYPE` | string | Resolution | Whether this row is a `FAILURE` (the bank closed) or `ASSISTANCE` (the FDIC helped it stay open). | Uppercase values: `FAILURE` (3,524 rows) and `ASSISTANCE` (593 rows) in the live API. |
 | `QBFDEP` | float64 | Total Deposits | Total deposits at the bank's last report before failure. | $ thousands. May not match the very last report filed. |
 | `QBFASSET` | float64 | Total Assets | Total assets at the bank's last report before failure. | $ thousands. Excludes off-balance-sheet items. |

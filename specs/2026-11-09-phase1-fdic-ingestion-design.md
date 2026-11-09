@@ -107,7 +107,7 @@ data/raw/
 ### 7.2 Column conventions
 - **Keep FDIC's column names as-is** (`ASSET`, `DEPUNINS`, …) so every column can be looked up in the FDIC docs. Friendlier names come in dbt (Phase 2).
 - Types are set by the field list, not guessed: identity text as `string`, `CERT` as `int64` in financials (nullable `Int64` in failures, see §6.2), dollar amounts and ratios as `float64` (nullable, values unchanged).
-- `REPDTE` is stored as a real **date** (2022-12-31). `FAILDATE` and `RESDATE` are parsed to **dates**.
+- `REPDTE`, `FAILDATE` and `RESDATE` are parsed from text and stored as a Parquet **timestamp at midnight (no time part)**, e.g. 2022-12-31 00:00.
 - Add one lineage column, `ingested_at` (UTC timestamp of the pull), to both tables.
 
 ### 7.3 Behaviour

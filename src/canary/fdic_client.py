@@ -11,7 +11,8 @@ class FDICAPIError(Exception):
 
 
 class IncompleteResponseError(FDICAPIError):
-    """We received fewer rows than the API said exist."""
+    """The rows we got cannot be trusted: fewer than the API said exist, zero rows,
+    or duplicate CERTs (a sign the paging drifted while we downloaded)."""
 
 
 class FDICClient:
@@ -31,7 +32,7 @@ class FDICClient:
         self._requests_made = 0
 
     def get_page(self, endpoint, params):
-        """One request, with retries on timeouts, connection errors, 429 and 5xx."""
+        """One request, with retries on timeouts, connection errors (including dropped downloads), 429 and 5xx."""
         if self._requests_made > 0 and self.pause:
             self.sleep(self.pause)
         self._requests_made += 1
@@ -43,7 +44,8 @@ class FDICClient:
                 self.sleep(self.backoff * 2 ** (attempt - 1))
             try:
                 resp = self.session.get(url, params=params, timeout=self.timeout)
-            except (requests.Timeout, requests.ConnectionError) as exc:
+            except (requests.Timeout, requests.ConnectionError,
+                    requests.exceptions.ChunkedEncodingError) as exc:
                 last_error = exc
                 continue
             if resp.status_code == 429 or resp.status_code >= 500:

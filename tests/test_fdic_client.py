@@ -93,3 +93,39 @@ def test_pause_between_separate_calls():
     client.get_all("financials", {})
     client.get_all("financials", {})
     assert sleeps == [0.5]
+
+
+def test_chunked_encoding_error_is_retried():
+    client, _, sleeps = make(
+        [requests.exceptions.ChunkedEncodingError("dropped"), page([{"CERT": 1}], 1)]
+    )
+    assert client.get_all("financials", {}) == [{"CERT": 1}]
+    assert sleeps == [1.0]
+
+
+def test_repeated_chunked_encoding_errors_raise_fdic_error():
+    errs = [requests.exceptions.ChunkedEncodingError("dropped") for _ in range(4)]
+    client, _, _ = make(errs)
+    with pytest.raises(FDICAPIError, match="Gave up"):
+        client.get_page("financials", {})
+
+
+def test_429_is_retried():
+    client, _, sleeps = make([FakeResponse(429), page([{"CERT": 1}], 1)])
+    assert client.get_all("financials", {}) == [{"CERT": 1}]
+    assert sleeps == [1.0]
+
+
+def test_connection_error_is_retried():
+    client, _, sleeps = make(
+        [requests.ConnectionError("refused"), page([{"CERT": 1}], 1)]
+    )
+    assert client.get_all("financials", {}) == [{"CERT": 1}]
+    assert sleeps == [1.0]
+
+
+def test_giving_up_sleeps_with_doubling_backoff():
+    client, _, sleeps = make([requests.ConnectionError("x") for _ in range(4)])
+    with pytest.raises(FDICAPIError, match="Gave up"):
+        client.get_page("financials", {})
+    assert sleeps == [1.0, 2.0, 4.0]
