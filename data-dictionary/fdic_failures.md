@@ -8,7 +8,7 @@ Every bank failure and assistance event in the FDIC's records since 1934. These 
 | Primary key | None guaranteed. `CERT` is blank for old rows; `FIN` (FDIC's resolution number) is the closest identifier |
 | Source | `GET https://api.fdic.gov/banks/failures` (FDIC BankFind) |
 | File | `data/raw/failures/failures.parquet` |
-| Rows | _filled in after the first full pull_ |
+| Rows | 4,117 (3,524 FAILURE, 593 ASSISTANCE; 574 FAILURE since 2001) |
 
 Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column names are FDIC's own. Values are stored exactly as published; the only conversion is blank to null.
 

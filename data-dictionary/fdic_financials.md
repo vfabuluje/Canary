@@ -8,7 +8,7 @@ Quarterly financial snapshot of every FDIC-insured bank, as published by the FDI
 | Primary key | (`CERT`, `REPDTE`) |
 | Source | `GET https://api.fdic.gov/banks/financials` (FDIC BankFind) |
 | File | `data/raw/financials/repdte=YYYYMMDD/part.parquet` (one file per quarter) |
-| Rows | _filled in after the first full pull_ |
+| Rows | 710,691 (102 quarters, 2001-03-31 to 2026-06-30; 9,940 rows in 2001-03-31 down to 4,313 in 2026-06-30) |
 
 Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column names are FDIC's own, kept as-is so each can be looked up in FDIC docs. Values are stored exactly as published; the only conversion is blank to null.
 
