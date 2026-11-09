@@ -5,6 +5,9 @@
 *.pem
 .aws/
 
+# --- Personal context for Claude Code (local only; repo is public) ---
+CLAUDE.local.md
+
 # --- Python ---
 __pycache__/
 *.py[cod]
