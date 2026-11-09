@@ -1,0 +1,43 @@
+# --- Secrets (never commit credentials) ---
+.env
+.env.*
+!.env.example
+*.pem
+.aws/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# --- dbt ---
+target/
+dbt_packages/
+logs/
+
+# --- Local data (raw downloads live in S3 / are re-pulled, not committed) ---
+data/
+
+# --- Obsidian: keep shared settings, ignore per-device UI state ---
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspaces.json
+.obsidian/cache
+.trash/
+
+# --- OS / editors ---
+.DS_Store
+.vscode/
+.idea/
