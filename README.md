@@ -31,7 +31,7 @@ More detail, including what to do if a pull fails: `runbooks/fdic-ingestion.md`.
 - **Financials:** 710,691 rows over 102 quarters (2001-03-31 to 2026-06-30); 9,940 banks in the first quarter, 4,313 in the latest.
 - **Failures:** 4,117 rows (3,524 FAILURE, 593 ASSISTANCE; 574 FAILURE since 2001).
 - **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
-- **Tests:** 52 passing (45 unit, 7 data checks).
+- **Tests:** 62 passing (55 unit, 7 data checks).
 
 ## Limitations
 - **Amended data only.** The FDIC API serves current, corrected values, not what banks originally filed. The SVB replay will use numbers as corrected later, not exactly what an analyst saw at the time.
