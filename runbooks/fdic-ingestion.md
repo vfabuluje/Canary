@@ -37,7 +37,7 @@ Any failure stops the run and the CLI exits with code 1. Nothing is written for 
 
 ## Tests
 ```
-.venv/bin/pytest -v                    # everything (52 tests: 45 unit + 7 data checks)
+.venv/bin/pytest -v                    # everything (62 tests: 55 unit + 7 data checks)
 .venv/bin/pytest -m "not data"         # unit tests only, no data files needed
 .venv/bin/pytest -m data               # data checks on the real saved files
 ```
