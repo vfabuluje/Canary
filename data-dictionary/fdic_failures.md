@@ -27,15 +27,15 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 |---|---|---|---|---|
 | `NAME` | string | Institution Name | Legal name of the failed or assisted bank. | |
 | `CERT` | Int64 (nullable) | Cert | The bank's FDIC certificate number; the key for joining to the financials table. | Null for 488 pre-1977 rows; present for every row since 2001. |
-| `FIN` | string | FIN | Financial Institution Number: an ID FDIC assigns to each assistance agreement, conservatorship, bridge bank or receivership (the resolution number). | Text. Not guaranteed unique per row. |
+| `FIN` | string | FIN | Financial Institution Number: an ID FDIC assigns to each assistance agreement, conservatorship, bridge bank or receivership (the resolution number). | Text. Not guaranteed unique per row: 61 FIN values appear on more than one row in the live API. |
 | `CITYST` | string | Location | City and state of the bank's headquarters, in one field. | |
 | `FAILDATE` | date | Effective Date | The date the bank stopped being a privately run going concern, i.e. when it failed or was taken over. SVB's is 2023-03-10. | Stored as a date. Source text format `m/d/yyyy`. |
 | `FAILYR` | Int64 | Year | The four-digit year of `FAILDATE`. | |
-| `SAVR` | string | Insurance Fund | Which FDIC-run insurance fund covered the bank (BIF, SAIF, FSLIC, RTC, or DIF, which merged the older funds in 2006). | Code. Historical. |
-| `RESTYPE1` | string | Transaction Type | How the failure was resolved: for example a purchase and assumption (another bank takes over deposits and some assets), a payout, or assistance. | Code (e.g. `PA`, `PI`, `PO`, `A/A`). |
+| `SAVR` | string | Insurance Fund | Which insurance fund covered the bank: BIF, SAIF, FSLIC, RTC, DIF (merged the older funds in 2006), or FDIC (the pre-1989 FDIC fund). | Code. Historical. |
+| `RESTYPE1` | string | Transaction Type | How the failure was resolved. Codes: A/A (assistance, bank stays open), REP (reprivatization), P&A, PA, PI (purchase and assumption: another bank takes over deposits and some assets), IDT (insured deposit transfer), MGR (FSLIC management takeover), PO (payout). PA = acquirer assumed all deposits; PI = insured deposits only. | Code. |
 | `CHCLASS1` | string | Charter Class | The bank's charter type and primary regulator, such as national bank or state-chartered nonmember bank. | Code (e.g. `N`, `NM`, `SM`, `SA`, `SB`). |
 | `RESDATE` | date | Date of Resolution | The date of resolution; usually the same as `FAILDATE`, except for open-bank assistance. | Stored as a date. |
-| `RESTYPE` | string | Resolution | Whether this row is a `FAILURE` (the bank closed) or `ASSISTANCE` (the FDIC helped it stay open). | Filter on this to separate closures from assistance (593 `ASSISTANCE` rows overall). |
+| `RESTYPE` | string | Resolution | Whether this row is a `FAILURE` (the bank closed) or `ASSISTANCE` (the FDIC helped it stay open). | Uppercase values: `FAILURE` (3,524 rows) and `ASSISTANCE` (593 rows) in the live API. |
 | `QBFDEP` | float64 | Total Deposits | Total deposits at the bank's last report before failure. | $ thousands. May not match the very last report filed. |
 | `QBFASSET` | float64 | Total Assets | Total assets at the bank's last report before failure. | $ thousands. Excludes off-balance-sheet items. |
 | `COST` | float64 | Estimated Loss | The estimated loss to the FDIC's Deposit Insurance Fund from this failure. | $ thousands. An estimate; not available for failures before 1986 or for FSLIC failures 1934 to 1988 (null). |

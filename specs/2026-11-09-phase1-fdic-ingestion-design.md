@@ -65,7 +65,7 @@ Field scope: **~45 hand-picked fields** (chosen) rather than the API's default ~
 **Units and caveats (to go in the data dictionary):**
 - Dollar amounts are in **thousands of dollars** (SVB `ASSET` = 209,026,000, which is $209B).
 - Ratios (`ROA`, `NIMY`, `RBC1AAJ`, …) are **percent** (7.96 means 7.96%).
-- Income fields (`NETINC`, `EINTEXP`, `ELNATR`, `NTLNLS`) and ratios built on them are **year-to-date**: Q4 covers the full year and Q1 covers one quarter. Phase 3 must convert them to per-quarter values.
+- The dollar income fields (`NETINC`, `EINTEXP`, `ELNATR`, `NTLNLS`) are **year-to-date**: Q4 covers the full year and Q1 covers one quarter. Phase 3 must convert them to per-quarter values. `ROA`, `ROE` and `NIMY` are annualized year-to-date ratios, already comparable across quarters; `EEFFR` is a ratio of two YTD amounts and needs no conversion.
 - **0 can mean "not reported yet".** Some fields didn't exist in early years. Example: SVB's `SCHF` (HTM fair value) is 0 in 2001. Phase 1 keeps the 0; Phase 3 decides how to treat it.
 
 **Curated field list (45):**
