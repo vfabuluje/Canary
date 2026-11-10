@@ -1,0 +1,160 @@
+version: 2
+
+models:
+  - name: stg_fdic__financials
+    description: "One row per bank per quarter. Rename and retype only; row count equals raw. Dollars in $ thousands, ratios in percent, income fields year-to-date, zeros stay zeros."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [cert, report_date]
+    columns:
+      - name: cert
+        description: "FDIC certificate number: the bank's unique ID. Key with report_date. Integer."
+        data_tests: [not_null]
+      - name: report_date
+        description: "Quarter-end date of the snapshot (from raw repdte). Date, e.g. 2022-12-31."
+        data_tests: [not_null]
+      - name: institution_name
+        description: "The bank's legal name as of that quarter. Text; names change over time."
+      - name: state
+        description: "Two-letter state where the bank is based. Text."
+      - name: institution_class
+        description: "Charter class: type of bank charter and supervisor (FDIC class code). Code."
+      - name: holding_company_name
+        description: "Regulatory top-holder holding company name. Text; null if no holding company."
+      - name: total_assets
+        description: "Everything the bank owns; the standard size measure. $ thousands."
+      - name: total_liabilities
+        description: "Everything the bank owes. $ thousands."
+      - name: total_deposits
+        description: "Money customers have placed in the bank. $ thousands."
+      - name: equity_capital
+        description: "Assets minus liabilities: the loss-absorbing cushion. $ thousands."
+      - name: gross_loans_and_leases
+        description: "Total loans and leases before loss reserves. $ thousands."
+      - name: total_securities
+        description: "Total bonds and other securities held. $ thousands."
+      - name: leverage_ratio
+        description: "Core capital as a share of average assets (PCA leverage ratio). Percent."
+      - name: tier1_risk_based_ratio
+        description: "Tier 1 capital as a share of risk-weighted assets. Percent. May be null or 0 in early years."
+      - name: total_risk_based_ratio
+        description: "Total regulatory capital as a share of risk-weighted assets. Percent."
+      - name: equity_to_assets_ratio
+        description: "Equity capital as a share of total assets. Percent."
+      - name: noncurrent_loans
+        description: "Loans 90+ days past due or no longer accruing interest. $ thousands."
+      - name: nonaccrual_assets
+        description: "Assets on which interest is no longer being counted. $ thousands."
+      - name: past_due_30_89_assets
+        description: "Assets 30-89 days past due and still accruing. $ thousands."
+      - name: past_due_90_plus_assets
+        description: "Assets 90+ days past due and still accruing. $ thousands."
+      - name: other_real_estate_owned
+        description: "Foreclosed property held by the bank. $ thousands."
+      - name: loan_loss_allowance
+        description: "Reserve set aside for expected loan losses. $ thousands."
+      - name: net_charge_offs
+        description: "Loans written off minus recoveries. $ thousands, year-to-date (Q4 = full year)."
+      - name: provision_for_credit_losses
+        description: "Amount charged to earnings to add to the loss reserve. $ thousands, year-to-date (Q4 = full year)."
+      - name: real_estate_loans
+        description: "Loans secured by real estate. $ thousands."
+      - name: construction_land_loans
+        description: "Real estate construction and land development loans. $ thousands."
+      - name: commercial_real_estate_loans
+        description: "Nonfarm nonresidential real estate loans. $ thousands."
+      - name: commercial_industrial_loans
+        description: "Commercial and industrial (business) loans. $ thousands."
+      - name: net_income
+        description: "Profit after all expenses and taxes. $ thousands, year-to-date (Q4 = full year)."
+      - name: return_on_assets
+        description: "Profit as a share of assets. Percent. Annualized, year-to-date."
+      - name: return_on_equity
+        description: "Profit as a share of equity. Percent. Annualized, year-to-date."
+      - name: net_interest_margin
+        description: "Interest earned minus interest paid, as a share of earning assets. Percent. Annualized, year-to-date."
+      - name: total_interest_expense
+        description: "Total interest paid on deposits and borrowings. $ thousands, year-to-date (Q4 = full year)."
+      - name: efficiency_ratio
+        description: "Operating costs per dollar of revenue. Percent. Ratio of two year-to-date amounts; not annualized."
+      - name: uninsured_deposits
+        description: "Estimated deposits above the federal insurance limit. $ thousands. Estimate; often 0 or null for small banks and early years."
+      - name: brokered_deposits
+        description: "Deposits obtained through brokers. $ thousands."
+      - name: core_deposits
+        description: "Stable deposits (broadly total minus large time and brokered). $ thousands."
+      - name: fhlb_advances
+        description: "Federal Home Loan Bank advances (other liabilities-FHLB). $ thousands."
+      - name: volatile_liabilities
+        description: "Funding that can leave quickly. $ thousands."
+      - name: cash_and_due_from_banks
+        description: "Cash and balances at other banks. $ thousands."
+      - name: net_loans_to_deposits_ratio
+        description: "Net loans and leases as a share of deposits. Percent."
+      - name: htm_securities_amortized_cost
+        description: "Held-to-maturity securities at amortized cost. $ thousands. 0 may mean not reported."
+      - name: htm_securities_fair_value
+        description: "Held-to-maturity securities at market value. $ thousands. 0 may mean not reported."
+      - name: afs_securities_amortized_cost
+        description: "Available-for-sale securities at amortized cost. $ thousands. 0 may mean not reported."
+      - name: afs_securities_fair_value
+        description: "Available-for-sale securities at market value. $ thousands. 0 may mean not reported."
+      - name: ingested_at
+        description: "When Canary pulled this row from the FDIC API. UTC timestamp; not an FDIC field."
+
+  - name: stg_fdic__failures
+    description: "One row per failure or assistance event since 1934, all rows kept. Rename and retype only, plus is_failure. Dollars in $ thousands."
+    columns:
+      - name: institution_name
+        description: "Legal name of the failed or assisted bank. Text."
+      - name: cert
+        description: "FDIC certificate number; joins to financials. Integer; null for old pre-1977 rows."
+      - name: resolution_number
+        description: "FDIC resolution number (FIN). Text; not guaranteed unique per row."
+      - name: headquarters_location
+        description: "City and state of the headquarters in one field. Text."
+      - name: failure_date
+        description: "Date the bank failed or was taken over. Date."
+        data_tests: [not_null]
+      - name: failure_year
+        description: "Four-digit year of failure_date. Integer."
+      - name: insurance_fund_code
+        description: "Insurance fund that covered the bank (SAVR). Code."
+      - name: transaction_type
+        description: "How the failure was resolved (A/A, P&A, PA, PI, IDT, ...). Code."
+      - name: charter_class
+        description: "Charter type and primary regulator. Code."
+      - name: resolution_date
+        description: "Date of resolution; usually equals failure_date. Date."
+      - name: resolution_type
+        description: "FAILURE (bank closed) or ASSISTANCE (stayed open). Text; uppercase."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [FAILURE, ASSISTANCE]
+      - name: total_deposits_at_failure
+        description: "Total deposits at the last report before failure. $ thousands."
+      - name: total_assets_at_failure
+        description: "Total assets at the last report before failure. $ thousands."
+      - name: estimated_loss
+        description: "Estimated loss to the Deposit Insurance Fund. $ thousands. Null before 1986."
+      - name: state
+        description: "Two-letter state of the failed bank. Text."
+      - name: acquirer_city
+        description: "City of the acquiring bank. Text; null for payouts."
+      - name: acquirer_name
+        description: "Name of the acquiring bank. Text; null for payouts."
+      - name: acquirer_state
+        description: "State of the acquiring bank. Text; null for payouts."
+      - name: city
+        description: "City of the failed bank's main office. Text."
+      - name: insurance_fund
+        description: "Insurance fund (BIF, RTC, FSLIC, SAIF). Code; overlaps insurance_fund_code."
+      - name: pass_through_receivership_date
+        description: "Pass-through receivership date (RTC cases only). Text, not parsed to a date; mostly null."
+      - name: is_failure
+        description: "True when resolution_type is FAILURE (bank closed), false for ASSISTANCE. Boolean."
+        data_tests: [not_null]
+      - name: ingested_at
+        description: "When Canary pulled this row from the FDIC API. UTC timestamp; not an FDIC field."
