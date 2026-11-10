@@ -35,6 +35,16 @@ Any failure stops the run and the CLI exits with code 1. Nothing is written for 
 - **Row count or duplicate mismatch** (`IncompleteResponseError`): we received a different number of rows than the API reported, or the same CERT twice. Duplicates mean the paging drifted while we downloaded, so the quarter is not trustworthy and is not written. Rerun.
 - **`SchemaError`**: FDIC changed a column or sent a non-numeric value where a number belongs. Rerunning will not fix it; inspect the named field in the API response.
 
+## Upload to S3
+After ingesting, copy the raw files to the warehouse bucket:
+```
+.venv/bin/python -m canary.upload          # --root DIR to change the source (default data/raw)
+```
+- Needs `CANARY_BUCKET` (and `AWS_PROFILE=canary`) in `.env`.
+- Files land under `raw/fdic/` (e.g. `raw/fdic/financials/repdte=20221231/part.parquet`).
+- Safe to rerun: a file is skipped when S3 already has the same size and MD5 (stored as object metadata). Changed or new files are uploaded. It never deletes anything in S3.
+- First full upload: 103 files (102 quarters + failures). Rerun with nothing new: 0 uploaded.
+
 ## Tests
 ```
 .venv/bin/pytest -v                    # everything (62 tests: 55 unit + 7 data checks)
