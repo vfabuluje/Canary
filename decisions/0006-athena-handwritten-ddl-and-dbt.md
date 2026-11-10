@@ -15,9 +15,9 @@ The two raw Athena tables (`canary_raw.fdic_financials`, `canary_raw.fdic_failur
 ## Spike: which projection type?
 I created a throwaway table `canary_raw.tmp_projection_check` (one column, `cert bigint`) with a `date` projection (`range=20010331,NOW`, `interval=3 MONTHS`, format `yyyyMMdd`) and ran `SELECT count(DISTINCT repdte) FROM canary_raw.tmp_projection_check`.
 - Expected: 102 (the number of local quarter folders). Got: **1**. A scanning query showed only `20010331` was found.
-- Likely reason (not proven): stepping 3 months at a time from March 31 lands on the 30th or 28th of some months, so the generated dates stop matching real quarter-end folders (for example 20011230 instead of 20011231).
+- Cause not determined: possibly how the date stepping or the date format interacted. The explicit list in the `enum` approach avoids the question entirely.
 - So I used the **`enum` branch**: `athena_ddl.py` writes the exact list of quarter ends (2001-03-31 up to the newest local quarter) into `projection.repdte.values`. Re-running after a new quarter is uploaded extends the list.
-- The temp table is still in Glue and needs to be dropped once Victor says yes (deleting needs his confirmation).
+- The temp table was dropped on 2026-11-10 with the owner's approval.
 
 ## Alternatives
 1. **Glue crawler.** Rejected: it guesses types, can trip on the `repdte`/`REPDTE` clash, costs money per run, and is hard to explain.
