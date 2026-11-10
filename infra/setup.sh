@@ -8,7 +8,16 @@ set -euo pipefail
 
 : "${CANARY_BUCKET:?Set CANARY_BUCKET, e.g. canary-warehouse-abc123}"
 : "${ALERT_EMAIL:?Set ALERT_EMAIL to the address for budget alerts}"
+if [[ ! $CANARY_BUCKET =~ ^canary-warehouse-[a-z0-9]{6}$ ]]; then
+  echo "CANARY_BUCKET must look like canary-warehouse-abc123 (6 lowercase letters/digits). Got: $CANARY_BUCKET" >&2
+  exit 1
+fi
+if [[ -z "${ALERT_EMAIL// }" ]]; then
+  echo "ALERT_EMAIL must not be empty." >&2
+  exit 1
+fi
 
+export AWS_DEFAULT_REGION=us-east-1
 REGION="us-east-1"
 USER_NAME="canary-dev"
 POLICY_NAME="canary-dev-least-privilege"
@@ -35,7 +44,7 @@ aws s3api put-bucket-encryption --bucket "$CANARY_BUCKET" \
 
 echo "== 4. Lifecycle: delete athena-results/ after 7 days"
 aws s3api put-bucket-lifecycle-configuration --bucket "$CANARY_BUCKET" \
-  --lifecycle-configuration '{"Rules":[{"ID":"expire-athena-results","Status":"Enabled","Filter":{"Prefix":"athena-results/"},"Expiration":{"Days":7}}]}'
+  --lifecycle-configuration '{"Rules":[{"ID":"expire-athena-results","Status":"Enabled","Filter":{"Prefix":"athena-results/"},"Expiration":{"Days":7}},{"ID":"abort-incomplete-uploads","Status":"Enabled","Filter":{"Prefix":""},"AbortIncompleteMultipartUpload":{"DaysAfterInitiation":7}}]}'
 
 echo "== 5. Glue databases"
 for db in canary_raw canary_staging canary_marts; do
@@ -51,7 +60,7 @@ if aws athena get-work-group --work-group canary --region "$REGION" >/dev/null 2
   echo "Workgroup canary already exists, skipping."
 else
   aws athena create-work-group --name canary --region "$REGION" \
-    --configuration "EnforceWorkGroupConfiguration=true,BytesScannedCutoffPerQuery=1073741824,EngineVersion={SelectedEngineVersion='Athena engine version 3'},ResultConfiguration={OutputLocation=s3://$CANARY_BUCKET/athena-results/}"
+    --configuration "{\"EnforceWorkGroupConfiguration\":true,\"BytesScannedCutoffPerQuery\":1073741824,\"EngineVersion\":{\"SelectedEngineVersion\":\"Athena engine version 3\"},\"ResultConfiguration\":{\"OutputLocation\":\"s3://$CANARY_BUCKET/athena-results/\"}}"
 fi
 
 echo "== 7. \$5 monthly cost budget"

@@ -52,3 +52,8 @@ def test_glue_scoped_to_canary_databases():
                     or tail.startswith("database/canary_")
                     or tail.startswith("table/canary_")
                 ), r
+
+
+def test_athena_runtime_statistics_allowed():
+    actions = [a for st in _statements() for a in _list(st["Action"])]
+    assert "athena:GetQueryRuntimeStatistics" in actions

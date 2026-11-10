@@ -10,7 +10,7 @@
 - Guardrails: $5/month budget with email alerts (50% and 100% actual, 100% forecast); Athena workgroup `canary` with a 1 GB per-query scan limit, enforced; `athena-results/` deleted after 7 days; public access blocked; encryption on.
 
 ## Why
-- **IAM user, not root/admin keys.** If the key leaks, the damage is limited to this one bucket, three databases and one workgroup. Delete rights exist only on `athena-results/` and `dbt/`, so a bug cannot erase the raw data.
+- **IAM user, not root/admin keys.** If the key leaks, the damage is limited to this one bucket, three databases and one workgroup. Delete rights exist only on `athena-results/` and `dbt/`, so a bug cannot delete the raw data. An overwrite of `raw/` is still possible (PutObject is allowed there); recovery is a re-pull from the FDIC.
 - **CloudShell.** It is already logged in as the admin, so powerful keys never touch my laptop.
 - **Script that skips what exists.** Re-runnable and readable, so I can explain every line.
 - **Random bucket suffix.** S3 names are global; random letters avoid clashes and guessing.

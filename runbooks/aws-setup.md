@@ -10,10 +10,11 @@ Everything is in region **us-east-1** (N. Virginia). Total cost should stay unde
    - Why: root can do anything and cannot be limited. MFA means a stolen password alone is not enough.
 
 ## (b) Make an admin user, then stop using root
-1. IAM > Users > Create user. Name it e.g. `admin`, tick "Provide user access to the AWS Management Console", set a password.
+1. IAM > Users > Create user. If the console asks, choose "I want to create an IAM user" (not Identity Center). Name it e.g. `admin`, tick "Provide user access to the AWS Management Console", set a password.
 2. Attach the AWS managed policy `AdministratorAccess`.
 3. Open that user > Security credentials > **Assign MFA device**.
-4. Sign out of root. From now on sign in with the admin user (use the account sign-in URL shown on the IAM dashboard).
+4. Still as root, open Account (top right menu) > find "IAM user and role access to Billing information" > **Edit > Activate**. Without this, the admin user cannot create the budget in step (c) and the script fails.
+5. Sign out of root. From now on sign in with the admin user (use the account sign-in URL shown on the IAM dashboard).
    - Why: day-to-day work should never use root.
 
 ## (c) Run the setup script in CloudShell
@@ -59,7 +60,7 @@ aws sts get-caller-identity --profile canary
 Asks AWS "who am I with this profile?". The `Arn` should end in `user/canary-dev`. If it shows anything else, stop and fix the profile.
 
 ## Revoke access
-IAM > Users > `canary-dev` > Security credentials > access key > **Deactivate**, then **Delete**. The Mac profile stops working immediately. Create a new key with step (e) to restore access.
+IAM > Users > `canary-dev` > Security credentials > access key > **Deactivate**, then **Delete**. The Mac profile stops working immediately. Then remove the `[canary]` section from your `~/.aws/credentials` and `~/.aws/config` yourself (open them in your own editor; nothing in this project or Claude should read those files). Create a new key with step (e) to restore access.
 
 ## If something goes wrong
 - `BucketAlreadyExists`: someone else owns that name; pick new random letters.
