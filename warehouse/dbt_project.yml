@@ -1,0 +1,20 @@
+name: canary
+version: "0.1.0"
+config-version: 2
+profile: canary
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+packages-install-path: dbt_packages
+target-path: target
+
+models:
+  canary:
+    staging:
+      +materialized: view
+      +schema: canary_staging
+    marts:
+      +materialized: table
+      +format: parquet
+      +schema: canary_marts

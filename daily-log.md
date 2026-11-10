@@ -1,5 +1,29 @@
 # Daily Log
 
+## 2026-11-10
+**Done**
+- Phase 2 warehouse built (spec: [[specs/2026-11-09-phase2-warehouse-design]]).
+- AWS set up and verified: bucket, Athena workgroup, Glue databases, $5/month budget, limited `canary-dev` user ([[runbooks/aws-setup]], [[decisions/0008-aws-setup-and-cost-guardrails]]).
+- Dates re-stored as Parquet `date32` so Athena reads them ([[decisions/0007-dates-stored-as-date32]]); uploaded 103 raw files to S3.
+- Athena raw tables with hand-written DDL; the quarter list is explicit because date projection found only 1 of 102 quarters ([[decisions/0006-athena-handwritten-ddl-and-dbt]]).
+- dbt staging views and two mart tables with data tests: `stg_fdic__financials` 710,691 rows, `stg_fdic__failures` 4,117, `dim_failed_banks` 574, `fct_bank_quarters` 710,691. Tests: 18 pass, 1 expected warning (cert 34264 failed before the first financials quarter).
+- Dropped the temporary projection-test table, with owner approval.
+- Case-study label check: SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each have `quarters_until_failure` = 1.
+- Docs: four data dictionary files (plus a test that every dbt column is documented), [[decisions/0005-fdic-api-only-no-bulk-call-reports]], [[runbooks/warehouse-refresh]], README, `CLAUDE.md` data sources line.
+- Found while writing the dictionary: `FUND` is a numeric code (1 to 5) consistently pairing with `SAVR`; the raw dictionary had described it wrongly. Fixed.
+- Final whole-branch review fixes: the uploader now fails loudly on an empty or wrong `--root` (it used to report success with 0 files); both CLIs warn if the AWS profile isn't `canary`; the label check is stricter (no report may be dated after its bank's failure). 100 pytest tests pass (93 unit + 7 data); dbt tests 18 pass, 1 expected warning.
+- AWS cost so far: $0.00 (Billing console, 2026-11-10). Recorded in the README.
+- Opened PR #2 (`phase2-warehouse` → `main`).
+
+**Next**
+- Phase 3: CAMELS-style features, XGBoost, train 2001-2015 / test 2016-2024 (time-based only; `failure_date` and `quarters_until_failure` are labels, never inputs).
+- Merge PR #2, then branch Phase 3 off `main`.
+
+**Open questions**
+- How to handle the amended-values-only limitation in the SVB replay. Decision 0005 says bulk call reports probably would not fix it; still open.
+- How to treat 0 as "not reported" vs a real zero (Phase 3).
+- Resolved: store dates as timestamps or a date type? Dates are `date32`, see [[decisions/0007-dates-stored-as-date32]].
+
 ## 2026-11-09
 **Done**
 - Installed Homebrew and the GitHub CLI (`gh`); confirmed Obsidian is installed.

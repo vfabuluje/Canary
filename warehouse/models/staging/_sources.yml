@@ -1,0 +1,149 @@
+version: 2
+
+sources:
+  - name: canary_raw
+    schema: canary_raw
+    description: "Raw FDIC data loaded to S3 as Parquet and exposed by hand-written Athena tables. Values exactly as published."
+    tables:
+      - name: fdic_financials
+        description: "Quarterly financials, one row per bank per quarter. Partitioned by repdte (YYYYMMDD text)."
+        columns:
+          - name: cert
+            description: "FDIC certificate number: the bank's unique ID. Key with report_date. Integer, never null."
+          - name: name
+            description: "The bank's legal name as of that quarter. Text; names change over time."
+          - name: stalp
+            description: "Two-letter state where the bank is based. Text."
+          - name: bkclass
+            description: "Charter class: type of bank charter and supervisor (FDIC class code). Code."
+          - name: namehcr
+            description: "Regulatory top-holder holding company name. Text; null if no holding company."
+          - name: asset
+            description: "Everything the bank owns; the standard size measure. $ thousands."
+          - name: liab
+            description: "Everything the bank owes. $ thousands."
+          - name: dep
+            description: "Money customers have placed in the bank. $ thousands."
+          - name: eq
+            description: "Assets minus liabilities: the loss-absorbing cushion. $ thousands."
+          - name: lnlsgr
+            description: "Total loans and leases before loss reserves. $ thousands."
+          - name: sc
+            description: "Total bonds and other securities held. $ thousands."
+          - name: rbc1aaj
+            description: "Core capital as a share of average assets (PCA leverage ratio). Percent."
+          - name: idt1rwajr
+            description: "Tier 1 capital as a share of risk-weighted assets. Percent. May be null or 0 in early years."
+          - name: rbcrwaj
+            description: "Total regulatory capital as a share of risk-weighted assets. Percent."
+          - name: eqv
+            description: "Equity capital as a share of total assets. Percent."
+          - name: nclnls
+            description: "Loans 90+ days past due or no longer accruing interest. $ thousands."
+          - name: naasset
+            description: "Assets on which interest is no longer being counted. $ thousands."
+          - name: p3asset
+            description: "Assets 30-89 days past due and still accruing. $ thousands."
+          - name: p9asset
+            description: "Assets 90+ days past due and still accruing. $ thousands."
+          - name: ore
+            description: "Foreclosed property held by the bank. $ thousands."
+          - name: lnatres
+            description: "Reserve set aside for expected loan losses. $ thousands."
+          - name: ntlnls
+            description: "Loans written off minus recoveries. $ thousands, year-to-date (Q4 = full year)."
+          - name: elnatr
+            description: "Amount charged to earnings to add to the loss reserve. $ thousands, year-to-date (Q4 = full year)."
+          - name: lnre
+            description: "Loans secured by real estate. $ thousands."
+          - name: lnrecons
+            description: "Real estate construction and land development loans. $ thousands."
+          - name: lnrenres
+            description: "Nonfarm nonresidential real estate loans. $ thousands."
+          - name: lnci
+            description: "Commercial and industrial (business) loans. $ thousands."
+          - name: netinc
+            description: "Profit after all expenses and taxes. $ thousands, year-to-date (Q4 = full year)."
+          - name: roa
+            description: "Profit as a share of assets. Percent. Annualized, year-to-date."
+          - name: roe
+            description: "Profit as a share of equity. Percent. Annualized, year-to-date."
+          - name: nimy
+            description: "Interest earned minus interest paid, as a share of earning assets. Percent. Annualized, year-to-date."
+          - name: eintexp
+            description: "Total interest paid on deposits and borrowings. $ thousands, year-to-date (Q4 = full year)."
+          - name: eeffr
+            description: "Operating costs per dollar of revenue. Percent. Ratio of two year-to-date amounts; not annualized."
+          - name: depunins
+            description: "Estimated deposits above the federal insurance limit. $ thousands. Estimate; often 0 or null for small banks and early years."
+          - name: bro
+            description: "Deposits obtained through brokers. $ thousands."
+          - name: coredep
+            description: "Stable deposits (broadly total minus large time and brokered). $ thousands."
+          - name: othbfhlb
+            description: "Federal Home Loan Bank advances (other liabilities-FHLB). $ thousands."
+          - name: voliab
+            description: "Funding that can leave quickly. $ thousands."
+          - name: chbal
+            description: "Cash and balances at other banks. $ thousands."
+          - name: lnlsdepr
+            description: "Net loans and leases as a share of deposits. Percent."
+          - name: scha
+            description: "Held-to-maturity securities at amortized cost. $ thousands. 0 may mean not reported."
+          - name: schf
+            description: "Held-to-maturity securities at market value. $ thousands. 0 may mean not reported."
+          - name: scaa
+            description: "Available-for-sale securities at amortized cost. $ thousands. 0 may mean not reported."
+          - name: scaf
+            description: "Available-for-sale securities at market value. $ thousands. 0 may mean not reported."
+          - name: repdte
+            description: "Report date as text YYYYMMDD (partition column)."
+          - name: ingested_at
+            description: "When Canary pulled the row. UTC timestamp."
+      - name: fdic_failures
+        description: "Failure and assistance events, one row per event."
+        columns:
+          - name: name
+            description: "Legal name of the failed or assisted bank. Text."
+          - name: cert
+            description: "FDIC certificate number; joins to financials. Integer; null for old pre-1977 rows."
+          - name: fin
+            description: "FDIC resolution number (FIN). Text; not guaranteed unique per row."
+          - name: cityst
+            description: "City and state of the headquarters in one field. Text."
+          - name: faildate
+            description: "Date the bank failed or was taken over. Date."
+          - name: failyr
+            description: "Four-digit year of failure_date. Integer."
+          - name: savr
+            description: "Insurance fund that covered the bank (SAVR). Code."
+          - name: restype1
+            description: "How the failure was resolved (A/A, P&A, PA, PI, IDT, ...). Code."
+          - name: chclass1
+            description: "Charter type and primary regulator. Code."
+          - name: resdate
+            description: "Date of resolution; usually equals failure_date. Date."
+          - name: restype
+            description: "FAILURE (bank closed) or ASSISTANCE (stayed open). Text; uppercase."
+          - name: qbfdep
+            description: "Total deposits at the last report before failure. $ thousands."
+          - name: qbfasset
+            description: "Total assets at the last report before failure. $ thousands."
+          - name: cost
+            description: "Estimated loss to the Deposit Insurance Fund. $ thousands. Null before 1986."
+          - name: pstalp
+            description: "Two-letter state of the failed bank. Text."
+          - name: bidcity
+            description: "City of the acquiring bank. Text; null for payouts."
+          - name: bidname
+            description: "Name of the acquiring bank. Text; null for payouts."
+          - name: bidstate
+            description: "State of the acquiring bank. Text; null for payouts."
+          - name: city
+            description: "City of the failed bank's main office. Text."
+          - name: fund
+            description: "Insurance fund as a number 1 to 5 stored as text (1 = BIF/FDIC, 2 = RTC, 3 = FSLIC, 4 = SAIF, 5 = DIF). Code; coarser than insurance_fund_code (many-to-one), so prefer that one."
+          - name: ptrdate
+            description: "Pass-through receivership date (RTC cases only). Text, not parsed to a date; mostly null."
+          - name: ingested_at
+            description: "When Canary pulled the row. UTC timestamp."

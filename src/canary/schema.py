@@ -103,7 +103,11 @@ def _convert(name: str, values: pd.Series, dtype: str) -> pd.Series:
             return values.astype("string")
         if dtype in _DATE_FORMATS:
             parsed = pd.to_datetime(values, format=_DATE_FORMATS[dtype], errors="raise")
-            return parsed.astype("datetime64[ns]")
+            # object column of datetime.date with real None for nulls (.dt.date leaves NaT,
+            # and an all-null column would stay a datetime column instead of becoming a date)
+            return pd.Series(
+                [None if pd.isna(v) else v.date() for v in parsed], index=parsed.index, dtype=object
+            )
         nums = pd.to_numeric(values, errors="raise")
         if dtype == "float64":
             return nums.astype("float64")
@@ -134,6 +138,6 @@ def to_typed_frame(
         columns[name] = _convert(name, values, field.dtype)
     df = pd.DataFrame(columns, index=pd.RangeIndex(len(records)))
     df["ingested_at"] = pd.Series(
-        [pd.Timestamp(ingested_at).tz_convert("UTC")] * len(records), dtype="datetime64[ns, UTC]"
+        [pd.Timestamp(ingested_at).tz_convert("UTC")] * len(records), dtype="datetime64[ms, UTC]"
     )
     return df

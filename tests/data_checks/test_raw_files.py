@@ -19,7 +19,6 @@ pytestmark = [
 @pytest.fixture(scope="module")
 def fin():
     df = pd.read_parquet(ROOT / "financials", columns=["CERT", "REPDTE", "ASSET"])
-    df["REPDTE"] = pd.to_datetime(df["REPDTE"])
     return df
 
 
@@ -37,9 +36,9 @@ def test_cert_never_null_financials(fin):
 
 
 def test_no_missing_quarters(fin):
-    last = fin["REPDTE"].max().date()
+    last = fin["REPDTE"].max()
     expected = set(quarter_ends(date(2001, 3, 31), last))
-    assert {d.date() for d in fin["REPDTE"].unique()} == expected
+    assert set(fin["REPDTE"].unique()) == expected
 
 
 def test_rows_per_quarter_in_range(fin):
@@ -48,15 +47,15 @@ def test_rows_per_quarter_in_range(fin):
 
 
 def test_svb_2022q4_assets(fin):
-    row = fin[(fin["CERT"] == 24735) & (fin["REPDTE"] == pd.Timestamp("2022-12-31"))]
+    row = fin[(fin["CERT"] == 24735) & (fin["REPDTE"] == date(2022, 12, 31))]
     assert len(row) == 1
     assert row["ASSET"].iloc[0] == 209_026_000
 
 
 def test_2023_failures_present(failures):
-    expected = {24735: "2023-03-10", 57053: "2023-03-12", 59017: "2023-05-01"}
+    expected = {24735: date(2023, 3, 10), 57053: date(2023, 3, 12), 59017: date(2023, 5, 1)}
     got = {
-        int(r.CERT): pd.Timestamp(r.FAILDATE).strftime("%Y-%m-%d")
+        int(r.CERT): r.FAILDATE
         for r in failures.dropna(subset=["CERT"]).itertuples()
         if int(r.CERT) in expected
     }

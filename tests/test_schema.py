@@ -1,9 +1,13 @@
 import logging
+from datetime import date
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
 from canary.schema import FAILURE_FIELDS, FINANCIAL_FIELDS, Field, SchemaError, to_typed_frame
+from canary.storage import write_parquet_atomic
 
 TS = pd.Timestamp("2026-11-09T12:00:00", tz="UTC")
 
@@ -12,7 +16,7 @@ def test_columns_ordered_extras_dropped():
     fields = {"CERT": Field("int64", "c"), "ASSET": Field("float64", "a")}
     df = to_typed_frame([{"ASSET": 1, "ID": "x", "CERT": 5}], fields, TS)
     assert list(df.columns) == ["CERT", "ASSET", "ingested_at"]
-    assert str(df["ingested_at"].dtype) == "datetime64[ns, UTC]"
+    assert str(df["ingested_at"].dtype) == "datetime64[ms, UTC]"
 
 
 def test_types_applied():
@@ -28,8 +32,9 @@ def test_types_applied():
     assert df["CERT"].dtype == "int64"
     assert df["ASSET"].dtype == "float64"
     assert df["NAME"].dtype == "string"
-    assert df["REPDTE"].dtype == "datetime64[ns]"
-    assert df["REPDTE"][0] == pd.Timestamp("2022-12-31")
+    assert df["REPDTE"].dtype == object
+    assert all(isinstance(v, date) for v in df["REPDTE"])
+    assert df["REPDTE"].iloc[0] == date(2022, 12, 31)
 
 
 def test_values_unchanged():
@@ -59,7 +64,18 @@ def test_bad_date_raises():
 
 def test_mdy_date_parsed():
     df = to_typed_frame([{"FAILDATE": "3/10/2023"}], {"FAILDATE": Field("date_mdy", "")}, TS)
-    assert df["FAILDATE"][0] == pd.Timestamp("2023-03-10")
+    assert df["FAILDATE"].iloc[0] == date(2023, 3, 10)
+
+
+def test_parquet_roundtrip_types(tmp_path):
+    fields = {"REPDTE": Field("date_ymd", ""), "FAILDATE": Field("date_mdy", "")}
+    df = to_typed_frame([{"REPDTE": "20221231", "FAILDATE": "3/10/2023"}, {"REPDTE": "20221231", "FAILDATE": None}], fields, TS)
+    path = tmp_path / "part.parquet"
+    write_parquet_atomic(df, path)
+    schema = pq.read_schema(path)
+    assert schema.field("REPDTE").type == pa.date32()
+    assert schema.field("FAILDATE").type == pa.date32()
+    assert schema.field("ingested_at").type == pa.timestamp("ms", tz="UTC")
 
 
 def test_nullable_int_allows_missing():
