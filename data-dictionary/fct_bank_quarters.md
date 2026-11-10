@@ -14,9 +14,10 @@ Model code: `warehouse/models/marts/fct_bank_quarters.sql`.
 
 ## Read this first
 
+- **A null `quarters_until_failure` in the last 4 quarters (2025-09-30 to 2026-06-30) means "not yet known" (censored), not "safe".** Those banks have not had time to fail within the window. Do not treat them as healthy negatives.
 - **`failure_date` and `quarters_until_failure` are LABELS ONLY. Never use them as model inputs.** They are only known after the fact. Using them as features would leak the answer to the model. Phase 3 builds the training label from them; it does not feed them in.
 - **This table does not define the training label.** It only stores the facts; Phase 3 decides what counts as "fails within 4 quarters".
-- **`quarters_until_failure`** counts calendar quarters from the report quarter to the failure quarter (0 = the bank failed in the same quarter as the report). Null for banks that never failed since 2001. A data test requires it to be 0 or more. Check: SVB (cert 24735) and Signature (57053) at 2022-12-31 have 1, and First Republic (59017) at 2023-03-31 has 1.
+- **`quarters_until_failure`** counts calendar quarters from the report quarter to the failure quarter. Because `report_date` is a quarter-end, 0 or less would mean a report dated after the failure; the data test forbids it (it requires 1 or more). Null for banks that never failed since 2001. Check: SVB (cert 24735) and Signature (57053) at 2022-12-31 have 1, and First Republic (59017) at 2023-03-31 has 1.
 - **Same unit caveats as staging:** dollars in thousands, ratios in percent, income fields year-to-date, zeros stay zeros, amended values only. See [[stg_fdic__financials]].
 - **Banks that failed before 2001 never get a failure date,** because [[dim_failed_banks]] only covers 2001 onward.
 
@@ -71,4 +72,4 @@ Model code: `warehouse/models/marts/fct_bank_quarters.sql`.
 | `afs_securities_fair_value` | double | `scaf` | Available-for-sale securities at market value. $ thousands. 0 may mean not reported. |
 | `ingested_at` | timestamp | `ingested_at` | When Canary pulled this row from the FDIC API. UTC timestamp; not an FDIC field. |
 | `failure_date` | date | (from [[dim_failed_banks]]) | LABEL ONLY, never a model input. Date this bank failed, from dim_failed_banks. Date; null if the bank never failed (or failed before 2001). |
-| `quarters_until_failure` | integer | (calculated) | LABEL ONLY, never a model input. Calendar quarters from report_date to the failure quarter (0 = failed in the same quarter). Integer; null if the bank never failed. Negative would mean a report after failure. |
+| `quarters_until_failure` | integer | (calculated) | LABEL ONLY, never a model input. Calendar quarters from report_date to the failure quarter. Integer; null if the bank never failed. report_date is a quarter-end, so 0 or less would mean a report dated after the failure; the test forbids it. Null in the last 4 quarters (2025-09-30 to 2026-06-30) means not yet known, not safe. |

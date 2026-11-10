@@ -75,6 +75,36 @@ def sync(root: Path, bucket: str, s3_client) -> UploadReport:
     return report
 
 
+EXPECTED_TOP_DIRS = {"financials", "failures"}
+
+
+def check_root(root: Path) -> str | None:
+    """Return an error message if root is not the raw data folder, else None."""
+    root = root.resolve()
+    if not root.is_dir():
+        return f"upload root {root} is not a directory"
+    top = {p.name for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")}
+    if not top or not top <= EXPECTED_TOP_DIRS:
+        return (
+            f"upload root {root} must contain only the folders financials/ and/or "
+            f"failures/ (found: {sorted(top) or 'none'}); pass the data/raw folder"
+        )
+    if not plan_keys(root):
+        return f"no .parquet files found under {root}; nothing to upload"
+    return None
+
+
+def log_profile(profile: str) -> None:
+    """Say which AWS profile is in use; warn if it is not the project's."""
+    log.info("AWS profile: %s", profile)
+    if profile != "canary":
+        log.warning(
+            "AWS profile is %r, not 'canary'. A stray AWS_PROFILE in your shell "
+            "overrides .env; unset it unless this is intended.",
+            profile,
+        )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m canary.upload")
     parser.add_argument("--root", default="data/raw", help="raw data directory")
@@ -92,12 +122,17 @@ def main(
     args = build_parser().parse_args(argv)
     try:
         settings = load_settings(env)
+        log_profile(settings.profile)
+        problem = check_root(Path(args.root))
+        if problem:
+            log.error("upload failed: %s", problem)
+            return 1
         if s3_client is None:
             session = boto3.Session(
                 profile_name=settings.profile, region_name=settings.region
             )
             s3_client = session.client("s3")
-        sync(Path(args.root), settings.bucket, s3_client)
+        sync(Path(args.root).resolve(), settings.bucket, s3_client)
     except ConfigError as exc:
         log.error("upload failed: %s", exc)
         return 1

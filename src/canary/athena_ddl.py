@@ -15,6 +15,7 @@ from botocore.exceptions import ClientError
 
 from canary.config import REPO_ROOT, ConfigError, Settings, load_settings
 from canary.quarters import quarter_ends
+from canary.upload import log_profile
 
 log = logging.getLogger(__name__)
 
@@ -43,6 +44,8 @@ def load_sql(name: str, bucket: str) -> str:
 def statements(settings: Settings, latest: date) -> list[str]:
     """All SQL to run, in order. Partition values are listed explicitly (enum
     projection) because date-range projection found only one quarter."""
+    if latest < FIRST_QUARTER:
+        raise ValueError(f"latest quarter {latest} is before {FIRST_QUARTER}; nothing to project")
     values = ",".join(d.strftime("%Y%m%d") for d in quarter_ends(FIRST_QUARTER, latest))
     return [
         load_sql("fdic_financials.sql", settings.bucket),
@@ -92,6 +95,7 @@ def main(
     args = build_parser().parse_args(argv)
     try:
         settings = load_settings(env)
+        log_profile(settings.profile)
         latest = (
             datetime.strptime(args.latest, "%Y%m%d").date()
             if args.latest

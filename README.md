@@ -58,7 +58,8 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 - **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
 - **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows.
 - **Tests:** 92 pytest tests passing (85 unit, 7 data checks on local files). dbt: 19 data tests, 18 pass and 1 expected warning (cert 34264, First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials).
-- **AWS cost so far:** <!-- TODO(Victor): fill in from Billing console --> (budget cap: $5/month).
+- **AWS cost so far:** not yet recorded (budget cap: $5/month)
+  <!-- TODO(owner): fill in from Billing console -->
 - **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure.
 
 ## Limitations

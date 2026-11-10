@@ -5,7 +5,7 @@ models:
     description: "One row per bank that failed (not assisted) since 2001. Filter and select only on stg_fdic__failures; no dedup, so a duplicate cert fails the unique test. Dollars in $ thousands."
     columns:
       - name: cert
-        description: "FDIC certificate number; joins to financials. Integer; null for old pre-1977 rows."
+        description: "FDIC certificate number; joins to financials. Integer; never null here (rows without a cert are filtered out)."
         data_tests:
           - unique
           - not_null
@@ -16,7 +16,7 @@ models:
               config:
                 severity: warn
       - name: institution_name
-        description: "Legal name of the failed or assisted bank. Text."
+        description: "Legal name of the failed bank (assistance transactions are excluded). Text."
       - name: failure_date
         description: "Date the bank failed or was taken over. Date."
       - name: estimated_loss
@@ -126,11 +126,12 @@ models:
       - name: ingested_at
         description: "When Canary pulled this row from the FDIC API. UTC timestamp; not an FDIC field."
       - name: failure_date
-        description: "Date this bank failed, from dim_failed_banks. Date; null if the bank never failed (or failed before 2001)."
+        description: "LABEL ONLY, never a model input. Date this bank failed, from dim_failed_banks. Date; null if the bank never failed (or failed before 2001)."
       - name: quarters_until_failure
-        description: "Calendar quarters from report_date to the failure quarter (0 = failed in the same quarter). Integer; null if the bank never failed. Negative would mean a report after failure."
+        description: "LABEL ONLY, never a model input. Calendar quarters from report_date to the failure quarter. Integer; null if the bank never failed. report_date is a quarter-end, so 0 or less would mean a report dated after the failure; the test forbids it. Null in the last 4 quarters (2025-09-30 to 2026-06-30) means not yet known, not safe."
         data_tests:
           - dbt_utils.expression_is_true:
               arguments:
-                expression: ">= 0"
+                expression: ">= 1"
+              config:
                 where: "quarters_until_failure is not null"

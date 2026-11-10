@@ -106,3 +106,33 @@ def test_never_deletes(raw_root, s3):
 
 def test_missing_bucket_env_fails(raw_root):
     assert main(["--root", str(raw_root)], env={}) == 1
+
+
+def test_empty_root_fails(tmp_path, caplog):
+    root = tmp_path / "empty"
+    (root / "financials").mkdir(parents=True)
+    assert main(["--root", str(root)], env={"CANARY_BUCKET": BUCKET}, s3_client=object()) == 1
+    assert str(root.resolve()) in caplog.text
+
+
+def test_wrong_root_fails(raw_root, caplog):
+    # data/raw/financials would put keys outside the table LOCATION
+    root = raw_root / "financials"
+    assert main(["--root", str(root)], env={"CANARY_BUCKET": BUCKET}, s3_client=object()) == 1
+    assert "financials/" in caplog.text
+
+
+def test_missing_root_fails(tmp_path):
+    missing = tmp_path / "nope"
+    assert main(["--root", str(missing)], env={"CANARY_BUCKET": BUCKET}, s3_client=object()) == 1
+
+
+def test_warns_when_profile_is_not_canary(raw_root, s3, caplog):
+    env = {"CANARY_BUCKET": BUCKET, "AWS_PROFILE": "other"}
+    assert main(["--root", str(raw_root)], env=env, s3_client=s3) == 0
+    assert any(r.levelname == "WARNING" and "other" in r.getMessage() for r in caplog.records)
+
+
+def test_no_warning_for_canary_profile(raw_root, s3, caplog):
+    assert main(["--root", str(raw_root)], env={"CANARY_BUCKET": BUCKET}, s3_client=s3) == 0
+    assert not any(r.levelname == "WARNING" for r in caplog.records)

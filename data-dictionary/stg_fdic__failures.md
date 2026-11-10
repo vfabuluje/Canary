@@ -43,7 +43,7 @@ Model code: `warehouse/models/staging/stg_fdic__failures.sql`. Design: [[specs/2
 | `acquirer_name` | string | `bidname` | Name of the acquiring bank. Text; null for payouts. |
 | `acquirer_state` | string | `bidstate` | State of the acquiring bank. Text; null for payouts. |
 | `city` | string | `city` | City of the failed bank's main office. Text. |
-| `insurance_fund` | string | `fund` | Insurance fund (BIF, RTC, FSLIC, SAIF). Code; overlaps insurance_fund_code. |
+| `insurance_fund` | string | `fund` | Insurance fund as a number 1 to 5 stored as text (1 = BIF/FDIC, 2 = RTC, 3 = FSLIC, 4 = SAIF, 5 = DIF). Code; coarser than insurance_fund_code (many-to-one), so prefer that one. |
 | `pass_through_receivership_date` | string | `ptrdate` | Pass-through receivership date (RTC cases only). Text, not parsed to a date; mostly null. |
 | `is_failure` | boolean | (derived from `restype`) | True when resolution_type is FAILURE (bank closed), false for ASSISTANCE. Boolean. |
 | `ingested_at` | timestamp | `ingested_at` | When Canary pulled this row from the FDIC API. UTC timestamp; not an FDIC field. |

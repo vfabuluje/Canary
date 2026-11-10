@@ -3,7 +3,7 @@ from datetime import date
 
 import pytest
 
-from canary.athena_ddl import AthenaError, DDL_DIR, load_sql, render, run, statements
+from canary.athena_ddl import AthenaError, DDL_DIR, load_sql, main, render, run, statements
 from canary.config import ConfigError, Settings
 from canary.quarters import quarter_ends
 from canary.schema import FAILURE_FIELDS, FINANCIAL_FIELDS
@@ -76,6 +76,10 @@ def test_enum_values_cover_all_quarters():
     assert match
     want = [d.strftime("%Y%m%d") for d in quarter_ends(date(2001, 3, 31), date(2026, 6, 30))]
     assert match.group(1).split(",") == want
+    # independent anchor, not derived from quarter_ends
+    got = match.group(1).split(",")
+    assert len(got) == 102
+    assert got[0] == "20010331" and got[-1] == "20260630"
 
 
 class FakeAthena:
@@ -103,3 +107,18 @@ def test_run_succeeds_and_uses_workgroup():
     client = FakeAthena("SUCCEEDED")
     run(["SELECT 1", "SELECT 2"], client, "canary")
     assert client.started == [("SELECT 1", "canary"), ("SELECT 2", "canary")]
+
+
+def test_latest_before_first_quarter_raises():
+    with pytest.raises(ValueError, match="before"):
+        statements(Settings(bucket="b"), date(2000, 12, 31))
+
+
+def test_main_returns_1_for_too_early_latest():
+    assert main(["--latest", "20001231"], athena_client=object(), env={"CANARY_BUCKET": "b"}) == 1
+
+
+def test_main_warns_when_profile_is_not_canary(caplog):
+    env = {"CANARY_BUCKET": "b", "AWS_PROFILE": "other"}
+    main(["--latest", "20001231"], athena_client=object(), env=env)
+    assert any(r.levelname == "WARNING" and "other" in r.getMessage() for r in caplog.records)

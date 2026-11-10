@@ -22,8 +22,8 @@ Model code: `warehouse/models/marts/dim_failed_banks.sql`.
 
 | Column | Type | Raw field | Meaning, units and caveats |
 |---|---|---|---|
-| `cert` | bigint | `cert` | FDIC certificate number; joins to financials. Integer; null for old pre-1977 rows. |
-| `institution_name` | string | `name` | Legal name of the failed or assisted bank. Text. |
+| `cert` | bigint | `cert` | FDIC certificate number; joins to financials. Integer; never null here (rows without a cert are filtered out). |
+| `institution_name` | string | `name` | Legal name of the failed bank (assistance transactions are excluded). Text. |
 | `failure_date` | date | `faildate` | Date the bank failed or was taken over. Date. |
 | `estimated_loss` | double | `cost` | Estimated loss to the Deposit Insurance Fund. $ thousands. Null before 1986. |
 | `total_assets_at_failure` | double | `qbfasset` | Total assets at the last report before failure. $ thousands. |

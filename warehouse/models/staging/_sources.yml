@@ -142,7 +142,7 @@ sources:
           - name: city
             description: "City of the failed bank's main office. Text."
           - name: fund
-            description: "Insurance fund (BIF, RTC, FSLIC, SAIF). Code; overlaps insurance_fund_code."
+            description: "Insurance fund as a number 1 to 5 stored as text (1 = BIF/FDIC, 2 = RTC, 3 = FSLIC, 4 = SAIF, 5 = DIF). Code; coarser than insurance_fund_code (many-to-one), so prefer that one."
           - name: ptrdate
             description: "Pass-through receivership date (RTC cases only). Text, not parsed to a date; mostly null."
           - name: ingested_at
