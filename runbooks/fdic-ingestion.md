@@ -47,7 +47,7 @@ After ingesting, copy the raw files to the warehouse bucket:
 
 ## Tests
 ```
-.venv/bin/pytest -v                    # everything (62 tests: 55 unit + 7 data checks)
+.venv/bin/pytest -v                    # everything (92 tests: 85 unit + 7 data checks)
 .venv/bin/pytest -m "not data"         # unit tests only, no data files needed
 .venv/bin/pytest -m data               # data checks on the real saved files
 ```

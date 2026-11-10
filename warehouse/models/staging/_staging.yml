@@ -150,7 +150,7 @@ models:
       - name: city
         description: "City of the failed bank's main office. Text."
       - name: insurance_fund
-        description: "Insurance fund (BIF, RTC, FSLIC, SAIF). Code; overlaps insurance_fund_code."
+        description: "Numeric fund code (1 to 5, stored as text); overlaps insurance_fund_code, which holds the readable name. Code."
       - name: pass_through_receivership_date
         description: "Pass-through receivership date (RTC cases only). Text, not parsed to a date; mostly null."
       - name: is_failure

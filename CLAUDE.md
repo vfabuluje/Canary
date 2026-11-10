@@ -11,7 +11,7 @@ Coal miners once carried canaries underground. Canaries react to toxic gas befor
 
 ## Data sources (all public)
 - FDIC BankFind API — quarterly financials for every insured bank
-- FFIEC call reports (CDR bulk download) — capital, loans, deposits, uninsured deposits, securities gains/losses
+- FFIEC bulk call reports: deferred, see decision 0005
 - FDIC failed bank list — failure labels since 2000
 - FRED (optional) — interest rates and macro context
 
