@@ -27,6 +27,9 @@ python3.12 -m venv .venv
 ```
 More detail, including what to do if a pull fails: `runbooks/fdic-ingestion.md`.
 
+## AWS setup (Phase 2)
+One-time AWS setup (bucket, Athena, budget, limited IAM user): see [runbooks/aws-setup.md](runbooks/aws-setup.md). Copy `.env.example` to `.env` and set `CANARY_BUCKET`.
+
 ## Scale (measured)
 - **Financials:** 710,691 rows over 102 quarters (2001-03-31 to 2026-06-30); 9,940 banks in the first quarter, 4,313 in the latest.
 - **Failures:** 4,117 rows (3,524 FAILURE, 593 ASSISTANCE; 574 FAILURE since 2001).
