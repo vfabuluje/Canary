@@ -10,7 +10,7 @@
 - Dropped the temporary projection-test table, with owner approval.
 - Case-study label check: SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each have `quarters_until_failure` = 1.
 - Docs: four data dictionary files (plus a test that every dbt column is documented), [[decisions/0005-fdic-api-only-no-bulk-call-reports]], [[runbooks/warehouse-refresh]], README, `CLAUDE.md` data sources line. 92 pytest tests pass.
-- Found while writing the dictionary: `FUND` is a numeric code (1 to 5) pairing one-to-one with `SAVR`; the raw dictionary had described it wrongly. Fixed.
+- Found while writing the dictionary: `FUND` is a numeric code (1 to 5) consistently pairing with `SAVR`; the raw dictionary had described it wrongly. Fixed.
 
 **Next**
 - Phase 3: CAMELS-style features, XGBoost, train 2001-2015 / test 2016-2024 (time-based only; `failure_date` and `quarters_until_failure` are labels, never inputs).

@@ -44,6 +44,6 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 | `BIDNAME` | string | BIDNAME | Name of the bank that took over the failed bank, the acquirer. | Null for payouts; sometimes missing for branch sales. |
 | `BIDSTATE` | string | BIDSTATE | State of the winning bidder. | Null for payouts. |
 | `CITY` | string | CITY | City of the failed bank's main office. | |
-| `FUND` | string | Insurance fund | A numeric code (1 to 5, stored as text) for the insurance fund. Overlaps with `SAVR`: in the saved data it pairs one-to-one with it (BIF and FDIC = 1, RTC = 2, FSLIC = 3, SAIF = 4, DIF = 5). | Code. Prefer `SAVR`, which is readable. |
+| `FUND` | string | Insurance fund | A numeric code (1 to 5, stored as text) for the insurance fund. Overlaps with `SAVR`: in the saved data `SAVR` maps to `FUND` many-to-one (BIF and FDIC both = 1, RTC = 2, FSLIC = 3, SAIF = 4, DIF = 5), so `FUND` is the coarser field. | Code. Prefer `SAVR`, which is readable. |
 | `PTRDATE` | string | PTRDATE | Date of the pass-through receivership, which applied to RTC cases only. | Text, not parsed to a date. Mostly null. |
 | `ingested_at` | timestamp (ms, UTC) | (added by Canary) | When Canary pulled this row from the FDIC API. | Not an FDIC field. Same value for every row in a pull. |
