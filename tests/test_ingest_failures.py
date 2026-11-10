@@ -1,3 +1,5 @@
+from datetime import date
+
 import pandas as pd
 import pytest
 
@@ -23,7 +25,7 @@ def test_run_failures_writes_typed_file(tmp_path):
     client, _ = make_client(rows)
     assert run_failures(tmp_path, client) == 2
     df = pd.read_parquet(failures_path(tmp_path))
-    assert list(df["FAILDATE"].dt.strftime("%Y-%m-%d")) == ["2023-03-10", "1934-01-05"]
+    assert list(df["FAILDATE"]) == [date(2023, 3, 10), date(1934, 1, 5)]
     assert str(df["CERT"].dtype) == "Int64"
     assert df["CERT"].isna().sum() == 1
     assert "ID" not in df.columns

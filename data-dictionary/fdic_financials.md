@@ -26,7 +26,7 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 | Column | Type | FDIC title | Meaning (plain English) | Units / caveats |
 |---|---|---|---|---|
 | `CERT` | int64 | FDIC Certificate # | The bank's unique FDIC ID number; the key for joining to the failures table. | Never null here. |
-| `REPDTE` | date | Report Date | The quarter-end date this snapshot describes. | Stored as a timestamp at midnight (no time part), e.g. 2022-12-31 00:00. |
+| `REPDTE` | date (Parquet `date32`) | Report Date | The quarter-end date this snapshot describes. | Stored as a true date with no time part, e.g. 2022-12-31. See [[decisions/0007-dates-stored-as-date32]]. |
 | `NAME` | string | INSTITUTION NAME | The bank's legal name. | Names can change over time. |
 | `STALP` | string | FIPS STATE ALPHA CODE | Two-letter state where the bank is based. | |
 | `BKCLASS` | string | INSTITUTION CLASS | Charter class: type of bank charter and who supervises it. | FDIC class code. |
@@ -70,4 +70,4 @@ Design and reasoning: [[specs/2026-11-09-phase1-fdic-ingestion-design]]. Column 
 | `SCHF` | float64 | TOTAL HELD-TO-MATURITY AT FAIR VALUE SECURITIES ON A CONSOLIDATED BASIS | The same held-to-maturity bonds at current market value. Comparing it with `SCHA` reveals hidden unrealized losses. | $ thousands. 0 may mean "not reported" (SVB: 0 in 2001). |
 | `SCAA` | float64 | TOTAL AVAILABLE-FOR-SALE AT AMORTIZED COST SECURITIES ON A CONSOLIDATED BASIS | Available-for-sale securities at purchase-based cost. | $ thousands. 0 may mean "not reported". |
 | `SCAF` | float64 | SECURITIES-AF | The same available-for-sale securities at current market value. `SCAA` minus `SCAF` is the unrealized loss. AFS losses hit GAAP equity (via AOCI), but most banks, SVB included, excluded AOCI from regulatory capital, which is why SVB's capital ratios looked healthy. | $ thousands. 0 may mean "not reported". |
-| `ingested_at` | datetime (UTC) | (added by Canary) | When Canary pulled this row from the FDIC API; lets you tell which pull a file came from. | Not an FDIC field. Same value for every row in a pull. |
+| `ingested_at` | timestamp (ms, UTC) | (added by Canary) | When Canary pulled this row from the FDIC API; lets you tell which pull a file came from. | Not an FDIC field. Same value for every row in a pull. |
