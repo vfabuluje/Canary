@@ -18,6 +18,10 @@ Coal miners once carried canaries underground. Canaries react to toxic gas befor
 ## Tech stack
 Python, pandas; AWS (S3, Athena, Glue, Lambda later); dbt (dbt-athena); XGBoost; Claude API for in-product agents; Streamlit; GitHub Actions; Obsidian vault (this folder).
 
+## Reference
+- reference/STACK.md: what each tool is and how Canary uses it.
+- reference/GLOSSARY.md: banking and technical terms, tied to the repo's columns and decisions.
+
 ## Rules
 - I must understand and be able to explain every piece of this project. Explain your choices in plain English and log them in decisions/.
 - Develop locally first; use AWS only when needed. Keep AWS cost under $5/month. Never commit credentials.

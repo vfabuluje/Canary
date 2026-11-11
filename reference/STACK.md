@@ -1,4 +1,4 @@
-# Tools in Canary
+# Canary Tech Stack
 
 This page explains each tool in Canary in plain English: what it is, why this project uses it, and what it does today. The goal is to read it once and then be able to explain any of these tools to someone non-technical.
 
@@ -12,7 +12,7 @@ FDIC BankFind API  ->  local Parquet files  ->  S3  ->  Athena raw tables  ->  d
                                                   marts -> export (Athena UNLOAD) -> local Parquet -> XGBoost -> metrics
 ```
 
-The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. The other three (the Claude API, Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
+The first six below (S3, Athena, Glue, IAM, dbt, XGBoost) are running today. The other three (the Claude API, Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
 
 ---
 
@@ -20,7 +20,7 @@ The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. T
 
 **What it is.** S3 is Amazon's file storage in the cloud. You put files in a "bucket" and organize them in folder-like paths. It's very cheap, it doesn't run out of space, and other AWS services can read straight from it.
 
-**Why it's here.** Phase 1 saved the FDIC data as files on a laptop. To query that data with SQL in the cloud, the files need to live somewhere AWS can reach, and S3 is that place. It costs almost nothing at this size: about 172 MB of data costs well under a cent a month to store. See [decision 0008](decisions/0008-aws-setup-and-cost-guardrails.md).
+**Why it's here.** Phase 1 saved the FDIC data as files on a laptop. To query that data with SQL in the cloud, the files need to live somewhere AWS can reach, and S3 is that place. It costs almost nothing at this size: about 172 MB of data costs well under a cent a month to store. See [decision 0008](../decisions/0008-aws-setup-and-cost-guardrails.md).
 
 **What it does in Canary now.**
 - There is one bucket, `canary-warehouse-<random letters>`, with three areas:
@@ -39,7 +39,7 @@ The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. T
 
 **What it does in Canary now.**
 - `python -m canary.athena_ddl` creates two raw tables over the S3 files: `canary_raw.fdic_financials` (710,691 bank-quarters) and `canary_raw.fdic_failures` (4,117 rows).
-- The table definitions are SQL files written by hand in `warehouse/ddl/`, so every column and type is visible and tested. See [decision 0006](decisions/0006-athena-handwritten-ddl-and-dbt.md).
+- The table definitions are SQL files written by hand in `warehouse/ddl/`, so every column and type is visible and tested. See [decision 0006](../decisions/0006-athena-handwritten-ddl-and-dbt.md).
 - The financials table has the full list of quarters written into it. Athena's automatic quarter detection was tested and found only 1 of the 102 quarters, so the list is explicit instead.
 - Queries run in a workgroup called `canary` that blocks any single query from reading more than 1 GB. That caps the cost of a mistaken query at about half a cent.
 
@@ -55,6 +55,22 @@ The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. T
   - **`canary_staging`:** cleaned-up views.
   - **`canary_marts`:** final tables.
 - Every table Athena or dbt creates is recorded here automatically, and nothing is set up in Glue by hand.
+
+## AWS IAM
+
+**What it is.** IAM (Identity and Access Management) is AWS's system of logins and permissions. It decides who can do what: which users exist, which access keys they have, and which actions a user may take on which resources. Every AWS request is checked against it.
+
+**Why it's here.** Canary runs AWS commands from a laptop, so it needs an access key, and a leaked key can be expensive. IAM lets that key be narrowly limited: if it ever leaked, the damage would stay inside this one project. See [decision 0008](../decisions/0008-aws-setup-and-cost-guardrails.md).
+
+**What it does in Canary now.**
+- **Root and admin.** The AWS account's root login and the `admin` user both have MFA (a second login step with an authenticator app). Admin keys never touch the laptop: one-time setup runs in AWS CloudShell ([runbooks/aws-setup.md](../runbooks/aws-setup.md)).
+- **`canary-dev`, the everyday user.** Its permissions are written out in [`infra/iam-policy-canary-dev.json`](../infra/iam-policy-canary-dev.json):
+  - S3 read and write on the Canary bucket only.
+  - Deletes only under `dbt/` and `athena-results/`, so no bug can delete the raw data.
+  - Athena on the `canary` workgroup only.
+  - Glue on the three Canary databases only.
+- **The key lives outside the repo,** in `~/.aws/` under the profile name `canary`, and is never committed.
+- **Profile check.** The pipeline commands log which AWS profile they're using and warn if it isn't `canary`, so admin rights can't sneak in by accident.
 
 ## dbt
 
@@ -109,4 +125,4 @@ The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. T
 
 **Why it's here.** Canary is a public repo, and passing tests that run on every pull request are proof anyone can see that the code works. Later, a scheduled job could pull each new FDIC quarter automatically, making Canary a live system instead of a snapshot.
 
-**What it does in Canary.** Nothing yet: the repo has no workflows. Today the tests run locally: 100 Python tests, plus the dbt data tests. The plan is first to run the Python tests on every pull request (no AWS access needed, since they use fakes), then add scheduled quarterly re-runs after v1 launches.
+**What it does in Canary.** Nothing yet: the repo has no workflows. Today the tests run locally: 142 Python tests, plus the dbt data tests. The plan is first to run the Python tests on every pull request (no AWS access needed, since they use fakes), then add scheduled quarterly re-runs after v1 launches.
