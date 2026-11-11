@@ -1,7 +1,7 @@
 # Phase 3 Spec: CAMELS-style Features → XGBoost → Honest Test on 2016–2024
 
 **Date:** 2026-11-11
-**Status:** Draft — awaiting Victor's approval
+**Status:** Approved by Victor 2026-11-11
 **Phase:** 3 (see `CLAUDE.md`)
 
 ## 1. Intent: why this exists
