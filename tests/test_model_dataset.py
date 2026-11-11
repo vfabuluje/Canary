@@ -37,26 +37,55 @@ def test_split_boundaries():
     ]
 
 
+def _quarters_until(report: date, failure: date) -> int:
+    # Same arithmetic as fct_bank_quarters.sql.
+    return (failure.year * 4 + (failure.month - 1) // 3 + 1) - (
+        report.year * 4 + (report.month - 1) // 3 + 1
+    )
+
+
 def test_training_labels_only_use_failures_through_2015(tmp_path):
+    rows = [
+        (1, date(2014, 12, 31), date(2015, 11, 6)),   # train, fails in 2015: ok
+        (2, date(2015, 9, 30), date(2016, 2, 19)),    # would leak if 2015 were train
+        (3, date(2015, 3, 31), date(2015, 12, 1)),    # gap
+        (4, date(2010, 6, 30), None),
+        (5, date(2022, 12, 31), date(2023, 3, 10)),   # test
+    ]
     df = pd.DataFrame(
         {
-            "cert": [1, 2, 3, 4],
-            "report_date": [date(2014, 12, 31), date(2014, 9, 30), date(2010, 6, 30), date(2022, 12, 31)],
-            "quarters_until_failure": pd.array([1, 4, None, 1], dtype="Int64"),
-            "failure_date": [date(2015, 3, 31), date(2015, 9, 30), None, date(2023, 3, 10)],
-            "institution_name": list("abcd"),
+            "cert": [r[0] for r in rows],
+            "report_date": [r[1] for r in rows],
+            "quarters_until_failure": pd.array(
+                [None if r[2] is None else _quarters_until(r[1], r[2]) for r in rows],
+                dtype="Int64",
+            ),
+            "failure_date": [r[2] for r in rows],
+            "institution_name": list("abcde"),
         }
     )
+    # Link check: the synthetic quarters match the failure dates.
+    assert df["quarters_until_failure"].tolist()[:3] == [4, 2, 3]
     for c in FEATURE_COLUMNS:
         df[c] = 0.0
     path = tmp_path / "x.parquet"
     df.to_parquet(path)
     out = load_dataset(path)
+
+    by_cert = out.set_index("cert")
+    assert by_cert.loc[2, "label"] == 1
+    assert by_cert.loc[2, "split"] == "gap"
+    assert by_cert.loc[3, "split"] == "gap"
     train_pos = out[(out["split"] == "train") & (out["label"] == 1)]
-    assert len(train_pos) == 2
+    assert train_pos["cert"].tolist() == [1]
     assert (pd.to_datetime(train_pos["failure_date"]).dt.date <= TRAINING_FAILURE_CUTOFF).all()
-    assert out["label"].tolist() == [1, 1, 0, 1]
-    assert out["split"].tolist() == ["train", "train", "train", "test"]
+    assert out["label"].tolist() == [1, 1, 1, 0, 1]
+    assert out["split"].tolist() == ["train", "gap", "gap", "train", "test"]
+
+
+def test_split_accepts_datetime64():
+    d = pd.Series(pd.to_datetime(["2014-12-31", "2015-06-30", "2016-03-31"]))
+    assert assign_split(d).tolist() == ["train", "gap", "test"]
 
 
 def test_feature_columns_exclude_label_and_ids():
