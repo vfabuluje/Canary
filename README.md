@@ -70,7 +70,7 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 - **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows; `fct_bank_features` 710,691 rows with 31 features.
 - **Model data:** 470,361 training rows (2,134 positive), 188,250 test rows (102 positive).
 - **Tests:** 142 pytest tests passing. dbt: 29 data tests, 24 pass and 5 warnings, 0 errors. The warnings are the known ones: cert 34264 (First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials) and four range checks on `fct_bank_features` (see [data-dictionary/fct_bank_features.md](data-dictionary/fct_bank_features.md)).
-- **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month)
+- **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month). Billing posts with up to a day's delay, so the Phase 3 build and export (run 2026-11-11) may add a few cents.
 - **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure, meaning that report was the last one before the bank closed.
 
 ## Results (2016-2024 test, run once)
