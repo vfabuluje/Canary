@@ -48,6 +48,7 @@ Athena raw tables   canary_raw
 stg_fdic__financials, stg_fdic__failures    views      canary_staging
 dim_failed_banks, fct_bank_quarters         tables     canary_marts  -> Phase 3
 ```
+What each tool is, why Canary uses it, and what it does here: [TOOLS.md](TOOLS.md).
 
 ## How to run the warehouse
 One-time AWS setup (bucket, Athena, budget, limited IAM user): [runbooks/aws-setup.md](runbooks/aws-setup.md). Copy `.env.example` to `.env` and set `CANARY_BUCKET`.
@@ -60,7 +61,7 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 - **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
 - **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows.
 - **Tests:** 100 pytest tests passing (93 unit, 7 data checks on local files). dbt: 19 data tests, 18 pass and 1 expected warning (cert 34264, First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials).
-- **AWS cost so far:** $0.00 as of 2026-11-10, per the AWS Billing console (budget cap: $5/month)
+- **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month)
 - **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure, meaning that report was the last one before the bank closed.
 
 ## Limitations
