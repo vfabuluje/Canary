@@ -5,6 +5,7 @@ and writes scores_test.parquet, metrics.json and case_studies.csv. Evaluate is m
 run once: it refuses to overwrite metrics.json unless --force is given.
 """
 import argparse
+import hashlib
 import json
 import logging
 from pathlib import Path
@@ -51,10 +52,16 @@ def _evaluate(args) -> int:
     if not model_path.exists():
         log.error("%s not found; run `train` first", model_path)
         return 1
+    config_path = out / "run_config.json"
+    if not config_path.exists():
+        log.error("%s not found; run `train` first", config_path)
+        return 1
     model = xgboost.XGBClassifier()
     model.load_model(model_path)
     df = load_dataset(Path(args.features))
     metrics = evaluate(df, model)
+    metrics["run_config"] = json.loads(config_path.read_text())
+    metrics["model_sha256"] = hashlib.sha256(model_path.read_bytes()).hexdigest()
     if metrics_path.exists():
         log.warning("--force: overwriting %s and marking the metrics as a rerun", metrics_path)
         metrics["rerun"] = True

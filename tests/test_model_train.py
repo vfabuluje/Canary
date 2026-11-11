@@ -1,5 +1,6 @@
 """Tests for training, evaluation, baseline and case studies on a small synthetic dataset."""
 
+import hashlib
 import json
 from datetime import date
 
@@ -10,7 +11,7 @@ import pytest
 from canary.model import train as train_mod
 from canary.model.__main__ import main
 from canary.model.dataset import FEATURE_COLUMNS, assign_split, fails_within_4q
-from canary.model.train import CASE_STUDY_CERTS, case_studies, evaluate, train
+from canary.model.train import CASE_STUDY_CERTS, case_studies, evaluate, format_signals, train
 
 STRONG = "noncurrent_loans_to_loans"
 
@@ -170,8 +171,8 @@ def test_case_studies_columns_and_top_signals(df):
     assert cs["rank"].between(1, cs["n_banks"]).all()
     assert cs["percentile"].between(0, 100).all()
     for signals in cs["top_signals"]:
-        parts = signals.split(", ")
-        assert len(parts) == 5
+        parts = [p for p in signals.split(", ") if p]
+        assert len(parts) <= 5
         for p in parts:
             name, value = p.split("=")
             assert name in FEATURE_COLUMNS
@@ -213,3 +214,28 @@ def test_cli_end_to_end_smoke(features_path, tmp_path):
 
 def test_evaluate_without_model_fails(features_path, tmp_path):
     assert main(["evaluate", "--features", str(features_path), "--out", str(tmp_path / "none")]) == 1
+
+
+def test_format_signals_positive_only():
+    contrib = np.zeros(len(FEATURE_COLUMNS))
+    contrib[0], contrib[1], contrib[2], contrib[3] = 0.5, -0.4, 0.2, 0.0
+    out = format_signals(contrib)
+    assert out == f"{FEATURE_COLUMNS[0]}=+0.500, {FEATURE_COLUMNS[2]}=+0.200"
+    assert format_signals(-np.ones(len(FEATURE_COLUMNS))) == ""
+
+
+def test_case_study_signals_never_non_positive(df):
+    model, _ = train(df)
+    for signals in case_studies(df, model)["top_signals"]:
+        parts = [p for p in signals.split(", ") if p]
+        assert len(parts) <= 5
+        assert all(float(p.split("=")[1]) > 0 for p in parts)
+
+
+def test_metrics_record_run_config_and_model_hash(features_path, tmp_path):
+    out = tmp_path / "out"
+    assert main(["train", "--features", str(features_path), "--out", str(out)]) == 0
+    assert main(["evaluate", "--features", str(features_path), "--out", str(out)]) == 0
+    metrics = json.loads((out / "metrics.json").read_text())
+    assert metrics["run_config"] == json.loads((out / "run_config.json").read_text())
+    assert metrics["model_sha256"] == hashlib.sha256((out / "model.json").read_bytes()).hexdigest()

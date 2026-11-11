@@ -162,6 +162,15 @@ def evaluate(df: pd.DataFrame, model: xgboost.XGBClassifier) -> dict:
     return _jsonable(metrics)
 
 
+def format_signals(contrib_row: np.ndarray) -> str:
+    """Up to N_SIGNALS features pushing the score up (contribution > 0), largest first.
+
+    Fewer than N_SIGNALS (even none, giving "") when few features raise the score.
+    """
+    top = [j for j in np.argsort(-contrib_row, kind="stable")[:N_SIGNALS] if contrib_row[j] > 0]
+    return ", ".join(f"{FEATURE_COLUMNS[j]}={contrib_row[j]:+.3f}" for j in top)
+
+
 def case_studies(df: pd.DataFrame, model: xgboost.XGBClassifier) -> pd.DataFrame:
     """Per-quarter score, national rank and top signals for SVB, Signature and First Republic.
 
@@ -177,17 +186,11 @@ def case_studies(df: pd.DataFrame, model: xgboost.XGBClassifier) -> pd.DataFrame
     contrib = model.get_booster().predict(
         xgboost.DMatrix(select_features(test), feature_names=list(FEATURE_COLUMNS)), pred_contribs=True
     )[:, :-1]  # last column is the bias
-    names = np.array(FEATURE_COLUMNS)
-
-    def signals(i: int) -> str:
-        top = np.argsort(-contrib[i], kind="stable")[:N_SIGNALS]
-        return ", ".join(f"{names[j]}={contrib[i, j]:+.3f}" for j in top)
-
     keep = test["cert"].isin(CASE_STUDY_CERTS) & (
         pd.to_datetime(test["report_date"]) >= pd.Timestamp(CASE_STUDY_START)
     )
     out = test[keep].copy()
-    out["top_signals"] = [signals(i) for i in out.index]
+    out["top_signals"] = [format_signals(contrib[i]) for i in out.index]
     cols = [
         "cert", "institution_name", "report_date", "quarters_until_failure", "score",
         "rank", "n_banks", "percentile", "flagged", "top_signals",
