@@ -50,7 +50,7 @@ Three things make this worth doing carefully:
 
 Hyperparameters and early stopping use a time-based split *inside* the training years (e.g. fit on 2001–2011 report dates, validate on 2012–2014 with AUC or PR-AUC; builder may refine, but it must be time-ordered and stay within 2001–2014). The final model is then refit on all 2001–2014 rows with the chosen settings. *(Builder-check call.)*
 
-**How this relates to CLAUDE.md's "train 2001–2015".** The model learns from every failure from 2001 through 2015. What changes is that rows *reported* in 2015 are dropped, because their outcome depends on 2016. The decision note states this explicitly.
+**Training window wording.** The model learns from every failure from 2001 through 2015; rows *reported* in 2015 are dropped because their outcome depends on 2016. `CLAUDE.md` was reworded on 2026-11-11 to say exactly this (Victor's approval), and the decision note repeats it.
 
 ## 6. Features (decided at the group level; exact formulas are the builder's, logged)
 
