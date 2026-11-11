@@ -8,7 +8,7 @@
 - Docs: [[runbooks/model-training]], README results and limitations (uninsured-deposit line corrected, validation-gap caveat added), TOOLS.md, data dictionary quirks. 142 pytest pass; dbt test 24 pass, 5 warn, 0 errors.
 
 **Next**
-- Phase 4: SVB / Signature / First Republic replay and error analysis: why they were missed, and what signal would have caught them.
+- Phase 4: SVB / Signature / First Republic replay and error analysis: why they were missed, and what signal would have caught them. Any change made after seeing the 2023 results means 2016-2024 is no longer a clean out-of-sample test, so report such changes separately.
 - Merge the Phase 3 branch (owner's consent).
 
 **Open questions**

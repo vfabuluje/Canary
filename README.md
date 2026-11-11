@@ -15,7 +15,7 @@ Silicon Valley Bank (SVB) failed in March 2023 after customers pulled about $42B
 
 **Phase 2 (done): warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
 
-**Phase 3 (done): features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024. Results are below. Short version: it ranks banks much better than a simple baseline, but **it did not flag SVB, Signature or First Republic.** Phase 4 investigates why.
+**Phase 3 (done): features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024. Results are below. Short version: it has a higher AUC than a simple baseline (0.902 vs 0.774) with similar recall at the 2% flag, but **it did not flag SVB, Signature or First Republic.** Phase 4 investigates why.
 
 What the data already shows for SVB's last filing (2022 Q4):
 
@@ -81,38 +81,66 @@ The model was trained on report dates 2001-03-31 to 2014-12-31 (2015 is dropped;
 | AUC (2016-2024) | 0.902 | 0.774 |
 | Recall: failed banks flagged at least once 1-4 quarters before failing | 21 of 29 (72%) | 19 of 29 (66%) |
 | Recall with 2+ quarters notice | 18 of 27 (67%) | 17 of 27 (63%) |
-| Median lead time (first flag, in quarters before failure) | 4 | 4 |
+| Lead time (first flag, quarters before failure): median, range | 4, 1-4 | 4, 1-4 |
 | False-alarm rate (flagged rows not within 4 quarters of failing) | 98.3% | 98.4% |
 | Never-failed banks flagged at least once in 9 years | 746 | 544 |
 
 **Reading the numbers.**
 - The 29 "eligible" banks are the failed banks with at least one report 1-4 quarters before failure from 2016 on. Only 29 banks, so one bank moves recall by about 3 points. The gap between 21 and 19 is two banks, not strong evidence.
-- **The 98.3% false-alarm rate is mostly built in, not a sign the model is useless.** The watchlist flags 2% of about 4,800 banks, about 100 per quarter (3,783 flagged rows over 36 quarters), while only about 3 banks fail per year. Even a good ranking cannot avoid flagging many banks that survive. Precision is about 1.7% against a base rate of 102 / 188,250 = 0.054%, so a flagged bank is about 32 times more likely to be a near-term failure than a random one. Still, 746 different healthy banks were flagged at least once over 9 years; a supervisor would call that a lot of wasted attention.
-- **Lead time is counted from the report date.** Reports become public about a month after quarter-end, so the real warning is about a month shorter than the numbers above.
+- **The 98.3% false-alarm rate is mostly built in, not a sign the model is useless.** The watchlist flags 2% of about 5,200 banks on average, about 105 per quarter (3,783 flagged rows over 36 quarters), while only about 3 banks fail per year. Even a good ranking cannot avoid flagging many banks that survive. Precision is about 1.7% against a base rate of 102 / 188,250 = 0.054%, so a flagged bank is about 32 times more likely to be a near-term failure than a random one. Still, 746 different banks that did not fail within the window were flagged at least once over 9 years; a supervisor would call that a lot of wasted attention.
+- **Lead time is capped at 4 by the label window**, so a median of 4 means most caught banks were already flagged at the earliest point the label can show. It is counted from the report date. Reports become public about a month after quarter-end, so the real warning is about a month shorter than the numbers above.
 - The Texas-ratio baseline is hard to beat on recall; the model's clearer advantage is the overall ranking (AUC).
 - The settings were chosen on a 2012-2014 validation block, not on the test years. Settings: max depth 5, learning rate 0.1, min child weight 10, 79 trees, seed 42 (`run_config.json`).
 
 ### Case studies: SVB, Signature, First Republic
 **None of the three was flagged in any quarter.** Percentile is the bank's score rank among all banks that quarter (99 = riskier than 99% of banks; the flag needs about the top 2%, so roughly 98 or higher). The top signal is the feature that pushed the bank's score up most.
 
-| Bank | Report | Quarters before failure | Percentile | Flagged | Top signal |
-|---|---|---|---|---|---|
-| SVB | 2021-06-30 | 7 | 79.7 | no | deposit growth (+0.364) |
-| SVB | 2022-06-30 | 3 | 7.2 | no | efficiency ratio (+0.190) |
-| SVB | 2022-09-30 | 2 | 24.4 | no | AFS unrealized loss / equity (+0.798) |
-| SVB | 2022-12-31 | 1 | 26.8 | no | AFS unrealized loss / equity (+0.804) |
-| Signature | 2022-06-30 | 3 | 55.3 | no | AFS unrealized loss / equity (+0.848) |
-| Signature | 2022-09-30 | 2 | 91.3 | no | AFS unrealized loss / equity (+1.999) |
-| Signature | 2022-12-31 | 1 | 94.9 (rank 246 of 4,773; cutoff about 96) | no | AFS unrealized loss / equity (+2.063) |
-| First Republic | 2022-12-31 | 2 | 29.7 | no | CRE loans / loans (+0.308) |
-| First Republic | 2023-03-31 | 1 | 83.0 | no | volatile liabilities / assets (+0.357) |
+**Silicon Valley Bank**
 
-The full per-quarter table (all quarters from 2021-03-31, with each bank's top 5 signals) is in `case_studies.csv`, produced by the evaluate step. Signal values are in the model's own score units (log-odds contributions), not percentages.
+| Report | Qtrs before failure | Percentile | Rank / banks | Flagged | Top 3 signals |
+|---|---|---|---|---|---|
+| 2021-03-31 | 8 | 75.0 | 1263 / 5044 | no | deposit_growth_4q=+0.327, cre_loans_to_loans=+0.229, efficiency_ratio=+0.133 |
+| 2021-06-30 | 7 | 79.7 | 1018 / 5015 | no | deposit_growth_4q=+0.364, cre_loans_to_loans=+0.196, efficiency_ratio=+0.100 |
+| 2021-09-30 | 6 | 77.1 | 1142 / 4979 | no | deposit_growth_4q=+0.350, cre_loans_to_loans=+0.230, leverage_ratio=+0.081 |
+| 2021-12-31 | 5 | 56.0 | 2160 / 4904 | no | deposit_growth_4q=+0.333, cre_loans_to_loans=+0.163, efficiency_ratio=+0.107 |
+| 2022-03-31 | 4 | 25.2 | 3638 / 4861 | no | deposit_growth_4q=+0.281, cre_loans_to_loans=+0.180, afs_unrealized_loss_to_equity=+0.169 |
+| 2022-06-30 | 3 | 7.2 | 4489 / 4838 | no | efficiency_ratio=+0.190, cre_loans_to_loans=+0.163, afs_unrealized_loss_to_equity=+0.156 |
+| 2022-09-30 | 2 | 24.4 | 3640 / 4813 | no | afs_unrealized_loss_to_equity=+0.798, efficiency_ratio=+0.167, cre_loans_to_loans=+0.123 |
+| 2022-12-31 | 1 | 26.8 | 3494 / 4773 | no | afs_unrealized_loss_to_equity=+0.804, efficiency_ratio=+0.159, cre_loans_to_loans=+0.118 |
+
+**Signature Bank**
+
+| Report | Qtrs before failure | Percentile | Rank / banks | Flagged | Top 3 signals |
+|---|---|---|---|---|---|
+| 2021-03-31 | 8 | 79.8 | 1022 / 5044 | no | deposit_growth_4q=+0.325, efficiency_ratio=+0.291, loans_to_deposits=+0.149 |
+| 2021-06-30 | 7 | 83.4 | 831 / 5015 | no | deposit_growth_4q=+0.308, efficiency_ratio=+0.256, loans_to_deposits=+0.155 |
+| 2021-09-30 | 6 | 81.7 | 913 / 4979 | no | deposit_growth_4q=+0.299, efficiency_ratio=+0.214, loans_to_deposits=+0.155 |
+| 2021-12-31 | 5 | 79.9 | 986 / 4904 | no | deposit_growth_4q=+0.294, efficiency_ratio=+0.215, loans_to_deposits=+0.158 |
+| 2022-03-31 | 4 | 49.5 | 2456 / 4861 | no | efficiency_ratio=+0.333, afs_unrealized_loss_to_equity=+0.290, deposit_growth_4q=+0.190 |
+| 2022-06-30 | 3 | 55.3 | 2162 / 4838 | no | afs_unrealized_loss_to_equity=+0.848, efficiency_ratio=+0.333, loans_to_deposits=+0.146 |
+| 2022-09-30 | 2 | 91.3 | 420 / 4813 | no | afs_unrealized_loss_to_equity=+1.999, efficiency_ratio=+0.268, core_deposits_to_assets=+0.042 |
+| 2022-12-31 | 1 | 94.9 | 246 / 4773 | no | afs_unrealized_loss_to_equity=+2.063, efficiency_ratio=+0.186, asset_growth_4q=+0.101 |
+
+**First Republic Bank**
+
+| Report | Qtrs before failure | Percentile | Rank / banks | Flagged | Top 3 signals |
+|---|---|---|---|---|---|
+| 2021-03-31 | 9 | 80.3 | 995 / 5044 | no | cre_loans_to_loans=+0.274, deposit_growth_4q=+0.227, past_due_30_89_to_assets=+0.074 |
+| 2021-06-30 | 8 | 73.6 | 1327 / 5015 | no | cre_loans_to_loans=+0.302, deposit_growth_4q=+0.220, leverage_ratio=+0.061 |
+| 2021-09-30 | 7 | 88.7 | 566 / 4979 | no | cre_loans_to_loans=+0.328, deposit_growth_4q=+0.250, past_due_30_89_to_assets=+0.083 |
+| 2021-12-31 | 6 | 80.7 | 948 / 4904 | no | cre_loans_to_loans=+0.350, deposit_growth_4q=+0.236, afs_unrealized_loss_to_equity=+0.056 |
+| 2022-03-31 | 5 | 28.0 | 3502 / 4861 | no | cre_loans_to_loans=+0.242, deposit_growth_4q=+0.050, afs_unrealized_loss_to_equity=+0.049 |
+| 2022-06-30 | 4 | 32.6 | 3262 / 4838 | no | cre_loans_to_loans=+0.317, afs_unrealized_loss_to_equity=+0.055, deposit_growth_4q=+0.049 |
+| 2022-09-30 | 3 | 35.7 | 3095 / 4813 | no | cre_loans_to_loans=+0.308, past_due_30_89_to_assets=+0.074, afs_unrealized_loss_to_equity=+0.051 |
+| 2022-12-31 | 2 | 29.7 | 3355 / 4773 | no | cre_loans_to_loans=+0.308, afs_unrealized_loss_to_equity=+0.051, equity_to_assets=+0.043 |
+| 2023-03-31 | 1 | 83.0 | 809 / 4740 | no | volatile_liabilities_to_assets=+0.357, cre_loans_to_loans=+0.306, core_deposits_to_assets=+0.090 |
+
+Every case-study quarter is shown (26 rows, from 2021-03-31). Rank 1 is the riskiest bank; the flag needs rank within the top 2% (rank 96 or better for 4,773 banks, about the 98th percentile). Signals are the features that pushed the score up most (the CSV, `case_studies.csv`, lists up to 5); values are in the model's score units (log-odds contributions), not percentages. None of the three was flagged by the model or by the Texas-ratio baseline in any test quarter 2016-2024.
 
 ### What was caught, what wasn't, and why
-The model caught 21 of 29 eligible failed banks at least once with 1-4 quarters of notice, but none of the three famous 2023 failures. Signature came closest (94.9th percentile at 2022-12-31, rank 246 against a cutoff near 96). First Republic reached the 83rd percentile in its last report. SVB was in the 80th percentile in mid-2021 and then **fell** to the 27th percentile by 2022-12-31: right before it failed, the model rated it safer than most banks. For SVB and Signature in the second half of 2022 the biggest signal was unrealized losses on available-for-sale bonds; SVB's much bigger held-to-maturity loss (about 98% of its equity) was not among its top 5 signals.
+The model caught 21 of 29 eligible failed banks at least once with 1-4 quarters of notice, but none of the three famous 2023 failures. Signature came closest (94.9th percentile at 2022-12-31: rank 246; the cutoff was rank 96, about the 98th percentile). First Republic reached the 83rd percentile in its last report. SVB was in the 80th percentile in mid-2021 and then **fell** to the 27th percentile by 2022-12-31: right before it failed, the model rated it safer than most banks. The model did react to bond losses: unrealized losses on available-for-sale bonds were the top push for SVB and Signature in the second half of 2022. It was not enough to reach the top 2%. SVB's much bigger held-to-maturity loss (about 98% of its equity) did not show up in its top 5 signals, and its clean loans and profits pulled its score down.
 
-The likely explanation, not proven: the training years (2001-2014) are dominated by credit-loss failures of 2008-2012, banks that failed because their loans went bad. Almost no training-era bank failed from bond losses or a run by uninsured depositors. The model therefore learned that clean loans plus profits mean safe, and gave little weight to bond losses or the uninsured share. SVB's loans were clean and it was profitable. This is a limit of learning from past failures, and it is the honest result: **a model trained only on pre-2015 data did not catch SVB.** Phase 4 (replay and error analysis) tests this explanation and asks what signal would have caught them.
+One hypothesis, not proven: the training years (2001-2014) are dominated by credit-loss failures of 2008-2012, banks that failed because their loans went bad, and perhaps few training-era banks failed from bond losses or a run by uninsured depositors, so the model may have learned that clean loans plus profits mean safe. Another possibility is that the signals were present but too weak relative to thousands of other banks. This is a limit of learning from past failures, and it is the honest result: **a model trained only on pre-2015 data did not catch SVB.** Phase 4 (replay and error analysis) tests these hypotheses and asks what signal would have caught them. Any model change made after seeing the 2023 results means 2016-2024 is no longer a clean out-of-sample test, so Phase 4 reports such changes separately.
 
 ## Limitations
 - **Amended data only.** The FDIC API serves current, corrected values, not what banks originally filed. The SVB replay will use numbers as corrected later, not exactly what an analyst saw at the time.

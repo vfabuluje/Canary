@@ -7,7 +7,9 @@ This is the pipeline as built so far:
 ```
 FDIC BankFind API  ->  local Parquet files  ->  S3  ->  Athena raw tables  ->  dbt  ->  marts
    (public data)        (data/raw/)          (storage)   (SQL over files)    (clean + test)  (fct_bank_quarters,
-                                                                                               dim_failed_banks)
+                                                                                               dim_failed_banks,
+                                                                                               fct_bank_features)
+                                                  marts -> export (Athena UNLOAD) -> local Parquet -> XGBoost -> metrics
 ```
 
 The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. The other three (the Claude API, Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
@@ -65,7 +67,7 @@ The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. T
 - **Mart tables:**
   - **`dim_failed_banks`:** the 574 banks that failed since 2001.
   - **`fct_bank_quarters`:** one row per bank per quarter, 710,691 rows, with `quarters_until_failure`, the label Phase 3 learns to predict.
-- **19 data tests** check, for example:
+- **29 data tests** (24 pass, 5 known warnings, 0 errors) check, for example:
   - no quarter is missing from 2001 to 2026
   - each bank appears once per quarter
   - SVB's 2022 assets equal $209B
