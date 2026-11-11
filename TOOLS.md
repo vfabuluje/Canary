@@ -7,10 +7,12 @@ This is the pipeline as built so far:
 ```
 FDIC BankFind API  ->  local Parquet files  ->  S3  ->  Athena raw tables  ->  dbt  ->  marts
    (public data)        (data/raw/)          (storage)   (SQL over files)    (clean + test)  (fct_bank_quarters,
-                                                                                               dim_failed_banks)
+                                                                                               dim_failed_banks,
+                                                                                               fct_bank_features)
+                                                  marts -> export (Athena UNLOAD) -> local Parquet -> XGBoost -> metrics
 ```
 
-The first four tools below (S3, Athena, Glue, dbt) are running today. The other four (XGBoost, the Claude API, Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
+The first five tools below (S3, Athena, Glue, dbt, XGBoost) are running today. The other three (the Claude API, Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
 
 ---
 
@@ -65,7 +67,7 @@ The first four tools below (S3, Athena, Glue, dbt) are running today. The other 
 - **Mart tables:**
   - **`dim_failed_banks`:** the 574 banks that failed since 2001.
   - **`fct_bank_quarters`:** one row per bank per quarter, 710,691 rows, with `quarters_until_failure`, the label Phase 3 learns to predict.
-- **19 data tests** check, for example:
+- **29 data tests** (24 pass, 5 known warnings, 0 errors) check, for example:
   - no quarter is missing from 2001 to 2026
   - each bank appears once per quarter
   - SVB's 2022 assets equal $209B
@@ -73,17 +75,17 @@ The first four tools below (S3, Athena, Glue, dbt) are running today. The other 
 - A Python test also checks that every column is documented in `data-dictionary/`.
 - Because building tables replaces old ones, `dbt build` runs only with the owner's approval.
 
-## XGBoost *(planned: Phase 3)*
+## XGBoost
 
 **What it is.** XGBoost is a machine-learning library that builds many small decision trees. Each tree asks a few yes/no questions, like "Is capital below X?" or "Are bad loans above Y?". Each new tree corrects the mistakes of the trees before it. Together they produce a risk score.
 
 **Why it's here.** Canary's data is a table of numbers per bank per quarter, and that's exactly what XGBoost is strongest at. It picks up threshold effects such as "risky only once capital drops below a level". It copes with missing values, and it can show which signals drove a score, which matters when explaining a risk score. It's widely used in credit-risk modeling at banks.
 
-**What it will do in Canary.**
-- Phase 3 adds a tested dbt table of CAMELS-style ratios built from `fct_bank_quarters`. The groups are capital, asset quality, earnings, liquidity, and sensitivity to interest rates (unrealized bond losses compared with equity).
-- XGBoost trains on 2001–2015 only, then scores 2016–2024 to predict "fails within the next 4 quarters".
-- Each quarter, the riskiest 2% of banks are flagged.
-- The test is whether SVB, Signature and First Republic are flagged, without the model ever having seen a 2023 failure.
+**What it does in Canary now.**
+- A tested dbt table, `fct_bank_features`, holds 31 CAMELS-style ratios per bank per quarter (capital, asset quality, earnings, liquidity, interest-rate sensitivity such as unrealized bond losses compared with equity, and size and growth).
+- XGBoost trains on report dates 2001-2014 to predict "fails within the next 4 quarters". 2015 is dropped so no 2016 outcome leaks in. Settings are picked on a 2012-2014 validation block, never on the test years.
+- It scores 2016-2024 once. Each quarter the riskiest 2% of banks are flagged, and the result is compared with a simple Texas-ratio baseline.
+- Result: AUC 0.902 against 0.774 for the baseline, but it did not flag SVB, Signature or First Republic. See the README results section.
 
 ## Claude API *(planned: Phase 5)*
 

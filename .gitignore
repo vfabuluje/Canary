@@ -15,7 +15,7 @@ __pycache__/
 .eggs/
 build/
 dist/
-.venv/
+/.venv
 venv/
 env/
 .pytest_cache/
@@ -31,7 +31,7 @@ dbt_packages/
 logs/
 
 # --- Local data (raw downloads live in S3 / are re-pulled, not committed) ---
-data/
+/data
 
 # --- Obsidian: keep shared settings, ignore per-device UI state ---
 .obsidian/workspace.json
