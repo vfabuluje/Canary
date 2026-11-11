@@ -2,9 +2,11 @@
 
 **An early-warning system for US bank failures.**
 
+> **The question:** from public quarterly data alone, can a model trained only on 2001–2015 pick out the banks that failed in 2016–2024, and in particular Silicon Valley Bank, Signature Bank and First Republic, before they failed?
+
 **Research tool, not financial advice.**
 
-Silicon Valley Bank (SVB) failed in March 2023 after customers pulled about $42B in one day. Its public filings had shown the warning signs for months: huge unrealized losses on long-term bonds and mostly uninsured deposits. Canary asks whether a model built only on public regulatory data could have flagged SVB, Signature Bank and First Republic before they failed. The goal is to score every FDIC-insured US bank's risk of failing within the next 4 quarters.
+Silicon Valley Bank (SVB) failed in March 2023 after customers pulled about $42B in one day. Its public filings had shown the warning signs for months: huge unrealized losses on long-term bonds and mostly uninsured deposits. The goal is to score every FDIC-insured US bank's risk of failing within the next 4 quarters.
 
 **Why "Canary"?** Coal miners once carried canaries underground. The birds reacted to toxic gas before people did, so a sick canary was the signal to get out. Canary aims to be that early signal for banks.
 

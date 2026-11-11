@@ -21,7 +21,7 @@ Python, pandas; AWS (S3, Athena, Glue, Lambda later); dbt (dbt-athena); XGBoost;
 ## Rules
 - I must understand and be able to explain every piece of this project. Explain your choices in plain English and log them in decisions/.
 - Develop locally first; use AWS only when needed. Keep AWS cost under $5/month. Never commit credentials.
-- Time-based validation only: train 2001–2015, test 2016–2024. The model must never see 2023 failures during training.
+- Time-based validation only: train on 2001–2015 failures (report dates through 2014; 2015 reports are dropped because their outcomes depend on 2016 failures), test 2016–2024. The model must never see 2023 failures during training.
 - Every table and column goes in data-dictionary/. Every major choice goes in decisions/ with the reason.
 - Write tests for pipeline code and dbt data tests for every model.
 - Agent outputs must cite the bank, quarter, and numbers they rely on.
