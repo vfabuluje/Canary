@@ -58,3 +58,10 @@ Model code: `warehouse/models/marts/fct_bank_features.sql`. Reasons for each cho
 | `log_total_assets` | double | `total_assets` | **Size and growth.** Natural log of total assets ($ thousands): a bank-size measure. Null if assets are 0 or less. |
 | `asset_growth_4q` | double | `total_assets` | **Size and growth.** Total assets now divided by total assets 12 months earlier, minus 1. Fraction (0.10 = 10% growth). Null when the bank has no row exactly 12 months earlier. Looks backward only. |
 | `deposit_growth_4q` | double | `total_deposits` | **Size and growth.** Total deposits now divided by total deposits 12 months earlier, minus 1. Fraction. Null with no row 12 months earlier. Looks backward only. |
+
+## Known data quirks
+
+- **Range warnings (kept as-is).** Four dbt range tests warn on the live table, 183 rows of 710,691 in all: `uninsured_to_deposits` 144 rows outside [0, 1] (from -1.62 to 52.1, years 2002-2026, reporting errors), `brokered_to_deposits` 28 (mostly 1.00000x, max 70), `cre_loans_to_loans` 5 and `construction_loans_to_loans` 6 (just above 1.0). The features were not changed: tree models are robust to a few outliers and the cost of being wrong is a few noisy rows.
+- **`texas_ratio` can be negative** when equity plus the loan-loss reserve is below 0 (the bank has no cushion left).
+- **`htm_unrealized_loss_to_equity` and `afs_unrealized_loss_to_equity` are 0 when the securities cost is 0**, so "no securities" looks the same as "no loss". `securities_to_assets` tells them apart.
+

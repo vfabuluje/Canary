@@ -13,7 +13,9 @@ Silicon Valley Bank (SVB) failed in March 2023 after customers pulled about $42B
 ## Status
 **Phase 1 (done): FDIC data pull.** Pulls quarterly financials for every FDIC-insured bank and the FDIC failed bank list to local Parquet files.
 
-**Phase 2 (done): warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests. There is no model yet and no results to report; Phase 3 trains it.
+**Phase 2 (done): warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
+
+**Phase 3 (done): features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024. Results are below. Short version: it ranks banks much better than a simple baseline, but **it did not flag SVB, Signature or First Republic.** Phase 4 investigates why.
 
 What the data already shows for SVB's last filing (2022 Q4):
 
@@ -48,37 +50,86 @@ Athena raw tables   canary_raw
       |  dbt build                          (needs the owner's yes: replaces mart tables)
       v
 stg_fdic__financials, stg_fdic__failures    views      canary_staging
-dim_failed_banks, fct_bank_quarters         tables     canary_marts  -> Phase 3
+dim_failed_banks, fct_bank_quarters         tables     canary_marts
+fct_bank_features                           table      canary_marts  (Phase 3)
+      |  python -m canary.export_features   (Athena UNLOAD to local Parquet)
+      v
+python -m canary.model train / evaluate     XGBoost, metrics.json, case_studies.csv
 ```
 What each tool is, why Canary uses it, and what it does here: [TOOLS.md](TOOLS.md).
 
 ## How to run the warehouse
 One-time AWS setup (bucket, Athena, budget, limited IAM user): [runbooks/aws-setup.md](runbooks/aws-setup.md). Copy `.env.example` to `.env` and set `CANARY_BUCKET`.
 
-Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, then `dbt build --no-partial-parse` from `warehouse/`. Details and what to do if a step fails: [runbooks/warehouse-refresh.md](runbooks/warehouse-refresh.md). To re-run only the dbt tests (read-only): `dbt test --no-partial-parse --profiles-dir .` from `warehouse/`.
+Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, then `dbt build --no-partial-parse` from `warehouse/`. Details and what to do if a step fails: [runbooks/warehouse-refresh.md](runbooks/warehouse-refresh.md). Features, training and the one-time test: [runbooks/model-training.md](runbooks/model-training.md). To re-run only the dbt tests (read-only): `dbt test --no-partial-parse --profiles-dir .` from `warehouse/`.
 
 ## Scale (measured)
 - **Financials:** 710,691 rows over 102 quarters (2001-03-31 to 2026-06-30); 9,940 banks in the first quarter, 4,313 in the latest.
 - **Failures:** 4,117 rows (3,524 FAILURE, 593 ASSISTANCE; 574 FAILURE since 2001).
 - **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
-- **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows.
-- **Tests:** 100 pytest tests passing (93 unit, 7 data checks on local files). dbt: 19 data tests, 18 pass and 1 expected warning (cert 34264, First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials).
+- **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows; `fct_bank_features` 710,691 rows with 31 features.
+- **Model data:** 470,361 training rows (2,134 positive), 188,250 test rows (102 positive).
+- **Tests:** 142 pytest tests passing. dbt: 29 data tests, 24 pass and 5 warnings, 0 errors. The warnings are the known ones: cert 34264 (First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials) and four range checks on `fct_bank_features` (see [data-dictionary/fct_bank_features.md](data-dictionary/fct_bank_features.md)).
 - **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month)
 - **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure, meaning that report was the last one before the bank closed.
+
+## Results (2016-2024 test, run once)
+The model was trained on report dates 2001-03-31 to 2014-12-31 (2015 is dropped; see [decision 0010](decisions/0010-label-and-time-split.md)). A row is "positive" if the bank failed 1 to 4 quarters after that report. Each quarter the 2% of banks with the highest score are flagged ([decision 0011](decisions/0011-watchlist-flag-and-metrics.md)). The test set has 188,250 bank-quarters, 102 of them positive. The baseline is the Texas ratio, a classic rule of thumb (bad loans and foreclosed property divided by equity plus loan-loss reserve), flagged the same way. Numbers come from `metrics.json` of the single evaluation run.
+
+| Metric | XGBoost | Texas-ratio baseline |
+|---|---|---|
+| AUC (2016-2024) | 0.902 | 0.774 |
+| Recall: failed banks flagged at least once 1-4 quarters before failing | 21 of 29 (72%) | 19 of 29 (66%) |
+| Recall with 2+ quarters notice | 18 of 27 (67%) | 17 of 27 (63%) |
+| Median lead time (first flag, in quarters before failure) | 4 | 4 |
+| False-alarm rate (flagged rows not within 4 quarters of failing) | 98.3% | 98.4% |
+| Never-failed banks flagged at least once in 9 years | 746 | 544 |
+
+**Reading the numbers.**
+- The 29 "eligible" banks are the failed banks with at least one report 1-4 quarters before failure from 2016 on. Only 29 banks, so one bank moves recall by about 3 points. The gap between 21 and 19 is two banks, not strong evidence.
+- **The 98.3% false-alarm rate is mostly built in, not a sign the model is useless.** The watchlist flags 2% of about 4,800 banks, about 100 per quarter (3,783 flagged rows over 36 quarters), while only about 3 banks fail per year. Even a good ranking cannot avoid flagging many banks that survive. Precision is about 1.7% against a base rate of 102 / 188,250 = 0.054%, so a flagged bank is about 32 times more likely to be a near-term failure than a random one. Still, 746 different healthy banks were flagged at least once over 9 years; a supervisor would call that a lot of wasted attention.
+- **Lead time is counted from the report date.** Reports become public about a month after quarter-end, so the real warning is about a month shorter than the numbers above.
+- The Texas-ratio baseline is hard to beat on recall; the model's clearer advantage is the overall ranking (AUC).
+- The settings were chosen on a 2012-2014 validation block, not on the test years. Settings: max depth 5, learning rate 0.1, min child weight 10, 79 trees, seed 42 (`run_config.json`).
+
+### Case studies: SVB, Signature, First Republic
+**None of the three was flagged in any quarter.** Percentile is the bank's score rank among all banks that quarter (99 = riskier than 99% of banks; the flag needs about the top 2%, so roughly 98 or higher). The top signal is the feature that pushed the bank's score up most.
+
+| Bank | Report | Quarters before failure | Percentile | Flagged | Top signal |
+|---|---|---|---|---|---|
+| SVB | 2021-06-30 | 7 | 79.7 | no | deposit growth (+0.364) |
+| SVB | 2022-06-30 | 3 | 7.2 | no | efficiency ratio (+0.190) |
+| SVB | 2022-09-30 | 2 | 24.4 | no | AFS unrealized loss / equity (+0.798) |
+| SVB | 2022-12-31 | 1 | 26.8 | no | AFS unrealized loss / equity (+0.804) |
+| Signature | 2022-06-30 | 3 | 55.3 | no | AFS unrealized loss / equity (+0.848) |
+| Signature | 2022-09-30 | 2 | 91.3 | no | AFS unrealized loss / equity (+1.999) |
+| Signature | 2022-12-31 | 1 | 94.9 (rank 246 of 4,773; cutoff about 96) | no | AFS unrealized loss / equity (+2.063) |
+| First Republic | 2022-12-31 | 2 | 29.7 | no | CRE loans / loans (+0.308) |
+| First Republic | 2023-03-31 | 1 | 83.0 | no | volatile liabilities / assets (+0.357) |
+
+The full per-quarter table (all quarters from 2021-03-31, with each bank's top 5 signals) is in `case_studies.csv`, produced by the evaluate step. Signal values are in the model's own score units (log-odds contributions), not percentages.
+
+### What was caught, what wasn't, and why
+The model caught 21 of 29 eligible failed banks at least once with 1-4 quarters of notice, but none of the three famous 2023 failures. Signature came closest (94.9th percentile at 2022-12-31, rank 246 against a cutoff near 96). First Republic reached the 83rd percentile in its last report. SVB was in the 80th percentile in mid-2021 and then **fell** to the 27th percentile by 2022-12-31: right before it failed, the model rated it safer than most banks. For SVB and Signature in the second half of 2022 the biggest signal was unrealized losses on available-for-sale bonds; SVB's much bigger held-to-maturity loss (about 98% of its equity) was not among its top 5 signals.
+
+The likely explanation, not proven: the training years (2001-2014) are dominated by credit-loss failures of 2008-2012, banks that failed because their loans went bad. Almost no training-era bank failed from bond losses or a run by uninsured depositors. The model therefore learned that clean loans plus profits mean safe, and gave little weight to bond losses or the uninsured share. SVB's loans were clean and it was profitable. This is a limit of learning from past failures, and it is the honest result: **a model trained only on pre-2015 data did not catch SVB.** Phase 4 (replay and error analysis) tests this explanation and asks what signal would have caught them.
 
 ## Limitations
 - **Amended data only.** The FDIC API serves current, corrected values, not what banks originally filed. The SVB replay will use numbers as corrected later, not exactly what an analyst saw at the time.
 - **0 can mean "not reported."** Some fields did not exist in early years. Phase 1 keeps the 0; cleaning is a later, documented step.
 - **FDIC API only.** Bulk FFIEC call reports are deferred ([decision 0005](decisions/0005-fdic-api-only-no-bulk-call-reports.md)); they appear to hold amended values too, so they would likely not fix the limitation above.
 - **The real warning window is shorter than the label suggests.** Banks file each quarter's report about a month after the quarter ends. SVB's December 31, 2022 numbers became public around late January 2023, roughly six weeks before it closed on March 10, not a full quarter earlier. Any lead time Canary reports is counted from the report date, so the time an analyst would really have had is about a month less.
-- **Uninsured-deposit estimates** are mainly available for banks with $1B+ in assets.
+- **Small test, rare events.** 29 eligible failed banks and 102 positive rows: results are noisy, and no confidence intervals are reported.
+- **Validation is slightly optimistic.** The inner validation split (fit through 2011, validate 2012-2014) has no gap: fit rows from late 2011 carry labels from 2012 failures, which fall inside the validation block. This slightly flatters the validation score used to pick settings. It does not affect the test result.
+- **Outliers kept in the features.** About 183 of 710,691 feature rows fall outside their expected 0-1 range (reporting errors); they were kept as-is ([data dictionary](data-dictionary/fct_bank_features.md)). Tree models are robust to them.
+- **Uninsured-deposit estimates** are filled in for about 99% of banks every year, so they are not limited to large banks ([decision 0009](decisions/0009-features-and-zero-handling.md)). Reported 0s are treated as missing in the feature. The estimate is a regulatory one, not an exact count.
 - Dollar income fields are year-to-date and dollar amounts are in thousands.
 
 See `decisions/` for the reasoning and `data-dictionary/` for every column.
 
 ## Roadmap
 2. (done) FDIC data to S3/Athena; dbt models and data tests
-3. CAMELS-style features; train XGBoost; test on 2016-2024 (train 2001-2015, time-based only)
+3. (done) CAMELS-style features; train XGBoost; test on 2016-2024 (time-based only)
 4. SVB / Signature / First Republic replay; error analysis
 5. AI risk analyst agent that writes cited risk memos per bank
 6. Streamlit dashboard; metrics and limitations; demo video

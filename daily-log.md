@@ -1,5 +1,20 @@
 # Daily Log
 
+## 2026-11-11
+**Done**
+- Phase 3 built (spec: [[specs/2026-11-11-phase3-features-model-design]]): `fct_bank_features` (710,691 rows, 31 features), Athena export, XGBoost training, evaluation, Texas-ratio baseline, case studies ([[decisions/0009-features-and-zero-handling]], [[decisions/0010-label-and-time-split]], [[decisions/0011-watchlist-flag-and-metrics]], [[decisions/0012-feature-export-via-unload]]).
+- Live run, test once on 2016-2024 (188,250 rows, 102 positive): AUC 0.902 vs baseline 0.774; recall 21 of 29 vs 19 of 29; median lead time 4 quarters (from report date). False-alarm rate 98.3%, mostly structural (2% watchlist, few failures; about 32x better than random).
+- **SVB, Signature and First Republic were not flagged in any quarter.** Signature closest (94.9th percentile at 2022-12-31); SVB fell to the 27th percentile. Likely cause: training failures were credit-loss failures of 2008-2012.
+- Docs: [[runbooks/model-training]], README results and limitations (uninsured-deposit line corrected, validation-gap caveat added), TOOLS.md, data dictionary quirks. 142 pytest pass; dbt test 24 pass, 5 warn, 0 errors.
+
+**Next**
+- Phase 4: SVB / Signature / First Republic replay and error analysis: why they were missed, and what signal would have caught them.
+- Merge the Phase 3 branch (owner's consent).
+
+**Open questions**
+- Does adding bond-loss and uninsured-deposit signals help without training on 2023 failures, or is a different approach needed? (Phase 4)
+- Is a 2% watchlist the right size, given 746 healthy banks flagged at least once?
+
 ## 2026-11-10
 **Done**
 - Phase 2 warehouse built (spec: [[specs/2026-11-09-phase2-warehouse-design]]).
