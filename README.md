@@ -2,20 +2,25 @@
 
 **An early-warning system for US bank failures.**
 
-> **The question:** from public quarterly data alone, can a model trained only on 2001–2015 pick out the banks that failed in 2016–2024, and in particular Silicon Valley Bank, Signature Bank and First Republic, before they failed?
-
 **Research tool, not financial advice.**
 
-Silicon Valley Bank (SVB) failed in March 2023 after customers pulled about $42B in one day. Its public filings had shown the warning signs for months: huge unrealized losses on long-term bonds and mostly uninsured deposits. The goal is to score every FDIC-insured US bank's risk of failing within the next 4 quarters.
+Silicon Valley Bank (SVB) failed in March 2023 after customers pulled about
+$42B in one day. Its public filings had shown the warning signs for months:
+huge unrealized losses on long-term bonds and mostly uninsured deposits.
+That raises an obvious question: could a model have seen it coming?
 
-**Why "Canary"?** Coal miners once carried canaries underground. The birds reacted to toxic gas before people did, so a sick canary was the signal to get out. Canary aims to be that early signal for banks.
+Canary tests exactly that. **From public quarterly data alone, can a model
+trained only on 2001–2015 pick out the banks that failed in 2016–2024,
+including SVB, Signature Bank and First Republic, before they failed?**
+To answer it, Canary scores every FDIC-insured US bank's risk of failing
+within the next 4 quarters, using only data from before the test years.
 
-## Status
-**Phase 1 (done): FDIC data pull.** Pulls quarterly financials for every FDIC-insured bank and the FDIC failed bank list to local Parquet files.
+**Why the name "Canary"?** Coal miners once carried canaries underground.
+The birds reacted to toxic gas before people did, so a sick canary was the
+signal to get out. Canary aims to be that early signal for banks.
 
-**Phase 2 (done): warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
-
-**Phase 3 (done): features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024. Results are below. Short version: it has a higher AUC than a simple baseline (0.902 vs 0.774) with similar recall at the 2% flag, but **it did not flag SVB, Signature or First Republic.** Phase 4 investigates why.
+## The short answer
+An XGBoost model on 31 CAMELS-style ratios, trained on report dates 2001-2014 and tested once on 2016-2024, has a higher AUC than a simple baseline (0.902 vs 0.774) with similar recall at the 2% flag, but **it did not flag SVB, Signature or First Republic.** Details below; Phase 4 investigates why.
 
 What the data already shows for SVB's last filing (2022 Q4):
 
@@ -24,54 +29,6 @@ What the data already shows for SVB's last filing (2022 Q4):
 | Held-to-maturity bonds, cost vs fair value | $91.3B vs $76.2B ($15.2B unrealized loss) |
 | Equity | $15.5B, so the bond loss was about all of it |
 | Uninsured deposits | 86% ($151.6B of $175.4B) |
-
-## Quickstart
-```
-python3.12 -m venv .venv
-.venv/bin/pip install -e ".[dev]"
-.venv/bin/python -m canary.ingest financials
-.venv/bin/python -m canary.ingest failures
-.venv/bin/pytest -v
-```
-More detail, including what to do if a pull fails: `runbooks/fdic-ingestion.md`.
-
-## Architecture
-```
-FDIC BankFind API
-      |  python -m canary.ingest            (Phase 1)
-      v
-local Parquet  data/raw/            one folder per quarter
-      |  python -m canary.upload            (skips unchanged files, never deletes)
-      v
-S3  raw/fdic/
-      |  python -m canary.athena_ddl        (raw tables; rerun after a new quarter)
-      v
-Athena raw tables   canary_raw
-      |  dbt build                          (needs the owner's yes: replaces mart tables)
-      v
-stg_fdic__financials, stg_fdic__failures    views      canary_staging
-dim_failed_banks, fct_bank_quarters         tables     canary_marts
-fct_bank_features                           table      canary_marts  (Phase 3)
-      |  python -m canary.export_features   (Athena UNLOAD to local Parquet)
-      v
-python -m canary.model train / evaluate     XGBoost, metrics.json, case_studies.csv
-```
-What each tool is, why Canary uses it, and what it does here: [reference/STACK.md](reference/STACK.md).
-
-## How to run the warehouse
-One-time AWS setup (bucket, Athena, budget, limited IAM user): [runbooks/aws-setup.md](runbooks/aws-setup.md). Copy `.env.example` to `.env` and set `CANARY_BUCKET`.
-
-Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, then `dbt build --no-partial-parse` from `warehouse/`. Details and what to do if a step fails: [runbooks/warehouse-refresh.md](runbooks/warehouse-refresh.md). Features, training and the one-time test: [runbooks/model-training.md](runbooks/model-training.md). To re-run only the dbt tests (read-only): `dbt test --no-partial-parse --profiles-dir .` from `warehouse/`.
-
-## Scale (measured)
-- **Financials:** 710,691 rows over 102 quarters (2001-03-31 to 2026-06-30); 9,940 banks in the first quarter, 4,313 in the latest.
-- **Failures:** 4,117 rows (3,524 FAILURE, 593 ASSISTANCE; 574 FAILURE since 2001).
-- **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
-- **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows; `fct_bank_features` 710,691 rows with 31 features.
-- **Model data:** 470,361 training rows (2,134 positive), 188,250 test rows (102 positive).
-- **Tests:** 142 pytest tests passing. dbt: 29 data tests, 24 pass and 5 warnings, 0 errors. The warnings are the known ones: cert 34264 (First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials) and four range checks on `fct_bank_features` (see [data-dictionary/fct_bank_features.md](data-dictionary/fct_bank_features.md)).
-- **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month). Billing posts with up to a day's delay, so the Phase 3 build and export (run 2026-11-11) may add a few cents.
-- **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure, meaning that report was the last one before the bank closed.
 
 ## Results (2016-2024 test, run once)
 The model was trained on report dates 2001-03-31 to 2014-12-31 (2015 is dropped; see [decision 0010](decisions/0010-label-and-time-split.md)). A row is "positive" if the bank failed 1 to 4 quarters after that report. Each quarter the 2% of banks with the highest score are flagged ([decision 0011](decisions/0011-watchlist-flag-and-metrics.md)). The test set has 188,250 bank-quarters, 102 of them positive. The baseline is the Texas ratio, a classic rule of thumb (bad loans and foreclosed property divided by equity plus loan-loss reserve), flagged the same way. Numbers come from `metrics.json` of the single evaluation run.
@@ -142,10 +99,6 @@ The model caught 21 of 29 eligible failed banks at least once with 1-4 quarters 
 
 Why the HTM loss was not read as a danger sign is supported by the training data: among the 2,134 positive training rows, the 99th percentile of the HTM-loss-to-equity ratio is about 0.17 (17% of equity), and only 11 positive training rows exceed 0.3, compared with SVB's roughly 0.5 to 1.0 in 2022. (Across all 470,361 training rows only 145 exceed 0.3.) The model essentially never saw "large HTM loss followed by failure", so it had nothing to learn that signal from. One hypothesis, not proven, for the wider pattern: the training years (2001-2014) are dominated by credit-loss failures of 2008-2012, banks that failed because their loans went bad, and perhaps few training-era banks failed from bond losses or a run by uninsured depositors, so the model may have learned that clean loans plus profits mean safe. Another possibility is that the signals were present but too weak relative to thousands of other banks. This is a limit of learning from past failures, and it is the honest result: **a model trained only on pre-2015 data did not catch SVB.** SVB's reports for 2022-09-30 and 2022-12-31 got identical scores (0.0023) even though their HTM ratios differed (about 1.05 vs 0.98), so the model is insensitive to the HTM ratio in that range. Phase 4 (replay and error analysis) tests these hypotheses and asks what signal would have caught them. Any model change made after seeing the 2023 results means 2016-2024 is no longer a clean out-of-sample test, so Phase 4 reports such changes separately.
 
-## Reference
-- [reference/STACK.md](reference/STACK.md): each tool in the stack (S3, Athena, Glue, IAM, dbt, XGBoost, Claude API, Streamlit, GitHub Actions): what it is and how Canary uses it.
-- [reference/GLOSSARY.md](reference/GLOSSARY.md): banking and technical terms (CAMELS, FDIC, FFIEC, ROA, ROE, NIM, Tier 1 capital, PCA, HTM, AUC, XGBoost, DDL, dbt, IAM, MFA, S3), each tied to the columns and decisions where it appears.
-
 ## Limitations
 - **Amended data only.** The FDIC API serves current, corrected values, not what banks originally filed. The SVB replay will use numbers as corrected later, not exactly what an analyst saw at the time.
 - **0 can mean "not reported."** Some fields did not exist in early years. Phase 1 keeps the 0; Phase 3 applies documented 0-to-null rules when building the features ([decision 0009](decisions/0009-features-and-zero-handling.md)).
@@ -160,14 +113,67 @@ Why the HTM loss was not read as a danger sign is supported by the training data
 
 See `decisions/` for the reasoning and `data-dictionary/` for every column.
 
-## Phase 4 next steps
-- Test the SVB hypotheses above (training-era mix of failures, weak HTM signal) in the replay; report any model change separately as post-hoc.
-- Add a corrected baseline (negative denominator = worst), reported separately as post-hoc.
-- Investigate why SVB's 2022-09-30 and 2022-12-31 scores are identical despite different HTM ratios.
+## How it works
+### Architecture
+```
+FDIC BankFind API
+      |  python -m canary.ingest            (Phase 1)
+      v
+local Parquet  data/raw/            one folder per quarter
+      |  python -m canary.upload            (skips unchanged files, never deletes)
+      v
+S3  raw/fdic/
+      |  python -m canary.athena_ddl        (raw tables; rerun after a new quarter)
+      v
+Athena raw tables   canary_raw
+      |  dbt build                          (needs the owner's yes: replaces mart tables)
+      v
+stg_fdic__financials, stg_fdic__failures    views      canary_staging
+dim_failed_banks, fct_bank_quarters         tables     canary_marts
+fct_bank_features                           table      canary_marts  (Phase 3)
+      |  python -m canary.export_features   (Athena UNLOAD to local Parquet)
+      v
+python -m canary.model train / evaluate     XGBoost, metrics.json, case_studies.csv
+```
+What each tool is, why Canary uses it, and what it does here: [reference/STACK.md](reference/STACK.md).
 
-## Roadmap
-2. (done) FDIC data to S3/Athena; dbt models and data tests
-3. (done) CAMELS-style features; train XGBoost; test on 2016-2024 (time-based only)
-4. SVB / Signature / First Republic replay; error analysis
-5. AI risk analyst agent that writes cited risk memos per bank
-6. Streamlit dashboard; metrics and limitations; demo video
+### Scale (measured)
+- **Financials:** 710,691 rows over 102 quarters (2001-03-31 to 2026-06-30); 9,940 banks in the first quarter, 4,313 in the latest.
+- **Failures:** 4,117 rows (3,524 FAILURE, 593 ASSISTANCE; 574 FAILURE since 2001).
+- **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
+- **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows; `fct_bank_features` 710,691 rows with 31 features.
+- **Model data:** 470,361 training rows (2,134 positive), 188,250 test rows (102 positive).
+- **Tests:** 142 pytest tests passing. dbt: 29 data tests, 24 pass and 5 warnings, 0 errors. The warnings are the known ones: cert 34264 (First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials) and four range checks on `fct_bank_features` (see [data-dictionary/fct_bank_features.md](data-dictionary/fct_bank_features.md)).
+- **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month). Billing posts with up to a day's delay, so the Phase 3 build and export (run 2026-11-11) may add a few cents.
+- **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure, meaning that report was the last one before the bank closed.
+
+## Run it yourself
+### Quickstart
+```
+python3.12 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+.venv/bin/python -m canary.ingest financials
+.venv/bin/python -m canary.ingest failures
+.venv/bin/pytest -v
+```
+More detail, including what to do if a pull fails: `runbooks/fdic-ingestion.md`.
+
+### Refresh the warehouse
+One-time AWS setup (bucket, Athena, budget, limited IAM user): [runbooks/aws-setup.md](runbooks/aws-setup.md). Copy `.env.example` to `.env` and set `CANARY_BUCKET`.
+
+Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, then `dbt build --no-partial-parse` from `warehouse/`. Details and what to do if a step fails: [runbooks/warehouse-refresh.md](runbooks/warehouse-refresh.md). Features, training and the one-time test: [runbooks/model-training.md](runbooks/model-training.md). To re-run only the dbt tests (read-only): `dbt test --no-partial-parse --profiles-dir .` from `warehouse/`.
+
+## Status and roadmap
+1. **(done) FDIC data pull.** Pulls quarterly financials for every FDIC-insured bank and the FDIC failed bank list to local Parquet files.
+2. **(done) Warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
+3. **(done) Features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024 (time-based only). Results are above.
+4. **(next) SVB / Signature / First Republic replay; error analysis.**
+   - Test the SVB hypotheses above (training-era mix of failures, weak HTM signal) in the replay; report any model change separately as post-hoc.
+   - Add a corrected baseline (negative denominator = worst), reported separately as post-hoc.
+   - Investigate why SVB's 2022-09-30 and 2022-12-31 scores are identical despite different HTM ratios.
+5. AI risk analyst agent that writes cited risk memos per bank.
+6. Streamlit dashboard; metrics and limitations; demo video.
+
+## Reference
+- [reference/STACK.md](reference/STACK.md): each tool in the stack (S3, Athena, Glue, IAM, dbt, XGBoost, Claude API, Streamlit, GitHub Actions): what it is and how Canary uses it.
+- [reference/GLOSSARY.md](reference/GLOSSARY.md): banking and technical terms (CAMELS, FDIC, FFIEC, ROA, ROE, NIM, Tier 1 capital, PCA, HTM, AUC, XGBoost, DDL, dbt, IAM, MFA, S3), each tied to the columns and decisions where it appears.
