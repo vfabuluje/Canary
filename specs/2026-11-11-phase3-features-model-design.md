@@ -9,9 +9,9 @@
 Phase 2 produced one trusted table, `canary_marts.fct_bank_quarters`: 710,691 bank-quarters (2001-03-31 to 2026-06-30), 45 FDIC fields per row, and the label `quarters_until_failure`. Phase 3 answers the project's core question for the first time: **from public quarterly data alone, can a model trained only on 2001–2015 pick out the banks that failed in 2016–2024, and in particular SVB, Signature Bank and First Republic, before they failed?**
 
 Three things make this worth doing carefully:
-1. **It's the headline result.** The README, the LinkedIn post and the interview hook ("Could a model have seen SVB coming?") all rest on Phase 3's numbers, so they must hold up when someone pokes at them.
+1. **It's the headline result.** The README and the project's headline question ("Could a model have seen SVB coming?") rest on Phase 3's numbers, so they must hold up when someone pokes at them.
 2. **It has to be honest.** The training years are dominated by the 2008–2012 credit crisis: 540 failures in 2001–2015, about 85% of them in 2008–2012, mostly from bad real-estate loans. SVB failed differently: its loans were fine, and it was undone by bond losses plus a run on uninsured deposits. A model trained honestly may not catch it. Per the project plan, **if SVB isn't caught, we report that and explain why.** A result that only looks good because the test was peeked at is worse than an honest miss.
-3. **It's data engineering work.** Victor's target roles are data engineering and analytics at banks. The features are built as a tested dbt model in the warehouse, not inside a notebook, so the pipeline from raw data to model input is version-controlled, documented and checked.
+3. **It's data engineering work.** This is the work bank data teams hire for. The features are built as a tested dbt model in the warehouse, not inside a notebook, so the pipeline from raw data to model input is version-controlled, documented and checked.
 
 ## 2. Goals
 - G1. A dbt model `canary_marts.fct_bank_features`: one row per bank-quarter with CAMELS-style ratios (§6), with dbt data tests and a data dictionary entry.

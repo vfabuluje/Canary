@@ -4,7 +4,7 @@
 **Done**
 - Phase 3 built (spec: [[specs/2026-11-11-phase3-features-model-design]]): `fct_bank_features` (710,691 rows, 31 features), Athena export, XGBoost training, evaluation, Texas-ratio baseline, case studies ([[decisions/0009-features-and-zero-handling]], [[decisions/0010-label-and-time-split]], [[decisions/0011-watchlist-flag-and-metrics]], [[decisions/0012-feature-export-via-unload]]).
 - Live run, test once on 2016-2024 (188,250 rows, 102 positive): AUC 0.902 vs baseline 0.774; recall 21 of 29 vs 19 of 29; median lead time 4 quarters (from report date). False-alarm rate 98.3%, mostly structural (2% watchlist, few failures; about 32x better than random).
-- **SVB, Signature and First Republic were not flagged in any quarter.** Signature closest (94.9th percentile at 2022-12-31); SVB fell to the 27th percentile. Likely cause: training failures were credit-loss failures of 2008-2012.
+- **SVB, Signature and First Republic were not flagged in any quarter.** Signature closest (94.9th percentile at 2022-12-31); SVB fell to the 27th percentile. Verified (read-only contributions check): in SVB's 2022 reports low interest expense, strong Tier 1 capital, a low Texas ratio and a large securities book (each about -0.9 to -1.1) pushed it toward safe; its HTM loss (about 98% of equity) contributed only about -0.16. Among positive training rows the HTM-loss ratio 99th percentile is about 0.17 and only 11 exceed 0.3, so the model never saw large HTM losses before failure. Hypothesis (not proven): training failures were mostly credit-loss failures of 2008-2012. Also: the baseline ranks insolvent banks (negative Texas ratio) as safest, so the 21-vs-19 recall gap is effectively one bank (cert 9956); a corrected baseline goes to Phase 4 as post-hoc. SVB's 2022-09-30 and 2022-12-31 scores are identical despite different HTM ratios (model insensitive there).
 - Docs: [[runbooks/model-training]], README results and limitations (uninsured-deposit line corrected, validation-gap caveat added), TOOLS.md, data dictionary quirks. 142 pytest pass; dbt test 24 pass, 5 warn, 0 errors.
 
 **Next**
@@ -13,7 +13,7 @@
 
 **Open questions**
 - Does adding bond-loss and uninsured-deposit signals help without training on 2023 failures, or is a different approach needed? (Phase 4)
-- Is a 2% watchlist the right size, given 746 healthy banks flagged at least once?
+- Is a 2% watchlist the right size, given 746 banks that had not failed by the end of 2025 flagged at least once?
 
 ## 2026-11-10
 **Done**

@@ -35,7 +35,7 @@ set -a; source ../.env; set +a
 .venv/bin/python -m canary.model train --features data/features/fct_bank_features.parquet
 ```
 - Does: tries 8 small settings combinations on the 2012-2014 validation block, then refits on all training rows (report dates through 2014) and writes `data/model/model.json` and `run_config.json`.
-- If it fails: a "missing column" error means the export is out of date with the model (rerun step 1 and 2). It never touches the test period, so it is safe to repeat.
+- If it fails: a "missing column" error means the export is out of date with the model (rerun step 1 and 2). It never touches the test period, so it is safe to repeat before evaluate. After evaluate has run, retraining overwrites `model.json` and needs the owner's yes; `metrics.json` records `model_sha256`, so a mismatch between the model file and the metrics is detectable. Phase 4 experiments go to a new `--out` directory.
 
 ### 4. Evaluate (once)
 ```
