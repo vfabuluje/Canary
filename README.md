@@ -33,10 +33,15 @@ I trained a machine-learning model on bank reports from 2001-2014, then tested i
 ## Why it missed SVB, Signature and First Republic
 A model can only learn from the failures it has seen. Most banks that failed in 2001-2014 failed in the 2008-2012 crisis, which is generally thought to be mainly about bad loans (an assumption the next phase will check against this data). SVB failed differently: its loans were fine, but its bonds lost value and its uninsured depositors ran.
 
-The training data shows how unusual that was. SVB's held-to-maturity bond loss was about 98% of its equity. In 99% of the training reports from banks about to fail, that loss was about 17% of equity or less. So the model had almost never seen "large bond loss, then failure" (only 11 such training reports), and it read SVB's cheap funding, strong capital and big bond book as signs of safety. That is the honest result: **a model trained only on data from before 2015 did not catch SVB.** The full analysis is in [RESULTS.md](RESULTS.md).
+The training data shows how unusual that was. SVB's held-to-maturity bond loss was about 98% of its equity. In 99% of the training reports from banks about to fail, that loss was about 17% of equity or less. So the model had almost never seen "large bond loss, then failure" (only 11 training reports from banks about to fail had a bond loss above 30% of equity), and it read SVB's cheap funding, strong capital and big bond book as signs of safety. That is the honest result: **a model trained only on data from before 2015 did not catch SVB.** The full analysis is in [RESULTS.md](RESULTS.md).
 
-## What's next
-The next phase (Phase 4) digs into the misses: what exactly pushed each bank's score down, and whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. Because that check is designed after seeing the 2023 failures, it will be reported separately from the clean test above.
+## The plan, in six phases
+1. **Collect the data (done).** Download every US bank's quarterly financial report since 2001, plus the FDIC's list of every bank that failed.
+2. **Build the warehouse (done).** Store the data in the cloud (AWS) and clean it into tidy, tested tables, so every number can be trusted and traced.
+3. **Train and test the model (done).** Turn each report into about 30 health measures (capital, bad loans, profits, funding, bond losses), train the model on 2001-2014, and test it once on 2016-2024. The results are above.
+4. **Replay the 2023 failures (next).** Dig into why SVB, Signature and First Republic were missed, and test whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. Because that check is designed after seeing the 2023 failures, it will be reported separately from the clean test above.
+5. **Add an AI analyst.** An AI agent (Claude) writes a short risk memo for each bank, citing the exact quarter and numbers it relies on.
+6. **Build a dashboard.** An interactive web page to look up any bank's risk over time, plus a short demo video.
 
 ## Built with
 Python and pandas for the data pipeline; AWS (S3, Athena, Glue) as the data warehouse; dbt for tested data models; XGBoost for the model. Planned: an AI analyst (Claude API) that writes cited risk memos per bank, and a Streamlit dashboard. All data is public, from the FDIC.
