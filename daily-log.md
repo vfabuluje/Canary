@@ -1,5 +1,17 @@
 # Daily Log
 
+## 2026-11-11 (session 2: README for two readers)
+**Done**
+- README rewritten in layers (spec: [[specs/2026-11-11-readme-layers-design]]): a plain-English top (what Canary is, the SVB story, what I found, why it missed the 2023 banks, what's next, built with) for a skimming recruiter, then a "Technical detail" part for engineers. Every term glossed on first use.
+- New `RESULTS.md` holds the full case-study tables with top signals and the full miss analysis; the README keeps compact per-bank tables. A number check confirmed no figure was lost; all links resolve.
+- Phase 4 spec, plan and Task 1 are on branch `phase4-replay` (paused by choice; interrupted Task 2 files are in `git stash`, "phase4 task2 partial").
+
+**Next**
+- Merge `readme-layers` (owner's consent). Resume Phase 4 at Task 2 in a few days.
+
+**Open questions**
+- None new. (Phase 4's open question on the credit-loss cut-offs is on branch `phase4-replay`.)
+
 ## 2026-11-11
 **Done**
 - Phase 3 built (spec: [[specs/2026-11-11-phase3-features-model-design]]): `fct_bank_features` (710,691 rows, 31 features), Athena export, XGBoost training, evaluation, Texas-ratio baseline, case studies ([[decisions/0009-features-and-zero-handling]], [[decisions/0010-label-and-time-split]], [[decisions/0011-watchlist-flag-and-metrics]], [[decisions/0012-feature-export-via-unload]]).
