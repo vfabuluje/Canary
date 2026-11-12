@@ -20,23 +20,23 @@ The warning signs were in SVB's public filings months earlier. Its last report b
 | Equity | $15.5B, so the bond loss was about all of it |
 | Uninsured deposits | 86% ($151.6B of $175.4B) |
 
-("Held-to-maturity" bonds are ones a bank says it will keep until they pay out, so the loss doesn't show in its reported profit. "Unrealized loss" means the bonds are worth less than the bank paid, but it hasn't sold them yet.)
+("Held-to-maturity" bonds are ones a bank says it will keep until they pay out. They stay on the books at what the bank paid, so a fall in their market value doesn't reduce the bank's reported profit or its equity, its capital cushion. "Unrealized loss" means the bonds are worth less than the bank paid, but it hasn't sold them yet.)
 
 ## What I found
 I trained a machine-learning model on bank reports from 2001-2014, then tested it, once, on 2016-2024, years it had never seen. That is the honest way to check whether a model would have worked at the time.
 
-- **It caught most failing banks early.** Of the 29 banks that failed in the test years (and had a report 1 to 4 quarters before failing), the model put 21 (72%) on its watchlist at least once before they failed, usually about a year ahead (counted from the report date).
+- **It caught most failing banks early.** Of the 29 banks that failed in the test years (and had a report 1 to 4 quarters before failing), the model put 21 (72%) on its watchlist (the 2% of banks it rates riskiest each quarter) at least once before they failed, usually at the earliest point the test checks: 9 to 12 months before failing, counted from the report date (the report itself becomes public about a month later).
 - **It ranks banks better than a classic rule of thumb.** Its AUC is 0.902, against 0.774 for the "Texas ratio" (bad loans compared with the bank's cushion to absorb them), a rule analysts have used for decades. AUC is the chance that a bank about to fail gets a higher risk score than one that isn't: 0.5 is a coin flip, 1.0 is perfect.
-- **Most of its warnings were false alarms, which is expected.** The watchlist holds the riskiest 2% of banks each quarter (about 105 banks), while only about 3 banks fail a year. So about 98% of flagged bank-quarters were banks that did not fail within a year. Even so, a flagged bank was about 32 times more likely to fail soon than a random bank.
+- **Most of its warnings were false alarms, which is expected.** The watchlist holds about 105 banks a quarter, while only about 3 banks fail a year. So about 98% of the times a bank was flagged, it did not fail within a year. Even so, a flagged bank was about 32 times more likely to fail soon than a random bank.
 - **It missed SVB, Signature and First Republic.** None of the three was on the watchlist in any quarter. Right before it failed, the model rated SVB safer than most banks.
 
 ## Why it missed SVB, Signature and First Republic
-A model can only learn from the failures it has seen. Most banks that failed in 2001-2014 failed in the 2008-2012 crisis, typically because their loans went bad (Phase 4 checks this). SVB failed differently: its loans were fine, but its bonds lost value and its uninsured depositors ran.
+A model can only learn from the failures it has seen. Most banks that failed in 2001-2014 failed in the 2008-2012 crisis, which is generally thought to be mainly about bad loans (an assumption the next phase will check against this data). SVB failed differently: its loans were fine, but its bonds lost value and its uninsured depositors ran.
 
-The training data shows how unusual that was. SVB's held-to-maturity bond loss was about 98% of its equity. In 99% of the training reports from banks about to fail, that loss was 17% of equity or less. So the model had never seen "large bond loss, then failure", and it read SVB's cheap funding, strong capital and big bond book as signs of safety. That is the honest result: **a model trained only on data from before 2015 did not catch SVB.** The full analysis is in [RESULTS.md](RESULTS.md).
+The training data shows how unusual that was. SVB's held-to-maturity bond loss was about 98% of its equity. In 99% of the training reports from banks about to fail, that loss was about 17% of equity or less. So the model had almost never seen "large bond loss, then failure" (only 11 such training reports), and it read SVB's cheap funding, strong capital and big bond book as signs of safety. That is the honest result: **a model trained only on data from before 2015 did not catch SVB.** The full analysis is in [RESULTS.md](RESULTS.md).
 
 ## What's next
-Phase 4 digs into the misses: what exactly pushed each bank's score down, and whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. Because that check is designed after seeing the 2023 failures, it will be reported separately from the clean test above.
+The next phase (Phase 4) digs into the misses: what exactly pushed each bank's score down, and whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. Because that check is designed after seeing the 2023 failures, it will be reported separately from the clean test above.
 
 ## Built with
 Python and pandas for the data pipeline; AWS (S3, Athena, Glue) as the data warehouse; dbt for tested data models; XGBoost for the model. Planned: an AI analyst (Claude API) that writes cited risk memos per bank, and a Streamlit dashboard. All data is public, from the FDIC.
@@ -48,7 +48,7 @@ Python and pandas for the data pipeline; AWS (S3, Athena, Glue) as the data ware
 The rest of this page is for readers who want the method, the numbers behind the summary, the limitations and how to run it.
 
 ## Results (2016-2024 test, run once)
-**The question:** from public quarterly data alone, can a model trained only on 2001-2015 pick out the banks that failed in 2016-2024, including SVB, Signature Bank and First Republic, before they failed?
+**The question:** from public quarterly data alone, can a model trained only on data from before 2015 pick out the banks that failed in 2016-2024, including SVB, Signature Bank and First Republic, before they failed?
 
 **The setup.** An XGBoost model on 31 CAMELS-style ratios (the capital, asset quality, earnings, liquidity and interest-rate sensitivity measures bank supervisors use), trained on report dates 2001-03-31 to 2014-12-31. 2015 is dropped, because whether a 2015 bank failed "within 4 quarters" depends on 2016 failures, which belong to the test years ([decision 0010](decisions/0010-label-and-time-split.md)). A row is "positive" if the bank failed 1 to 4 quarters after that report. Each quarter the 2% of banks with the highest score are flagged ([decision 0011](decisions/0011-watchlist-flag-and-metrics.md)). The test set has 188,250 bank-quarters, 102 of them positive. The baseline is the Texas ratio (bad loans and foreclosed property divided by equity plus loan-loss reserve), flagged the same way. Numbers come from `metrics.json` of the single evaluation run.
 

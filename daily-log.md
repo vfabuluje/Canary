@@ -9,6 +9,9 @@
 **Next**
 - Merge `readme-layers` (owner's consent). Resume Phase 4 at Task 2 in a few days.
 
+**Open questions**
+- None new. (Phase 4's open question on the credit-loss cut-offs is on branch `phase4-replay`.)
+
 ## 2026-11-11
 **Done**
 - Phase 3 built (spec: [[specs/2026-11-11-phase3-features-model-design]]): `fct_bank_features` (710,691 rows, 31 features), Athena export, XGBoost training, evaluation, Texas-ratio baseline, case studies ([[decisions/0009-features-and-zero-handling]], [[decisions/0010-label-and-time-split]], [[decisions/0011-watchlist-flag-and-metrics]], [[decisions/0012-feature-export-via-unload]]).
