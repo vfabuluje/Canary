@@ -1,6 +1,6 @@
 # Daily Log
 
-## 2026-11-11 (session 2: README for two readers)
+## 2026-11-11 (session 3: README for two readers)
 **Done**
 - README rewritten in layers (spec: [[specs/2026-11-11-readme-layers-design]]): a plain-English top (what Canary is, the SVB story, what I found, why it missed the 2023 banks, what's next, built with) for a skimming recruiter, then a "Technical detail" part for engineers. Every term glossed on first use.
 - New `RESULTS.md` holds the full case-study tables with top signals and the full miss analysis; the README keeps compact per-bank tables. A number check confirmed no figure was lost; all links resolve.
@@ -11,6 +11,21 @@
 
 **Open questions**
 - None new. (Phase 4's open question on the credit-loss cut-offs is on branch `phase4-replay`.)
+
+## 2026-11-11 (session 2: Phase 4 started, then paused)
+**Done**
+- Phase 4 spec approved: [[specs/2026-11-11-phase4-replay-design]]. Chosen approach: a post-hoc run-risk check (uninsured share × bond losses ÷ equity, top 2% per quarter, decision 0011's rule), kept separate from the clean Phase 3 test; plus a corrected Texas baseline and error analysis (failure mix, what-if, contributions, misses, false alarms).
+- Pre-look (scratch, recorded in spec §5 as the reason the check is post-hoc): SVB ranks 3rd-70th of ~4,800 every quarter 2021-12-31 to 2022-12-31 on run-risk; Signature 23rd at 2021-12-31 then 184th-348th; First Republic ~87th percentile (its losses were on loans, which FDIC data can't see). 1,106 banks had bond losses ≥ 50% of equity at 2022-12-31, so bond losses alone don't single SVB out.
+- Plan written: [[plans/2026-11-11-phase4-replay]] (7 tasks). Task 1 done and reviewed (shared synthetic test fixtures moved to `tests/conftest.py`; 142 tests pass).
+- Paused by choice during Task 2; work resumes in a few days.
+
+**Next**
+- Resume the plan at Task 2 (subagent-driven). Leftover uncommitted Task 2 files from the interrupted run (`src/canary/replay/`, `tests/test_replay_runrisk.py`, edit to `src/canary/model/train.py`) should be reviewed or discarded first.
+- Merge Phase 4 branch only after the whole-branch review (owner's consent).
+- Tooling: install `uv` (`brew install uv`) so the `aws-mcp` server can start; retry the failed Claude Code auto-update (`claude update`).
+
+**Open questions**
+- Are the credit-loss profile cut-offs (noncurrent ≥ 5% or Texas ≥ 100%) the right rules of thumb? (Spec §8.1, Claude's call.)
 
 ## 2026-11-11
 **Done**
