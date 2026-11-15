@@ -159,6 +159,8 @@ Full contribution analysis and per-quarter signals: [RESULTS.md](RESULTS.md).
 - **Outliers kept in the features.** About 183 of 710,691 feature rows fall outside their expected 0-1 range (reporting errors); they were kept as-is ([data dictionary](data-dictionary/fct_bank_features.md)). Tree models are robust to them.
 - **Uninsured-deposit estimates** are filled in for about 99% of banks every year, so they are not limited to large banks ([decision 0009](decisions/0009-features-and-zero-handling.md)). Reported 0s are treated as missing in the feature. The estimate is a regulatory one, not an exact count.
 - **Failure label is FDIC closures only.** A distressed bank that was acquired or merged before it failed counts as a survivor, so some "false alarms" may be real near-failures. This inflates the false-alarm rate.
+- **No market values for loans.** FDIC financials give fair values for securities only. A bank whose losses sit in low-rate loans (First Republic's mortgages) looks healthy on every feature here.
+- **Phase 4 checks are post-hoc.** The run-risk check and corrected baseline were designed after seeing the 2023 failures and are not out-of-sample results; they are kept out of the headline numbers ([decision 0013](decisions/0013-run-risk-check.md)).
 - Dollar income fields are year-to-date and dollar amounts are in thousands.
 
 See `decisions/` for the reasoning and `data-dictionary/` for every column.
