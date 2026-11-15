@@ -38,6 +38,10 @@ logs/
 .obsidian/workspace-mobile.json
 .obsidian/workspaces.json
 .obsidian/cache
+.obsidian/graph.json
+.obsidian/community-plugins.json
+.obsidian/plugins/
+.smart-env/
 .trash/
 
 # --- OS / editors ---
