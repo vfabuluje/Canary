@@ -114,7 +114,7 @@ def _score_test(df: pd.DataFrame, model: xgboost.XGBClassifier) -> pd.DataFrame:
     return test
 
 
-def _summary(test: pd.DataFrame, score_col: str, flag_col: str) -> dict:
+def _summary(test: pd.DataFrame, score_col: str, flag_col: str, horizon_end: date = date(2025, 12, 31)) -> dict:
     lt = lead_times(test, flag_col)
     r1 = bank_recall(test, flag_col, 1)
     r2 = bank_recall(test, flag_col, 2)
@@ -134,7 +134,7 @@ def _summary(test: pd.DataFrame, score_col: str, flag_col: str) -> dict:
         "lead_time_min": int(lt.min()) if len(lt) else float("nan"),
         "lead_time_max": int(lt.max()) if len(lt) else float("nan"),
         "false_alarm_rate": false_alarm_rate(test, flag_col),
-        "false_alarm_banks": false_alarm_banks(test, flag_col),
+        "false_alarm_banks": false_alarm_banks(test, flag_col, horizon_end),
         "rows_flagged": int(test[flag_col].sum()),
     }
 
