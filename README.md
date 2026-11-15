@@ -31,16 +31,18 @@ I trained a machine-learning model on bank reports from 2001-2014, then tested i
 - **It missed SVB, Signature and First Republic.** None of the three was on the watchlist in any quarter. Right before it failed, the model rated SVB safer than most banks.
 
 ## Why it missed SVB, Signature and First Republic
-A model can only learn from the failures it has seen. Most banks that failed in 2001-2014 failed in the 2008-2012 crisis, which is generally thought to be mainly about bad loans (an assumption the next phase will check against this data). SVB failed differently: its loans were fine, but its bonds lost value and its uninsured depositors ran.
+A model can only learn from the failures it has seen. Most banks that failed in 2001-2014 failed in the 2008-2012 crisis, and the data confirms it was about bad loans: 515 of the 539 failures (96%) had bad loans when they failed, and only one looked like SVB. SVB failed differently: its loans were fine, but its bonds lost value and its uninsured depositors ran.
 
 The training data shows how unusual that was. SVB's held-to-maturity bond loss was about 98% of its equity. In 99% of the training reports from banks about to fail, that loss was about 17% of equity or less. So the model had almost never seen "large bond loss, then failure" (only 11 training reports from banks about to fail had a bond loss above 30% of equity), and it read SVB's cheap funding, strong capital and big bond book as signs of safety. That is the honest result: **a model trained only on data from before 2015 did not catch SVB.** The full analysis is in [RESULTS.md](RESULTS.md).
+
+**What would have caught it?** After seeing the 2023 failures, I tested one simple check: bond losses as a share of equity, multiplied by the share of uninsured deposits. It would have put SVB on a 2%-of-banks watchlist from its March 2022 report (ranked 9th of 4,861 banks), which became public about a month later, roughly ten months before SVB failed. But it caught only 3 of the 29 banks that failed in 2016-2024, missed Signature and First Republic, and flagged 846 banks that never failed. Because the check was designed with the answer in view, it is reported separately from the clean test above, as a second lens and not a fix. First Republic's main losses were on mortgages it held as loans, which FDIC data has no market value for. Full write-up: [analysis/phase4-replay.md](analysis/phase4-replay.md).
 
 ## The plan, in six phases
 1. **Collect the data (done).** Download every US bank's quarterly financial report since 2001, plus the FDIC's list of every bank that failed.
 2. **Build the warehouse (done).** Store the data in the cloud (AWS) and clean it into tidy, tested tables, so every number can be trusted and traced.
 3. **Train and test the model (done).** Turn each report into about 30 health measures (capital, bad loans, profits, funding, bond losses), train the model on 2001-2014, and test it once on 2016-2024. The results are above.
-4. **Replay the 2023 failures (next).** Dig into why SVB, Signature and First Republic were missed, and test whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. Because that check is designed after seeing the 2023 failures, it will be reported separately from the clean test above.
-5. **Add an AI analyst.** An AI agent (Claude) writes a short risk memo for each bank, citing the exact quarter and numbers it relies on.
+4. **Replay the 2023 failures (done).** Work out why SVB, Signature and First Republic were missed, and test whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. It is reported separately from the clean test, because it was designed after seeing the 2023 failures. The results are above.
+5. **Add an AI analyst (next).** An AI agent (Claude) writes a short risk memo for each bank, citing the exact quarter and numbers it relies on.
 6. **Build a dashboard.** An interactive web page to look up any bank's risk over time, plus a short demo video.
 
 ## Built with
@@ -122,10 +124,30 @@ The rest of this page is for readers who want the method, the numbers behind the
 - **Bond losses did register, but not enough.** Unrealized losses on available-for-sale (AFS) bonds were the top push upward for SVB and Signature in the second half of 2022.
 - **SVB's held-to-maturity (HTM) loss did not.** It was about 98% of SVB's equity at 2022-12-31, but in all four 2022 reports it nudged the score slightly *down* (about -0.16 in the model's log-odds units). Low interest expense (about -1.1), strong Tier 1 capital (about -1.0), a low Texas ratio (about -1.0) and a large securities book (about -0.9) pushed SVB toward "safe".
 - **The model had nothing to learn the HTM signal from.** Among the 2,134 positive training rows, the 99th percentile of HTM loss ÷ equity is about 0.17, and only 11 exceed 0.3 (145 across all 470,361 training rows), compared with SVB's roughly 0.5 to 1.0 in 2022.
-- **The model is insensitive in that range.** SVB's 2022-09-30 and 2022-12-31 reports got identical scores (0.0023) although their HTM ratios differed (about 1.05 vs 0.98).
-- **Hypothesis, not proven:** the training years are dominated by credit-loss failures of 2008-2012, so the model may have learned that clean loans plus profits mean safe. Phase 4 tests this. Any model change made after seeing the 2023 results means 2016-2024 is no longer a clean out-of-sample test, so Phase 4 reports such changes separately.
+- **The model does not react to HTM loss at all for SVB.** SVB's 2022-09-30 and 2022-12-31 reports got identical scores (0.0023) although their HTM ratios differed (about 1.05 vs 0.98). Phase 4's what-if test explains it: setting SVB's 2022-12-31 HTM loss to anything from 0 to 1.5 times equity leaves the score at 0.0023 (`what_if.csv`).
+- **Confirmed in Phase 4:** the training years are dominated by credit-loss failures. 515 of 539 training-era failures (96%) had noncurrent loans of at least 5% or a Texas ratio of at least 100%; 1 had SVB's profile. In the test years, 19 of the 21 banks the model caught had that credit-loss profile, and none of the 8 it missed did.
 
 Full contribution analysis and per-quarter signals: [RESULTS.md](RESULTS.md).
+
+## Post-hoc: Phase 4 replay and error analysis
+**Everything in this section was designed after seeing the 2023 failures, so it is not an out-of-sample test.** It does not change the model or the results above. Full report: [analysis/phase4-replay.md](analysis/phase4-replay.md); decisions [0013](decisions/0013-run-risk-check.md), [0014](decisions/0014-corrected-texas-baseline.md), [0015](decisions/0015-failure-mix-profiles.md).
+
+- **Run-risk check:** `clip(uninsured / deposits, 0, 1) x (HTM + AFS unrealized loss) / equity`, top 2% per quarter (the model's watchlist rule). The formula was fixed before results were computed, and no variants were tried.
+- **Corrected Texas baseline:** an insolvent bank (negative Texas ratio) ranks worst instead of safest.
+
+| Metric (2016-2024) | Phase 3 model (clean) | Run-risk (post-hoc) | Corrected Texas baseline (post-hoc) |
+|---|---|---|---|
+| AUC | 0.902 | 0.515 | 0.803 |
+| Recall, 1-4 quarters | 21 of 29 | 3 of 29 | 20 of 29 |
+| Recall, 2+ quarters | 18 of 27 | 3 of 27 | 17 of 27 |
+| Never-failed banks flagged | 746 | 846 | 527 |
+| SVB | missed | flagged 4 quarters ahead (rank 9 of 4,861, 2022-03-31) | missed |
+| Signature | missed | missed (on the list in 2021, 5-8 quarters out, then off) | missed |
+| First Republic | missed | missed (best rank 599) | missed |
+
+- **The run-risk check is a narrow detector, not a risk score.** Its AUC is a coin flip, because bond losses and uninsured deposits are not what sank most banks. By late 2022, rising rates had given 1,360 banks bond losses of at least half their equity, which is why Signature dropped off the list.
+- **The model's recall edge over a fair baseline is one bank** (21 vs 20). Its clearer advantage is the ranking (AUC 0.902 vs 0.803).
+- **First Republic is a data limit:** its main losses were on low-rate mortgages held as loans, and FDIC financials give market values for securities only.
 
 ## Limitations
 - **Amended data only.** The FDIC API serves current, corrected values, not what banks originally filed. The SVB replay uses numbers as corrected later, not exactly what an analyst saw at the time.
@@ -162,6 +184,8 @@ fct_bank_features                           table      canary_marts  (Phase 3)
       |  python -m canary.export_features   (Athena UNLOAD to local Parquet)
       v
 python -m canary.model train / evaluate     XGBoost, metrics.json, case_studies.csv
+      |
+python -m canary.replay                     Phase 4 post-hoc checks and error analysis (local, read-only on the model)
 ```
 What each tool is, why Canary uses it, and what it does here: [reference/STACK.md](reference/STACK.md).
 
@@ -171,7 +195,7 @@ What each tool is, why Canary uses it, and what it does here: [reference/STACK.m
 - **On disk:** 172 MB. Full pull: 6 min 47 s (102 API calls). Rerun: about 7 s.
 - **Warehouse:** `fct_bank_quarters` 710,691 rows; `dim_failed_banks` 574 rows; `fct_bank_features` 710,691 rows with 31 features.
 - **Model data:** 470,361 training rows (2,134 positive), 188,250 test rows (102 positive).
-- **Tests:** 142 pytest tests passing. dbt: 29 data tests, 24 pass and 5 warnings, 0 errors. The warnings are the known ones: cert 34264 (First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials) and four range checks on `fct_bank_features` (see [data-dictionary/fct_bank_features.md](data-dictionary/fct_bank_features.md)).
+- **Tests:** 179 pytest tests passing. dbt: 29 data tests, 24 pass and 5 warnings, 0 errors. The warnings are the known ones: cert 34264 (First Alliance Bank and Trust Co, failed 2001-02-02, before the first quarter of financials) and four range checks on `fct_bank_features` (see [data-dictionary/fct_bank_features.md](data-dictionary/fct_bank_features.md)).
 - **AWS cost so far:** $0.02 as of 2026-11-11, per the AWS Billing console (budget cap: $5/month). Billing posts with up to a day's delay, so the Phase 3 build and export (run 2026-11-11) may add a few cents.
 - **Case-study label check:** SVB and Signature at 2022-12-31 and First Republic at 2023-03-31 each show 1 quarter until failure, meaning that report was the last one before the bank closed.
 
@@ -195,14 +219,12 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 1. **(done) FDIC data pull.** Pulls quarterly financials for every FDIC-insured bank and the FDIC failed bank list to local Parquet files.
 2. **(done) Warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
 3. **(done) Features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024 (time-based only). Results are above.
-4. **(next) SVB / Signature / First Republic replay; error analysis.**
-   - Test the SVB hypotheses above (training-era mix of failures, weak HTM signal) in the replay; report any model change separately as post-hoc.
-   - Add a corrected baseline (negative denominator = worst), reported separately as post-hoc.
-   - Investigate why SVB's 2022-09-30 and 2022-12-31 scores are identical despite different HTM ratios.
-5. AI risk analyst agent that writes cited risk memos per bank.
+4. **(done) SVB / Signature / First Republic replay; error analysis.** The training-era failure mix, a what-if test of the model, a post-hoc run-risk check and a corrected baseline. See the post-hoc section above and [analysis/phase4-replay.md](analysis/phase4-replay.md).
+5. **(next)** AI risk analyst agent that writes cited risk memos per bank.
 6. Streamlit dashboard; metrics and limitations; demo video.
 
 ## Reference
 - [RESULTS.md](RESULTS.md): full case-study tables with the signals behind each score, and the full analysis of the misses.
+- [analysis/phase4-replay.md](analysis/phase4-replay.md): Phase 4 replay, what-if test, training-era failure mix and the post-hoc run-risk check.
 - [reference/STACK.md](reference/STACK.md): each tool in the stack (S3, Athena, Glue, IAM, dbt, XGBoost, Claude API, Streamlit, GitHub Actions): what it is and how Canary uses it.
 - [reference/GLOSSARY.md](reference/GLOSSARY.md): banking and technical terms (CAMELS, FDIC, FFIEC, ROA, ROE, NIM, Tier 1 capital, PCA, HTM, AUC, XGBoost, DDL, dbt, IAM, MFA, S3), each tied to the columns and decisions where it appears.

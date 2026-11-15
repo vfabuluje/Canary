@@ -1,5 +1,22 @@
 # Daily Log
 
+## 2026-11-14
+**Done**
+- Vault: `dashboard.md` (Dataview index of decisions, specs, runbooks) and `canary-roadmap.md` (Kanban board); per-device Obsidian state and the Smart Connections cache added to `.gitignore` (PR #5, merged).
+- **Repo moved out of iCloud to `~/code/canary`.** iCloud had evicted about 946 repo files (including `pyproject.toml` and `.git` objects) and would not download them again, so pytest could not start; it also left a stale `origin/main` lock and `data 2` / `.venv 2` duplicates. Fresh clone from GitHub, local-only files copied (`data.nosync`, `.env`, `CLAUDE.local.md`, Obsidian plugins, dbt packages), venv rebuilt with identical package versions. The old folder in `~/Documents/Obsidian Vault/canary` is untouched.
+- **Phase 4 built** (spec [[specs/2026-11-11-phase4-replay-design]], plan [[plans/2026-11-11-phase4-replay]]): `canary.replay` package (run-risk check, corrected Texas baseline, failure mix, what-if, contributions, misses, false alarms) and CLI. Live run on real data, local only, model folder unchanged (checksums). Decisions [[decisions/0013-run-risk-check]], [[decisions/0014-corrected-texas-baseline]], [[decisions/0015-failure-mix-profiles]]; report [[analysis/phase4-replay]]; dictionary [[replay_outputs]]; runbook, glossary, README updated. 179 pytest pass.
+- **Findings.** 515 of 539 training-era failures (96%) had a credit-loss profile; 1 looked like SVB. The model is flat in HTM loss for SVB (0 to 1.5 x equity gives the same score). In the test years 19 of 21 caught failures had the credit-loss profile and 0 of 8 misses did. Run-risk check (post-hoc): SVB flagged 4 quarters ahead (rank 9 of 4,861 at 2022-03-31), but 3 of 29 recall, AUC 0.515, 846 never-failed banks flagged; Signature and First Republic missed. Corrected Texas baseline (post-hoc): 20 of 29, AUC 0.803, so the model's recall edge over a fair baseline is one bank.
+
+**Next**
+- Whole-branch review of `phase4-replay`, then merge (owner's consent).
+- Open `~/code/canary` as the Obsidian vault; delete the old iCloud copy once nothing is missing.
+- Phase 5: AI risk analyst agent.
+
+**Open questions**
+- Are the credit-loss cut-offs (noncurrent >= 5%, Texas >= 100%) right? ([[decisions/0015-failure-mix-profiles]])
+- Several model misses (e.g. Washington Federal 2017, Enloe 2019, Heartland Tri-State 2023) had clean loan books; were they non-financial failures (e.g. fraud)? Needs cited sources before saying so.
+- Should a later model add HTM loss and uninsured share with a different training approach? Any such model must be reported as post-hoc for 2023.
+
 ## 2026-11-11 (session 3: README for two readers)
 **Done**
 - README rewritten in layers (spec: [[specs/2026-11-11-readme-layers-design]]): a plain-English top (what Canary is, the SVB story, what I found, why it missed the 2023 banks, what's next, built with) for a skimming recruiter, then a "Technical detail" part for engineers. Every term glossed on first use.

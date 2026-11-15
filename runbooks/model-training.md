@@ -44,3 +44,15 @@ set -a; source ../.env; set +a
 - Does: scores the test period, compares with the Texas-ratio baseline, and writes `metrics.json` and `case_studies.csv` (SVB, Signature, First Republic per quarter) under `data/model/`.
 - If it says `metrics.json` already exists: that is the guard working. Read the existing file. Use `--force` only with the owner's yes and a written reason.
 - Then copy the numbers into the README from `metrics.json` exactly, with their denominators.
+
+## Phase 4 replay (post-hoc analysis, local only)
+Design: [[specs/2026-11-11-phase4-replay-design]]. Results: [[analysis/phase4-replay]].
+```
+.venv/bin/python -m canary.replay --features data/features/fct_bank_features.parquet --model-dir data/model --out data/replay
+```
+- **Needs:** the feature export (step 2) and a trained model (step 3). No AWS, no network. About 10 seconds.
+- **Does:** reads `model.json` (never writes to the model folder), scores the post-hoc run-risk check and corrected Texas baseline, and writes nine files to `data/replay/` (columns: [[replay_outputs]]). Re-running overwrites them; the output is deterministic.
+- **Check after a run:** `shasum data/model/*` unchanged; `replay_banks.csv` model ranks equal `data/model/case_studies.csv`; SVB's run-risk ranks for 2021-12-31 to 2022-12-31 are 3, 9, 63, 70, 54.
+- **If it fails:** "refusing to write there" means `--out` points at (or inside) the model folder: pick another folder. "model.json not found" means step 3 has not run or `--model-dir` is wrong. A missing-column error means the export is out of date (redo steps 1-2).
+- **Rule:** these numbers are post-hoc. Never fold the run-risk check into the model or the Phase 3 headline, and never tune its formula or the 2% share to catch more of the 2023 banks ([[decisions/0013-run-risk-check]]).
+

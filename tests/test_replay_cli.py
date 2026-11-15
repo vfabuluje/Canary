@@ -64,3 +64,22 @@ def test_cli_missing_model_fails(features_path, tmp_path):
     empty.mkdir()
     assert main(["--features", str(features_path), "--model-dir", str(empty), "--out", str(tmp_path / "r")]) == 1
     assert not (tmp_path / "r").exists()
+
+
+def test_every_output_column_documented(features_path, model_dir, tmp_path):
+    """data-dictionary/replay_outputs.md must define every column the replay writes."""
+    from pathlib import Path
+
+    out = tmp_path / "replay"
+    assert main(["--features", str(features_path), "--model-dir", str(model_dir), "--out", str(out)]) == 0
+    doc = (Path(__file__).resolve().parent.parent / "data-dictionary" / "replay_outputs.md").read_text()
+    missing = []
+    for name in OUTPUT_FILES:
+        if name.endswith(".csv"):
+            columns = pd.read_csv(out / name, nrows=0).columns
+        else:
+            columns = json.loads((out / name).read_text()).keys()
+        if f"## `{name}`" not in doc:
+            missing.append(name)
+        missing += [f"{name}:{c}" for c in columns if f"| `{c}` |" not in doc]
+    assert missing == []

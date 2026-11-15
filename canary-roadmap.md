@@ -9,11 +9,11 @@ kanban-plugin: board
 - [ ] Phase 1: Vault + repo setup; pull FDIC financials and failed bank list
 - [ ] Phase 2: Warehouse (S3 + Athena, dbt models and data tests)
 - [ ] Phase 3: CAMELS-style features; train XGBoost; test on 2016–2024
+- [ ] Phase 4: SVB / Signature / First Republic replay; error analysis
 
 
 ## In Progress
 
-- [ ] Phase 4: SVB / Signature / First Republic replay; error analysis
 
 
 ## Not Started

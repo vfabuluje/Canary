@@ -73,6 +73,15 @@ Since 2020, some small banks may use the simpler community bank leverage ratio a
 ### XGBoost
 **eXtreme Gradient Boosting.** A machine-learning library that builds many small decision trees, each one correcting the mistakes of the trees before it. Canary's model is 79 trees, each up to 5 levels deep, trained on 2001–2014 report dates ([decision 0010](../decisions/0010-label-and-time-split.md)). The code is in `src/canary/model/train.py`, and the run's settings are saved to `data/model/run_config.json`. More in [STACK.md](STACK.md).
 
+### Post-hoc
+**Designed after seeing the answer.** A check built after you already know which banks failed can be bent, even unintentionally, toward catching them, so its results are not a fair test of what would have worked at the time. In Canary the Phase 3 model is the clean test (trained on 2001–2014, scored once on 2016–2024); the Phase 4 run-risk check and corrected Texas baseline are post-hoc, and every number from them is labeled so ([decision 0013](../decisions/0013-run-risk-check.md), `posthoc_metrics.json`).
+
+### Run-risk score
+**How much of a bank's equity its bond losses have eaten, weighted by how much of its deposits could run.** `clip(uninsured_to_deposits, 0, 1) × (htm_unrealized_loss_to_equity + afs_unrealized_loss_to_equity)`. Only the combination scores high. Post-hoc; it ranked SVB 9th of 4,861 banks on the 2022-03-31 report, but it caught only 3 of 29 test-era failures ([decision 0013](../decisions/0013-run-risk-check.md), [analysis](../analysis/phase4-replay.md)).
+
+### What-if analysis
+**Change one input, keep everything else, and see how the model's answer moves.** Canary's Phase 4 sets one feature of SVB's, Signature's or First Republic's last report to each value on a grid and re-scores it with the saved model (`what_if.csv`). For SVB, any HTM loss from 0 to 150% of equity gave the same score: the model never learned to react to it ([analysis](../analysis/phase4-replay.md)).
+
 ### DDL
 **Data Definition Language.** The part of SQL that defines structure (`CREATE TABLE`, `ALTER TABLE`) rather than reading data.
 - **Where it lives:** Canary's raw Athena tables are defined by hand-written DDL in `warehouse/ddl/fdic_financials.sql` and `warehouse/ddl/fdic_failures.sql`.
