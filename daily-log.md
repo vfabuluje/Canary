@@ -1,6 +1,23 @@
 # Daily Log
 
-## 2026-11-11 (session 2: README for two readers)
+## 2026-11-14
+**Done**
+- Vault: `dashboard.md` (Dataview index of decisions, specs, runbooks) and `canary-roadmap.md` (Kanban board); per-device Obsidian state and the Smart Connections cache added to `.gitignore` (PR #5, merged).
+- **Repo moved out of iCloud to `~/code/canary`.** iCloud had evicted about 946 repo files (including `pyproject.toml` and `.git` objects) and would not download them again, so pytest could not start; it also left a stale `origin/main` lock and `data 2` / `.venv 2` duplicates. Fresh clone from GitHub, local-only files copied (`data.nosync`, `.env`, `CLAUDE.local.md`, Obsidian plugins, dbt packages), venv rebuilt with identical package versions. The old folder in `~/Documents/Obsidian Vault/canary` is untouched.
+- **Phase 4 built** (spec [[specs/2026-11-11-phase4-replay-design]], plan [[plans/2026-11-11-phase4-replay]]): `canary.replay` package (run-risk check, corrected Texas baseline, failure mix, what-if, contributions, misses, false alarms) and CLI. Live run on real data, local only, model folder unchanged (checksums). Decisions [[decisions/0013-run-risk-check]], [[decisions/0014-corrected-texas-baseline]], [[decisions/0015-failure-mix-profiles]]; report [[analysis/phase4-replay]]; dictionary [[replay_outputs]]; runbook, glossary, README updated. 179 pytest pass.
+- **Findings.** 515 of 539 training-era failures (96%) had a credit-loss profile; 1 looked like SVB. The model is flat in HTM loss for SVB (0 to 1.5 x equity gives the same score). In the test years 19 of 21 caught failures had the credit-loss profile and 0 of 8 misses did. Run-risk check (post-hoc): SVB flagged 4 quarters ahead (rank 9 of 4,861 at 2022-03-31), but 3 of 29 recall, AUC 0.515, 846 never-failed banks flagged; Signature and First Republic missed. Corrected Texas baseline (post-hoc): 20 of 29, AUC 0.803, so the model's recall edge over a fair baseline is one bank.
+
+**Next**
+- Whole-branch review of `phase4-replay`, then merge (owner's consent).
+- Open `~/code/canary` as the Obsidian vault; delete the old iCloud copy once nothing is missing.
+- Phase 5: AI risk analyst agent.
+
+**Open questions**
+- Are the credit-loss cut-offs (noncurrent >= 5%, Texas >= 100%) right? ([[decisions/0015-failure-mix-profiles]])
+- Several model misses (e.g. Washington Federal 2017, Enloe 2019, Heartland Tri-State 2023) had clean loan books; were they non-financial failures (e.g. fraud)? Needs cited sources before saying so.
+- Should a later model add HTM loss and uninsured share with a different training approach? Any such model must be reported as post-hoc for 2023.
+
+## 2026-11-11 (session 3: README for two readers)
 **Done**
 - README rewritten in layers (spec: [[specs/2026-11-11-readme-layers-design]]): a plain-English top (what Canary is, the SVB story, what I found, why it missed the 2023 banks, what's next, built with) for a skimming recruiter, then a "Technical detail" part for engineers. Every term glossed on first use.
 - New `RESULTS.md` holds the full case-study tables with top signals and the full miss analysis; the README keeps compact per-bank tables. A number check confirmed no figure was lost; all links resolve.
@@ -11,6 +28,21 @@
 
 **Open questions**
 - None new. (Phase 4's open question on the credit-loss cut-offs is on branch `phase4-replay`.)
+
+## 2026-11-11 (session 2: Phase 4 started, then paused)
+**Done**
+- Phase 4 spec approved: [[specs/2026-11-11-phase4-replay-design]]. Chosen approach: a post-hoc run-risk check (uninsured share × bond losses ÷ equity, top 2% per quarter, decision 0011's rule), kept separate from the clean Phase 3 test; plus a corrected Texas baseline and error analysis (failure mix, what-if, contributions, misses, false alarms).
+- Pre-look (scratch, recorded in spec §5 as the reason the check is post-hoc): SVB ranks 3rd-70th of ~4,800 every quarter 2021-12-31 to 2022-12-31 on run-risk; Signature 23rd at 2021-12-31 then 184th-348th; First Republic ~87th percentile (its losses were on loans, which FDIC data can't see). 1,106 banks had bond losses ≥ 50% of equity at 2022-12-31, so bond losses alone don't single SVB out.
+- Plan written: [[plans/2026-11-11-phase4-replay]] (7 tasks). Task 1 done and reviewed (shared synthetic test fixtures moved to `tests/conftest.py`; 142 tests pass).
+- Paused by choice during Task 2; work resumes in a few days.
+
+**Next**
+- Resume the plan at Task 2 (subagent-driven). Leftover uncommitted Task 2 files from the interrupted run (`src/canary/replay/`, `tests/test_replay_runrisk.py`, edit to `src/canary/model/train.py`) should be reviewed or discarded first.
+- Merge Phase 4 branch only after the whole-branch review (owner's consent).
+- Tooling: install `uv` (`brew install uv`) so the `aws-mcp` server can start; retry the failed Claude Code auto-update (`claude update`).
+
+**Open questions**
+- Are the credit-loss profile cut-offs (noncurrent ≥ 5% or Texas ≥ 100%) the right rules of thumb? (Spec §8.1, Claude's call.)
 
 ## 2026-11-11
 **Done**
