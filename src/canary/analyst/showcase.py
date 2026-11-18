@@ -28,7 +28,8 @@ from canary.model.train import CASE_STUDY_CERTS
 log = logging.getLogger(__name__)
 
 AFTER_WINDOW_START = date(2025, 12, 31)  # "after the test window": failure_date > this
-EST_TOKENS_PER_BANK = 2000  # estimate used by --dry-run, for input and for output
+EST_INPUT_TOKENS = 3500  # per bank, fact sheet and prompt (a real request is ~13.5k characters)
+EST_OUTPUT_TOKENS = 2000  # per bank
 
 
 def _as_dt(d: date) -> pd.Timestamp:
@@ -89,7 +90,7 @@ def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path) -> list[tupl
 
 def estimate_cost(n_banks: int, model: str) -> float:
     """Dry-run estimate at the batch (half) price."""
-    return cost_usd(model, EST_TOKENS_PER_BANK * n_banks, EST_TOKENS_PER_BANK * n_banks) / 2
+    return cost_usd(model, EST_INPUT_TOKENS * n_banks, EST_OUTPUT_TOKENS * n_banks) / 2
 
 
 def custom_id(cert: int, as_of: date) -> str:
@@ -144,7 +145,7 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
         try:
             res = write_memo(ctx, cert, as_of, client=client, model=model, out_dir=out_dir,
                              first_memo=first.get(cid), replay_dir=replay_dir)
-        except (RefusalError, TruncatedError, ValueError) as exc:
+        except Exception as exc:  # one bank must never abort the run or lose the report
             entry["errors"] = [f"{type(exc).__name__}: {exc}"]
             if cid in why_retry:
                 entry["errors"].insert(0, why_retry[cid])

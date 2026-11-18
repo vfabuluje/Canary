@@ -59,7 +59,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _showcase(args) -> int:
-    from canary.analyst.showcase import estimate_cost, run_showcase, showcase_banks
+    from canary.analyst.showcase import (
+        EST_INPUT_TOKENS,
+        EST_OUTPUT_TOKENS,
+        estimate_cost,
+        run_showcase,
+        showcase_banks,
+    )
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
     banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir))
@@ -69,8 +75,10 @@ def _showcase(args) -> int:
             counts[group] = counts.get(group, 0) + 1
             print(f"{cert}\t{as_of}\t{group}")
         print(f"{len(banks)} banks: " + ", ".join(f"{g} {n}" for g, n in counts.items()))
+        n_in, n_out = EST_INPUT_TOKENS * len(banks), EST_OUTPUT_TOKENS * len(banks)
+        print(f"estimated tokens: {n_in:,} input, {n_out:,} output")
         print(f"estimated cost: ${estimate_cost(len(banks), args.model):.2f} "
-              f"(batch price, {args.model}, 2,000 input and 2,000 output tokens per bank)")
+              f"(batch price, {args.model}; excludes retries)")
         return 0
     report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
                           banks=banks, replay_dir=Path(args.replay_dir))

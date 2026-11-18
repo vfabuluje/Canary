@@ -167,3 +167,31 @@ def test_dry_run_makes_no_calls(analyst_ctx, tmp_model_dir, tmp_replay_dir, caps
     rc = cli.main(["showcase", "--dry-run", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path)])
     out = capsys.readouterr().out
     assert rc == 0 and "banks" in out and "estimated cost" in out and "false_alarm" in out
+
+
+def test_unexpected_retry_error_does_not_abort_run(analyst_ctx, tmp_path):
+    import anthropic
+
+    err = anthropic.APIConnectionError(request=SimpleNamespace(method="POST", url="https://x"))
+    outcomes = {100: "errored", 101: "errored", 102: "errored", 103: "ok"}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes,
+                         responses=[RuntimeError("boom"), err, _good(analyst_ctx, tmp_path, 102)])
+    rep = _run(analyst_ctx, tmp_path, client)
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert len(by) == 4 and rep["written"] == 2 and rep["failed"] == 2
+    assert not by[100]["ok"] and "RuntimeError" in " ".join(by[100]["errors"])
+    assert not by[101]["ok"] and "APIConnectionError" in " ".join(by[101]["errors"])
+    assert by[102]["ok"] and by[103]["ok"]
+    assert json.loads((tmp_path / "report.json").read_text())["failed"] == 2
+
+
+def test_missing_batch_result_is_retried(analyst_ctx, tmp_path):
+    outcomes = {100: "ok", 101: "ok", 102: "ok", 103: "ok"}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[_good(analyst_ctx, tmp_path, 102)])
+    orig = client._results
+    client.messages.batches.results = lambda bid: iter(
+        [r for r in orig(bid) if not r.custom_id.startswith("102-")])
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert rep["written"] == 4 and len(rep["banks"]) == 4
+    assert len(client.calls) == 1
+    assert {b["cert"]: b["source"] for b in rep["banks"]}[102] == "retry"
