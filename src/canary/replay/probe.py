@@ -27,9 +27,12 @@ WHAT_IF_GRID = {
 WHAT_IF_ROWS = [(24735, date(2022, 12, 31)), (57053, date(2022, 12, 31)), (59017, date(2023, 3, 31))]
 
 
-def _contribs(model: xgboost.XGBClassifier, rows: pd.DataFrame) -> np.ndarray:
+def contribution_matrix(model: xgboost.XGBClassifier, rows: pd.DataFrame) -> np.ndarray:
     matrix = xgboost.DMatrix(select_features(rows), feature_names=list(FEATURE_COLUMNS))
     return model.get_booster().predict(matrix, pred_contribs=True)[:, :-1]  # last column is the bias
+
+
+_contribs = contribution_matrix  # Phase 4 callers keep the old name
 
 
 def _format(contrib_row: np.ndarray, n: int, sign: int) -> str:

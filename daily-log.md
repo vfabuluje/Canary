@@ -1,5 +1,24 @@
 # Daily Log
 
+## 2026-11-17
+**Done**
+- **Repo location:** the vault symlink `Obsidian Vault/canary` now points to `~/code/canary`. I checked the old `canary-OLD` folder: nothing is missing from the repo, so it is safe to delete (not yet deleted).
+- **Phase 5 split into 5a-5d, in this order:** 5a risk analyst, 5b trend/watchlist agent, 5c peer-comparison agent (adds the FDIC specialty label), 5d concentration-risk agent.
+- **5a built** (spec [[specs/2026-11-17-phase5a-risk-analyst-design]], plan [[plans/2026-11-17-phase5a-risk-analyst]]): fact sheet, Claude memo, citation checker, note renderer, showcase batch, `ask` agent. Decisions [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]]; runbook [[runbooks/analyst]].
+- **Reviews caught:** a history tail-before-sort bug, the 2025-failure outcome rule, an unsaved batch id, and checker false rejections and false acceptances.
+- **Live model comparison** ([[analysis/phase5a-model-compare]]): Opus 5.5 passed 1 of 3 first try, Sonnet 5.5 0 of 3; both 3 of 3 after retry; $0.47 vs $0.21. Run 1 ($0.80) was discarded because the checker rejected the "1" in "Tier 1". Owner chose Opus.
+- **Showcase:** 61 banks, 61 written, 0 failed (43 first try, 18 after retry); $3.94; outcomes 25 caught, 8 missed, 5 false alarms, 23 on the watchlist. Trimmed to the latest watchlist's top 20 to control cost.
+- **After the test window:** all 4 banks that failed in 2026 were flagged 4 quarters ahead (not part of the reported results; see RESULTS.md and decision 0018). Santa Anna (2025) is a reported miss.
+- **Cost:** Claude API about $5.65 for 5a (compare $1.48, showcase $3.94, `ask` tests about $0.20). AWS unchanged.
+
+**Next**
+- Whole-branch merge of `phase5a-risk-analyst` (owner's consent), then Phase 5b design.
+- Small follow-ups: rename "(first flag)" to make clear it is the first flag in the final four quarters; fix the dry-run estimate constants; the checker residuals listed in decision 0016.
+
+**Open questions**
+- Regenerate the other 67 latest-watchlist notes later?
+- Should the after-window catches get a fuller write-up?
+
 ## 2026-11-14
 **Done**
 - Vault: `dashboard.md` (Dataview index of decisions, specs, runbooks) and `canary-roadmap.md` (Kanban board); per-device Obsidian state and the Smart Connections cache added to `.gitignore` (PR #5, merged).
