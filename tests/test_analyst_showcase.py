@@ -195,3 +195,154 @@ def test_missing_batch_result_is_retried(analyst_ctx, tmp_path):
     assert rep["written"] == 4 and len(rep["banks"]) == 4
     assert len(client.calls) == 1
     assert {b["cert"]: b["source"] for b in rep["banks"]}[102] == "retry"
+
+
+# ---- final-review fixes ----------------------------------------------------------------
+
+def test_state_file_written_with_batch_id(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import state_path
+
+    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes)
+    rep = _run(analyst_ctx, tmp_path, client)
+    st = json.loads(state_path(tmp_path / "report.json").read_text())
+    assert state_path(tmp_path / "report.json") == tmp_path / "report.state.json"
+    assert st["batch_id"] == "batch_1" and st["model"] == "claude-opus-5-5" and st["created_at"]
+    assert st["banks"] == [[c, "2026-06-30", "latest_watchlist"] for c in (100, 101, 102, 103)]
+    assert st["ended"] is True
+    assert rep["batch_id"] == "batch_1" and rep["complete"] is True
+    assert all(b["served_model"] == "claude-opus-5-5" for b in rep["banks"])
+
+
+def test_resume_makes_no_create_call(analyst_ctx, tmp_path):
+    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
+    first = BatchClient(analyst_ctx, tmp_path, outcomes)
+    first.created.append([{"custom_id": f"{c}-20260630", "params": {"model": "claude-sonnet-5-5"}}
+                          for c in (100, 101, 102, 103)])  # the earlier run's batch
+    (tmp_path / "report.state.json").write_text(json.dumps({
+        "batch_id": "batch_1", "created_at": "2026-11-17T10:00:00", "model": "claude-sonnet-5-5", "ended": False,
+        "banks": [[c, "2026-06-30", "latest_watchlist"] for c in (100, 101, 102, 103)]}))
+    create_calls = []
+    first.messages.batches.create = lambda **kw: create_calls.append(kw)
+    rep = run_showcase(analyst_ctx, first, "claude-opus-5-5", tmp_path / "banks", tmp_path / "report.json",
+                       poll_seconds=0, replay_dir=tmp_path / "none", resume="batch_1")
+    assert create_calls == [] and first.retrieved >= 1
+    assert rep["written"] == 4 and rep["batch_id"] == "batch_1" and rep["model"] == "claude-sonnet-5-5"
+    assert json.loads((tmp_path / "report.state.json").read_text())["ended"] is True
+
+
+def test_transient_retrieve_error_then_success(analyst_ctx, tmp_path, monkeypatch):
+    import anthropic
+
+    from analyst_fakes import api_status_error
+    from canary.analyst import showcase
+
+    sleeps = []
+    monkeypatch.setattr(showcase.time, "sleep", lambda s: sleeps.append(s))
+    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes, polls=1)
+    errs = [anthropic.APIConnectionError(request=SimpleNamespace(method="GET", url="https://x")),
+            api_status_error("InternalServerError", 500)]
+    real = client._retrieve
+
+    def flaky(batch_id):
+        if errs:
+            raise errs.pop(0)
+        return real(batch_id)
+
+    client.messages.batches.retrieve = flaky
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert rep["written"] == 4 and rep["complete"]
+    assert sleeps[:2] == [showcase.RETRY_BASE_SECONDS, showcase.RETRY_BASE_SECONDS * 2]
+
+
+def test_retrieve_gives_up_and_partial_report_written(analyst_ctx, tmp_path, monkeypatch):
+    import anthropic
+
+    from canary.analyst import showcase
+
+    monkeypatch.setattr(showcase.time, "sleep", lambda s: None)
+    client = BatchClient(analyst_ctx, tmp_path, {c: "ok" for c in (100, 101, 102, 103)})
+    calls = []
+
+    def down(batch_id):
+        calls.append(batch_id)
+        raise anthropic.APIConnectionError(request=SimpleNamespace(method="GET", url="https://x"))
+
+    client.messages.batches.retrieve = down
+    with pytest.raises(anthropic.APIConnectionError):
+        _run(analyst_ctx, tmp_path, client)
+    assert len(calls) == showcase.RETRY_TRIES
+    rep = json.loads((tmp_path / "report.json").read_text())
+    assert rep["complete"] is False and rep["batch_id"] == "batch_1" and "APIConnectionError" in rep["error"]
+    assert rep["banks_total"] == 4 and rep["banks_done"] == 0
+    assert json.loads((tmp_path / "report.state.json").read_text())["ended"] is False
+
+
+def test_auth_error_not_retried(analyst_ctx, tmp_path, monkeypatch):
+    from analyst_fakes import api_status_error
+    from canary.analyst import showcase
+
+    monkeypatch.setattr(showcase.time, "sleep", lambda s: pytest.fail("retried a non-transient error"))
+    client = BatchClient(analyst_ctx, tmp_path, {c: "ok" for c in (100, 101, 102, 103)})
+    client.messages.batches.retrieve = lambda bid: (_ for _ in ()).throw(api_status_error("AuthenticationError", 401))
+    with pytest.raises(Exception, match="api error"):
+        _run(analyst_ctx, tmp_path, client)
+
+
+def test_failed_retry_usage_counted(analyst_ctx, tmp_path):
+    from canary.analyst.writer import RefusalError
+
+    outcomes = {100: "ok", 101: "bad", 102: "ok", 103: "ok"}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[RefusalError("no")])
+    rep = _run(analyst_ctx, tmp_path, client)
+    # 4 batch results at half price; the 101 retry raised before returning usage -> nothing extra
+    assert rep["input_tokens"] == 4000
+    client = BatchClient(analyst_ctx, tmp_path, {100: "ok", 101: "errored", 102: "ok", 103: "ok"},
+                         responses=[{"sections": []}, RefusalError("no")])
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert rep["input_tokens"] == 3000 + 1000  # the bad retry memo's tokens survive the refusal
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert not by[101]["ok"] and by[101]["served_model"] == "claude-opus-5-5"
+
+
+def test_cli_refuses_unfinished_batch_and_resumes(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch,
+                                                  tmp_path, capsys):
+    report = tmp_path / "rep.json"
+    (tmp_path / "rep.state.json").write_text(json.dumps({"batch_id": "b9", "banks": [], "model": "m",
+                                                        "ended": False, "created_at": "x"}))
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
+    args = ["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+            "--report", str(report)]
+    assert cli.main(args) == 1
+    assert "--resume b9" in capsys.readouterr().err
+    seen = {}
+
+    def fake_run(*a, **k):
+        seen.update(k)
+        return {"written": 0, "failed": 0, "banks_total": 0, "cost_usd": 0.0, "banks": []}
+
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", fake_run)
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    assert cli.main(args + ["--resume", "b9"]) == 0
+    assert seen["resume"] == "b9"
+
+
+def test_cli_showcase_create_api_error_exits_1(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch,
+                                               tmp_path, capsys):
+    from analyst_fakes import api_status_error
+
+    client = BatchClient(analyst_ctx, tmp_path, {})
+
+    def create(requests):
+        raise api_status_error("AuthenticationError", 401, "invalid x-api-key")
+
+    client.messages.batches.create = create
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr(cli, "make_client", lambda: client)
+    report = tmp_path / "rep.json"
+    rc = cli.main(["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+                   "--report", str(report), "--out", str(tmp_path / "banks")])
+    assert rc == 1 and "Claude API call failed (AuthenticationError)" in capsys.readouterr().err
+    assert json.loads(report.read_text())["complete"] is False

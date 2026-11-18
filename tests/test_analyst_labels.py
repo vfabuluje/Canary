@@ -19,3 +19,11 @@ def test_display_forms():
 def test_display_forms_negative_keeps_sign():
     assert display_forms("return_on_assets", -2.5)[0] == "-2.5%"
     assert display_forms("asset_growth_4q", -0.2)[0] == "-20.0%"
+
+
+def test_anthropic_pin_matches_tested_version():
+    import tomllib
+    from pathlib import Path
+
+    deps = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())["project"]["optional-dependencies"]
+    assert deps["analyst"] == ["anthropic>=1.17,<2"]

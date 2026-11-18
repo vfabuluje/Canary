@@ -226,3 +226,54 @@ def test_section_instructions_match_renderer(sheet):
 def test_cli_malformed_json_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
     assert _cli(monkeypatch, analyst_ctx, tmp_path, ["not json {"]) == 1
     assert "malformed" in capsys.readouterr().err
+
+
+# ---- final-review fixes ----------------------------------------------------------------
+
+def test_parse_response_without_text_block_is_clear():
+    from types import SimpleNamespace
+
+    from canary.analyst.writer import EmptyResponseError
+
+    msg = fake_message("")
+    msg.content = [SimpleNamespace(type="thinking", thinking="...")]
+    with pytest.raises(EmptyResponseError, match="no text block"):
+        parse_response(msg)
+    assert issubclass(EmptyResponseError, ValueError)
+
+
+def test_cli_memo_no_text_block_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
+    msg = fake_message("")
+    msg.content = []
+    assert _cli(monkeypatch, analyst_ctx, tmp_path, [msg]) == 1
+    assert "no text block" in capsys.readouterr().err
+
+
+def test_cli_memo_api_error_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
+    from analyst_fakes import api_status_error
+
+    err = api_status_error("RateLimitError", 429, "rate limited")
+    assert _cli(monkeypatch, analyst_ctx, tmp_path, [err]) == 1
+    out = capsys.readouterr().err
+    assert "Claude API call failed (RateLimitError)" in out and len(out.strip().splitlines()) == 1
+
+
+def test_exception_carries_usage_of_earlier_calls(analyst_ctx, sheet, tmp_path):
+    bad = _memo(sheet, rank_text="999,999")
+    with pytest.raises(RefusalError) as info:
+        _write(analyst_ctx, tmp_path, [bad, fake_message("", stop_reason="refusal")])
+    u = info.value.usage
+    assert u["input_tokens"] == 2000 and u["output_tokens"] == 1000  # both calls returned usage
+    assert u["cost_usd"] == pytest.approx(2 * cost_usd("claude-opus-5-5", 1000, 500))
+    assert u["model"] == "claude-opus-5-5"
+    with pytest.raises(RuntimeError) as info:
+        _write(analyst_ctx, tmp_path, [bad, RuntimeError("down")])
+    assert info.value.usage["input_tokens"] == 1000
+
+
+def test_request_comment_on_adaptive_thinking():
+    import inspect
+
+    from canary.analyst import writer
+
+    assert "always thinks adaptively" in inspect.getsource(writer.build_request)

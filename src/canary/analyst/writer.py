@@ -37,10 +37,12 @@ compute new numbers (no differences, ratios, sums or "twice as high"). For compa
 ("March 31, 2023"). Never abbreviate a month (write "September", not "Sep"). Only use a date or year \
 that belongs to a fact you cite.
 5. Small counts that are not facts (for example the number of drivers you list) must be spelled out as \
-words ("five"), never digits.
+words ("five"), never digits. Spelled time spans ("four quarters", "a year") count as numbers: use one \
+only when a cited fact has it (the lead time, or a label that says it).
 6. Sections marked as-of (summary, warning_signs, score) describe the bank only as of the as-of \
 quarter. In them never cite a fact marked hindsight and never mention, hint at, or foreshadow anything \
-after the as-of date, including whether the bank later failed.
+after the as-of date, including whether the bank later failed. Do not use the words "failed", \
+"collapsed", "was closed" or "was seized" in them.
 7. The score is not a probability. Describe the bank by its national rank and percentile (lead with \
 the rank), never as a chance or likelihood of failure.
 8. A fact whose label contains "{POSTHOC_LABEL}" must be described with that exact label wording in the \
@@ -55,6 +57,10 @@ class RefusalError(RuntimeError):
 
 class TruncatedError(RuntimeError):
     """The response hit max_tokens before the JSON memo was complete."""
+
+
+class EmptyResponseError(ValueError):
+    """The response had no text block to parse as the JSON memo."""
 
 
 @dataclass
@@ -161,6 +167,7 @@ def build_request(sheet: FactSheet, sections: list[Section], model: str, errors:
         if previous is not None:
             messages.append({"role": "assistant", "content": json.dumps(previous)})
         messages.append({"role": "user", "content": _retry_message(errors)})
+    # No `thinking` key: Opus 5.5 always thinks adaptively when it is omitted.
     return {
         "model": model,
         "max_tokens": MAX_TOKENS,
@@ -177,14 +184,22 @@ def parse_response(message) -> dict:
         raise RefusalError(f"Claude refused to write the memo{why}")
     if message.stop_reason == "max_tokens":
         raise TruncatedError(f"response hit max_tokens ({MAX_TOKENS}) before the memo was complete")
-    text = next(b.text for b in message.content if b.type == "text")
+    text = next((b.text for b in message.content if b.type == "text"), None)
+    if text is None:
+        kinds = ", ".join(b.type for b in message.content) or "none"
+        raise EmptyResponseError(f"response has no text block to parse (stop_reason {message.stop_reason}; "
+                                 f"blocks: {kinds})")
     return json.loads(text)
 
 
 def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str = DEFAULT_MODEL,
                out_dir: Path = Path("banks"), first_memo: dict | None = None,
                replay_dir: Path = Path("data/replay")) -> MemoResult:
-    """Write one checked note. Raises ValueError for a bad as-of, RefusalError / TruncatedError from Claude."""
+    """Write one checked note. Raises ValueError for a bad as-of, RefusalError / TruncatedError from Claude.
+
+    Any exception raised after calls were made carries `exc.usage` = {input_tokens, output_tokens,
+    cost_usd, model} for those calls, so callers can still count the spend.
+    """
     sheet = build_fact_sheet(ctx, cert, as_of, replay_dir=replay_dir)
     sections = all_sections(sheet.outcome.kind)
     to_check = ai_sections(sections)
@@ -203,13 +218,21 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
         usage["cost"] += cost_usd(served if served in PRICES else model, i, o)
         return parse_response(msg)
 
-    memo = first_memo if first_memo is not None else call()
-    attempts = 1
-    errors = check_memo(memo, sheet, to_check)
-    if errors:
-        memo = call(errors, memo)
-        attempts = 2
+    try:
+        memo = first_memo if first_memo is not None else call()
+        attempts = 1
         errors = check_memo(memo, sheet, to_check)
+        if errors:
+            memo = call(errors, memo)
+            attempts = 2
+            errors = check_memo(memo, sheet, to_check)
+    except Exception as exc:
+        try:
+            exc.usage = {"input_tokens": usage["in"], "output_tokens": usage["out"],
+                         "cost_usd": usage["cost"], "model": served}
+        except AttributeError:  # an exception type that refuses attributes; nothing to attach
+            pass
+        raise
 
     path = None
     if not errors:

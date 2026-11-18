@@ -5,7 +5,6 @@ so Claude can read the message and recover. Dates are "YYYY-MM-DD" strings, null
 """
 
 import json
-import math
 from datetime import date
 
 import pandas as pd
@@ -13,7 +12,6 @@ import pandas as pd
 from canary.analyst.context import Context
 from canary.analyst.facts import build_fact_sheet
 from canary.analyst.writer import RefusalError, TruncatedError, write_memo
-from canary.model.metrics import WATCHLIST_SHARE
 
 MAX_MATCHES = 10
 
@@ -88,7 +86,7 @@ def get_bank_facts(ctx: Context, cert: int, as_of: str | None = None) -> str:
             "outcome": sheet.outcome.kind,
             "facts": [
                 {"id": f.id, "label": f.label, "quarter": f.quarter.isoformat() if f.quarter else None,
-                 "display": f.display}
+                 "display": f.display, "window": "hindsight" if f.hindsight else "as_of"}
                 for f in sheet.facts
             ],
         }
@@ -103,8 +101,7 @@ def list_watchlist(ctx: Context, quarter: str | None = None) -> str:
     rows = ctx.scored[ctx.scored["report_date"] == pd.Timestamp(q)]
     if rows.empty:
         return _error(f"no scores for quarter {q}; scores run from 2016-03-31 to {ctx.latest_quarter}")
-    k = math.ceil(round(len(rows) * WATCHLIST_SHARE, 9))
-    top = rows.sort_values(["rank", "cert"]).head(k)
+    top = rows[rows["flagged"].astype(bool)].sort_values(["rank", "cert"])
     names = ctx.banks.set_index("cert")["name"]
     return _dumps(
         [{"cert": int(r.cert), "name": _text(names.get(r.cert)), "rank": int(r.rank)} for r in top.itertuples()]

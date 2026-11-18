@@ -46,6 +46,9 @@ class _Runner:
     def __init__(self, final) -> None:
         self._final = final
 
+    def __iter__(self):
+        yield self._final
+
     def until_done(self):
         return self._final
 
@@ -64,3 +67,12 @@ class FakeClient:
         self.calls: list[dict] = []
         self.runner_calls: list[dict] = []
         self.beta = SimpleNamespace(messages=_RunnerMessages(self))
+
+
+def api_status_error(cls_name: str, status: int, message: str = "api error"):
+    """An anthropic APIStatusError subclass (e.g. "RateLimitError", 429) without a real HTTP response."""
+    import anthropic
+
+    resp = SimpleNamespace(status_code=status, headers={},
+                           request=SimpleNamespace(method="POST", url="https://api.example"))
+    return getattr(anthropic, cls_name)(message, response=resp, body=None)

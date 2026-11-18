@@ -5,7 +5,7 @@ then every failure is retried one by one through the normal path (with fallbacks
 import json
 import logging
 import time
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -29,6 +29,8 @@ log = logging.getLogger(__name__)
 
 EST_INPUT_TOKENS = 3500  # per bank, fact sheet and prompt (a real request is ~13.5k characters)
 EST_OUTPUT_TOKENS = 2000  # per bank
+RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is re-raised
+RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s
 
 
 def _as_dt(d: date) -> pd.Timestamp:
@@ -96,11 +98,95 @@ def custom_id(cert: int, as_of: date) -> str:
     return f"{cert}-{as_of:%Y%m%d}"
 
 
+def state_path(report_path: Path) -> Path:
+    """Where the batch id is saved as soon as the batch exists (next to the report)."""
+    return Path(report_path).with_suffix(".state.json")
+
+
+def read_state(report_path: Path) -> dict | None:
+    path = state_path(report_path)
+    return json.loads(path.read_text()) if path.exists() else None
+
+
+def _write_state(report_path: Path, state: dict) -> None:
+    path = state_path(report_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(state, indent=2))
+
+
+def _transient(exc: BaseException) -> bool:
+    try:
+        import anthropic
+    except ImportError:  # pragma: no cover - the analyst extra is installed wherever this runs
+        return False
+    if isinstance(exc, anthropic.APIConnectionError):  # includes timeouts
+        return True
+    status = getattr(exc, "status_code", None)
+    return isinstance(exc, anthropic.APIStatusError) and (status in (408, 409, 429) or (status or 0) >= 500)
+
+
+def _retry(fn, *args):
+    """fn(*args), retried with backoff on transient API errors; re-raised after RETRY_TRIES tries."""
+    for attempt in range(1, RETRY_TRIES + 1):
+        try:
+            return fn(*args)
+        except Exception as exc:
+            if attempt == RETRY_TRIES or not _transient(exc):
+                raise
+            wait = RETRY_BASE_SECONDS * 2 ** (attempt - 1)
+            log.warning("showcase: %s (try %d of %d); retrying in %.0fs", exc, attempt, RETRY_TRIES, wait)
+            time.sleep(wait)
+
+
+def _usage_of(exc: BaseException) -> dict:
+    u = getattr(exc, "usage", None)
+    return u if isinstance(u, dict) else {}
+
+
 def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: Path,
                  poll_seconds: int = 60, *, banks: list[tuple[int, date, str]] | None = None,
-                 model_dir: Path = Path("data/model"), replay_dir: Path = Path("data/replay")) -> dict:
+                 model_dir: Path = Path("data/model"), replay_dir: Path = Path("data/replay"),
+                 resume: str | None = None) -> dict:
+    """Run the showcase batch. With `resume=BATCH_ID`, no batch is created: that batch is polled and
+    collected (its bank list and model come from the state file when it names the same batch).
+    The report is always written, partial if something escapes."""
+    state = read_state(report_path) if resume else None
+    if state is not None and state.get("batch_id") == resume:
+        banks = [(int(c), date.fromisoformat(d), g) for c, d, g in state["banks"]]
+        model = state.get("model", model)
     banks = banks if banks is not None else showcase_banks(ctx, model_dir, replay_dir)
     meta = {custom_id(c, d): (c, d, g) for c, d, g in banks}
+    entries: list[dict] = []
+    totals = {"in": 0, "out": 0, "cost": 0.0}
+    run = {"batch_id": resume, "error": None}
+    try:
+        _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, meta, replay_dir, resume,
+             entries, totals, run)
+    except BaseException as exc:
+        run["error"] = f"{type(exc).__name__}: {exc}"
+        raise
+    finally:
+        report = {
+            "model": model,
+            "batch_id": run["batch_id"],
+            "complete": run["error"] is None,
+            "error": run["error"],
+            "banks_total": len(meta),
+            "banks_done": len(entries),
+            "written": sum(e["ok"] for e in entries),
+            "failed": sum(not e["ok"] for e in entries),
+            "input_tokens": totals["in"],
+            "output_tokens": totals["out"],
+            "cost_usd": totals["cost"],
+            "banks": entries,
+        }
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(json.dumps(report, indent=2))
+    return report
+
+
+def _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, meta, replay_dir, resume,
+         entries, totals, run) -> None:
     requests, early = [], {}
     for cert, as_of, group in banks:
         try:
@@ -113,12 +199,24 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
 
     first: dict[str, dict] = {}   # custom_id -> parsed memo from the batch
     why_retry: dict[str, str] = dict(early)
-    totals = {"in": 0, "out": 0, "cost": 0.0}
     if requests:
-        batch = client.messages.batches.create(requests=requests)
-        while client.messages.batches.retrieve(batch.id).processing_status != "ended":
+        if resume:
+            batch_id = resume
+            log.info("showcase: resuming batch %s", batch_id)
+        else:
+            batch_id = client.messages.batches.create(requests=requests).id
+            run["batch_id"] = batch_id
+            log.info("showcase: created batch %s (%d requests); resume with --resume %s",
+                     batch_id, len(requests), batch_id)
+            _write_state(report_path, {
+                "batch_id": batch_id, "created_at": datetime.now().isoformat(timespec="seconds"),
+                "banks": [[c, d.isoformat(), g] for c, d, g in banks], "model": model, "ended": False})
+        while _retry(client.messages.batches.retrieve, batch_id).processing_status != "ended":
             time.sleep(poll_seconds)
-        for item in client.messages.batches.results(batch.id):
+        st = read_state(report_path)
+        if st is not None and st.get("batch_id") == batch_id:
+            _write_state(report_path, {**st, "ended": True})
+        for item in _retry(client.messages.batches.results, batch_id):
             cid, res = item.custom_id, item.result
             if res.type != "succeeded":
                 why_retry[cid] = f"batch result {res.type}"
@@ -131,16 +229,16 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
             totals["cost"] += cost_usd(served, i, o) / 2  # batch is half price
             try:
                 first[cid] = parse_response(msg)
-            except (RefusalError, TruncatedError, ValueError, StopIteration) as exc:
+            except (RefusalError, TruncatedError, ValueError) as exc:
                 why_retry[cid] = f"batch result unusable: {exc}"
         for r in requests:
             if r["custom_id"] not in first and r["custom_id"] not in why_retry:
                 why_retry[r["custom_id"]] = "no batch result"
 
-    entries = []
     for cid, (cert, as_of, group) in meta.items():
         entry = {"cert": cert, "as_of": as_of.isoformat(), "group": group, "ok": False, "attempts": 0,
-                 "path": None, "errors": [], "source": "batch" if cid in first else "retry"}
+                 "path": None, "errors": [], "source": "batch" if cid in first else "retry",
+                 "served_model": None}
         try:
             res = write_memo(ctx, cert, as_of, client=client, model=model, out_dir=out_dir,
                              first_memo=first.get(cid), replay_dir=replay_dir)
@@ -149,25 +247,16 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
             if cid in why_retry:
                 entry["errors"].insert(0, why_retry[cid])
             entry["attempts"] = 1
+            u = _usage_of(exc)  # calls made before the exception still cost money
+            totals["in"] += u.get("input_tokens", 0)
+            totals["out"] += u.get("output_tokens", 0)
+            totals["cost"] += u.get("cost_usd", 0.0)
+            entry["served_model"] = u.get("model")
             log.warning("showcase: cert %s failed: %s", cert, exc)
         else:
             totals["in"] += res.input_tokens
             totals["out"] += res.output_tokens
             totals["cost"] += res.cost_usd
             entry.update(ok=res.ok, attempts=res.attempts + (1 if cid not in first else 0),
-                         path=str(res.path) if res.path else None, errors=res.errors)
+                         path=str(res.path) if res.path else None, errors=res.errors, served_model=res.model)
         entries.append(entry)
-
-    report = {
-        "model": model,
-        "banks_total": len(entries),
-        "written": sum(e["ok"] for e in entries),
-        "failed": sum(not e["ok"] for e in entries),
-        "input_tokens": totals["in"],
-        "output_tokens": totals["out"],
-        "cost_usd": totals["cost"],
-        "banks": entries,
-    }
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps(report, indent=2))
-    return report

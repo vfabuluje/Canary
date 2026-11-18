@@ -3,7 +3,7 @@
 from anthropic import beta_tool
 
 from canary.analyst import tools
-from canary.analyst.writer import DEFAULT_MODEL, EFFORT, MAX_TOKENS
+from canary.analyst.writer import DEFAULT_MODEL, EFFORT, MAX_TOKENS, PRICES, cost_usd
 
 SYSTEM = """You are Canary's risk analyst. Canary ranks every FDIC-insured US bank by a machine-learning \
 score of its risk of failing within the next 4 quarters, and answers questions about banks in plain English.
@@ -19,6 +19,8 @@ write the memo yourself.
 - If the data cannot answer the question, say so plainly."""
 
 REFUSAL_LINE = "Sorry, I can't help with that request."
+MAX_ITERATIONS = 10  # model turns per question; stops a runaway tool loop
+STOPPED_LINE = f"(Stopped after {MAX_ITERATIONS} steps without a final answer.)"
 
 
 def make_tools(ctx, client, model: str) -> list:
@@ -39,7 +41,8 @@ def make_tools(ctx, client, model: str) -> list:
 
         Args:
             cert: FDIC certificate number of the bank.
-            as_of: Optional quarter-end date, YYYY-MM-DD; defaults to the bank's latest quarter.
+            as_of: Optional quarter-end date, YYYY-MM-DD; defaults to the latest quarter for an open bank,
+                or the last quarter it reported before failing for a failed bank.
         """
         return tools.get_bank_facts(ctx, cert, as_of)
 
@@ -65,15 +68,34 @@ def make_tools(ctx, client, model: str) -> list:
     return [find_bank, get_bank_facts, list_watchlist, write_memo]
 
 
-def ask(question: str, ctx, client, model: str = DEFAULT_MODEL) -> str:
-    final = client.beta.messages.tool_runner(
+def ask_with_usage(question: str, ctx, client, model: str = DEFAULT_MODEL) -> tuple[str, dict]:
+    """Answer and the agent's own token usage {input_tokens, output_tokens, cost_usd, model}, summed over
+    every model turn (memos written by the write_memo tool are not included)."""
+    runner = client.beta.messages.tool_runner(
         model=model,
         max_tokens=MAX_TOKENS,
         system=SYSTEM,
         tools=make_tools(ctx, client, model),
         messages=[{"role": "user", "content": question}],
         output_config={"effort": EFFORT},
-    ).until_done()
+        max_iterations=MAX_ITERATIONS,
+    )
+    usage = {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "model": model}
+    for msg in runner:  # one message per model turn; the runner runs the tools in between
+        served = getattr(msg, "model", None) or model
+        i, o = msg.usage.input_tokens, msg.usage.output_tokens
+        usage["input_tokens"] += i
+        usage["output_tokens"] += o
+        usage["cost_usd"] += cost_usd(served if served in PRICES else model, i, o)
+        usage["model"] = served
+    final = runner.until_done()
     if final.stop_reason == "refusal":
-        return REFUSAL_LINE
-    return "".join(b.text for b in final.content if b.type == "text").strip()
+        return REFUSAL_LINE, usage
+    text = "".join(b.text for b in final.content if b.type == "text").strip()
+    if final.stop_reason == "tool_use":  # max_iterations reached mid-loop
+        text = (text + "\n" if text else "") + STOPPED_LINE
+    return text, usage
+
+
+def ask(question: str, ctx, client, model: str = DEFAULT_MODEL) -> str:
+    return ask_with_usage(question, ctx, client, model)[0]

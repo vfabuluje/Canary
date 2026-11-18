@@ -2,8 +2,8 @@
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
 write the memo, checks every number, and saves the note only if it passes. Exit codes: 0 written,
-1 memo failed the check / refused / truncated / malformed JSON / bad input files,
-2 bad cert or as-of date.
+1 memo failed the check / refused / truncated / malformed JSON / bad input files / Claude API error
+(connection, auth, rate limit), 2 bad cert or as-of date.
 ANTHROPIC_API_KEY is read from the environment, then the repo .env, or an `ant auth login` profile.
 """
 import argparse
@@ -55,6 +55,8 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--replay-dir", default=str(REPLAY_DIR), help="Phase 4 replay folder")
     show.add_argument("--report", default="data/analyst/showcase_report.json", help="run report (JSON)")
     show.add_argument("--dry-run", action="store_true", help="list the banks and estimate the cost; no API calls")
+    show.add_argument("--resume", metavar="BATCH_ID", default=None,
+                      help="collect an existing batch (id from the log or the .state.json file) instead of creating one")
     cmp_ = sub.add_parser("compare", parents=[shared], help="write the case-study notes with several models and compare")
     cmp_.add_argument("--models", default="claude-opus-5-5,claude-sonnet-5-5", help="comma-separated writer models")
     cmp_.add_argument("--out", default="data/analyst/compare", help="comparison folder (one subfolder per model)")
@@ -73,7 +75,7 @@ def _compare(args) -> int:
     print(f"planned: {len(models) * len(certs)} calls ({len(models)} models x {len(certs)} banks {list(certs)})")
     for m in models:
         print(f"  {m} -> {Path(args.out) / m}")
-    report = cmp.compare_models(ctx, make_client(), models, certs, Path(args.out))
+    report = cmp.compare_models(ctx, make_client(), models, certs, Path(args.out), replay_dir=REPLAY_DIR)
     cols = ["model", "first try", "after retry", "failed", "in tokens", "out tokens", "cost"]
     rows = [[m, str(a["passed_first_try"]), str(a["passed_after_retry"]), str(a["failed"]),
              f"{a['input_tokens']:,}", f"{a['output_tokens']:,}", f"${a['cost_usd']:.2f}"]
@@ -93,8 +95,10 @@ def _showcase(args) -> int:
         EST_INPUT_TOKENS,
         EST_OUTPUT_TOKENS,
         estimate_cost,
+        read_state,
         run_showcase,
         showcase_banks,
+        state_path,
     )
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
@@ -110,8 +114,14 @@ def _showcase(args) -> int:
         print(f"estimated cost: ${estimate_cost(len(banks), args.model):.2f} "
               f"(batch price, {args.model}; excludes retries)")
         return 0
+    state = read_state(Path(args.report))
+    if args.resume is None and state is not None and not state.get("ended"):
+        print(f"error: batch {state['batch_id']} from {state_path(Path(args.report))} has not been collected; "
+              f"rerun with --resume {state['batch_id']} (or delete that file to start a new batch)",
+              file=sys.stderr)
+        return 1
     report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
-                          banks=banks, replay_dir=Path(args.replay_dir))
+                          banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume)
     print(f"{report['written']} written, {report['failed']} failed of {report['banks_total']} "
           f"(${report['cost_usd']:.2f}); report {args.report}")
     for e in report["banks"]:
@@ -121,10 +131,13 @@ def _showcase(args) -> int:
 
 
 def _ask(args) -> int:
-    from canary.analyst.agent import ask
+    from canary.analyst.agent import ask_with_usage
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
-    print(ask(args.question, ctx, make_client(), args.model))
+    answer, u = ask_with_usage(args.question, ctx, make_client(), args.model)
+    print(answer)
+    print(f"({u['model']}, {u['input_tokens']:,} in / {u['output_tokens']:,} out tokens, ${u['cost_usd']:.4f}; "
+          "memos written by the agent are not included)", file=sys.stderr)
     return 0
 
 
@@ -164,9 +177,18 @@ def _memo(args) -> int:
     return 0
 
 
+def _api_errors() -> tuple[type[BaseException], ...]:
+    try:
+        import anthropic
+    except ImportError:
+        return ()
+    return (anthropic.APIError,)  # connection, timeout, auth, rate limit, server errors
+
+
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     args = build_parser().parse_args(argv)
+    api_errors = _api_errors()
     try:
         if args.command == "memo":
             return _memo(args)
@@ -178,6 +200,10 @@ def main(argv: list[str] | None = None) -> int:
             return _ask(args)
     except (KeyError, FileNotFoundError) as exc:
         log.error("analyst failed: %s", exc)
+        return 1
+    except api_errors as exc:
+        msg = " ".join(str(exc).split())[:300]
+        print(f"error: Claude API call failed ({type(exc).__name__}): {msg}", file=sys.stderr)
         return 1
     return 2
 
