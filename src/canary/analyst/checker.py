@@ -52,9 +52,9 @@ def _term_pattern() -> re.Pattern:
     alts = []
     for ph in sorted(phrases):
         if ph.lower().startswith("tier"):
-            alts.append(r"\bTier\s+[12]\b")  # Tier 1 is the listed term; Tier 2 is its sibling
+            alts.append(r"\bTier\s+[12](?!\s?\.?\d)")  # Tier 1 is the listed term; Tier 2 is its sibling
         else:
-            alts.append(re.sub(r"\\[-\u2013]", "[-\u2013]", re.escape(ph)).replace(r"\ ", r"\s+"))
+            alts.append(r"(?<![\w.])" + re.sub(r"\\[-\u2013]", "[-\u2013]", re.escape(ph)).replace(r"\ ", r"\s+"))
     return re.compile("|".join(dict.fromkeys(alts)), re.IGNORECASE)
 
 

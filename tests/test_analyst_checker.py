@@ -347,3 +347,16 @@ def test_tier_2_and_30_89_days_terms_removed():
     assert run_terms("Loans 30-89 days past due were 0.4% of assets.", ["F3"]) == []
     assert run_terms("Loans 30–89 days past due were 0.4% of assets.", ["F3"]) == []
     assert run_terms("Tier 2 capital was 0.4% of assets.", ["F3"]) == []
+
+
+def test_tier_term_not_stripped_when_glued_to_decimal():
+    for text in ("Tier 1.5% was the ratio.", "Tier 1.25 was the ratio.", "Tier 1 .5% was the ratio."):
+        errs = run_terms(text, ["F1"])
+        assert errs, text
+    assert run_terms("The Tier 1 ratio was 15.3%.", ["F1"]) == []
+    assert run_terms("Capital was measured by Tier 1.", ["F1"]) == []
+
+
+def test_days_term_needs_leading_boundary():
+    errs = run_terms("The 1130-89 days figure was 0.4%.", ["F3"])
+    assert errs and not any("'11'" in e for e in errs)  # not stripped mid-number, leaving '11'
