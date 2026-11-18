@@ -42,8 +42,25 @@ class _Messages:
         return msg
 
 
+class _Runner:
+    def __init__(self, final) -> None:
+        self._final = final
+
+    def until_done(self):
+        return self._final
+
+
+class _RunnerMessages(_Messages):
+    def tool_runner(self, **kw):
+        """Records kwargs in client.runner_calls; until_done() returns the next response message."""
+        self._client.runner_calls.append(kw)
+        item = self._client.responses.pop(0)
+        return _Runner(item if isinstance(item, SimpleNamespace) else fake_message(str(item)))
+
+
 class FakeClient:
     def __init__(self, responses: list) -> None:
         self.responses = list(responses)
         self.calls: list[dict] = []
-        self.beta = SimpleNamespace(messages=_Messages(self))
+        self.runner_calls: list[dict] = []
+        self.beta = SimpleNamespace(messages=_RunnerMessages(self))

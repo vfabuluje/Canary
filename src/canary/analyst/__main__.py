@@ -1,4 +1,4 @@
-"""Risk analyst: python -m canary.analyst memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks].
+"""Risk analyst: python -m canary.analyst ask "question" [--model M], and memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks].
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
 write the memo, checks every number, and saves the note only if it passes. Exit codes: 0 written,
@@ -46,7 +46,18 @@ def build_parser() -> argparse.ArgumentParser:
     memo.add_argument("--as-of", type=date.fromisoformat, default=None, help="quarter end, YYYY-MM-DD")
     memo.add_argument("--model", default=DEFAULT_MODEL, help="writer model")
     memo.add_argument("--out", default="banks", help="notes folder")
+    ask = sub.add_parser("ask", parents=[shared], help="answer a plain-English question about the banks")
+    ask.add_argument("question")
+    ask.add_argument("--model", default=DEFAULT_MODEL, help="agent model")
     return parser
+
+
+def _ask(args) -> int:
+    from canary.analyst.agent import ask
+
+    ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
+    print(ask(args.question, ctx, make_client(), args.model))
+    return 0
 
 
 def _memo(args) -> int:
@@ -91,6 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "memo":
             return _memo(args)
+        if args.command == "ask":
+            return _ask(args)
     except (KeyError, FileNotFoundError) as exc:
         log.error("analyst failed: %s", exc)
         return 1
