@@ -1,4 +1,6 @@
-"""Risk analyst: python -m canary.analyst ask "question" [--model M], and memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks].
+"""Risk analyst: python -m canary.analyst ask "question" [--model M], memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks],
+showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] (notes for the showcase set in one batch job), and
+compare [--models A,B] (case-study notes with several models, pass rate and cost per model).
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
 write the memo, checks every number, and saves the note only if it passes. Exit codes: 0 written,

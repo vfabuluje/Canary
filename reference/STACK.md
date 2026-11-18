@@ -12,7 +12,7 @@ FDIC BankFind API  ->  local Parquet files  ->  S3  ->  Athena raw tables  ->  d
                                                   marts -> export (Athena UNLOAD) -> local Parquet -> XGBoost -> metrics
 ```
 
-The first six below (S3, Athena, Glue, IAM, dbt, XGBoost) are running today. The other three (the Claude API, Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
+The first six below (S3, Athena, Glue, IAM, dbt, XGBoost) are running today. The Claude API is also running (Phase 5a). The other two (Streamlit, GitHub Actions) are planned for later phases. Their sections say so plainly.
 
 ---
 
@@ -103,13 +103,18 @@ The first six below (S3, Athena, Glue, IAM, dbt, XGBoost) are running today. The
 - It scores 2016-2024 once. Each quarter the riskiest 2% of banks are flagged, and the result is compared with a simple Texas-ratio baseline.
 - Result: AUC 0.902 against 0.774 for the baseline, but it did not flag SVB, Signature or First Republic. See the README results section.
 
-## Claude API *(planned: Phase 5)*
+## Claude API *(running: Phase 5a)*
 
 **What it is.** The Claude API lets a program send text to Anthropic's Claude model and get a written answer back. It's the same AI as the Claude chat app, but called from code.
 
-**Why it's here.** A risk score alone doesn't say *why* a bank looks risky. The Claude API powers Canary's risk-analyst agent, which turns a bank's numbers into a short plain-English memo. A project rule says every memo must cite the bank, the quarter and the exact numbers it relies on, so it can be checked rather than trusted blindly. (This is separate from Claude Code, the coding assistant used to *build* Canary. The Claude API is part of the *product*.)
+**Why it's here.** A risk score alone doesn't say *why* a bank looks risky. The Claude API powers Canary's risk analyst, which turns a bank's numbers into a short plain-English memo. A project rule says every memo must cite the bank, the quarter and the exact numbers it relies on, so it can be checked rather than trusted blindly. (This is separate from Claude Code, the coding assistant used to *build* Canary. The Claude API is part of the *product*.)
 
-**What it will do in Canary.** In Phase 5, the agent reads a bank's features and score and writes one cited risk note per bank into the Obsidian vault. In the vault's graph view, those notes show the banking system at a glance. Nothing calls the Claude API yet.
+**What it does in Canary now.**
+- **Memo writer.** Code builds a fact sheet for one bank and quarter, Claude writes the memo sections citing fact ids, and a citation checker rejects any number it cannot match ([decision 0016](../decisions/0016-analyst-memo-design.md)). Notes land in `banks/`.
+- **Batch showcase.** About 130 notes are written in one Message Batches job at half price; failures are retried one by one.
+- **`ask` agent.** Plain-English questions answered with four local tools through the SDK's tool runner ([decision 0017](../decisions/0017-analyst-agent-tool-runner.md)).
+- **Models.** Claude Opus 5.5 writes the memos (chosen by the owner). Claude Sonnet 5.5 was compared on three banks: cheaper, but it needed more retries.
+- **Cost and where it runs.** About 9-10 cents per memo call at full price. This calls Anthropic's API, not AWS, so the AWS cost is unchanged. Setup and commands: [runbooks/analyst.md](../runbooks/analyst.md).
 
 ## Streamlit *(planned: Phase 6)*
 

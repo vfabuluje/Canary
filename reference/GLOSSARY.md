@@ -110,3 +110,18 @@ Since 2020, some small banks may use the simpler community bank leverage ratio a
 - `athena-results/`: query results, deleted automatically after 7 days
 
 See [STACK.md](STACK.md) and [decision 0008](../decisions/0008-aws-setup-and-cost-guardrails.md).
+
+### Fact sheet
+**The list of checked facts a memo is allowed to use.** Code builds it for one bank and quarter: each fact has an id (`F1`, `F2`, ...), a label, a quarter, a value and the display forms it may be written in (0.9812 as "98%" or "98.1%"). Claude writes only from it and cites the ids. Code: `src/canary/analyst/facts.py` ([decision 0016](../decisions/0016-analyst-memo-design.md)).
+
+### Citation checker
+**Code that rejects a memo whose numbers or wording are not backed by the facts it cites.** Every number and date in a sentence must match a fact cited in that sentence; hindsight facts and "failed" wording are banned from as-of sections; "probability of failure" wording is banned. A memo that fails twice is not saved. It checks numbers and some phrasing, not every claim. Code: `src/canary/analyst/checker.py` ([decision 0016](../decisions/0016-analyst-memo-design.md)).
+
+### Tool runner
+**The Anthropic SDK's loop for an AI agent.** Claude asks to use a tool, Canary's own Python runs it, the result goes back, and it repeats until Claude answers. The loop runs locally, unlike Anthropic-hosted Managed Agents. Canary's `ask` agent uses it with four tools, at most 10 steps ([decision 0017](../decisions/0017-analyst-agent-tool-runner.md); `src/canary/analyst/agent.py`).
+
+### Message Batches
+**Anthropic's bulk API: send many requests at once, get results later, pay half price.** The `showcase` command sends about 130 memo requests as one batch; any memo that fails the checker is then retried one at a time at full price. The batch id is saved so a stopped run can be collected with `--resume` ([runbook](../runbooks/analyst.md); `src/canary/analyst/showcase.py`).
+
+### Hindsight (in Canary notes)
+**Anything that happened after the quarter a note is written "as of".** A note uses only data filed by its as-of quarter, so it reads as it would have then. Whether the bank later failed, the later ranks and any flag after the test window go in labelled hindsight parts (the banner, Outcome, What happened next). Facts marked `hindsight` in the fact sheet can be cited only there ([data dictionary](../data-dictionary/bank_notes.md)).
