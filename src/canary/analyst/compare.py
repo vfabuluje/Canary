@@ -25,7 +25,7 @@ def compare_models(ctx, client, models=DEFAULT_MODELS, certs=None,
         per_model[model] = agg
         for cert in certs:
             entry = {"cert": cert, "model": model, "served_model": None, "path": None, "attempts": 0,
-                     "ok": False, "errors": []}
+                     "ok": False, "errors": [], "first_errors": []}
             try:
                 res = write_memo(ctx, cert, client=client, model=model, out_dir=out_dir / model,
                                  replay_dir=replay_dir)
@@ -40,7 +40,7 @@ def compare_models(ctx, client, models=DEFAULT_MODELS, certs=None,
                 log.warning("compare: %s cert %s failed: %s", model, cert, exc)
             else:
                 entry.update(path=str(res.path) if res.path else None, attempts=res.attempts,
-                             ok=res.ok, errors=res.errors, served_model=res.model)
+                             ok=res.ok, errors=res.errors, first_errors=res.first_errors, served_model=res.model)
                 agg["input_tokens"] += res.input_tokens
                 agg["output_tokens"] += res.output_tokens
                 agg["cost_usd"] += res.cost_usd

@@ -39,6 +39,9 @@ def test_compare_counts_and_cost(analyst_ctx, memos, tmp_path):
     assert json.loads((out / "compare.json").read_text()) == rep
     m = [x for x in rep["memos"] if x["model"] == SONNET and x["cert"] == 3][0]
     assert m["attempts"] == 2 and m["ok"] and m["path"].startswith(str(out / SONNET))
+    assert any("999,999" in e for e in m["first_errors"]) and m["errors"] == []
+    first = [x for x in rep["memos"] if x["model"] == OPUS][0]
+    assert first["first_errors"] == []
 
 
 def test_one_failure_does_not_abort(analyst_ctx, memos, tmp_path):

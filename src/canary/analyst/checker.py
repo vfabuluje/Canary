@@ -15,6 +15,7 @@ import re
 from dataclasses import dataclass
 
 from canary.analyst.facts import POSTHOC_LABEL, SPELLED_WORDS, FactSheet, date_forms, spelled_norm
+from canary.analyst.labels import PLAIN_NAMES
 from canary.analyst.sections import Section
 
 _MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
@@ -39,6 +40,25 @@ _TOKEN = re.compile(
     """,
     re.VERBOSE,
 )
+
+
+def _term_pattern() -> re.Pattern:
+    """Fixed term names from PLAIN_NAMES whose digits are wording, not figures (ruling R17):
+    "Tier 1" (also Tier 2), "30-89 days" (en dash too), "90+ days". Exact phrases only, case-insensitive."""
+    phrases: set[str] = set()
+    for name in PLAIN_NAMES.values():
+        for m in re.finditer(r"\b[Tt]ier\s+\d\b|\b\d+(?:[-\u2013]\d+|\+)\s+days\b", name):
+            phrases.add(m.group(0))
+    alts = []
+    for ph in sorted(phrases):
+        if ph.lower().startswith("tier"):
+            alts.append(r"\bTier\s+[12]\b")  # Tier 1 is the listed term; Tier 2 is its sibling
+        else:
+            alts.append(re.sub(r"\\[-\u2013]", "[-\u2013]", re.escape(ph)).replace(r"\ ", r"\s+"))
+    return re.compile("|".join(dict.fromkeys(alts)), re.IGNORECASE)
+
+
+_TERMS = _term_pattern()
 _EDGE = " .,;:!?()[]\"'"
 _PROBABILITY = re.compile(
     r"\b(?:chance|probability|likelihood)\s+of\s+(?:failing|failure|fail)\b|\d+(?:\.\d+)?%\s+chance\b",
@@ -67,6 +87,7 @@ def _norm(s: str) -> str:
 
 
 def _tokens(text: str) -> list[_Tok]:
+    text = _TERMS.sub(" ", text)
     text = text.replace("\u2212", "-").replace("\u2013", "-").replace("\u00d7", "x")
     out = []
     for m in _TOKEN.finditer(text):

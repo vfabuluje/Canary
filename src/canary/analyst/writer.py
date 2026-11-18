@@ -75,6 +75,7 @@ class MemoResult:
     output_tokens: int = 0
     model: str = DEFAULT_MODEL
     cost_usd: float = 0.0
+    first_errors: list[str] = field(default_factory=list)  # first attempt's checker errors; [] if it passed
 
 
 def cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
@@ -222,6 +223,7 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
         memo = first_memo if first_memo is not None else call()
         attempts = 1
         errors = check_memo(memo, sheet, to_check)
+        first_errors = list(errors)
         if errors:
             memo = call(errors, memo)
             attempts = 2
@@ -242,4 +244,4 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
         out_dir.mkdir(parents=True, exist_ok=True)
         path.write_text(render_note(sheet, memo, sections, meta))
     return MemoResult(cert, sheet.as_of, path, not errors, attempts, errors,
-                      usage["in"], usage["out"], served, usage["cost"])
+                      usage["in"], usage["out"], served, usage["cost"], first_errors)

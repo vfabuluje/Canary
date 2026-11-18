@@ -311,3 +311,39 @@ def test_r15_only_the_exact_disclaimer_is_exempt(text):
                                   "The score is not the likelihood of failing.", "It is not a probability of failing."])
 def test_r15_disclaimer_passes(text):
     assert run(text, []) == []
+
+
+def _term_sheet():
+    facts = [
+        _fact("F1", "Tier 1 ratio", 0.153, ["15.3%"]),
+        _fact("F2", "Median", 0.142, ["14.2%"]),
+        _fact("F3", "Past due", 0.004, ["0.4%"]),
+    ]
+    empty = pd.DataFrame()
+    return FactSheet(1, "X Bank", date(2022, 12, 31), None, facts, empty, empty, "", ["summary", "outcome"])
+
+
+def run_terms(text, cites):
+    return check_memo(_memo(text, cites), _term_sheet(), SECTIONS)
+
+
+def test_tier_1_digit_is_not_a_number():
+    text = "The Tier 1 risk-based capital ratio was 15.3% against a median of 14.2%."
+    assert run_terms(text, ["F1", "F2"]) == []
+    assert run_terms(text.replace("tier", "Tier").replace("Tier 1", "tier 1"), ["F1", "F2"]) == []
+
+
+def test_tier_term_still_checks_other_numbers():
+    errs = run_terms("The Tier 1 risk-based capital ratio was 15.4% against a median of 14.2%.", ["F1", "F2"])
+    assert len(errs) == 1 and "'15.4%'" in errs[0]
+
+
+def test_tier_1_with_real_unsupported_number_fails():
+    errs = run_terms("Tier 1 was 15%", ["F1", "F2"])
+    assert len(errs) == 1 and "'15%'" in errs[0]
+
+
+def test_tier_2_and_30_89_days_terms_removed():
+    assert run_terms("Loans 30-89 days past due were 0.4% of assets.", ["F3"]) == []
+    assert run_terms("Loans 30–89 days past due were 0.4% of assets.", ["F3"]) == []
+    assert run_terms("Tier 2 capital was 0.4% of assets.", ["F3"]) == []

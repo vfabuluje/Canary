@@ -78,6 +78,13 @@ def test_bad_then_good_retries_once(analyst_ctx, sheet, tmp_path):
     assert "999,999" in second[-1]["content"] and "not supported by cited facts" in second[-1]["content"]
     assert json.loads(second[-2]["content"]) == bad  # previous memo echoed as the assistant turn
     assert second[-2]["role"] == "assistant"
+    assert len(res.first_errors) >= 1 and any("999,999" in e for e in res.first_errors)
+    assert res.errors == []
+
+
+def test_first_errors_empty_when_first_attempt_passes(analyst_ctx, sheet, tmp_path):
+    res, _ = _write(analyst_ctx, tmp_path, [_memo(sheet)])
+    assert res.first_errors == []
 
 
 def test_bad_twice_not_written(analyst_ctx, sheet, tmp_path):
