@@ -27,8 +27,9 @@ from canary.model.train import CASE_STUDY_CERTS
 
 log = logging.getLogger(__name__)
 
-EST_INPUT_TOKENS = 3500  # per bank, fact sheet and prompt (a real request is ~13.5k characters)
-EST_OUTPUT_TOKENS = 2000  # per bank
+# Measured averages per call from the 2026-11-17 live Opus comparison (adaptive thinking adds output tokens).
+EST_INPUT_TOKENS = 7300  # per bank
+EST_OUTPUT_TOKENS = 3200  # per bank
 RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is re-raised
 RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s
 
@@ -37,9 +38,11 @@ def _as_dt(d: date) -> pd.Timestamp:
     return pd.Timestamp(d)
 
 
-def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path) -> list[tuple[int, date, str]]:
+def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path,
+                   watchlist_top: int | None = None) -> list[tuple[int, date, str]]:
     """(cert, as_of, group). First group wins: case study, test miss, test catch, after window,
-    latest watchlist, false alarm."""
+    latest watchlist, false alarm. With `watchlist_top`, the latest watchlist group takes only the
+    best-ranked N flagged banks (banks claimed by an earlier group do not count toward N)."""
     scored = ctx.scored
     banks = ctx.banks
     known = set(banks["cert"])
@@ -73,8 +76,15 @@ def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path) -> list[tupl
             add(cert, last_report(cert), "after_window")
 
     now = scored[(scored["report_date"] == _as_dt(latest)) & scored["flagged"].astype(bool)]
-    for cert in sorted(now["cert"].astype(int)):
+    ordered = now.sort_values("rank")["cert"].astype(int).tolist() if watchlist_top is not None \
+        else sorted(now["cert"].astype(int))
+    added = 0
+    for cert in ordered:
+        if watchlist_top is not None and added >= watchlist_top:
+            break
+        n = len(picks)
         add(cert, latest, "latest_watchlist")
+        added += len(picks) - n
 
     on_watchlist = set(now["cert"].astype(int))
     fa = pd.read_csv(replay_dir / "top_false_alarm_banks.csv")["cert"].astype(int).tolist()

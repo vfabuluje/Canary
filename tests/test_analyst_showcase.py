@@ -75,6 +75,51 @@ def test_past_false_alarm_on_latest_watchlist_uses_latest(analyst_ctx, tmp_model
     assert g == "false_alarm" and d == last_flag.date()
 
 
+def _flag_latest(ctx, n=6):
+    """Flag n more banks at the latest quarter, so the watchlist has several banks."""
+    s = ctx.scored
+    at = s["report_date"] == pd.Timestamp(ctx.latest_quarter)
+    s.loc[at & s["cert"].isin(s.loc[at, "cert"].astype(int).head(n + 3)), "flagged"] = True
+
+
+def _watchlist_ranked(ctx):
+    s = ctx.scored
+    now = s[(s["report_date"] == pd.Timestamp(ctx.latest_quarter)) & s["flagged"].astype(bool)]
+    return now.sort_values("rank")["cert"].astype(int).tolist()
+
+
+def test_watchlist_top_keeps_best_ranked(analyst_ctx, tmp_model_dir, tmp_replay_dir):
+    _flag_latest(analyst_ctx)
+    ranked = _watchlist_ranked(analyst_ctx)
+    full = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    claimed = {c for c, _, g in full if g != "latest_watchlist" and c in ranked}
+    free = [c for c in ranked if c not in claimed]
+    assert len(free) > 2
+    out = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path, watchlist_top=2)
+    wl = [c for c, _, g in out if g == "latest_watchlist"]
+    assert wl == free[:2]
+
+
+def test_watchlist_top_none_is_unchanged(analyst_ctx, tmp_model_dir, tmp_replay_dir):
+    assert (showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path, watchlist_top=None)
+            == showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path))
+
+
+def test_cli_watchlist_top_dry_run(analyst_ctx, tmp_model_dir, tmp_replay_dir, capsys, monkeypatch):
+    _flag_latest(analyst_ctx)
+    monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    rc = cli.main(["showcase", "--dry-run", "--watchlist-top", "2", "--model-dir", str(tmp_model_dir),
+                   "--replay-dir", str(tmp_replay_dir.path)])
+    out = capsys.readouterr().out
+    assert rc == 0 and out.count("\tlatest_watchlist") == 2
+
+
+def test_estimates_are_measured_averages():
+    from canary.analyst.showcase import EST_INPUT_TOKENS, EST_OUTPUT_TOKENS
+    assert (EST_INPUT_TOKENS, EST_OUTPUT_TOKENS) == (7300, 3200)
+
+
 # ---- batch run ------------------------------------------------------------------------
 
 BANKS = [(100, date(2026, 6, 30), "latest_watchlist"), (101, date(2026, 6, 30), "latest_watchlist"),

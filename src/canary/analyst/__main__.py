@@ -72,6 +72,10 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--dry-run", action="store_true", help="list the banks and estimate the cost; no API calls")
     show.add_argument("--resume", metavar="BATCH_ID", default=None,
                       help="collect an existing batch (id from the log or the .state.json file) instead of creating one")
+    show.add_argument("--watchlist-top", type=int, default=None, metavar="N",
+                      help="only the N best-ranked banks of the latest-quarter watchlist (default: all); "
+                           "used by --dry-run and the real run, ignored with --resume (the bank list comes "
+                           "from the state file)")
     cmp_ = sub.add_parser("compare", parents=[shared], help="write the case-study notes with several models and compare")
     cmp_.add_argument("--models", default="claude-opus-5-5,claude-sonnet-5-5", help="comma-separated writer models")
     cmp_.add_argument("--out", default="data/analyst/compare", help="comparison folder (one subfolder per model)")
@@ -117,7 +121,7 @@ def _showcase(args) -> int:
     )
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
-    banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir))
+    banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir), watchlist_top=args.watchlist_top)
     if args.dry_run:
         counts: dict[str, int] = {}
         for cert, as_of, group in banks:
