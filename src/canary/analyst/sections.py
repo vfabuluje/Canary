@@ -1,7 +1,8 @@
 """Section registry for the memo (spec 5.2, 5.3, 7). Specialists (5b-5d) register extra sections."""
 
+from collections.abc import Callable
 from dataclasses import dataclass, replace
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 
 @dataclass
@@ -11,6 +12,8 @@ class Section:
     window: Literal["as_of", "hindsight"]
     instructions: str
     ai_written: bool
+    # Code-rendered lines appended after the section's AI paragraphs; takes the FactSheet.
+    render: Callable[[Any], list[str]] | None = None
 
 
 ANALYST_SECTIONS: list[Section] = [
@@ -53,6 +56,8 @@ SPECIALISTS: list[Specialist] = []
 
 
 def register(specialist: Specialist) -> None:
+    if any(sp.key == specialist.key for sp in SPECIALISTS):
+        return
     SPECIALISTS.append(specialist)
 
 
@@ -69,3 +74,9 @@ def all_sections(kind: str) -> list[Section]:
             for sp in SPECIALISTS:
                 out.extend(sp.sections)
     return out
+
+
+def sections_for(sheet: Any) -> list[Section]:
+    """Sections for this sheet's outcome; keys in sheet.code_only are not asked of the AI."""
+    return [replace(s, ai_written=False) if s.key in sheet.code_only else s
+            for s in all_sections(sheet.outcome.kind)]

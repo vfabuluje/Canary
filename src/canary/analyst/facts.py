@@ -6,7 +6,7 @@ may be used only in the outcome sections (spec 4).
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
@@ -47,6 +47,8 @@ class Fact:
     forms: list[str]
     hindsight: bool
     source: str
+    feature: str | None = None
+    kind: str | None = None
 
 
 @dataclass
@@ -60,6 +62,8 @@ class FactSheet:
     after_history: pd.DataFrame
     cant_see: str
     section_keys: list[str]
+    code_only: set[str] = field(default_factory=set)
+    extras: dict = field(default_factory=dict)
 
     def by_id(self, id: str) -> Fact:
         for f in self.facts:

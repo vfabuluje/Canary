@@ -8,7 +8,7 @@ import yaml
 from analyst_fakes import FakeClient, fake_message
 from canary.analyst import __main__ as cli
 from canary.analyst.facts import POSTHOC_LABEL, build_fact_sheet
-from canary.analyst.sections import all_sections
+from canary.analyst.sections import all_sections, sections_for
 from canary.analyst.writer import (
     FALLBACK_BETA,
     RefusalError,
@@ -31,7 +31,7 @@ def sheet(analyst_ctx, tmp_path):
 def _memo(sheet, rank_text=None, extra=None):
     rank = next(f for f in sheet.facts if f.label.startswith("National rank"))
     secs = []
-    for s in all_sections(sheet.outcome.kind):
+    for s in sections_for(sheet):
         if not s.ai_written:
             continue
         sents = [{"text": "The bank looked weak in plain terms.", "cites": []}]

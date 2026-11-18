@@ -13,7 +13,7 @@ import pandas as pd
 from canary.analyst.context import Context
 from canary.analyst.facts import build_fact_sheet
 from canary.analyst.outcome import AFTER_WINDOW_START, default_as_of
-from canary.analyst.sections import all_sections
+from canary.analyst.sections import sections_for
 from canary.analyst.writer import (
     PRICES,
     RefusalError,
@@ -208,7 +208,7 @@ def _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, me
         except ValueError as exc:
             early[custom_id(cert, as_of)] = str(exc)
             continue
-        params = build_request(sheet, all_sections(sheet.outcome.kind), model)
+        params = build_request(sheet, sections_for(sheet), model)
         requests.append({"custom_id": custom_id(cert, as_of), "params": params})
 
     first: dict[str, dict] = {}   # custom_id -> parsed memo from the batch

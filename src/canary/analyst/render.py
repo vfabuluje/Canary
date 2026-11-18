@@ -135,6 +135,8 @@ def render_note(sheet: FactSheet, memo: dict, sections: list[Section], meta: dic
         if sec.key in by_key:
             for p in _paragraphs(by_key[sec.key]):
                 out += [p, ""]
+        if sec.render is not None:
+            out += sec.render(sheet) + [""]
         if sec.key == "outcome" and sheet.outcome.after_test_window:
             out += [AFTER_WINDOW, ""]
         if sec.key == "score":
