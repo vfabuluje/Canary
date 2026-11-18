@@ -43,7 +43,10 @@ _EDGE = " .,;:!?()[]\"'"
 _PROBABILITY = re.compile(
     r"\b(?:chance|probability|likelihood)\s+of\s+(?:failing|failure|fail)\b|\d+(?:\.\d+)?%\s+chance\b",
     re.IGNORECASE)
-_NEGATED = re.compile(r"\b(?:not|never|no)\s+(?:a|an|the)?\s*$", re.IGNORECASE)  # "not a probability of failure"
+# The one allowed disclaimer (ruling R15): "not a/the probability|likelihood of failure|failing".
+# Never "chance", never "N% chance", never after "no" or "never".
+_DISCLAIMER = re.compile(r"\bnot\s+(?:a|the)\s+(?:probability|likelihood)\s+of\s+(?:failure|failing)\b",
+                         re.IGNORECASE)
 _AS_OF_WORDS = re.compile(r"\b(?:failed|collapsed)\b|\bwas\s+(?:closed|seized)\b", re.IGNORECASE)
 
 
@@ -143,8 +146,9 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
         if f.hindsight and spec.window == "as_of":
             errors.append(f"{where}: cites hindsight fact {cid} ({f.label}) in an as-of section")
         cited.append(f)
+    allowed = {d.end() for d in _DISCLAIMER.finditer(text)}
     for m in _PROBABILITY.finditer(text):
-        if not _NEGATED.search(text[: m.start()]):
+        if m.end() not in allowed:
             errors.append(f"{where}: describes the score as a probability of failure ('{m.group(0)}')")
     if spec.window == "as_of":
         for m in _AS_OF_WORDS.finditer(text):

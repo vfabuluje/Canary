@@ -295,3 +295,19 @@ def test_label_spelled_span_becomes_a_form(analyst_ctx):
     text = f"Asset growth over the past four quarters was {growth.display}."
     memo = {"sections": [{"key": "summary", "paragraphs": [{"sentences": [{"text": text, "cites": [growth.id]}]}]}]}
     assert check_memo(memo, sheet, secs) == []
+
+
+@pytest.mark.parametrize("text", ["the bank has no chance of failing.", "never a chance of failure here.",
+                                  "Its percentile was 26.8%, so there is not a 26.8% chance of failing.",
+                                  "There is not a chance of failure.", "It is not the 5% chance of failure."])
+def test_r15_only_the_exact_disclaimer_is_exempt(text):
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", "Percentile", 26.8, ["26.8%", "26.8"]))
+    errs = check_memo(_memo(text, ["F6"]), sheet, SECTIONS)
+    assert any("probability of failure" in e for e in errs), errs
+
+
+@pytest.mark.parametrize("text", ["The score is not a probability of failure.",
+                                  "The score is not the likelihood of failing.", "It is not a probability of failing."])
+def test_r15_disclaimer_passes(text):
+    assert run(text, []) == []

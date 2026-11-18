@@ -277,3 +277,29 @@ def test_request_comment_on_adaptive_thinking():
     from canary.analyst import writer
 
     assert "always thinks adaptively" in inspect.getsource(writer.build_request)
+
+
+def test_make_client_without_credentials_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
+    """R15: no key anywhere -> one clear line and exit 1, before any API call."""
+    import anthropic
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    monkeypatch.setattr(cli, "_read_dotenv", lambda path: {})
+    for var in ("ANTHROPIC_CONFIG_DIR", "ANTHROPIC_PROFILE"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))  # no `ant auth login` profile on disk
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg"))
+    with pytest.raises(cli.NoCredentialsError, match="No Anthropic API key found"):
+        cli.make_client()
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    assert cli.main(["memo", "--cert", str(CERT), "--out", str(tmp_path / "banks")]) == 1
+    err = capsys.readouterr().err.strip().splitlines()
+    assert err == ["error: No Anthropic API key found: set ANTHROPIC_API_KEY in .env or run `ant auth login`"]
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-not-used")
+    assert isinstance(cli.make_client(), anthropic.Anthropic)  # constructed only, never called
+    monkeypatch.delenv("ANTHROPIC_API_KEY")
+    monkeypatch.setenv("ANTHROPIC_CONFIG_DIR", str(tmp_path / "cfg"))  # a profile that does not exist
+    monkeypatch.setenv("ANTHROPIC_PROFILE", "missing")
+    with pytest.raises(cli.NoCredentialsError, match="No Anthropic API key found"):
+        cli.make_client()

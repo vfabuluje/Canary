@@ -161,7 +161,11 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
     run = {"batch_id": resume, "error": None}
     try:
         _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, meta, replay_dir, resume,
-             entries, totals, run)
+                   entries, totals, run)
+        # Only now is the batch fully used: results collected and every bank written or retried.
+        st = read_state(report_path)
+        if run["batch_id"] and st is not None and st.get("batch_id") == run["batch_id"]:
+            _write_state(report_path, {**st, "complete": True})
     except BaseException as exc:
         run["error"] = f"{type(exc).__name__}: {exc}"
         raise
@@ -210,12 +214,9 @@ def _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, me
                      batch_id, len(requests), batch_id)
             _write_state(report_path, {
                 "batch_id": batch_id, "created_at": datetime.now().isoformat(timespec="seconds"),
-                "banks": [[c, d.isoformat(), g] for c, d, g in banks], "model": model, "ended": False})
+                "banks": [[c, d.isoformat(), g] for c, d, g in banks], "model": model, "complete": False})
         while _retry(client.messages.batches.retrieve, batch_id).processing_status != "ended":
             time.sleep(poll_seconds)
-        st = read_state(report_path)
-        if st is not None and st.get("batch_id") == batch_id:
-            _write_state(report_path, {**st, "ended": True})
         for item in _retry(client.messages.batches.results, batch_id):
             cid, res = item.custom_id, item.result
             if res.type != "succeeded":

@@ -23,6 +23,13 @@ log = logging.getLogger(__name__)
 REPLAY_DIR = Path("data/replay")
 
 
+NO_KEY = "No Anthropic API key found: set ANTHROPIC_API_KEY in .env or run `ant auth login`"
+
+
+class NoCredentialsError(RuntimeError):
+    """No API key, auth token or credentials profile the SDK can use."""
+
+
 def make_client():
     import anthropic  # optional dependency group "analyst"
 
@@ -30,7 +37,15 @@ def make_client():
         key = _read_dotenv(REPO_ROOT / ".env").get("ANTHROPIC_API_KEY")
         if key:
             os.environ["ANTHROPIC_API_KEY"] = key
-    return anthropic.Anthropic()
+    try:
+        client = anthropic.Anthropic()
+    except anthropic.CredentialsError as exc:  # e.g. a selected profile whose config file is missing
+        raise NoCredentialsError(f"{NO_KEY} ({exc})") from exc
+    # The SDK resolves api_key / auth_token from the environment and an `ant auth login` profile into a
+    # token cache; with none of them it fails later with a TypeError mid-request. Check up front.
+    if not (client.api_key or client.auth_token or getattr(client, "_token_cache", None) is not None):
+        raise NoCredentialsError(NO_KEY)
+    return client
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -115,8 +130,8 @@ def _showcase(args) -> int:
               f"(batch price, {args.model}; excludes retries)")
         return 0
     state = read_state(Path(args.report))
-    if args.resume is None and state is not None and not state.get("ended"):
-        print(f"error: batch {state['batch_id']} from {state_path(Path(args.report))} has not been collected; "
+    if args.resume is None and state is not None and not state.get("complete"):
+        print(f"error: batch {state['batch_id']} from {state_path(Path(args.report))} was not fully collected; "
               f"rerun with --resume {state['batch_id']} (or delete that file to start a new batch)",
               file=sys.stderr)
         return 1
@@ -200,6 +215,9 @@ def main(argv: list[str] | None = None) -> int:
             return _ask(args)
     except (KeyError, FileNotFoundError) as exc:
         log.error("analyst failed: %s", exc)
+        return 1
+    except NoCredentialsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
         return 1
     except api_errors as exc:
         msg = " ".join(str(exc).split())[:300]

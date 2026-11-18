@@ -209,7 +209,7 @@ def test_state_file_written_with_batch_id(analyst_ctx, tmp_path):
     assert state_path(tmp_path / "report.json") == tmp_path / "report.state.json"
     assert st["batch_id"] == "batch_1" and st["model"] == "claude-opus-5-5" and st["created_at"]
     assert st["banks"] == [[c, "2026-06-30", "latest_watchlist"] for c in (100, 101, 102, 103)]
-    assert st["ended"] is True
+    assert st["complete"] is True
     assert rep["batch_id"] == "batch_1" and rep["complete"] is True
     assert all(b["served_model"] == "claude-opus-5-5" for b in rep["banks"])
 
@@ -220,7 +220,7 @@ def test_resume_makes_no_create_call(analyst_ctx, tmp_path):
     first.created.append([{"custom_id": f"{c}-20260630", "params": {"model": "claude-sonnet-5-5"}}
                           for c in (100, 101, 102, 103)])  # the earlier run's batch
     (tmp_path / "report.state.json").write_text(json.dumps({
-        "batch_id": "batch_1", "created_at": "2026-11-17T10:00:00", "model": "claude-sonnet-5-5", "ended": False,
+        "batch_id": "batch_1", "created_at": "2026-11-17T10:00:00", "model": "claude-sonnet-5-5", "complete": False,
         "banks": [[c, "2026-06-30", "latest_watchlist"] for c in (100, 101, 102, 103)]}))
     create_calls = []
     first.messages.batches.create = lambda **kw: create_calls.append(kw)
@@ -228,7 +228,7 @@ def test_resume_makes_no_create_call(analyst_ctx, tmp_path):
                        poll_seconds=0, replay_dir=tmp_path / "none", resume="batch_1")
     assert create_calls == [] and first.retrieved >= 1
     assert rep["written"] == 4 and rep["batch_id"] == "batch_1" and rep["model"] == "claude-sonnet-5-5"
-    assert json.loads((tmp_path / "report.state.json").read_text())["ended"] is True
+    assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is True
 
 
 def test_transient_retrieve_error_then_success(analyst_ctx, tmp_path, monkeypatch):
@@ -276,7 +276,7 @@ def test_retrieve_gives_up_and_partial_report_written(analyst_ctx, tmp_path, mon
     rep = json.loads((tmp_path / "report.json").read_text())
     assert rep["complete"] is False and rep["batch_id"] == "batch_1" and "APIConnectionError" in rep["error"]
     assert rep["banks_total"] == 4 and rep["banks_done"] == 0
-    assert json.loads((tmp_path / "report.state.json").read_text())["ended"] is False
+    assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is False
 
 
 def test_auth_error_not_retried(analyst_ctx, tmp_path, monkeypatch):
@@ -310,7 +310,7 @@ def test_cli_refuses_unfinished_batch_and_resumes(analyst_ctx, tmp_model_dir, tm
                                                   tmp_path, capsys):
     report = tmp_path / "rep.json"
     (tmp_path / "rep.state.json").write_text(json.dumps({"batch_id": "b9", "banks": [], "model": "m",
-                                                        "ended": False, "created_at": "x"}))
+                                                        "complete": False, "created_at": "x"}))
     monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
     monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
     args = ["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
@@ -346,3 +346,56 @@ def test_cli_showcase_create_api_error_exits_1(analyst_ctx, tmp_model_dir, tmp_r
                    "--report", str(report), "--out", str(tmp_path / "banks")])
     assert rc == 1 and "Claude API call failed (AuthenticationError)" in capsys.readouterr().err
     assert json.loads(report.read_text())["complete"] is False
+
+
+def test_failed_collection_blocks_plain_rerun_resume_works(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch,
+                                                            tmp_path, capsys):
+    """R15: state is complete only after every bank is processed; a plain rerun is refused until then."""
+    from canary.analyst import showcase
+
+    monkeypatch.setattr(showcase.time, "sleep", lambda s: None)
+    banks = BANKS
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr("canary.analyst.showcase.showcase_banks", lambda *a, **k: banks)
+    report = tmp_path / "rep.json"
+    args = ["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+            "--report", str(report), "--out", str(tmp_path / "banks")]
+    monkeypatch.setattr(cli, "REPLAY_DIR", tmp_path / "none")
+    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes)
+    real_results = client._results
+
+    def broken(batch_id):
+        raise RuntimeError("results download broke")
+
+    client.messages.batches.results = broken
+    monkeypatch.setattr(cli, "make_client", lambda: client)
+    with pytest.raises(RuntimeError):
+        cli.main(args)
+    st = json.loads((tmp_path / "rep.state.json").read_text())
+    assert st["batch_id"] == "batch_1" and st["complete"] is False
+    capsys.readouterr()
+    assert cli.main(args) == 1  # plain rerun refused: no second paid batch
+    assert "--resume batch_1" in capsys.readouterr().err and len(client.created) == 1
+    client.messages.batches.results = real_results
+    rc = cli.main(args + ["--resume", "batch_1"])
+    assert len(client.created) == 1  # resume created nothing
+    assert json.loads((tmp_path / "rep.state.json").read_text())["complete"] is True
+    assert json.loads(report.read_text())["complete"] is True and rc in (0, 1)
+    assert cli.main(args + ["--dry-run"]) == 0
+
+
+def test_interrupted_retry_loop_keeps_state_incomplete(analyst_ctx, tmp_path, monkeypatch):
+    import canary.analyst.showcase as showcase
+
+    calls = []
+
+    def interrupt(*a, **k):
+        calls.append(1)
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(showcase, "write_memo", interrupt)
+    client = BatchClient(analyst_ctx, tmp_path, {c: "ok" for c in (100, 101, 102, 103)})
+    with pytest.raises(KeyboardInterrupt):
+        _run(analyst_ctx, tmp_path, client)
+    assert calls and json.loads((tmp_path / "report.state.json").read_text())["complete"] is False
