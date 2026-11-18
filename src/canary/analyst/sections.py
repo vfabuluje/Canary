@@ -20,9 +20,10 @@ ANALYST_SECTIONS: list[Section] = [
             "The bank's notable figures at as-of (capital, credit quality, liquidity/funding, bond losses), "
             "each compared with the national median for that quarter. Only as-of facts.", True),
     Section("score", "Understanding the score", "as_of",
-            "Rank, percentile and watchlist line; the fixed sentence that the score is not a probability; "
-            "the top 5 drivers up and down in plain names with the feature value; then what the model "
-            "can't see, using the provided paragraph without adding claims. Only as-of facts.", True),
+            "Rank, percentile and the watchlist line; then the top five drivers up and down in plain "
+            "names, with each feature's value. Do not write the sentence that the score is not a "
+            "probability or the can't-see paragraph: code adds both after this section. Only as-of facts.",
+            True),
     Section("score_history", "Score history", "as_of",
             "Code-rendered table of rank and flag for the 8 quarters to as-of.", False),
     Section("outcome", "Outcome", "hindsight",

@@ -176,3 +176,16 @@ def test_right_quarter_or_month_passes(text):
 
 def test_wrong_year_with_quarter_fails():
     assert len(run("Q4 2023", ["F1"])) == 1
+
+
+def test_posthoc_label_year_not_checked():
+    from canary.analyst.facts import POSTHOC_LABEL
+
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", f"Run-risk rank ({POSTHOC_LABEL})", 42, ["42", "#42"],
+                             date(2022, 12, 31), hindsight=True))
+    text = f"On the run-risk rank ({POSTHOC_LABEL}), the bank was #42."
+    assert check_memo(_memo(text, ["F6"], key="outcome"), sheet, SECTIONS) == []
+    # Only the exact label is exempt: a stray 2023 elsewhere is still rejected.
+    errs = check_memo(_memo(f"In 2023 the {POSTHOC_LABEL} put it at #42.", ["F6"], key="outcome"), sheet, SECTIONS)
+    assert len(errs) == 1 and "'2023'" in errs[0]

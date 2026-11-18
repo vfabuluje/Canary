@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import date
 
 import pytest
@@ -6,7 +7,7 @@ import yaml
 
 from analyst_fakes import FakeClient, fake_message
 from canary.analyst import __main__ as cli
-from canary.analyst.facts import build_fact_sheet
+from canary.analyst.facts import POSTHOC_LABEL, build_fact_sheet
 from canary.analyst.sections import all_sections
 from canary.analyst.writer import (
     FALLBACK_BETA,
@@ -27,7 +28,7 @@ def sheet(analyst_ctx, tmp_path):
     return build_fact_sheet(analyst_ctx, CERT, replay_dir=tmp_path / "none")
 
 
-def _memo(sheet, rank_text=None):
+def _memo(sheet, rank_text=None, extra=None):
     rank = next(f for f in sheet.facts if f.label.startswith("National rank"))
     secs = []
     for s in all_sections(sheet.outcome.kind):
@@ -36,6 +37,8 @@ def _memo(sheet, rank_text=None):
         sents = [{"text": "The bank looked weak in plain terms.", "cites": []}]
         if s.key == "summary":
             sents.append({"text": f"It ranked {rank_text or rank.display} nationally.", "cites": [rank.id]})
+        if extra and s.key in extra:
+            sents.append(extra[s.key])
         secs.append({"key": s.key, "paragraphs": [{"sentences": sents}]})
     return {"sections": secs}
 
@@ -179,3 +182,47 @@ def test_cli_bad_as_of_exits_2(monkeypatch, analyst_ctx, tmp_path, capsys):
 def test_cli_refusal_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
     assert _cli(monkeypatch, analyst_ctx, tmp_path, [fake_message("", stop_reason="refusal")]) == 1
     assert "refused" in capsys.readouterr().err
+
+
+def test_posthoc_label_passes_first_try(analyst_ctx, tmp_path):
+    # SVB-like: last report 2022-12-31, run-risk fact dated then, label mentions "2023".
+    replay = tmp_path / "replay"
+    replay.mkdir()
+    import pandas as pd
+
+    pd.DataFrame({"cert": [24735], "report_date": ["2022-12-31"], "run_risk_rank": [3],
+                  "run_risk_flagged": [True]}).to_csv(replay / "replay_banks.csv", index=False)
+    sheet = build_fact_sheet(analyst_ctx, 24735, replay_dir=replay)
+    assert sheet.as_of == date(2022, 12, 31)
+    rr = next(f for f in sheet.facts if POSTHOC_LABEL in f.label)
+    assert rr.quarter == date(2022, 12, 31)
+    sent = {"text": f"On the run-risk rank, a {POSTHOC_LABEL}, it was #3 nationally.", "cites": [rr.id]}
+    memo = _memo(sheet, extra={"outcome": sent})
+    client = FakeClient([memo])
+    res = write_memo(analyst_ctx, 24735, client=client, out_dir=tmp_path / "banks", replay_dir=replay)
+    assert res.ok and res.attempts == 1, res.errors
+
+
+def test_section_instructions_match_renderer(sheet):
+    from canary.analyst.sections import OUTCOME_TITLES
+
+    for kind in list(OUTCOME_TITLES) + ["quiet"]:
+        for s in all_sections(kind):
+            if not s.ai_written:
+                continue
+            low = s.instructions.lower()
+            assert "provided paragraph" not in low and "fixed sentence" not in low, s.key
+            assert "code-rendered" not in low, s.key
+            assert not re.search(r"top \d", low), s.key  # bare digits invite unchecked counts
+    score = next(s for s in all_sections("quiet") if s.key == "score").instructions.lower()
+    assert "do not write" in score and "probability" in score and "can't-see" in score
+    assert "top five drivers" in score
+    # The request agrees with the instructions: code adds these parts, Claude must not write them.
+    user = build_request(sheet, all_sections(sheet.outcome.kind), "claude-opus-5-5")["messages"][0]["content"]
+    assert "Do not write those yourself" in user
+    assert "fixed sentence" not in user.split("Write these sections")[1].split("Code adds")[0].lower()
+
+
+def test_cli_malformed_json_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
+    assert _cli(monkeypatch, analyst_ctx, tmp_path, ["not json {"]) == 1
+    assert "malformed" in capsys.readouterr().err

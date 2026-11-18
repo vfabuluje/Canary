@@ -2,10 +2,12 @@
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
 write the memo, checks every number, and saves the note only if it passes. Exit codes: 0 written,
-1 memo failed the check / refused / truncated / bad input files, 2 bad cert or as-of date.
+1 memo failed the check / refused / truncated / malformed JSON / bad input files,
+2 bad cert or as-of date.
 ANTHROPIC_API_KEY is read from the environment, then the repo .env, or an `ant auth login` profile.
 """
 import argparse
+import json
 import logging
 import os
 import sys
@@ -52,11 +54,19 @@ def _memo(args) -> int:
     try:
         as_of = args.as_of or default_as_of(ctx, args.cert)
         validate_as_of(ctx, args.cert, as_of)  # before the client, so bad input never needs a key
-        res = write_memo(ctx, args.cert, as_of, client=make_client(), model=args.model,
-                         out_dir=Path(args.out), replay_dir=REPLAY_DIR)
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
+    try:
+        res = write_memo(ctx, args.cert, as_of, client=make_client(), model=args.model,
+                         out_dir=Path(args.out), replay_dir=REPLAY_DIR)
+    except json.JSONDecodeError as exc:
+        print(f"error: cert {args.cert}: Claude returned malformed JSON ({exc}); no note written.",
+              file=sys.stderr)
+        return 1
+    except ValueError as exc:  # not an input error: as-of was validated above
+        print(f"error: cert {args.cert}: memo could not be written ({exc}); no note written.", file=sys.stderr)
+        return 1
     except RefusalError as exc:
         print(f"error: cert {args.cert}: Claude refused to write this memo; no note written. {exc}",
               file=sys.stderr)

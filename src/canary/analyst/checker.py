@@ -2,13 +2,14 @@
 
 Memo shape: {"sections": [{"key", "paragraphs": [{"sentences": [{"text", "cites": [fact ids]}]}]}]}.
 Tokens are compared only against the normalized forms of the facts cited in the same sentence. A bare
-year passes only if it equals the year of a cited fact's date. Spelled number words are not checked.
+year passes only if it equals the year of a cited fact's date. Spelled number words are not checked,
+nor is the exact post-hoc label text (it names 2023 as wording, not as a figure).
 """
 
 import re
 from dataclasses import dataclass
 
-from canary.analyst.facts import FactSheet, date_forms
+from canary.analyst.facts import POSTHOC_LABEL, FactSheet, date_forms
 from canary.analyst.sections import Section
 
 _MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
@@ -107,7 +108,8 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
     text = sent.get("text", "")
     cites = sent.get("cites") or []
     where = f"section '{key}', sentence \"{_clip(text)}\""
-    tokens = _tokens(text)
+    # The required post-hoc label contains "2023"; it is fixed wording, not a figure to check.
+    tokens = _tokens(text.replace(POSTHOC_LABEL, " "))
     errors = []
     cited = []
     for cid in cites:
