@@ -87,11 +87,11 @@ def test_uncited_year_fails():
     assert len(errs) == 1 and "2023" in errs[0]
 
 
-def test_year_does_not_pass_via_integer_form():
+def test_bare_four_digit_token_may_match_a_cited_form():  # controller ruling, round 1
     sheet = _sheet()
     sheet.facts.append(_fact("F6", "Count", 2023, ["2,023", "2023"]))
-    memo = _memo("in 2023", ["F6"])
-    assert len(check_memo(memo, sheet, SECTIONS)) == 1
+    assert check_memo(_memo("in 2023", ["F6"]), sheet, SECTIONS) == []
+    assert len(check_memo(_memo("in 2024", ["F6"]), sheet, SECTIONS)) == 1
 
 
 def test_year_range_not_negative_number():
@@ -119,3 +119,60 @@ def test_missing_and_unexpected_section():
     errs = check_memo(memo, _sheet(), SECTIONS)
     assert any("outcome" in e and "missing" in e for e in errs)
     assert any("bogus" in e and "unexpected" in e for e in errs)
+
+
+def _rank_sheet(value, q, forms):
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", "Rank", value, forms, q))
+    return sheet
+
+
+def test_comma_count_equal_to_year_passes_against_rank_fact():
+    sheet = _rank_sheet(2023, date(2023, 12, 31), ["2,023", "2023", "#2,023", "#2023"])
+    sheet.facts.append(_fact("F7", "Banks", 4773, ["4,773", "4773"]))
+    assert check_memo(_memo("It ranked 2,023 of 4,773 banks.", ["F6", "F7"]), sheet, SECTIONS) == []
+    assert check_memo(_memo("It ranked #2,023.", ["F6"]), sheet, SECTIONS) == []
+    assert check_memo(_memo("It ranked 2,023.", ["F6"]), sheet, SECTIONS) == []
+
+
+def test_comma_number_not_accepted_as_year():
+    sheet = _rank_sheet(1500, date(2019, 12, 31), ["1,500", "1500", "#1500"])
+    assert len(check_memo(_memo("It ranked 2,019.", ["F6"]), sheet, SECTIONS)) == 1
+    assert check_memo(_memo("in 2019", ["F6"]), sheet, SECTIONS) == []
+
+
+def test_unicode_minus():
+    pos = _fact("F6", "ROA", 5.0, ["5.0%", "+5.0%"])
+    neg = _fact("F7", "ROA", -5.0, ["-5.0%"])
+    sheet = _sheet()
+    sheet.facts += [pos, neg]
+    assert len(check_memo(_memo("ROA was −5.0%.", ["F6"]), sheet, SECTIONS)) == 1
+    assert check_memo(_memo("ROA was −5.0%.", ["F7"]), sheet, SECTIONS) == []
+    assert extract_tokens("2016–2024") == ["2016", "2024"]
+
+
+@pytest.mark.parametrize("text", ["5bn", "1.5× cover", "10 bps", "3.5 trillion", "US$1.2 billion"])
+def test_unknown_units_fail(text):
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", "x", 5, ["5", "1.5", "10", "3.5", "1.2"]))
+    assert len(check_memo(_memo(f"It was {text}.", ["F6", "F3"]), sheet, SECTIONS)) == 1
+
+
+def test_times_sign_equals_x():
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", "x", 1.5, ["1.5x"]))
+    assert check_memo(_memo("Cover was 1.5×.", ["F6"]), sheet, SECTIONS) == []
+
+
+@pytest.mark.parametrize("text", ["Q3-2022", "Q3 of 2022", "2022Q3", "September 2022", "in Q3"])
+def test_wrong_quarter_or_month_fails(text):
+    assert len(run(text, ["F1"])) == 1
+
+
+@pytest.mark.parametrize("text", ["Q4 2022", "Q4-2022", "Q4 of 2022", "2022Q4", "December 2022", "in Q4", "in December"])
+def test_right_quarter_or_month_passes(text):
+    assert run(text, ["F1"]) == []
+
+
+def test_wrong_year_with_quarter_fails():
+    assert len(run("Q4 2023", ["F1"])) == 1

@@ -6,22 +6,36 @@ year passes only if it equals the year of a cited fact's date. Spelled number wo
 """
 
 import re
+from dataclasses import dataclass
 
-from canary.analyst.facts import FactSheet
+from canary.analyst.facts import FactSheet, date_forms
 from canary.analyst.sections import Section
 
 _MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
+_MONTH_NO = {m: i for i, m in enumerate(_MONTHS.split("|"), 1)}
 _TOKEN = re.compile(
     rf"""
-    (?P<iso>(?<![\w.])\d{{4}}-\d{{2}}-\d{{2}}(?![\w]))
-  | (?P<quarter>(?<![\w.])Q[1-4]\s+\d{{4}}(?!\d))
-  | (?P<mdy>\b(?:{_MONTHS})\s+\d{{1,2}},\s+\d{{4}}(?!\d))
-  | (?P<num>(?<![\w.])[-+]?\$?\#?\d[\d,]*(?:\.\d+)?(?:%|x\b|\s(?:billion|million)\b|(?:st|nd|rd|th)\b)?)
+    (?P<iso>(?<![\w.])\d{{4}}-\d{{2}}-\d{{2}}(?!\w))
+  | (?P<yq>(?<![\w.])(?P<yq_y>\d{{4}})\s*[Qq](?P<yq_q>[1-4])\b)
+  | (?P<qtr>\b[Qq](?P<q>[1-4])\b(?:(?:\s+of\s+|\s*[-,]?\s*)(?P<qy>\d{{4}})(?!\d))?)
+  | (?P<mon>\b(?P<m>{_MONTHS})\b(?:\s+(?P<d>\d{{1,2}})(?!\d))?(?:,?\s+(?P<y>\d{{4}})(?!\d))?)
+  | (?P<num>(?<![\w.])(?:US)?[-+]?\$?\#?\d[\d,]*(?:\.\d+)?
+       (?:%|(?:st|nd|rd|th)\b|\s(?:billion|million|trillion|thousand|bps|bp)\b|[A-Za-z]+\b)?)
     """,
-    re.VERBOSE | re.IGNORECASE,
+    re.VERBOSE,
 )
-_YEAR = re.compile(r"(19|20)\d\d")
 _EDGE = " .,;:!?()[]\"'"
+
+
+@dataclass
+class _Tok:
+    raw: str
+    norm: str
+    kind: str  # "date" (iso/quarter/month), "num"
+    q: int | None = None
+    month: int | None = None
+    day: int | None = None
+    year: int | None = None
 
 
 def _norm(s: str) -> str:
@@ -29,14 +43,37 @@ def _norm(s: str) -> str:
     return s.strip(_EDGE)
 
 
-def extract_tokens(text: str) -> list[str]:
+def _tokens(text: str) -> list[_Tok]:
+    text = text.replace("\u2212", "-").replace("\u2013", "-").replace("\u00d7", "x")
     out = []
     for m in _TOKEN.finditer(text):
-        tok = _norm(m.group(0))
-        if tok.endswith("-"):
-            continue
-        out.append(tok)
+        raw = m.group(0)
+        if m.group("iso"):
+            y, mo, d = (int(x) for x in raw.split("-"))
+            out.append(_Tok(raw, _norm(raw), "date", month=mo, day=d, year=y))
+        elif m.group("yq"):
+            q, y = int(m.group("yq_q")), int(m.group("yq_y"))
+            out.append(_Tok(raw, f"q{q} {y}", "date", q=q, year=y))
+        elif m.group("qtr"):
+            q = int(m.group("q"))
+            y = int(m.group("qy")) if m.group("qy") else None
+            out.append(_Tok(raw, f"q{q}" + (f" {y}" if y else ""), "date", q=q, year=y))
+        elif m.group("mon"):
+            if m.group("m") == "May" and not (m.group("d") or m.group("y")):
+                continue
+            d = int(m.group("d")) if m.group("d") else None
+            y = int(m.group("y")) if m.group("y") else None
+            out.append(_Tok(raw, _norm(raw), "date", month=_MONTH_NO[m.group("m")], day=d, year=y))
+        else:
+            norm = _norm(raw)
+            if norm.endswith("-"):
+                continue
+            out.append(_Tok(raw.strip(_EDGE), norm, "num"))
     return out
+
+
+def extract_tokens(text: str) -> list[str]:
+    return [t.norm for t in _tokens(text)]
 
 
 def _clip(s: str, n: int = 100) -> str:
@@ -70,7 +107,7 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
     text = sent.get("text", "")
     cites = sent.get("cites") or []
     where = f"section '{key}', sentence \"{_clip(text)}\""
-    tokens = extract_tokens(text)
+    tokens = _tokens(text)
     errors = []
     cited = []
     for cid in cites:
@@ -82,12 +119,27 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
             errors.append(f"{where}: cites hindsight fact {cid} ({f.label}) in an as-of section")
         cited.append(f)
     if tokens and not cites:
-        errors.append(f"{where}: contains a number ({tokens[0]}) but has no cites")
+        errors.append(f"{where}: contains a number ({tokens[0].norm}) but has no cites")
         return errors
-    forms = {_norm(x) for f in cited for x in f.forms}
-    years = {str(f.quarter.year) for f in cited if f.quarter is not None}
+    all_forms = {_norm(x) for f in cited for x in f.forms}
+    # Forms that are not date renderings: a count/rank/amount form, never a calendar year.
+    plain = {_norm(x) for f in cited for x in f.forms
+             if f.quarter is None or x not in date_forms(f.quarter)}
+    dates = [f.quarter for f in cited if f.quarter is not None]
+    years = {str(d.year) for d in dates}
     for tok in tokens:
-        ok = tok in years if _YEAR.fullmatch(tok) else tok in forms
+        if tok.kind == "date":
+            ok = tok.norm in all_forms or any(
+                (tok.q is None or (d.month - 1) // 3 + 1 == tok.q)
+                and (tok.month is None or d.month == tok.month)
+                and (tok.day is None or d.day == tok.day)
+                and (tok.year is None or d.year == tok.year)
+                for d in dates
+            )
+        elif re.fullmatch(r"\d{4}", tok.raw):
+            ok = tok.norm in years or tok.norm in plain
+        else:
+            ok = tok.norm in plain
         if not ok:
-            errors.append(f"{where}: '{tok}' is not supported by cited facts {', '.join(cites)}")
+            errors.append(f"{where}: '{tok.raw}' is not supported by cited facts {', '.join(cites)}")
     return errors
