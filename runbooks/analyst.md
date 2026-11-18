@@ -41,4 +41,33 @@ The command prints the errors and writes no note. Each error names the section, 
 Do not start a new one: it refuses while `data/analyst/showcase_report.state.json` is incomplete (and would pay for a second batch). Run `showcase --resume BATCH_ID`.
 
 ## Example `ask` answers
-<!-- PLACEHOLDER: the controller fills this section after live runs. -->
+Live runs on 2026-11-17 (Claude Opus 5.5).
+
+**Q: write up the bank in Santa Clara that failed in 2023**
+
+(claude-opus-5-5, 4,955 in / 345 out tokens, $0.0267; memos written by the agent are not included)
+
+I wrote the memo for **Silicon Valley Bank** in Santa Clara, CA (FDIC cert 24735) and saved it to:
+**`banks/Silicon Valley Bank (24735).md`**
+
+It's the only bank in Santa Clara that failed in 2023. It failed on March 10, 2023, and its last report was for the quarter ending December 31, 2022, so the memo uses that quarter.
+
+The memo passed its checks with no errors, though it took two tries. You can open the file to read it, or I can pull specific numbers like its national rank.
+
+**Q: which banks are on the watchlist right now? just the top 5**
+
+(claude-opus-5-5, 6,082 in / 271 out tokens, $0.0297; memos written by the agent are not included)
+
+Here are the top 5 banks on the current watchlist (the top 2% of all banks by risk score):
+
+| Rank | Bank | FDIC Cert |
+|---|---|---|
+| 1 | Tioga-Franklin Savings Bank | 33802 |
+| 2 | Lamont Bank of St John | 8681 |
+| 3 | Nano Banc | 58590 |
+| 4 | Southpoint Bank | 58088 |
+| 5 | Columbia Savings & Loan Assn | 28480 |
+
+The full watchlist has 87 banks. These rankings compare banks with each other. They aren't probabilities that a bank will fail.
+
+(Note: "right now" = the latest quarter in the data, 2026-06-30.)
