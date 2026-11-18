@@ -24,8 +24,14 @@ def _sheet(kind="caught", after=False, failure=date(2023, 10, 20), first_flag=da
     o = Outcome(kind, after, failure, first_flag, 4 if first_flag else None, False, date(2023, 12, 31))
     pct = _fact(1, "Percentile (100 = highest risk)", "99.9%")
     pct.value = 99.9
+    rank = _fact(5, "National rank (1 = highest score)", "5")
+    rank.value = 5
+    n = _fact(6, "Banks ranked that quarter", "4,000")
+    n.value = 4000
+    wl = _fact(7, "On the watchlist", "flagged")
+    wl.value = "yes"
     facts = [pct, _fact(2, "Model score", "0.9000"),
-             _fact(3, "Rank"), _fact(4, "Other")]
+             _fact(3, "Rank"), _fact(4, "Other"), rank, n, wl]
     return FactSheet(7, "Bank Of Test: A", date(2023, 12, 31), o, facts, hist, after_h,
                      "CANT SEE TEXT.", [s.key for s in all_sections(kind)])
 
@@ -106,3 +112,17 @@ def test_no_cite_ids_and_sources_only_cited():
     src = t.split("## Sources")[1]
     assert "F3 · Rank · 2023-12-31 · 1 · src3.parquet: col" in src
     assert "F4" not in src and "F1 " not in src
+
+
+def test_front_matter_from_as_of_facts_not_history():
+    sheet = _sheet()
+    sheet.history = sheet.history[sheet.history["report_date"] != pd.Timestamp(sheet.as_of)]
+    fm = yaml.safe_load(_render(sheet).split("---\n")[1])
+    assert fm["rank"] == 5 and fm["n_banks"] == 4000 and fm["flagged"] is True and fm["percentile"] == 99.9
+
+
+def test_after_window_line_in_outcome_section():
+    t = _render(_sheet(after=True, failure=date(2026, 3, 1)))
+    outcome = t.split("## How early Canary caught it")[1].split("## ")[0]
+    assert "*After the test window: not part of the reported 2016-2024 results.*" in outcome
+    assert "After the test window" not in _render(_sheet()).split("## How early Canary caught it")[1]

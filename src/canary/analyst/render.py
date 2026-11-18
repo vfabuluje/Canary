@@ -44,23 +44,26 @@ def _yaml(v) -> str:
     return json.dumps(str(v), ensure_ascii=False)  # JSON strings are valid YAML
 
 
-def _percentile(sheet: FactSheet):
+def _as_of_value(sheet: FactSheet, prefix: str):
+    """Value of the as-of fact whose label starts with `prefix` (the as-of scored row), or None."""
     for f in sheet.facts:
-        if f.label.startswith("Percentile"):
-            return float(f.value)
+        if not f.hindsight and f.label.startswith(prefix):
+            return f.value
     return None
 
 
 def _front_matter(sheet: FactSheet, meta: dict) -> str:
-    row = sheet.history[sheet.history["report_date"] == pd.Timestamp(sheet.as_of)]
-    r = row.iloc[-1] if len(row) else None
+    rank = _as_of_value(sheet, "National rank")
+    n = _as_of_value(sheet, "Banks ranked that quarter")
+    pct = _as_of_value(sheet, "Percentile")
+    flagged = _as_of_value(sheet, "On the watchlist")
     o = sheet.outcome
     fields = [
         ("cert", sheet.cert), ("name", sheet.name), ("as_of", sheet.as_of),
-        ("rank", int(r["rank"]) if r is not None else None),
-        ("n_banks", int(r["n_banks"]) if r is not None else None),
-        ("percentile", _percentile(sheet)),
-        ("flagged", bool(r["flagged"]) if r is not None else None),
+        ("rank", int(rank) if rank is not None else None),
+        ("n_banks", int(n) if n is not None else None),
+        ("percentile", float(pct) if pct is not None else None),
+        ("flagged", flagged == "yes" if flagged is not None else None),
         ("outcome", o.kind), ("after_test_window", o.after_test_window),
         ("failure_date", o.failure_date), ("model_run", meta["model_run"]),
         ("written_at", meta["written_at"]), ("writer_model", meta["writer_model"]),
@@ -132,6 +135,8 @@ def render_note(sheet: FactSheet, memo: dict, sections: list[Section], meta: dic
         if sec.key in by_key:
             for p in _paragraphs(by_key[sec.key]):
                 out += [p, ""]
+        if sec.key == "outcome" and sheet.outcome.after_test_window:
+            out += [AFTER_WINDOW, ""]
         if sec.key == "score":
             out += [SCORE_SENTENCE, "", "**What the model can't see.** " + sheet.cant_see, ""]
         if sec.key == "what_next" and len(sheet.after_history):

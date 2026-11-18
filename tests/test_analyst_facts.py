@@ -141,3 +141,89 @@ def test_section_order_and_specialists():
 
 def test_contribution_matrix_alias():
     assert probe._contribs is probe.contribution_matrix
+
+
+# ---- final-review fixes ----------------------------------------------------------------
+
+def test_history_and_front_matter_with_shuffled_scores(analyst_ctx, tmp_path):
+    import yaml
+
+    from canary.analyst.render import render_note
+    from test_analyst_writer import _memo
+
+    analyst_ctx.scored = analyst_ctx.scored.sample(frac=1.0, random_state=7).reset_index(drop=True)
+    sheet = build_fact_sheet(analyst_ctx, 24735, replay_dir=tmp_path / "none")
+    h = sheet.history
+    assert len(h) == 8 and h["report_date"].iloc[-1] == pd.Timestamp(sheet.as_of)
+    assert h["report_date"].is_monotonic_increasing
+    assert sheet.after_history.empty or sheet.after_history["report_date"].is_monotonic_increasing
+    meta = {"model_run": "r", "written_at": "t", "writer_model": "m"}
+    fm = yaml.safe_load(render_note(sheet, _memo(sheet), sections.all_sections(sheet.outcome.kind), meta)
+                        .split("---\n")[1])
+    s = analyst_ctx.scored
+    row = s[(s["cert"] == 24735) & (s["report_date"] == pd.Timestamp(sheet.as_of))].iloc[0]
+    assert fm["rank"] == int(row["rank"]) and fm["n_banks"] == int(row["n_banks"])
+    assert fm["flagged"] is bool(row["flagged"]) and fm["percentile"] == pytest.approx(float(row["percentile"]))
+
+
+def test_driver_facts_accept_value_forms(analyst_ctx):
+    from canary.analyst.labels import display_forms
+
+    sheet = build_fact_sheet(analyst_ctx, 3)
+    d = next(f for f in sheet.facts if f.label.startswith("Driver up #1") and not f.hindsight)
+    feature = d.source.split("feature ")[1].split(" ")[0]
+    s = analyst_ctx.features
+    v = s[(s["cert"] == 3) & (s["report_date"] == pd.Timestamp(sheet.as_of))].iloc[0][feature]
+    for form in display_forms(feature, float(v)):
+        assert form in d.forms
+    assert display_forms(feature, float(v))[0] in d.label
+
+
+def test_later_rank_facts_say_flagged(analyst_ctx):
+    s = analyst_ctx.scored
+    later = s[(s["cert"] == 3) & (s["report_date"] > pd.Timestamp(date(2018, 3, 31)))].sort_values("report_date")
+    s.loc[later.index, "flagged"] = False
+    s.loc[later.index[0], "flagged"] = True
+    sheet = build_fact_sheet(analyst_ctx, 3, as_of=date(2018, 3, 31))
+    rk = [f for f in sheet.facts if f.label.startswith("Rank in a later quarter")]
+    assert "flagged (on the watchlist)" in rk[0].label and "(flagged)" in rk[0].display
+    assert all("not flagged" in f.label and "not flagged" in f.display for f in rk[1:])
+
+
+def _what_if_dir(tmp_path, cert, report_date):
+    d = tmp_path / "wi"
+    d.mkdir(exist_ok=True)
+    pd.DataFrame({"cert": cert, "report_date": report_date, "feature": "htm_unrealized_loss_to_equity",
+                  "value": [0.0, 0.5, 1.0], "score": 0.1, "rank": [300, 120, 200], "n_banks": 4773,
+                  "percentile": 50.0, "actual_value": 0.98}).to_csv(d / "what_if.csv", index=False)
+    return d
+
+
+def test_what_if_facts_for_missed_bank(analyst_ctx, tmp_path):
+    s = analyst_ctx.scored
+    s.loc[s["cert"] == 3, "flagged"] = False
+    d = _what_if_dir(tmp_path, 3, "2019-09-30")
+    sheet = build_fact_sheet(analyst_ctx, 3, replay_dir=d)
+    assert sheet.outcome.kind == "missed"
+    wi = [f for f in sheet.facts if f.label.startswith("What-if")]
+    assert len(wi) == 1 and wi[0].hindsight and POSTHOC_LABEL in wi[0].label
+    assert wi[0].value == 120 and "120" in wi[0].forms and "50%" in wi[0].forms and "4,773" in wi[0].forms
+    assert wi[0].quarter == date(2019, 9, 30)
+
+
+def test_no_what_if_facts_for_caught_bank(analyst_ctx, tmp_path):
+    d = _what_if_dir(tmp_path, 3, "2019-09-30")
+    sheet = build_fact_sheet(analyst_ctx, 3, replay_dir=d)
+    assert sheet.outcome.kind == "caught"
+    assert not any(f.label.startswith("What-if") for f in sheet.facts)
+
+
+def test_late_flag_hindsight_fact(analyst_ctx, tmp_path):
+    from test_analyst_outcome import _fail_in_2025
+
+    _fail_in_2025(analyst_ctx, flag="2025-03-31")
+    sheet = build_fact_sheet(analyst_ctx, 101, replay_dir=tmp_path / "none")
+    assert sheet.outcome.kind == "missed"
+    late = [f for f in sheet.facts if f.label.startswith("Flagged at Q1 2025, after the 2016-2024 test period")]
+    assert late and late[0].hindsight and late[0].quarter == date(2025, 3, 31)
+    assert "not counted in the reported results" in late[0].label

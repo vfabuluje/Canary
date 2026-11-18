@@ -12,7 +12,7 @@ import pandas as pd
 
 from canary.analyst.context import Context
 from canary.analyst.facts import build_fact_sheet
-from canary.analyst.outcome import default_as_of
+from canary.analyst.outcome import AFTER_WINDOW_START, default_as_of
 from canary.analyst.sections import all_sections
 from canary.analyst.writer import (
     PRICES,
@@ -27,7 +27,6 @@ from canary.model.train import CASE_STUDY_CERTS
 
 log = logging.getLogger(__name__)
 
-AFTER_WINDOW_START = date(2025, 12, 31)  # "after the test window": failure_date > this
 EST_INPUT_TOKENS = 3500  # per bank, fact sheet and prompt (a real request is ~13.5k characters)
 EST_OUTPUT_TOKENS = 2000  # per bank
 

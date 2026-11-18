@@ -100,17 +100,47 @@ def _drivers(b: _Builder, ctx: Context, row: pd.DataFrame, quarter: date, prefix
         for i, j in enumerate(picks, 1):
             name = FEATURE_COLUMNS[j]
             val = row.iloc[0][name]
-            shown = f", value {display_forms(name, float(val))[0]}" if pd.notna(val) else ""
+            vforms = display_forms(name, float(val)) if pd.notna(val) else []
+            shown = f", value {vforms[0]}" if vforms else ""
             c = float(contrib[j])
             b.add(
                 f"{prefix} {direction} #{i}{when}: {PLAIN_NAMES[name]}{shown}; contribution to the score",
                 c,
                 f"{c:+.3f}",
-                [f"{c:+.3f}", f"{abs(c):.3f}", f"{abs(c):.2f}"],
+                [f"{c:+.3f}", f"{abs(c):.3f}", f"{abs(c):.2f}"] + vforms,
                 f"{_SCORES_SRC}: feature {name} contribution",
                 quarter,
                 hindsight,
             )
+
+
+def _quarter_name(d: date) -> str:
+    return f"Q{(d.month - 1) // 3 + 1} {d.year}"
+
+
+def _what_if(b: _Builder, replay_dir: Path, cert: int) -> None:
+    """Phase 4 what-if (one feature changed at a time on one bank-quarter), for a missed bank.
+
+    Post-hoc analysis, so hindsight and labeled. One fact per feature: the best (lowest) rank the
+    bank reached anywhere on the grid, and the grid value that reached it.
+    """
+    path = replay_dir / "what_if.csv"
+    if not path.exists():
+        return
+    wi = pd.read_csv(path)
+    wi = wi[wi["cert"] == cert]
+    for (rd, feature), g in wi.groupby(["report_date", "feature"], sort=True):
+        if feature not in PLAIN_NAMES:
+            continue
+        q = pd.Timestamp(rd).date()
+        best = g.sort_values(["rank", "value"]).iloc[0]
+        rk, n = int(best["rank"]), int(best["n_banks"])
+        lo, hi, at = (display_forms(feature, float(g["value"].min())), display_forms(feature, float(g["value"].max())),
+                      display_forms(feature, float(best["value"])))
+        b.add(f"What-if ({POSTHOC_LABEL}): {PLAIN_NAMES[feature]} set to each value from {lo[0]} to {hi[0]}, "
+              f"other data unchanged; best rank reached {rk:,} of {n:,}, at {at[0]}",
+              rk, f"{rk:,}", _count_forms(rk) + [f"#{rk}", f"#{rk:,}"] + _count_forms(n) + lo + hi + at,
+              f"{path}: rank (feature {feature})", q, True)
 
 
 def _cant_see(lacks_profile: bool, share: float | None) -> str:
@@ -196,12 +226,17 @@ def build_fact_sheet(
               f"{_SCORES_SRC}: flagged", ff, True)
         if outcome.lead_quarters is not None:
             q = outcome.lead_quarters
-            b.add("Lead time in quarters before failure", q, str(q), [str(q), _WORDS.get(q, str(q))],
+            words = [_WORDS.get(q, str(q))] + (["a"] if q == 1 else [])  # "a quarter" ahead
+            b.add("Lead time in quarters before failure", q, str(q), [str(q), *words],
                   f"{_SCORES_SRC}: quarters_until_failure", None, True)
         if ff != as_of:
             fr = rows[rows["report_date"] == pd.Timestamp(ff)]
             if len(fr):
                 _drivers(b, ctx, fr, ff, "Driver", True)
+    if outcome.late_flag:
+        lf = outcome.late_flag
+        b.add(f"Flagged at {_quarter_name(lf)}, after the 2016-2024 test period (not counted in the reported results)",
+              lf.isoformat(), lf.isoformat(), ["2016", "2024"], f"{_SCORES_SRC}: flagged", lf, True)
     if not outcome.still_reporting:
         lr = outcome.last_report
         b.add("Last quarter the bank reported", lr.isoformat(), lr.isoformat(), [], f"{_FEATURES_SRC}: report_date", lr, True)
@@ -209,8 +244,10 @@ def build_fact_sheet(
     for _, r in after.iterrows():
         d = r["report_date"].date()
         rk = int(r["rank"])
-        b.add(f"Rank in a later quarter ({d})", rk, f"{rk:,}", _count_forms(rk) + [f"#{rk}"],
-              f"{_SCORES_SRC}: rank", d, True)
+        on = bool(r["flagged"])
+        status = "flagged (on the watchlist)" if on else "not flagged"
+        b.add(f"Rank in a later quarter ({d}), {status}", rk, f"{rk:,} ({'flagged' if on else 'not flagged'})",
+              _count_forms(rk) + [f"#{rk}", f"#{rk:,}"], f"{_SCORES_SRC}: rank, flagged", d, True)
 
     # Phase 4 facts
     banks_csv = replay_dir / "replay_banks.csv"
@@ -221,6 +258,9 @@ def build_fact_sheet(
             rr = int(rb.iloc[0]["run_risk_rank"])
             b.add(f"Run-risk rank ({POSTHOC_LABEL})", rr, f"{rr:,}", _count_forms(rr) + [f"#{rr}"],
                   f"{banks_csv}: run_risk_rank", as_of, True)
+
+    if outcome.kind == "missed":
+        _what_if(b, replay_dir, cert)
 
     lacks_profile = not bool(credit_loss_profile(at_feats[at_feats["cert"] == cert]).iloc[0])
     credit_share = None
@@ -243,7 +283,7 @@ def build_fact_sheet(
         as_of=as_of,
         outcome=outcome,
         facts=b.facts,
-        history=_history(rows[(rows["report_date"] <= ts)].tail(8)),
+        history=_history(rows[rows["report_date"] <= ts].sort_values("report_date").tail(8)),
         after_history=_history(after),
         cant_see=_cant_see(lacks_profile, credit_share),
         section_keys=[s.key for s in all_secs],

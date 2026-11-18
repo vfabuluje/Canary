@@ -73,3 +73,44 @@ def test_quiet(analyst_ctx):
     s.loc[s["cert"] == 100, "flagged"] = False
     out = classify(analyst_ctx, 100, analyst_ctx.latest_quarter)
     assert out.kind == "quiet" and out.failure_date is None
+
+
+def _fail_in_2025(ctx, flag: str, cert: int = 101):
+    """cert fails 2025-06-30 (a test-window failure); flagged only at `flag`."""
+    fd = pd.Timestamp("2025-06-30")
+    ctx.banks.loc[ctx.banks["cert"] == cert, "failure_date"] = fd
+    s = ctx.scored
+    rows = s[s["cert"] == cert]
+    s.loc[rows.index, "flagged"] = False
+    qtf = {"2024-06-30": 4, "2024-09-30": 3, "2024-12-31": 2, "2025-03-31": 1}
+    for d, q in qtf.items():
+        s.loc[rows.index[rows["report_date"] == pd.Timestamp(d)], "quarters_until_failure"] = q
+    s.loc[rows.index[rows["report_date"] == pd.Timestamp(flag)], "flagged"] = True
+
+
+def test_2025_failure_flagged_only_in_2025_is_missed(analyst_ctx):
+    _fail_in_2025(analyst_ctx, flag="2025-03-31")
+    out = classify(analyst_ctx, 101, analyst_ctx.latest_quarter)
+    assert out.kind == "missed" and out.first_flag is None and out.lead_quarters is None
+    assert out.late_flag == date(2025, 3, 31) and not out.after_test_window
+
+
+def test_2025_failure_flagged_in_2024_is_caught(analyst_ctx):
+    _fail_in_2025(analyst_ctx, flag="2024-12-31")
+    out = classify(analyst_ctx, 101, analyst_ctx.latest_quarter)
+    assert out.kind == "caught" and out.lead_quarters == 2 and out.first_flag == date(2024, 12, 31)
+    assert out.late_flag is None
+
+
+def test_after_window_failure_uses_all_rows(analyst_ctx):
+    _fail_in_2025(analyst_ctx, flag="2025-03-31")
+    analyst_ctx.banks.loc[analyst_ctx.banks["cert"] == 101, "failure_date"] = pd.Timestamp("2026-03-15")
+    out = classify(analyst_ctx, 101, analyst_ctx.latest_quarter)
+    assert out.kind == "caught" and out.after_test_window and out.late_flag is None
+
+
+def test_after_window_constant_defined_once():
+    from canary.analyst import outcome, showcase
+
+    assert showcase.AFTER_WINDOW_START is outcome.AFTER_WINDOW_START == date(2025, 12, 31)
+    assert not hasattr(outcome, "TEST_END") or outcome.TEST_END == date(2024, 12, 31)
