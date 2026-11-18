@@ -49,7 +49,37 @@ def build_parser() -> argparse.ArgumentParser:
     ask = sub.add_parser("ask", parents=[shared], help="answer a plain-English question about the banks")
     ask.add_argument("question")
     ask.add_argument("--model", default=DEFAULT_MODEL, help="agent model")
+    show = sub.add_parser("showcase", parents=[shared], help="write notes for the showcase set in one batch job")
+    show.add_argument("--model", default=DEFAULT_MODEL, help="writer model")
+    show.add_argument("--out", default="banks", help="notes folder")
+    show.add_argument("--replay-dir", default=str(REPLAY_DIR), help="Phase 4 replay folder")
+    show.add_argument("--report", default="data/analyst/showcase_report.json", help="run report (JSON)")
+    show.add_argument("--dry-run", action="store_true", help="list the banks and estimate the cost; no API calls")
     return parser
+
+
+def _showcase(args) -> int:
+    from canary.analyst.showcase import estimate_cost, run_showcase, showcase_banks
+
+    ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
+    banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir))
+    if args.dry_run:
+        counts: dict[str, int] = {}
+        for cert, as_of, group in banks:
+            counts[group] = counts.get(group, 0) + 1
+            print(f"{cert}\t{as_of}\t{group}")
+        print(f"{len(banks)} banks: " + ", ".join(f"{g} {n}" for g, n in counts.items()))
+        print(f"estimated cost: ${estimate_cost(len(banks), args.model):.2f} "
+              f"(batch price, {args.model}, 2,000 input and 2,000 output tokens per bank)")
+        return 0
+    report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
+                          banks=banks, replay_dir=Path(args.replay_dir))
+    print(f"{report['written']} written, {report['failed']} failed of {report['banks_total']} "
+          f"(${report['cost_usd']:.2f}); report {args.report}")
+    for e in report["banks"]:
+        if not e["ok"]:
+            print(f"  cert {e['cert']}: {'; '.join(e['errors'])}", file=sys.stderr)
+    return 0 if report["failed"] == 0 else 1
 
 
 def _ask(args) -> int:
@@ -102,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "memo":
             return _memo(args)
+        if args.command == "showcase":
+            return _showcase(args)
         if args.command == "ask":
             return _ask(args)
     except (KeyError, FileNotFoundError) as exc:
