@@ -1,0 +1,121 @@
+from datetime import date
+
+import pandas as pd
+import pytest
+
+from canary.analyst.checker import check_memo, extract_tokens
+from canary.analyst.facts import Fact, FactSheet, date_forms
+from canary.analyst.outcome import Outcome
+from canary.analyst.sections import Section
+
+
+def _fact(id, label, value, forms, quarter=None, hindsight=False):
+    forms = list(forms) + (date_forms(quarter) if quarter else [])
+    return Fact(id, label, quarter, value, str(value), forms, hindsight, "src")
+
+
+def _sheet():
+    facts = [
+        _fact("F1", "Bond losses share", 0.9812, ["98.1%", "98%", "0.98"], date(2022, 12, 31)),
+        _fact("F2", "Rank", 7, ["7", "#7", "7th"], date(2022, 12, 31)),
+        _fact("F3", "Assets", 1.2e9, ["$1.2 billion", "1.2 billion"]),
+        _fact("F4", "Failure date", "2023-03-10", [], date(2023, 3, 10), hindsight=True),
+        _fact("F5", "Contribution", -0.1234, ["-0.123", "0.123"], date(2022, 12, 31)),
+    ]
+    empty = pd.DataFrame()
+    return FactSheet(1, "X Bank", date(2022, 12, 31), None, facts, empty, empty, "", ["summary", "outcome"])
+
+
+SECTIONS = [
+    Section("summary", "Summary", "as_of", "", True),
+    Section("outcome", "Outcome", "hindsight", "", True),
+]
+
+
+def _memo(text, cites, key="summary", other=True):
+    secs = [{"key": key, "paragraphs": [{"sentences": [{"text": text, "cites": cites}]}]}]
+    if other:
+        secs.append({"key": "outcome", "paragraphs": []} if key == "summary" else {"key": "summary", "paragraphs": []})
+    return {"sections": secs}
+
+
+def run(text, cites):
+    return check_memo(_memo(text, cites), _sheet(), SECTIONS)
+
+
+def test_passes_when_numbers_match_cited_facts():
+    assert run("Bond losses were 98% of equity.", ["F1"]) == []
+
+
+def test_number_not_in_cited_fact():
+    errs = run("Bond losses were 97% of equity.", ["F1"])
+    assert len(errs) == 1
+    assert "97%" in errs[0] and "Bond losses were 97%" in errs[0] and "summary" in errs[0]
+
+
+def test_number_without_cites():
+    errs = run("Bond losses were 98% of equity.", [])
+    assert len(errs) == 1 and "no cites" in errs[0]
+
+
+def test_no_number_no_cites_ok():
+    assert run("This bank looks fragile.", []) == []
+
+
+def test_unknown_id():
+    errs = run("Bond losses were 98% of equity.", ["F1", "F99"])
+    assert len(errs) == 1 and "F99" in errs[0]
+
+
+def test_hindsight_fact_in_as_of_section():
+    errs = run("It failed on 2023-03-10.", ["F4"])
+    assert len(errs) == 1 and "hindsight" in errs[0]
+
+
+def test_hindsight_fact_ok_in_hindsight_section():
+    memo = _memo("It failed on 2023-03-10.", ["F4"], key="outcome")
+    assert check_memo(memo, _sheet(), SECTIONS) == []
+
+
+@pytest.mark.parametrize("text", ["as of 2022-12-31", "in Q4 2022", "on December 31, 2022", "in 2022"])
+def test_date_forms_pass(text):
+    assert run(text, ["F1"]) == []
+
+
+def test_uncited_year_fails():
+    errs = run("in 2023", ["F1"])
+    assert len(errs) == 1 and "2023" in errs[0]
+
+
+def test_year_does_not_pass_via_integer_form():
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", "Count", 2023, ["2,023", "2023"]))
+    memo = _memo("in 2023", ["F6"])
+    assert len(check_memo(memo, sheet, SECTIONS)) == 1
+
+
+def test_year_range_not_negative_number():
+    assert extract_tokens("the 2016-2024 results") == ["2016", "2024"]
+
+
+def test_extract_tokens_forms():
+    assert extract_tokens("$1.2 billion, 1,234 banks, 98.1%, 2.5x, #7, 7th, +0.123, -0.5") == [
+        "$1.2 billion", "1234", "98.1%", "2.5x", "#7", "7th", "+0.123", "-0.5"]
+    assert extract_tokens("On December 31, 2022 and Q4 2022 and 2022-12-31.") == [
+        "december 31, 2022".replace(",", ""), "q4 2022", "2022-12-31"]
+
+
+def test_other_forms_pass():
+    assert run("Assets were $1.2 billion, rank #7 (7th).", ["F2", "F3"]) == []
+    assert run("Pushed down by -0.123 and 0.123.", ["F5"]) == []
+
+
+def test_number_only_from_other_sentences_fact_fails():
+    assert len(run("Rank was 7.", ["F1"])) == 1
+
+
+def test_missing_and_unexpected_section():
+    memo = {"sections": [{"key": "summary", "paragraphs": []}, {"key": "bogus", "paragraphs": []}]}
+    errs = check_memo(memo, _sheet(), SECTIONS)
+    assert any("outcome" in e and "missing" in e for e in errs)
+    assert any("bogus" in e and "unexpected" in e for e in errs)
