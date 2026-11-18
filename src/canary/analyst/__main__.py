@@ -55,7 +55,37 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--replay-dir", default=str(REPLAY_DIR), help="Phase 4 replay folder")
     show.add_argument("--report", default="data/analyst/showcase_report.json", help="run report (JSON)")
     show.add_argument("--dry-run", action="store_true", help="list the banks and estimate the cost; no API calls")
+    cmp_ = sub.add_parser("compare", parents=[shared], help="write the case-study notes with several models and compare")
+    cmp_.add_argument("--models", default="claude-opus-5-5,claude-sonnet-5-5", help="comma-separated writer models")
+    cmp_.add_argument("--out", default="data/analyst/compare", help="comparison folder (one subfolder per model)")
     return parser
+
+
+def _compare(args) -> int:
+    from canary.analyst import compare as cmp
+
+    models = [m.strip() for m in args.models.split(",") if m.strip()]
+    if not models:
+        print("error: --models needs at least one model name", file=sys.stderr)
+        return 2
+    certs = tuple(cmp.CASE_STUDY_CERTS)
+    ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
+    print(f"planned: {len(models) * len(certs)} calls ({len(models)} models x {len(certs)} banks {list(certs)})")
+    for m in models:
+        print(f"  {m} -> {Path(args.out) / m}")
+    report = cmp.compare_models(ctx, make_client(), models, certs, Path(args.out))
+    cols = ["model", "first try", "after retry", "failed", "in tokens", "out tokens", "cost"]
+    rows = [[m, str(a["passed_first_try"]), str(a["passed_after_retry"]), str(a["failed"]),
+             f"{a['input_tokens']:,}", f"{a['output_tokens']:,}", f"${a['cost_usd']:.2f}"]
+            for m, a in report["models"].items()]
+    widths = [max(len(r[i]) for r in [cols, *rows]) for i in range(len(cols))]
+    for r in [cols, *rows]:
+        print("  ".join(c.ljust(w) if i == 0 else c.rjust(w) for i, (c, w) in enumerate(zip(r, widths))))
+    print("memos:")
+    for e in report["memos"]:
+        print(f"  {e['model']} {e['cert']}: " + (e["path"] if e["ok"] else f"FAILED {'; '.join(e['errors'])[:200]}"))
+    print(f"report {Path(args.out) / 'compare.json'}")
+    return 0
 
 
 def _showcase(args) -> int:
@@ -142,6 +172,8 @@ def main(argv: list[str] | None = None) -> int:
             return _memo(args)
         if args.command == "showcase":
             return _showcase(args)
+        if args.command == "compare":
+            return _compare(args)
         if args.command == "ask":
             return _ask(args)
     except (KeyError, FileNotFoundError) as exc:
