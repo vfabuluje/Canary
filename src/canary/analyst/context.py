@@ -20,6 +20,14 @@ from canary.replay.probe import national_rank
 
 @dataclass
 class Context:
+    """Everything the analyst reads.
+
+    Date convention: every DataFrame date column (features.report_date/failure_date,
+    scored.report_date/failure_date, failures.failure_date, banks.first_report/last_report/
+    failure_date) is datetime64 (pd.Timestamp, NaT when missing). Scalars such as
+    latest_quarter, and API parameters such as as-of dates, are datetime.date.
+    """
+
     features: pd.DataFrame
     scored: pd.DataFrame
     failures: pd.DataFrame
@@ -35,9 +43,9 @@ def score_rows(features: pd.DataFrame, model: xgboost.XGBClassifier) -> pd.DataF
     Each report date is ranked over every bank scored that quarter (the Phase 3 rule), and
     percentile = 100 * (1 - (rank - 1) / n_banks), as in case_studies.csv.
     """
-    d = pd.to_datetime(features["report_date"])
-    rows = features[d >= pd.Timestamp(TEST_START)].reset_index(drop=True)
+    rows = features[pd.to_datetime(features["report_date"]) >= pd.Timestamp(TEST_START)].reset_index(drop=True)
     rows["report_date"] = pd.to_datetime(rows["report_date"])
+    rows["failure_date"] = pd.to_datetime(rows["failure_date"])
     rows["score"] = model.predict_proba(select_features(rows))[:, 1]
     rows["rank"] = national_rank(rows, "score")
     rows["n_banks"] = rows.groupby("report_date")["cert"].transform("size")
@@ -71,7 +79,7 @@ def _load_failures(path: Path) -> pd.DataFrame:
             "name": raw["NAME"],
             "city": raw["CITY"],
             "state": raw["PSTALP"],
-            "failure_date": pd.to_datetime(raw["FAILDATE"]).dt.date,
+            "failure_date": pd.to_datetime(raw["FAILDATE"]),
         }
     )
     return out.reset_index(drop=True)
@@ -99,7 +107,6 @@ def _build_banks(features: pd.DataFrame, failures: pd.DataFrame, financials_dir:
     banks["name"] = fail["name"].reindex(banks.index).fillna(banks["name"])
     banks["city"] = fail["city"].reindex(banks.index)
     banks["state"] = _last_states(financials_dir).reindex(banks.index)
-    banks["failure_date"] = banks["failure_date"].astype(object).where(banks["failure_date"].notna(), None)
     banks = banks.reset_index()
     return banks[["cert", "name", "state", "first_report", "last_report", "failure_date", "city"]]
 
@@ -112,6 +119,8 @@ def load_context(
     cache_dir: Path = Path("data/analyst"),
 ) -> Context:
     frame = load_dataset(features)
+    frame["report_date"] = pd.to_datetime(frame["report_date"])
+    frame["failure_date"] = pd.to_datetime(frame["failure_date"])
     model_path = model_dir / "model.json"
     model = xgboost.XGBClassifier()
     model.load_model(model_path)
@@ -125,5 +134,5 @@ def load_context(
         banks=_build_banks(frame, fails, financials_dir),
         model=model,
         model_run=run,
-        latest_quarter=max(frame["report_date"]),
+        latest_quarter=frame["report_date"].max().date(),
     )

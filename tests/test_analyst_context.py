@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 import pandas as pd
 import pytest
@@ -31,9 +32,11 @@ def test_flags_match_phase3_for_test_rows(analyst_ctx, trained_model, df):
 def test_banks_table(analyst_ctx):
     b = analyst_ctx.banks.set_index("cert")
     assert len(b) == analyst_ctx.features["cert"].nunique()
-    assert b.loc[24735, "failure_date"] is not None and b.loc[24735, "city"] == "City24735"
+    assert b.loc[24735, "failure_date"] == pd.Timestamp("2023-03-31")
+    assert b.loc[24735, "city"] == "City24735"
+    assert pd.isna(b.loc[100, "failure_date"])
     assert b.loc[100, "state"] == "PA"
-    assert b.loc[100, "last_report"] == analyst_ctx.latest_quarter
+    assert b.loc[100, "last_report"] == pd.Timestamp(analyst_ctx.latest_quarter)
     assert pd.isna(b.loc[100, "city"])
     assert analyst_ctx.failures["cert"].tolist().count(3) == 1
 
@@ -56,3 +59,16 @@ def test_cache_reused_then_invalidated(analyst_ctx, tmp_path, failures_path, fin
     os.utime(features, (1, 1))
     with pytest.raises(AssertionError, match="rescored"):
         load_context(features, model_dir, failures_path, financials_dir, cache)
+
+
+def test_date_convention(analyst_ctx):
+    c = analyst_ctx
+    cols = [
+        c.features["report_date"], c.features["failure_date"],
+        c.scored["report_date"], c.scored["failure_date"],
+        c.failures["failure_date"],
+        c.banks["first_report"], c.banks["last_report"], c.banks["failure_date"],
+    ]
+    for col in cols:
+        assert pd.api.types.is_datetime64_any_dtype(col), col.name
+    assert type(c.latest_quarter) is date
