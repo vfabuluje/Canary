@@ -360,3 +360,50 @@ def test_tier_term_not_stripped_when_glued_to_decimal():
 def test_days_term_needs_leading_boundary():
     errs = run_terms("The 1130-89 days figure was 0.4%.", ["F3"])
     assert errs and not any("'11'" in e for e in errs)  # not stripped mid-number, leaving '11'
+
+
+def _pct_sheet():
+    facts = [
+        _fact("F1", "Percentile (100 = highest risk)", 94.9, ["94.9%", "95%", "94.9", "95", "94.9th", "95th"],
+              date(2022, 12, 31)),
+        _fact("F2", "Percentile scale (0 to 100; higher means riskier)", 100, ["100", "0 to 100", "0-100", "0"],
+              date(2022, 12, 31)),
+        _fact("F3", "Noncurrent", 0.001, ["0.1%"]),
+    ]
+    empty = pd.DataFrame()
+    return FactSheet(1, "X Bank", date(2022, 12, 31), None, facts, empty, empty, "", ["summary", "outcome"])
+
+
+def run_pct(text, cites):
+    return check_memo(_memo(text, cites), _pct_sheet(), SECTIONS)
+
+
+def test_extract_ordinal_percentile_is_one_token():
+    assert extract_tokens("the 26.8th percentile") == ["26.8th"]
+    assert extract_tokens("the 1st and 22nd") == ["1st", "22nd"]
+
+
+def test_ordinal_percentile_and_scale_pass():
+    text = "It sat at the 94.9th percentile, where 100 is the highest risk."
+    assert run_pct(text, ["F1", "F2"]) == []
+    errs = run_pct(text, ["F1"])
+    assert len(errs) == 1 and "'100'" in errs[0]
+    assert run_pct("It sat at the 94.8th percentile.", ["F1"])
+
+
+def test_scale_forms_pass():
+    assert run_pct("Percentiles run on a 0 to 100 scale; this was 94.9%.", ["F1", "F2"]) == []
+    assert run_pct("Percentiles run 0-100; this was 94.9%.", ["F1", "F2"]) == []
+
+
+def test_90_or_more_days_is_a_term():
+    for t in ("Loans 90 or more days late or not paying interest were 0.1% of loans.",
+              "Loans 90 days or more late were 0.1% of loans.", "Loans 90+ days late were 0.1% of loans.",
+              "Loans 90 Or More Days late were 0.1% of loans."):
+        assert run_pct(t, ["F3"]) == [], t
+
+
+def test_other_or_more_days_still_checked():
+    errs = run_pct("Loans 95 or more days late were 0.1% of loans.", ["F3"])
+    assert len(errs) == 1 and "'95'" in errs[0]
+    assert run_pct("The 1990 or more days figure was 0.1%.", ["F3"])

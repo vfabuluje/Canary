@@ -44,11 +44,17 @@ _TOKEN = re.compile(
 
 def _term_pattern() -> re.Pattern:
     """Fixed term names from PLAIN_NAMES whose digits are wording, not figures (ruling R17):
-    "Tier 1" (also Tier 2), "30-89 days" (en dash too), "90+ days". Exact phrases only, case-insensitive."""
+    "Tier 1" (also Tier 2), "30-89 days" (en dash too), "90+ days" and its spoken forms
+    "90 or more days" / "90 days or more". Exact phrases only, case-insensitive."""
     phrases: set[str] = set()
     for name in PLAIN_NAMES.values():
         for m in re.finditer(r"\b[Tt]ier\s+\d\b|\b\d+(?:[-\u2013]\d+|\+)\s+days\b", name):
             phrases.add(m.group(0))
+            # Spoken synonyms of an "N+ days" term, derived from the same PLAIN_NAMES phrase.
+            plus = re.fullmatch(r"(\d+)\+\s+days", m.group(0))
+            if plus:
+                phrases.add(f"{plus.group(1)} or more days")
+                phrases.add(f"{plus.group(1)} days or more")
     alts = []
     for ph in sorted(phrases):
         if ph.lower().startswith("tier"):

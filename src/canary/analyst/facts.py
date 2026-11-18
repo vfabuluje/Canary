@@ -21,6 +21,7 @@ from canary.model.metrics import WATCHLIST_SHARE
 from canary.replay.analysis import credit_loss_profile
 from canary.replay.probe import contribution_matrix
 
+PERCENTILE_SCALE_LABEL = "Percentile scale (0 to 100; higher means riskier)"
 POSTHOC_LABEL = "post-hoc check, designed after the 2023 failures"
 _WORDS = {1: "one", 2: "two", 3: "three", 4: "four"}
 # Spelled time spans ("four quarters", "a year") are numbers too: the checker matches them against
@@ -198,8 +199,10 @@ def build_fact_sheet(
           _count_forms(rank) + [f"#{rank:,}", f"#{rank}"], f"{_SCORES_SRC}: rank", as_of)
     b.add("Banks ranked that quarter", n, f"{n:,}", _count_forms(n), f"{_SCORES_SRC}: n_banks", as_of)
     pct = float(row["percentile"])
-    pct_forms = [f"{pct:.1f}%", f"{pct:.0f}%", f"{pct:.1f}", f"{pct:.0f}", _ordinal(round(pct))]
+    pct_forms = [f"{pct:.1f}%", f"{pct:.0f}%", f"{pct:.1f}", f"{pct:.0f}", _ordinal(round(pct)), f"{pct:.1f}th"]
     b.add("Percentile (100 = highest risk)", pct, f"{pct:.1f}%", pct_forms, f"{_SCORES_SRC}: percentile", as_of)
+    b.add(PERCENTILE_SCALE_LABEL, 100, "0 to 100", ["100", "0 to 100", "0-100", "0"],
+          "canary.analyst.facts: percentile scale (fixed)")
     flagged = bool(row["flagged"])
     b.add("On the watchlist", "yes" if flagged else "no", "flagged" if flagged else "not flagged",
           ["flagged", "on the watchlist"] if flagged else ["not flagged"], f"{_SCORES_SRC}: flagged", as_of)

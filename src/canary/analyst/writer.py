@@ -44,7 +44,7 @@ quarter. In them never cite a fact marked hindsight and never mention, hint at, 
 after the as-of date, including whether the bank later failed. Do not use the words "failed", \
 "collapsed", "was closed" or "was seized" in them.
 7. The score is not a probability. Describe the bank by its national rank and percentile (lead with \
-the rank), never as a chance or likelihood of failure.
+the rank; write the percentile as an ordinal, e.g. "the 26.8th percentile"), never as a chance or likelihood of failure.
 8. A fact whose label contains "{POSTHOC_LABEL}" must be described with that exact label wording in the \
 same sentence, so the reader knows it is not the model's result.
 9. The summary is 2-4 sentences. Other sections are one to three short paragraphs.

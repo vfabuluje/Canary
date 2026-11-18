@@ -227,3 +227,12 @@ def test_late_flag_hindsight_fact(analyst_ctx, tmp_path):
     late = [f for f in sheet.facts if f.label.startswith("Flagged at Q1 2025, after the 2016-2024 test period")]
     assert late and late[0].hindsight and late[0].quarter == date(2025, 3, 31)
     assert "not counted in the reported results" in late[0].label
+
+
+def test_percentile_scale_fact_and_ordinal_forms(analyst_ctx):
+    sheet = build_fact_sheet(analyst_ctx, 3)
+    scale = next(f for f in sheet.facts if f.label.startswith("Percentile scale"))
+    assert scale.value == 100 and not scale.hindsight and scale.quarter is None
+    assert {"100", "0 to 100", "0-100"} <= set(scale.forms)
+    pf = next(f for f in sheet.facts if f.label.startswith("Percentile (100"))
+    assert f"{pf.value:.1f}th" in pf.forms
