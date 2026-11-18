@@ -2,30 +2,49 @@
 
 Memo shape: {"sections": [{"key", "paragraphs": [{"sentences": [{"text", "cites": [fact ids]}]}]}]}.
 Tokens are compared only against the normalized forms of the facts cited in the same sentence. A bare
-year passes only if it equals the year of a cited fact's date. Spelled number words are not checked,
-nor is the exact post-hoc label text (it names 2023 as wording, not as a figure).
+year (or FY2022) passes only if it equals the year of a cited fact's date. Month names, lowercase or
+abbreviated (Dec, Sept.), must match a cited date; a lone capitalised "May" is ignored. Spelled time
+spans ("four quarters", "a year") must match a cited fact's forms; other spelled counts ("five
+drivers") are not checked, nor is the exact post-hoc label text (it names 2023 as wording, not as a
+figure). A sentence citing a post-hoc fact must contain the post-hoc label. Phrase guards (ruling R12):
+probability-of-failure wording anywhere; "failed", "collapsed", "was closed", "was seized" in as-of
+sections.
 """
 
 import re
 from dataclasses import dataclass
 
-from canary.analyst.facts import POSTHOC_LABEL, FactSheet, date_forms
+from canary.analyst.facts import POSTHOC_LABEL, SPELLED_WORDS, FactSheet, date_forms, spelled_norm
 from canary.analyst.sections import Section
 
 _MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
-_MONTH_NO = {m: i for i, m in enumerate(_MONTHS.split("|"), 1)}
+_MONTH_NO = {m[:3].lower(): i for i, m in enumerate(_MONTHS.split("|"), 1)}
+# Capitalised full names, lowercase full names (not "may", a verb), and three-letter abbreviations
+# (plus "Sept"); full names come first so the alternation never stops at a prefix.
+_MONTH_RE = "|".join(
+    _MONTHS.split("|")
+    + [m.lower() for m in _MONTHS.split("|") if m != "May"]
+    + ["Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sept", "Sep", "Oct", "Nov", "Dec"]
+)
 _TOKEN = re.compile(
     rf"""
-    (?P<iso>(?<![\w.])\d{{4}}-\d{{2}}-\d{{2}}(?!\w))
+    (?P<spelled>\b(?i:(?P<sw>{SPELLED_WORDS}))\s+(?i:(?P<su>quarters?|years?))\b)
+  | (?P<fy>\bFY\s?(?P<fy_y>\d{{4}})(?!\d))
+  | (?P<iso>(?<![\w.])\d{{4}}-\d{{2}}-\d{{2}}(?!\w))
   | (?P<yq>(?<![\w.])(?P<yq_y>\d{{4}})\s*[Qq](?P<yq_q>[1-4])\b)
   | (?P<qtr>\b[Qq](?P<q>[1-4])\b(?:(?:\s+of\s+|\s*[-,]?\s*)(?P<qy>\d{{4}})(?!\d))?)
-  | (?P<mon>\b(?P<m>{_MONTHS})\b(?:\s+(?P<d>\d{{1,2}})(?!\d))?(?:,?\s+(?P<y>\d{{4}})(?!\d))?)
+  | (?P<mon>\b(?P<m>{_MONTH_RE})\b\.?(?:\s+(?P<d>\d{{1,2}})(?!\d))?(?:,?\s+(?P<y>\d{{4}})(?!\d))?)
   | (?P<num>(?<![\w.])(?:US)?[-+]?\$?\#?\d[\d,]*(?:\.\d+)?
        (?:%|(?:st|nd|rd|th)\b|\s(?:billion|million|trillion|thousand|bps|bp)\b|[A-Za-z]+\b)?)
     """,
     re.VERBOSE,
 )
 _EDGE = " .,;:!?()[]\"'"
+_PROBABILITY = re.compile(
+    r"\b(?:chance|probability|likelihood)\s+of\s+(?:failing|failure|fail)\b|\d+(?:\.\d+)?%\s+chance\b",
+    re.IGNORECASE)
+_NEGATED = re.compile(r"\b(?:not|never|no)\s+(?:a|an|the)?\s*$", re.IGNORECASE)  # "not a probability of failure"
+_AS_OF_WORDS = re.compile(r"\b(?:failed|collapsed)\b|\bwas\s+(?:closed|seized)\b", re.IGNORECASE)
 
 
 @dataclass
@@ -49,7 +68,11 @@ def _tokens(text: str) -> list[_Tok]:
     out = []
     for m in _TOKEN.finditer(text):
         raw = m.group(0)
-        if m.group("iso"):
+        if m.group("spelled"):
+            out.append(_Tok(raw, spelled_norm(m.group("sw"), m.group("su")), "num"))
+        elif m.group("fy"):
+            out.append(_Tok(raw, _norm(raw), "date", year=int(m.group("fy_y"))))
+        elif m.group("iso"):
             y, mo, d = (int(x) for x in raw.split("-"))
             out.append(_Tok(raw, _norm(raw), "date", month=mo, day=d, year=y))
         elif m.group("yq"):
@@ -64,7 +87,7 @@ def _tokens(text: str) -> list[_Tok]:
                 continue
             d = int(m.group("d")) if m.group("d") else None
             y = int(m.group("y")) if m.group("y") else None
-            out.append(_Tok(raw, _norm(raw), "date", month=_MONTH_NO[m.group("m")], day=d, year=y))
+            out.append(_Tok(raw, _norm(raw), "date", month=_MONTH_NO[m.group("m")[:3].lower()], day=d, year=y))
         else:
             norm = _norm(raw)
             if norm.endswith("-"):
@@ -120,6 +143,14 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
         if f.hindsight and spec.window == "as_of":
             errors.append(f"{where}: cites hindsight fact {cid} ({f.label}) in an as-of section")
         cited.append(f)
+    for m in _PROBABILITY.finditer(text):
+        if not _NEGATED.search(text[: m.start()]):
+            errors.append(f"{where}: describes the score as a probability of failure ('{m.group(0)}')")
+    if spec.window == "as_of":
+        for m in _AS_OF_WORDS.finditer(text):
+            errors.append(f"{where}: '{m.group(0)}' in an as-of section (says or hints at what happened later)")
+    if any(POSTHOC_LABEL in f.label for f in cited) and POSTHOC_LABEL not in text:
+        errors.append(f"{where}: cites a post-hoc fact but does not include the label \"{POSTHOC_LABEL}\"")
     if tokens and not cites:
         errors.append(f"{where}: contains a number ({tokens[0].norm}) but has no cites")
         return errors

@@ -68,7 +68,7 @@ def test_unknown_id():
 
 
 def test_hindsight_fact_in_as_of_section():
-    errs = run("It failed on 2023-03-10.", ["F4"])
+    errs = run("Its last day was 2023-03-10.", ["F4"])
     assert len(errs) == 1 and "hindsight" in errs[0]
 
 
@@ -189,3 +189,109 @@ def test_posthoc_label_year_not_checked():
     # Only the exact label is exempt: a stray 2023 elsewhere is still rejected.
     errs = check_memo(_memo(f"In 2023 the {POSTHOC_LABEL} put it at #42.", ["F6"], key="outcome"), sheet, SECTIONS)
     assert len(errs) == 1 and "'2023'" in errs[0]
+
+
+# ---- final-review fixes ----------------------------------------------------------------
+
+def _posthoc_sheet():
+    from canary.analyst.facts import POSTHOC_LABEL
+
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", f"Run-risk rank ({POSTHOC_LABEL})", 42, ["42", "#42"],
+                             date(2022, 12, 31), hindsight=True))
+    return sheet, POSTHOC_LABEL
+
+
+def test_posthoc_fact_requires_label_in_sentence():
+    sheet, label = _posthoc_sheet()
+    errs = check_memo(_memo("On run risk the bank was #42.", ["F6"], key="outcome"), sheet, SECTIONS)
+    assert len(errs) == 1 and "post-hoc" in errs[0]
+    ok = f"On the run-risk rank, a {label}, the bank was #42."
+    assert check_memo(_memo(ok, ["F6"], key="outcome"), sheet, SECTIONS) == []
+
+
+def test_posthoc_label_with_wrong_number_still_fails():
+    sheet, label = _posthoc_sheet()
+    errs = check_memo(_memo(f"On the run-risk rank, a {label}, the bank was #41.", ["F6"], key="outcome"),
+                      sheet, SECTIONS)
+    assert len(errs) == 1 and "#41" in errs[0]
+
+
+def _lead_sheet(q, words):
+    sheet = _sheet()
+    sheet.facts.append(_fact("F6", "Lead time in quarters before failure", q, [str(q), *words], hindsight=True))
+    return sheet
+
+
+@pytest.mark.parametrize("text,ok", [("Canary flagged it four quarters ahead.", False),
+                                     ("It was Two quarters early.", False), ("Flagged a quarter ahead.", True),
+                                     ("Flagged one quarter ahead.", True), ("flagged one year ahead", False),
+                                     ("Flagged an quarter ahead.", True)])
+def test_spelled_lead_time_must_match(text, ok):
+    sheet = _lead_sheet(1, ["one", "one quarter", "a quarter"])
+    errs = check_memo(_memo(text, ["F6"], key="outcome"), sheet, SECTIONS)
+    assert (errs == []) if ok else len(errs) == 1
+
+
+def test_spelled_lead_time_matching_passes_and_counts_ignored():
+    sheet = _lead_sheet(4, ["four", "four quarters"])
+    assert check_memo(_memo("Canary flagged it four quarters ahead.", ["F6"], key="outcome"), sheet, SECTIONS) == []
+    assert run("The model lists five drivers.", []) == []
+    errs = run("It was flagged four quarters ahead.", [])
+    assert len(errs) == 1 and "no cites" in errs[0]
+    assert extract_tokens("an quarter, A year, three Quarters") == ["a quarter", "a year", "three quarters"]
+
+
+@pytest.mark.parametrize("text", ["It had a 3% chance of failing.", "The probability of failure was low.",
+                                  "Its likelihood of failing rose.", "A 12.5% chance applies."])
+def test_probability_phrasing_rejected_anywhere(text):
+    for key in ("summary", "outcome"):
+        errs = check_memo(_memo(text, ["F1", "F2"], key=key), _sheet(), SECTIONS)
+        assert any("probability" in e for e in errs), (key, errs)
+
+
+@pytest.mark.parametrize("text", ["The bank failed soon after.", "It collapsed.", "The bank was closed by regulators.",
+                                  "It was seized."])
+def test_failure_words_rejected_in_as_of_sections(text):
+    errs = run(text, [])
+    assert len(errs) == 1 and "as-of" in errs[0]
+    assert check_memo(_memo(text, [], key="outcome"), _sheet(), SECTIONS) == []
+
+
+@pytest.mark.parametrize("text", ["The bank was not flagged.", "It was on the watchlist and ranked high.",
+                                  "Deposits were closely watched.", "The model failsafe held.",
+                                  "Losses on bonds held to maturity were large."])
+def test_ordinary_as_of_prose_passes(text):
+    assert run(text, []) == []
+
+
+@pytest.mark.parametrize("text,ok", [("in FY2022", True), ("in FY2021", False), ("in FY 2022", True),
+                                     ("in Dec 2022", True), ("in Dec. 2022", True), ("in Sept 2022", False),
+                                     ("in Sep. 2022", False), ("on december 31, 2022", True),
+                                     ("in september 2022", False), ("in Jan 2022", False)])
+def test_fiscal_years_and_month_abbreviations_checked(text, ok):
+    errs = run(text, ["F1"])
+    assert (errs == []) if ok else len(errs) == 1
+
+
+def test_month_tokens_extracted_and_may_ignored():
+    assert extract_tokens("in Sept and Dec. and march and FY2022") == ["sept", "dec", "march", "fy2022"]
+    assert extract_tokens("It May rise; it may rise.") == []
+    assert len(run("in Sept", ["F1"])) == 1 and run("in Dec.", ["F1"]) == []
+
+
+def test_negated_probability_wording_allowed():
+    assert run("The score is not a probability of failure.", []) == []
+    assert len(run("The score is a probability of failure.", [])) == 1
+
+
+def test_label_spelled_span_becomes_a_form(analyst_ctx):
+    from canary.analyst.facts import build_fact_sheet
+
+    sheet = build_fact_sheet(analyst_ctx, 3)
+    growth = next(f for f in sheet.facts if f.label.startswith("Bank: asset growth over the past four quarters"))
+    assert "four quarters" in growth.forms
+    secs = [Section("summary", "Summary", "as_of", "", True)]
+    text = f"Asset growth over the past four quarters was {growth.display}."
+    memo = {"sections": [{"key": "summary", "paragraphs": [{"sentences": [{"text": text, "cites": [growth.id]}]}]}]}
+    assert check_memo(memo, sheet, secs) == []

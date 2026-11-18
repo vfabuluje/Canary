@@ -5,6 +5,7 @@ may be used only in the outcome sections (spec 4).
 """
 
 import json
+import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -22,6 +23,15 @@ from canary.replay.probe import contribution_matrix
 
 POSTHOC_LABEL = "post-hoc check, designed after the 2023 failures"
 _WORDS = {1: "one", 2: "two", 3: "three", 4: "four"}
+# Spelled time spans ("four quarters", "a year") are numbers too: the checker matches them against
+# fact forms as "<word> <unit>" (an -> a), so labels that contain one carry it as a form.
+SPELLED_WORDS = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|an|a"
+SPELLED_SPAN = re.compile(rf"\b(?P<sw>{SPELLED_WORDS})\s+(?P<su>quarters?|years?)\b", re.IGNORECASE)
+
+
+def spelled_norm(word: str, unit: str) -> str:
+    word = word.lower()
+    return f"{'a' if word == 'an' else word} {unit.lower()}"
 _FEATURES_SRC = "data/features/fct_bank_features.parquet"
 _SCORES_SRC = "data/analyst/scores.parquet"
 
@@ -71,6 +81,7 @@ class _Builder:
 
     def add(self, label, value, display, forms, source, quarter=None, hindsight=False) -> None:
         forms = list(forms) + (date_forms(quarter) if quarter else [])
+        forms += [spelled_norm(m["sw"], m["su"]) for m in SPELLED_SPAN.finditer(label)]
         self.facts.append(
             Fact(f"F{len(self.facts) + 1}", label, quarter, value, display, _dedupe(forms), hindsight, source)
         )
@@ -226,7 +237,8 @@ def build_fact_sheet(
               f"{_SCORES_SRC}: flagged", ff, True)
         if outcome.lead_quarters is not None:
             q = outcome.lead_quarters
-            words = [_WORDS.get(q, str(q))] + (["a"] if q == 1 else [])  # "a quarter" ahead
+            word = _WORDS.get(q, str(q))
+            words = [word, f"{word} quarter{'' if q == 1 else 's'}"] + (["a quarter"] if q == 1 else [])
             b.add("Lead time in quarters before failure", q, str(q), [str(q), *words],
                   f"{_SCORES_SRC}: quarters_until_failure", None, True)
         if ff != as_of:
