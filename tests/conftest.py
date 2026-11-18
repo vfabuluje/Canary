@@ -118,3 +118,70 @@ def features_path(raw, tmp_path):
     path = tmp_path / "features.parquet"
     raw.to_parquet(path)
     return path
+
+
+@pytest.fixture(scope="module")
+def trained_model(raw):
+    """Small-grid fitted model on `raw` (same training as tests/test_replay_probe.py::model)."""
+    from canary.model.dataset import assign_split as _split, fails_within_4q as _label
+
+    frame = raw.copy()
+    rng = np.random.default_rng(1)
+    n = len(frame)
+    frame["htm_unrealized_loss_to_equity"] = rng.uniform(0, 1, n)
+    frame["afs_unrealized_loss_to_equity"] = rng.uniform(0, 0.5, n)
+    frame["uninsured_to_deposits"] = rng.uniform(0, 1, n)
+    frame["label"] = _label(frame["quarters_until_failure"])
+    frame["split"] = _split(frame["report_date"])
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(train_mod, "GRID", [{"max_depth": 2, "learning_rate": 0.3, "min_child_weight": 1}])
+        mp.setattr(train_mod, "MAX_TREES", 30)
+        mp.setattr(train_mod, "EARLY_STOPPING_ROUNDS", 5)
+        fitted, _ = train_mod.train(frame)
+    return fitted
+
+
+@pytest.fixture
+def failures_path(raw, tmp_path):
+    certs = [3, 24735, 57053, 59017]
+    rows = []
+    for cert in certs:
+        sub = raw[raw["cert"] == cert].iloc[0]
+        rows.append(
+            {
+                "CERT": cert,
+                "NAME": f"FAILED BANK {cert}",
+                "CITY": f"City{cert}",
+                "PSTALP": "CA",
+                "FAILDATE": sub["failure_date"].isoformat(),
+            }
+        )
+    path = tmp_path / "failures.parquet"
+    pd.DataFrame(rows).to_parquet(path)
+    return path
+
+
+@pytest.fixture
+def financials_dir(raw, tmp_path):
+    out = tmp_path / "financials"
+    last_two = sorted(raw["report_date"].unique())[-2:]
+    for q in last_two:
+        part = out / f"repdte={q.strftime('%Y%m%d')}"
+        part.mkdir(parents=True)
+        certs = raw.loc[raw["report_date"] == q, "cert"]
+        pd.DataFrame({"CERT": certs.to_numpy(), "STALP": "PA", "REPDTE": q.isoformat()}).to_parquet(
+            part / "part.parquet"
+        )
+    return out
+
+
+@pytest.fixture
+def analyst_ctx(raw, trained_model, failures_path, financials_dir, tmp_path):
+    from canary.analyst.context import load_context
+
+    features = tmp_path / "features.parquet"
+    raw.to_parquet(features)
+    model_dir = tmp_path / "model"
+    model_dir.mkdir()
+    trained_model.save_model(model_dir / "model.json")
+    return load_context(features, model_dir, failures_path, financials_dir, tmp_path / "cache")
