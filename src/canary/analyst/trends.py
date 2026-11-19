@@ -157,17 +157,50 @@ _FEATURES_SRC = "data/features/fct_bank_features.parquet"
 _SCORES_SRC = "data/analyst/scores.parquet"
 _WINDOW_TEXT = {"pit": "prior 12 quarters", "ytd": "same quarter, prior 3 years"}
 
+def _range(r: RatioTrend) -> str:
+    return f"{display_forms(r.feature, r.lo)[0]} to {display_forms(r.feature, r.hi)[0]}"
+
+
+def _pp(d: float | None) -> str:
+    return "n/a" if d is None else f"{d:+.1f} pp"
+
+
+def render_trends(sheet) -> list[str]:
+    result: TrendResult | None = sheet.extras.get(TREND_KEY)
+    if result is None:
+        return []
+    shown = result.shown
+    if not shown:
+        line = (TOO_LITTLE if result.checked == 0 else NONE_OUTSIDE).format(as_of=result.as_of)
+        return [line, "", TREND_SENTENCE]
+    lines = ["| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |",
+             "|---|---|---|---|---|---|---|---|"]
+    for r in shown:
+        lines.append(f"| {PLAIN_NAMES[r.feature]} | {display_forms(r.feature, r.value)[0]} | {_range(r)} | "
+                     f"{_WINDOW_TEXT[r.window]} | {_pp(r.change_1q_pp)} | {_pp(r.change_4q_pp)} | "
+                     f"{r.contribution:+.3f} | {r.direction} |")
+    lines.append("")
+    if len(result.outside) > len(shown):
+        lines += [f"{len(result.outside)} of {result.checked} ratios were outside their prior range; "
+                  f"the {len(shown)} furthest are shown.", ""]
+    lines.append(TREND_SENTENCE)
+    return lines
+
+
 TREND_SECTION = Section(
     TREND_KEY, "How its ratios moved", "as_of",
-    "Use only the trend facts (labels starting \"Trend\") and the as-of rank facts. For each ratio you "
-    "discuss, give its as-of value, its prior range (low and high) and the model's contribution for that "
-    "same ratio, with that ratio's direction label. State the rank phrase (how the model rated the bank "
-    "against a year earlier). Where a ratio is outside its range but its direction is \"pushed the score "
-    "down\" or \"little effect on the score\", say that contrast plainly. Never say a trend predicted, "
-    "warned of or would have caught anything, and do not mention the outcome. Contributions are in "
+    "Cite only the trend facts (labels starting \"Trend\"), the two comparison-window facts, the "
+    "\"Percentile a year earlier\" fact and the as-of rank facts. For each ratio you discuss, give its "
+    "as-of value, its prior range (low and high) and the model's contribution for that same ratio, with "
+    "that ratio's direction label. State the rank phrase (how the model rated the bank against a year "
+    "earlier). Use each ratio's direction label and the rank phrase with the same meaning, no stronger "
+    "or weaker claim. Where a ratio is outside its range but its direction is \"pushed the score down\" "
+    "or \"little effect on the score\", say that contrast plainly. Never say a trend predicted, warned "
+    "of or would have caught anything, and do not mention the outcome. Contributions are in "
     "\"model log-odds units\" (positive pushes the score up). Write changes with \"percentage points\" "
     "or \"pp\", never \"%\".",
     True,
+    render=render_trends,
 )
 
 
@@ -271,36 +304,4 @@ class TrendSpecialist:
                                  [], f"{_SCORES_SRC}: percentile", as_of, None, "trend_rank_phrase"))
         return out
 
-
-def _range(r: RatioTrend) -> str:
-    return f"{display_forms(r.feature, r.lo)[0]} to {display_forms(r.feature, r.hi)[0]}"
-
-
-def _pp(d: float | None) -> str:
-    return "n/a" if d is None else f"{d:+.1f} pp"
-
-
-def render_trends(sheet) -> list[str]:
-    result: TrendResult | None = sheet.extras.get(TREND_KEY)
-    if result is None:
-        return []
-    shown = result.shown
-    if not shown:
-        line = (TOO_LITTLE if result.checked == 0 else NONE_OUTSIDE).format(as_of=result.as_of)
-        return [line, "", TREND_SENTENCE]
-    lines = ["| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |",
-             "|---|---|---|---|---|---|---|---|"]
-    for r in shown:
-        lines.append(f"| {PLAIN_NAMES[r.feature]} | {display_forms(r.feature, r.value)[0]} | {_range(r)} | "
-                     f"{_WINDOW_TEXT[r.window]} | {_pp(r.change_1q_pp)} | {_pp(r.change_4q_pp)} | "
-                     f"{r.contribution:+.3f} | {r.direction} |")
-    lines.append("")
-    if len(result.outside) > len(shown):
-        lines += [f"{len(result.outside)} of {result.checked} ratios were outside their prior range; "
-                  f"the {len(shown)} furthest are shown.", ""]
-    lines.append(TREND_SENTENCE)
-    return lines
-
-
-TREND_SECTION.render = render_trends
 sections_mod.register(TrendSpecialist())

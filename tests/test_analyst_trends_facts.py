@@ -129,8 +129,6 @@ def test_no_nan_in_trend_facts(analyst_ctx, tmp_path, monkeypatch):
 
 
 def test_no_year_earlier_score(analyst_ctx, tmp_path):
-    from canary.analyst.outcome import validate_as_of  # noqa: F401
-
     first = analyst_ctx.scored[analyst_ctx.scored["cert"] == CERT]["report_date"].min()
     sheet = build_fact_sheet(analyst_ctx, CERT, as_of=first.date(), replay_dir=tmp_path / "none")
     assert _kind(sheet, "trend_prior_percentile") == []
