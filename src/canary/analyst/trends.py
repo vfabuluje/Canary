@@ -11,7 +11,15 @@ from typing import Literal
 import pandas as pd
 
 from canary.analyst import sections as sections_mod
-from canary.analyst.facts import SPELLED_SPAN, Fact, _count_forms, _ordinal, date_forms, spelled_norm
+from canary.analyst.facts import (
+    SPELLED_SPAN,
+    Fact,
+    _count_forms,
+    _ordinal,
+    date_forms,
+    decimal_ordinal_forms,
+    spelled_norm,
+)
 from canary.analyst.labels import PLAIN_NAMES, UNIT, display_forms
 from canary.analyst.sections import Section
 from canary.model.dataset import FEATURE_COLUMNS
@@ -353,7 +361,7 @@ class TrendSpecialist:
             p_now, p_prior = float(at.iloc[0]["percentile"]), float(prior_row.iloc[0]["percentile"])
             if _ok(p_now) and _ok(p_prior):
                 forms = [f"{p_prior:.1f}%", f"{p_prior:.0f}%", f"{p_prior:.1f}", f"{p_prior:.0f}",
-                         _ordinal(round(p_prior)), f"{p_prior:.1f}th"]
+                         _ordinal(round(p_prior)), *decimal_ordinal_forms(p_prior)]
                 out.append(_fact("Percentile a year earlier (100 = highest risk)", p_prior, f"{p_prior:.1f}%",
                                  forms, f"{_SCORES_SRC}: percentile", prior.date(), None,
                                  "trend_prior_percentile"))

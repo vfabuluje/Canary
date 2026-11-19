@@ -407,3 +407,12 @@ def test_other_or_more_days_still_checked():
     errs = run_pct("Loans 95 or more days late were 0.1% of loans.", ["F3"])
     assert len(errs) == 1 and "'95'" in errs[0]
     assert run_pct("The 1990 or more days figure was 0.1%.", ["F3"])
+
+
+@pytest.mark.parametrize("p,ok", [(98.2, "98.2nd"), (56.1, "56.1st"), (26.3, "26.3rd"), (26.8, "26.8th"), (75.0, "75.0th")])
+def test_decimal_ordinal_percentile_forms(p, ok):
+    from canary.analyst.facts import decimal_ordinal_forms
+
+    forms = decimal_ordinal_forms(p)
+    assert ok in forms and f"{p:.1f}th" in forms
+    assert extract_tokens(f"It was in the {ok} percentile.") == [ok]
