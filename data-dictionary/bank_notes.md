@@ -132,14 +132,14 @@ Lines, in order:
 2. **Capital line:** before 2020-03-31, "total risk-based capital, as the 2006 guidance specifies"; from 2020-03-31, "Tier 1 capital plus the loan-loss allowance" (FDIC FIL-31-2020; Federal Reserve SR 20-8), noting the 2006 thresholds were not restated for it.
 3. **Table** `| Test | Bank | Line | Meets it? |` with three rows:
 
-| Test | Line | Meets it? |
-|---|---|---|
-| Construction and land loans ÷ capital | 100% or more | yes / no / n/a |
-| Total commercial real estate loans ÷ capital | 300% or more | yes / no / n/a |
-| Growth in commercial real estate loans over the prior 36 months | 50% or more | yes / no / n/a |
+| Test | Bank | Line | Meets it? |
+|---|---|---|---|
+| Construction and land loans ÷ capital | the bank's percentage | 100% or more | yes / no / n/a |
+| Total commercial real estate loans ÷ capital | the bank's percentage | 300% or more | yes / no / n/a |
+| Growth in commercial real estate loans over the prior 36 months | the bank's percentage | 50% or more | yes / no / n/a |
 
    The Bank cell and the last cell show "n/a" when the value can't be computed. Percentages have one decimal, thousands separators and a minus sign where needed (`1,234.5%`, `-12.0%`); dollars are not shown. Comparisons use unrounded values, so 299.99% displays as "300.0%" with "no".
-4. **Summary:** one code-chosen sentence per line (construction first), or a combined form ("It did not cross either line." / "It crossed both lines: construction loans and total commercial real estate loans."). Each line is judged separately. Line 2 can read: crossed; did not cross; reached 300% but grew less than 50% (so did not cross); reached 300% but the growth part can't be checked; or can't be checked. Reasons: "the bank reported no usable capital figure for this quarter", "a loan figure the test needs is missing for this quarter", "there is no concentration data for this bank this quarter"; growth reasons: "there is no figure from 12 quarters earlier", "it reported no commercial real estate loans 12 quarters earlier".
+4. **Summary:** one code-chosen sentence per line (construction first), or a combined form ("It did not cross either line." / "It crossed both lines: construction loans and total commercial real estate loans."). Each line is judged separately. Line 2 can read: crossed; did not cross; reached 300% but grew less than 50% (so did not cross); reached 300% but the growth part can't be checked; or can't be checked. Reasons: "the bank reported no capital figure for this quarter", "the bank's capital was zero or negative this quarter", "a loan figure the test needs is missing for this quarter", "there is no concentration data for this bank this quarter"; growth reasons: "there is no figure from 12 quarters earlier", "it reported no commercial real estate loans 12 quarters earlier".
 5. **Definitions line (fixed)** for "total commercial real estate".
 6. **Closing (fixed):** "Crossing a line is a supervisory screen, not a prediction: it has not been tested as a warning signal in Canary."
 

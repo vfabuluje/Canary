@@ -69,18 +69,34 @@ def test_growth_reasons():
     assert c.compute_concentration(null_then, Q).growth_reason == c.GROWTH_NO_FIGURE
 
 
-def test_capital_missing_zero_negative():
-    for kw in ({"t1": None, "allow": 40}, {"t1": 60, "allow": None}, {"t1": 0, "allow": 0},
-               {"t1": -50, "allow": 10}):
-        r = c.compute_concentration(_df(_row(Q, con=150, nr=300, **kw)), Q)
-        assert r.reason == c.REASON_CAPITAL
-        lines = c.render_concentration(r)
-        assert c.L1_CANT.format(reason=c.REASON_CAPITAL) in lines
-        assert c.L2_CANT.format(reason=c.REASON_CAPITAL) in lines
-        rows = [x for x in lines if x.startswith("| ") and "÷" in x or "Growth in" in x]
-        assert all(x.count("n/a") == 2 for x in rows) and len(rows) == 3
-    r = c.compute_concentration(_df(_row(date(2019, 12, 31), con=5, rbc=None)), date(2019, 12, 31))
-    assert r.reason == c.REASON_CAPITAL
+def _check_capital(res, reason):
+    assert res.reason == reason
+    lines = c.render_concentration(res)
+    assert c.L1_CANT.format(reason=reason) in lines
+    assert c.L2_CANT.format(reason=reason) in lines
+    rows = [x for x in lines if x.startswith("| ") and ("÷" in x or "Growth in" in x)]
+    assert len(rows) == 3 and all(x.count("n/a") == 2 for x in rows)
+
+
+def test_capital_missing():
+    for kw in ({"t1": None, "allow": 40}, {"t1": 60, "allow": None}):
+        _check_capital(c.compute_concentration(_df(_row(Q, con=150, nr=300, **kw)), Q), c.REASON_CAPITAL_MISSING)
+    d = date(2019, 12, 31)
+    _check_capital(c.compute_concentration(_df(_row(d, con=5, rbc=None)), d), c.REASON_CAPITAL_MISSING)
+
+
+def test_capital_nonpositive():
+    for kw in ({"t1": 0, "allow": 0}, {"t1": -50, "allow": 10}):
+        _check_capital(c.compute_concentration(_df(_row(Q, con=150, nr=300, **kw)), Q), c.REASON_CAPITAL_NONPOSITIVE)
+    d = date(2019, 12, 31)
+    _check_capital(c.compute_concentration(_df(_row(d, con=5, rbc=-20)), d), c.REASON_CAPITAL_NONPOSITIVE)
+
+
+def test_construction_missing():
+    r = c.compute_concentration(_df(_row(Q, con=None, nr=300, t1=60, allow=40)), Q)
+    lines = c.render_concentration(r)
+    msg = "a loan figure the test needs is missing for this quarter"
+    assert c.L1_CANT.format(reason=msg) in lines and c.L2_CANT.format(reason=msg) in lines
 
 
 def test_null_cre_component_keeps_line1():

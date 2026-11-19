@@ -42,7 +42,7 @@ Real CAMELS ratings are confidential, so Canary builds a **"CAMELS-style"** vers
 - **In Canary:** the FDIC field `NIMY` (the "Y" means annualized, year-to-date), which becomes `net_interest_margin`, in percent.
 
 ### Tier 1 capital
-(Phase 5d also adds the loan-loss allowance to it for concentration ratios from 2020-03-31; see "Loan-loss allowance".) A bank's highest-quality loss cushion: mainly common stock and retained earnings, minus items like goodwill. Regulators judge it in two ways:
+A bank's highest-quality loss cushion: mainly common stock and retained earnings, minus items like goodwill. (Phase 5d also adds the loan-loss allowance to it for concentration ratios from 2020-03-31; see "Loan-loss allowance".) Regulators judge it in two ways:
 - **Leverage ratio** = Tier 1 ÷ average total assets. FDIC field `RBC1AAJ` ("LEVERAGE RATIO-PCA"), which becomes `leverage_ratio`.
 - **Tier 1 risk-based ratio** = Tier 1 ÷ risk-weighted assets, where riskier assets count for more. FDIC field `IDT1RWAJR`, which becomes `tier1_risk_based_ratio`.
 

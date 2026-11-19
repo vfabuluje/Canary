@@ -21,7 +21,7 @@ Set before any bank's result was looked at. **Do not change any of these after s
 
 - **Raw fields** (separate table, below): `CERT, REPDTE, LNRECONS, LNREMULT, LNRENROT, LNCOMRE, RBC, RBCT1J, LNATRES`.
 - **Construction** = `LNRECONS`. **Total CRE** = `LNRECONS + LNREMULT + LNRENROT + LNCOMRE`. A null component makes that numerator missing; a reported 0 counts as 0.
-- **Capital (denominator), by the as-of quarter:** before 2020-03-31, `RBC` (total risk-based capital, as the 2006 guidance specifies). On or after 2020-03-31, `RBCT1J + LNATRES` (null if either is null), for every bank. The section labels which measure it used and, from 2020 on, says the 2006 thresholds were not restated for it. Missing, zero or negative capital means neither ratio can be computed.
+- **Capital (denominator), by the as-of quarter:** before 2020-03-31, `RBC` (total risk-based capital, as the 2006 guidance specifies). On or after 2020-03-31, `RBCT1J + LNATRES` (null if either is null), for every bank. The section labels which measure it used and, from 2020 on, says the 2006 thresholds were not restated for it. Missing capital (reason: "the bank reported no capital figure for this quarter") or capital of zero or below (reason: "the bank's capital was zero or negative this quarter") means neither ratio can be computed; the two cases are worded differently so a negative-capital (insolvent) bank is not described as having no data.
 - **Line 1:** construction / capital x 100 **>= 100**.
 - **Line 2:** total CRE / capital x 100 **>= 300** **and** growth **>= 50**.
 - **Growth** = (total CRE at the as-of quarter / total CRE at the same calendar quarter 12 quarters earlier - 1) x 100. If the earlier figure is missing (no row, or a null component) the reason is "there is no figure from 12 quarters earlier"; if the earlier total is 0, "it reported no commercial real estate loans 12 quarters earlier".
@@ -33,7 +33,7 @@ Set before any bank's result was looked at. **Do not change any of these after s
 ## The capital switch is keyed to the as-of quarter
 A memo as of 2019-12-31 uses `RBC` and the 2006 capital wording; a memo as of 2020-03-31 uses `RBCT1J + LNATRES` and the 2020 wording. The switch uses the regulators' own documents, labelled as such. It never implies that Tier 1 plus allowance is the 2006 guidance's denominator.
 
-`RBC` is 0 for 1,669 of 4,773 banks at 2022-12-31: banks on the community bank leverage ratio framework do not report Tier 2 capital. That does not matter to the test, because from 2020-03-31 every bank is measured on `RBCT1J + LNATRES`. For memos before 2020, such a bank has capital of 0 and the section says the lines can't be checked.
+`RBC` is 0 for 1,669 of 4,773 banks at 2022-12-31: banks on the community bank leverage ratio framework do not report Tier 2 capital. That does not matter to the test, because from 2020-03-31 every bank is measured on `RBCT1J + LNATRES`. CBLR began in 2020, so no memo quarter before 2020-03-31 has `RBC` of 0 (checked: zero count for 2014-2019).
 
 ## Separate data pull, not decision 0003's recipe
 The fields come from the same `financials` endpoint but are a **separate raw table**, `data/raw/concentration/` (one file per quarter, `python -m canary.ingest concentration`), for the same reason as 0020: decision 0003's way to add a field re-pulls all 45 financial fields with `--force`, which would replace the raw values the warehouse, features and model were built from with today's amended FDIC values. `LNRECONS` is pulled again so every number in the test comes from one pull. The 45-field files and the specialty table were not touched.
@@ -44,6 +44,8 @@ Pull of 2026-11-19: 710,691 rows, 102 quarters (2001-03-31 to 2026-06-30), about
 Two yes/no tests against published lines need no interpretation. Templates cannot misstate them, and the section adds no AI tokens, no retry risk and no new checker rules. Rejected: a short AI paragraph like 5b and 5c (more natural prose, but more cost and another first-attempt failure point on every note). Phase 5's fourth part is therefore a code-written section, not an AI agent, and the README says so. 5d adds **no Claude API cost**.
 
 ## Limits (honest list)
+- **Negative allowances are used as reported.** 4 bank-quarters: cert 30746 in 2020Q1-Q3 and cert 4134 at 2024-09-30, where it cuts capital from 11,170 to 3,743.
+- **Negative capital appears in 6 memo-era bank-quarters** (certs 9956, 19328, 57564, 58302 twice, 17719). The section now states this as "the bank's capital was zero or negative this quarter" rather than as missing data.
 - **A screen, not a prediction.** Crossing a line is a supervisory screen for closer review. It has not been tested as a warning signal in Canary, and the section says so.
 - **`LNCOMRE` is 0 for most small banks** (3,817 of 4,773 at 2022-12-31). It is used as reported, so total CRE for small banks is mostly the other three components.
 - **The owner-occupied split exists only from 2007** (`LNRENROT` is null before that, so total CRE is missing for earlier quarters). This does not affect memos, which are written only for quarters from 2016-03-31.

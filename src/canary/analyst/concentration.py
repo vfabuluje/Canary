@@ -55,7 +55,8 @@ L2_CANT = "The total commercial real estate line can't be checked: {reason}."
 BOTH_NOT_CROSSED = "It did not cross either line."
 BOTH_CROSSED = "It crossed both lines: construction loans and total commercial real estate loans."
 
-REASON_CAPITAL = "the bank reported no usable capital figure for this quarter"
+REASON_CAPITAL_MISSING = "the bank reported no capital figure for this quarter"
+REASON_CAPITAL_NONPOSITIVE = "the bank's capital was zero or negative this quarter"
 REASON_LOAN = "a loan figure the test needs is missing for this quarter"
 REASON_NO_DATA = "there is no concentration data for this bank this quarter"
 GROWTH_NO_FIGURE = "there is no figure from 12 quarters earlier"
@@ -112,8 +113,11 @@ def compute_concentration(rows: pd.DataFrame, as_of: date) -> ConcentrationResul
     else:
         t1, allow = _num(row.get("RBCT1J")), _num(row.get("LNATRES"))
         capital = None if t1 is None or allow is None else t1 + allow
-    if capital is None or capital <= 0:
-        res.reason = REASON_CAPITAL
+    if capital is None:
+        res.reason = REASON_CAPITAL_MISSING
+        return res
+    if capital <= 0:
+        res.reason = REASON_CAPITAL_NONPOSITIVE
         return res
     construction = _num(row.get("LNRECONS"))
     if construction is None:

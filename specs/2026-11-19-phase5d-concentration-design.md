@@ -132,7 +132,7 @@ copy; `{}` filled by code):
      - ratio ≥ 300%, growth unknown: "Its commercial real estate loans reached 300% of capital, but the growth part can't be checked: {growth reason}."
      - ratio unknown: "The total commercial real estate line can't be checked: {reason}."
    - Combined forms (replace the two sentences): both not crossed → "It did not cross either line."; both crossed → "It crossed both lines: construction loans and total commercial real estate loans."
-   - `{reason}`: "the bank reported no usable capital figure for this quarter" (capital missing, zero or negative) / "a loan figure the test needs is missing for this quarter" (a needed component null) / "there is no concentration data for this bank this quarter" (no row in the table).
+   - `{reason}`: "the bank reported no capital figure for this quarter" (capital null) / "the bank's capital was zero or negative this quarter" (capital 0 or below) / "a loan figure the test needs is missing for this quarter" (a needed component null) / "there is no concentration data for this bank this quarter" (no row in the table).
    - `{growth reason}`: "there is no figure from 12 quarters earlier" (bank didn't report then, or a component was null) / "it reported no commercial real estate loans 12 quarters earlier" (earlier total was 0).
    Line 1 and line 2 are judged separately: a missing CRE component never hides a line-1 result.
 5. **Definitions line (fixed):** "Total commercial real estate here means construction and land,

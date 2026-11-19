@@ -32,6 +32,10 @@ All dollar fields are in $ thousands, as published.
 ## Coverage notes (checked 2026-11-19)
 
 - All fields were present for each quarter checked.
-- Any field can be null for a bank-quarter; a null is kept as null, never filled. A reported 0 is a real zero.
+- Any field can be null for a bank-quarter; a null is kept as null, never filled. A reported 0 is a real zero for the loan fields; for `RBC` see the next notes.
 - Total CRE for the test is `LNRECONS + LNREMULT + LNRENROT + LNCOMRE`; a null component makes it missing.
+- `RBC` of 0 for banks on the community bank leverage ratio framework (from 2020) means Tier 2 capital was not reported, not that capital is zero. No quarter from 2014 to 2019 has `RBC` of 0.
+- Negative `RBC` or `RBCT1J` appears in 6 insolvent memo-era bank-quarters (certs 9956, 19328, 57564, 58302 twice, 17719); the section reports capital as zero or negative.
+- Negative `LNATRES` appears in 4 bank-quarters (cert 30746 in 2020Q1-Q3; cert 4134 at 2024-09-30, where it cuts capital from 11,170 to 3,743); it is used as reported.
+- In the memo era, capital and `LNRENROT`/`LNCOMRE` are null together in 714 rows.
 - `RBC` being 0 for many banks at 2022-12-31 does not matter to the test: from 2020-03-31 the denominator is `RBCT1J + LNATRES` for every bank.
