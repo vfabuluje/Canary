@@ -10,7 +10,7 @@ from canary.analyst import __main__ as cli
 from canary.analyst.facts import build_fact_sheet
 from canary.analyst.sections import all_sections
 from canary.analyst.showcase import run_showcase, showcase_banks
-from canary.analyst.writer import PRICES, cost_usd
+from canary.analyst.writer import PRICES, RefusalError, TruncatedError, cost_usd
 
 
 
@@ -116,25 +116,67 @@ def test_cli_watchlist_top_dry_run(analyst_ctx, tmp_model_dir, tmp_replay_dir, c
 
 def test_estimate_constants_and_calibration():
     from canary.analyst import showcase
-    assert showcase.EST_OUTPUT_TOKENS == 5700 and showcase.CHARS_PER_TOKEN == 2.4
-    assert showcase.RETRY_SHARE == 0.6 and showcase.RETRY_INPUT_FACTOR == 2.0
-    assert not hasattr(showcase, "EST_INPUT_TOKENS")
+    assert showcase.EST_OUTPUT_TOKENS_BY_AGENT == {"trend": 5700, "peer": 5700, "analyst": 5700}
+    assert showcase.EST_ANALYST_SPECIALIST_CHARS == 6000
+    assert showcase.RETRY_SHARE_BY_AGENT == {"trend": 0.16, "peer": 0.16, "analyst": 0.16}
+    assert showcase.CHARS_PER_TOKEN == 2.4 and showcase.RETRY_INPUT_FACTOR == 2.0
+    assert not hasattr(showcase, "EST_INPUT_TOKENS") and not hasattr(showcase, "EST_OUTPUT_TOKENS")
     # the SVB request (22,979 chars) maps to about 9,570 input tokens
     assert showcase.request_tokens({"x": "a" * (22979 - 8)}) == round(22979 / 2.4)
 
 
-def test_estimate_run_uses_built_requests(analyst_ctx, tmp_replay_dir):
+def test_estimate_run_per_round_and_call_type(analyst_ctx, tmp_replay_dir):
     from canary.analyst import showcase
     from canary.analyst.writer import cost_usd
-    banks = [(3, date(2019, 9, 30), "x")] * 2
+    from canary.analyst.pipeline import agent_sections
+    banks = [(100, date(2026, 6, 30), "x")] * 2
     est = showcase.estimate_run(analyst_ctx, banks, "claude-opus-5-5", tmp_replay_dir.path)
-    assert est["input"] > 0 and est["output"] == 2 * 5700
-    assert est["retries"] == 1 and est["retry_output"] == 5700
-    assert est["retry_input"] == round(2 * est["input"] / 2)
-    assert est["cost"] == pytest.approx(cost_usd("claude-opus-5-5", est["input"], est["output"]) / 2)
-    assert est["retry_cost"] == pytest.approx(
-        cost_usd("claude-opus-5-5", est["retry_input"], est["retry_output"]))
-    assert est["total"] == pytest.approx(est["cost"] + est["retry_cost"])
+    sheet = build_fact_sheet(analyst_ctx, 100, date(2026, 6, 30), replay_dir=tmp_replay_dir.path)
+    n_spec = 2 * sum(bool(agent_sections(sheet, a)) for a in ("trend", "peer"))
+    r1, r2 = est["rounds"][1], est["rounds"][2]
+    assert set(r1["by_agent"]) == {"trend", "peer"} and set(r2["by_agent"]) == {"analyst"}
+    assert r1["requests"] == n_spec and r2["requests"] == 2
+    assert r1["output"] == n_spec * 5700 and r2["output"] == 2 * 5700
+    assert r1["cost"] == pytest.approx(cost_usd("claude-opus-5-5", r1["input"], r1["output"]) / 2)
+    assert r2["cost"] == pytest.approx(cost_usd("claude-opus-5-5", r2["input"], r2["output"]) / 2)
+    # the analyst request carries placeholder specialist text, so it is larger than a specialist request
+    assert r2["input"] / 2 > r1["input"] / max(n_spec, 1)
+    ret = est["retries"]
+    assert {a: ret[a]["calls"] for a in ret} == {"trend": 0, "peer": 0, "analyst": 0}  # round(0.16 * 2)
+    assert est["total"] == pytest.approx(r1["cost"] + r2["cost"] + est["retry_cost"])
+
+
+def test_estimate_run_retry_allowance_per_agent(analyst_ctx, tmp_replay_dir):
+    from canary.analyst import showcase
+    from canary.analyst.writer import cost_usd
+    banks = [(100, date(2026, 6, 30), "x")] * 25
+    est = showcase.estimate_run(analyst_ctx, banks, "claude-opus-5-5", tmp_replay_dir.path)
+    for agent, rnd in (("trend", 1), ("peer", 1), ("analyst", 2)):
+        a = est["rounds"][rnd]["by_agent"][agent]
+        r = est["retries"][agent]
+        if not a["requests"]:  # a code-only specialist for this bank
+            assert r["calls"] == 0
+            continue
+        assert a["requests"] == 25 and r["calls"] == 4  # round(0.16 * 25)
+        assert r["output"] == 4 * 5700
+        assert r["input"] == round(2.0 * a["input"] / 25 * 4)
+        assert r["cost"] == pytest.approx(cost_usd("claude-opus-5-5", r["input"], r["output"]))
+    assert est["retry_cost"] == pytest.approx(sum(r["cost"] for r in est["retries"].values()))
+
+
+def test_dry_run_prints_rounds_and_total(analyst_ctx, tmp_model_dir, tmp_replay_dir, capsys, monkeypatch):
+    monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    rc = cli.main(["showcase", "--dry-run", "--model-dir", str(tmp_model_dir),
+                   "--replay-dir", str(tmp_replay_dir.path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "round 1" in out and "round 2" in out and "estimated total with retries" in out
+    for agent in ("trend", "peer", "analyst"):
+        assert f"retry allowance ({agent})" in out
+    rc = cli.main(["showcase", "--dry-run", "--max-cost", "0.01", "--model-dir", str(tmp_model_dir),
+                   "--replay-dir", str(tmp_replay_dir.path)])
+    assert rc == 0 and "spending limit $0.01" in capsys.readouterr().out
 
 
 # ---- batch run (two rounds) -------------------------------------------------------------
@@ -878,3 +920,224 @@ def test_raised_agent_is_not_saved_so_resume_retries_it(analyst_ctx, tmp_path):
     rep2 = _run(analyst_ctx, tmp_path, second, resume="batch_1")
     assert rep2["written"] == 4 and len(second.calls) == 1  # only 100's analyst, via its saved errored result
     assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is True
+
+
+# ---- spending limit (Task 4) ------------------------------------------------------------
+
+def _stopped_state(tmp_path):
+    return json.loads((tmp_path / "report.state.json").read_text())
+
+
+def test_no_limit_runs_through(analyst_ctx, tmp_path):
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"})
+    rep = _run(analyst_ctx, tmp_path, client)  # max_cost defaults to None
+    assert rep["written"] == 4 and rep["complete"] and not rep.get("stopped")
+
+
+def test_huge_limit_runs_through(analyst_ctx, tmp_path):
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"})
+    rep = _run(analyst_ctx, tmp_path, client, max_cost=1000.0)
+    assert rep["written"] == 4 and rep["complete"] and not rep.get("stopped")
+
+
+def test_stop_before_round2_when_projected_over_limit(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import RunStopped
+
+    client = BatchClient(analyst_ctx, tmp_path)
+    with pytest.raises(RunStopped) as ei:
+        _run(analyst_ctx, tmp_path, client, max_cost=0.1)  # round 1 costs 0.056; round 2 projects well above 0.1
+    assert len(client.created) == 1 and client.calls == []  # no round-2 batch, no direct call
+    rep = json.loads((tmp_path / "report.json").read_text())
+    assert rep["stopped"] == "spending limit" and rep["complete"] is False
+    assert rep["cost_usd"] == pytest.approx(len(client.created[0]) * FULL / 2)
+    st = _stopped_state(tmp_path)
+    assert st["stopped"] == "spending limit" and st["complete"] is False and st["round2_batch_id"] is None
+    assert st["spend"]["round1"]["batch"] == pytest.approx(rep["cost_usd"])
+    assert ei.value.limit == 0.1 and ei.value.spent == pytest.approx(rep["cost_usd"])
+    assert "spending limit" in str(ei.value)
+    assert not list((tmp_path / "banks").glob("*.md"))
+
+
+def test_stop_before_retry(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import RunStopped
+
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"})
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, client, max_cost=0.1)  # a full-price retry (~0.15 est) would pass 0.1
+    assert client.calls == []  # the retry was never made
+    rep = json.loads((tmp_path / "report.json").read_text())
+    assert rep["stopped"] == "spending limit" and len(client.created) == 1
+    assert not (tmp_path / "report.progress" / "100-20260630-trend.json").exists()
+    assert _stopped_state(tmp_path)["complete"] is False
+
+
+def test_stop_between_two_retries_saves_what_finished(analyst_ctx, tmp_path, monkeypatch):
+    from canary.analyst.showcase import RunStopped, _Run
+
+    real = _Run._before_call
+    n = {"k": 0}
+
+    def second_call_stops(self, agent, attempt):
+        n["k"] += 1
+        if n["k"] == 2:
+            raise RunStopped("stop", spent=0.0, limit=0.0)
+        real(self, agent, attempt)
+
+    monkeypatch.setattr(_Run, "_before_call", second_call_stops)
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad", (101, "trend"): "bad"})
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, client)
+    assert len(client.calls) == 1  # 100's retry was made and paid; 101's was not
+    st = _stopped_state(tmp_path)
+    assert st["spend"]["round1"]["direct"] == pytest.approx(FULL)
+    assert (tmp_path / "report.progress" / "100-20260630-trend.json").exists()
+    assert not (tmp_path / "report.progress" / "101-20260630-trend.json").exists()
+
+
+def test_resume_after_limit_stop_with_higher_limit(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import RunStopped
+
+    first = BatchClient(analyst_ctx, tmp_path)
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, first, max_cost=0.1)
+    second = BatchClient(analyst_ctx, tmp_path, first_id=2)
+    second.messages.batches.results = lambda bid: pytest.fail("round 1 refetched") if bid == "batch_1" \
+        else BatchClient._results(second, bid)
+    rep = _run(analyst_ctx, tmp_path, second, resume="batch_1", max_cost=1000.0)
+    assert len(second.created) == 1  # only round 2 was submitted
+    assert {r["custom_id"].rsplit("-", 1)[1] for r in second.created[0]} == {"analyst"}
+    assert rep["written"] == 4 and rep["complete"] and not rep.get("stopped")
+    assert rep["cost_usd"] == pytest.approx((len(first.created[0]) + len(second.created[0])) * FULL / 2)
+    st = _stopped_state(tmp_path)
+    assert st["complete"] is True and not st.get("stopped")
+
+
+def test_resume_with_same_low_limit_stops_again_without_paying(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import RunStopped
+
+    first = BatchClient(analyst_ctx, tmp_path)
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, first, max_cost=0.1)
+    second = BatchClient(analyst_ctx, tmp_path, first_id=2)
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, second, resume="batch_1", max_cost=0.1)
+    assert second.created == [] and second.calls == []
+    assert json.loads((tmp_path / "report.json").read_text())["cost_usd"] == pytest.approx(
+        len(first.created[0]) * FULL / 2)
+
+
+def test_round2_limit_checked_only_before_creating_it(analyst_ctx, tmp_path):
+    first = BatchClient(analyst_ctx, tmp_path)
+    real = _break_round2_results(first)
+    with pytest.raises(RuntimeError):
+        _run(analyst_ctx, tmp_path, first)  # round 2 exists and is paid for
+    second = BatchClient(analyst_ctx, tmp_path)
+    second.created = first.created
+    second.messages.batches.results = lambda bid: real(bid)
+    rep = _run(analyst_ctx, tmp_path, second, resume="batch_2", max_cost=0.01)  # tiny limit, nothing left to buy
+    assert rep["written"] == 4 and not rep.get("stopped")
+
+
+# ---- R2: model-side final errors, empty resume, stop inside the writer, CLI -------------
+
+@pytest.mark.parametrize("exc", [RefusalError("declined"), TruncatedError("cut off"), ValueError("not json")])
+def test_model_side_final_error_is_saved_as_failed(analyst_ctx, tmp_path, exc):
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"},
+                         direct={(100, "trend"): [exc]})
+    rep = _run(analyst_ctx, tmp_path, client)
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert not by[100]["ok"] and len(client.calls) == 1
+    assert (tmp_path / "report.progress" / "100-20260630-trend.json").exists()
+    assert rep["complete"] is True and _stopped_state(tmp_path)["complete"] is True
+    from canary.analyst.showcase import ResumeError
+    second = BatchClient(analyst_ctx, tmp_path, first_id=3)
+    with pytest.raises(ResumeError):  # complete: the failed agent is final, never paid for again
+        _run(analyst_ctx, tmp_path, second, resume="batch_1")
+    assert second.calls == [] and second.created == []
+
+
+def test_transport_error_stays_unfinished(analyst_ctx, tmp_path):
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"},
+                         direct={(100, "trend"): [RuntimeError("boom")]})
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert rep["complete"] is False
+    assert not (tmp_path / "report.progress" / "100-20260630-trend.json").exists()
+
+
+def test_resume_empty_string_refused_and_state_kept(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import ResumeError
+
+    _stop_after_round1(analyst_ctx, tmp_path)
+    before = (tmp_path / "report.state.json").read_text()
+    prog = tmp_path / "report.progress"
+    names = sorted(p.name for p in prog.iterdir())
+    with pytest.raises(ResumeError):
+        _run(analyst_ctx, tmp_path, BatchClient(analyst_ctx, tmp_path, first_id=2), resume="")
+    assert (tmp_path / "report.state.json").read_text() == before
+    assert sorted(p.name for p in prog.iterdir()) == names
+
+
+def test_cli_resume_empty_string_exits_1(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    rc = cli.main(["showcase", "--resume", "", "--model-dir", str(tmp_model_dir),
+                   "--replay-dir", str(tmp_replay_dir.path), "--report", str(tmp_path / "r.json")])
+    assert rc == 1 and "error" in capsys.readouterr().err
+
+
+def test_finish_passes_before_call_and_reraises_stop(analyst_ctx, tmp_path, monkeypatch):
+    from canary.analyst.showcase import RunStopped, _Run
+
+    seen = {}
+    import canary.analyst.showcase as sc
+
+    def fake_write(ctx, cert, as_of, **kw):
+        seen["bc"] = kw.get("before_call")
+        raise RunStopped("stop", spent=1.0, limit=0.5)
+
+    monkeypatch.setattr(sc, "write_memo", fake_write)
+    client = BatchClient(analyst_ctx, tmp_path)
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, client)
+    assert seen["bc"] is not None and getattr(seen["bc"], "__func__", None) is _Run._before_call
+    assert json.loads((tmp_path / "report.json").read_text())["stopped"] == "spending limit"
+
+
+def test_cli_catches_stop_prints_resume_and_exits_nonzero(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch,
+                                                          tmp_path, capsys):
+    from canary.analyst.showcase import RunStopped
+
+    report = tmp_path / "rep.json"
+    (tmp_path / "rep.state.json").write_text(json.dumps({"batch_id": "b1", "round1_batch_id": "b1", "banks": [],
+                                                        "model": "m", "complete": False, "created_at": "x"}))
+
+    def fake_run(*a, **k):
+        raise RunStopped("limit", spent=3.5, limit=3.0)
+
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", fake_run)
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    rc = cli.main(["showcase", "--resume", "b1", "--max-cost", "3", "--model-dir", str(tmp_model_dir),
+                   "--replay-dir", str(tmp_replay_dir.path), "--report", str(report)])
+    cap = capsys.readouterr()
+    assert rc == 1
+    assert "stopped at spending limit ($3.50 spent of $3.00)" in cap.err + cap.out
+    assert "--resume b1" in cap.err + cap.out
+
+
+def test_cli_passes_max_cost(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch, tmp_path):
+    seen = {}
+
+    def fake_run(*a, **k):
+        seen.update(k)
+        return {"written": 0, "failed": 0, "banks_total": 0, "cost_usd": 0.0, "banks": []}
+
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", fake_run)
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    args = ["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+            "--report", str(tmp_path / "r.json")]
+    cli.main(args + ["--max-cost", "17"])
+    assert seen["max_cost"] == 17.0
+    cli.main(args)
+    assert seen["max_cost"] is None

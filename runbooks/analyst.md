@@ -58,6 +58,8 @@ The command prints the errors and writes no note. Each error names the section, 
 ## If a showcase run stops
 Do not start a new one: it refuses while `data/analyst/showcase_report.state.json` is incomplete (and would pay for a second batch). Run `showcase --resume BATCH_ID`.
 
+`showcase --max-cost USD` sets a spending limit (none by default). It is checked before round 2 is submitted (spent so far plus a projection from round 1's actual spend, plus the round 2 retry allowance) and before every full-price call. On a breach the run stops cleanly: finished notes, traces and the report are saved, the report and state file say `"stopped": "spending limit"` with the spend so far, and the command exits 1 with the resume command. Resume with `showcase --resume BATCH_ID --max-cost HIGHER`. A refusal, a cut-off or an unparseable reply is final for that agent (saved as failed, not paid for again on resume); a network or unexpected error leaves that agent to be retried on resume. A stop just before a retry can repeat up to two direct calls for that agent when resumed.
+
 ## Example `ask` answers
 Live runs on 2026-11-17 (Claude Opus 5.5).
 

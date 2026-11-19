@@ -19,7 +19,9 @@ import pandas as pd
 from canary.analyst.context import Context
 from canary.analyst.facts import build_fact_sheet
 from canary.analyst.outcome import AFTER_WINDOW_START, default_as_of
-from canary.analyst.pipeline import AGENTS, AgentResult, agent_sections, build_agent_request, run_agent
+from canary.analyst.pipeline import (
+    AGENT_SECTIONS, AGENTS, AgentResult, agent_sections, build_agent_request, run_agent,
+)
 from canary.analyst.sections import sections_for
 from canary.analyst.writer import (
     PRICES,
@@ -34,12 +36,14 @@ from canary.model.train import CASE_STUDY_CERTS
 
 log = logging.getLogger(__name__)
 
-# Dry-run estimate (derivation in runbooks/analyst.md). Phase 5c live memo: 11,292 output over 2 calls, so
-# about 5,650 per call, rounded to 5,700 (adaptive thinking included). Input is estimated from the real
-# request size; CHARS_PER_TOKEN is calibrated on the 5b SVB request (22,979 chars, 22,571 measured input).
-EST_OUTPUT_TOKENS = 5700  # per call (per bank first try, and per retry)
+# Dry-run estimate (derivation in runbooks/analyst.md). Output tokens per call type; the old single-call
+# figure was 5,700 (Phase 5c live memo: 11,292 output over 2 calls, adaptive thinking included). Input is
+# estimated from the real request size; CHARS_PER_TOKEN is calibrated on the 5b SVB request (22,979 chars,
+# 22,571 measured input). The per-agent constants are placeholders until the calibration memo.
+EST_OUTPUT_TOKENS_BY_AGENT = {"trend": 5700, "peer": 5700, "analyst": 5700}  # calibrated in Task 6
+EST_ANALYST_SPECIALIST_CHARS = 6000  # calibrated in Task 6: placeholder text per specialist section in the analyst request
+RETRY_SHARE_BY_AGENT = {"trend": 0.16, "peer": 0.16, "analyst": 0.16}  # calibrated in Task 6 (5b: 10 of 61 memos retried)
 CHARS_PER_TOKEN = 2.4  # calibrated on the SVB 2022-03-31 request (22,979 chars); 3.5 would under-count ~30%
-RETRY_SHARE = 0.6  # share of banks retried (5b showcase: 37 of 61 needed a retry)
 RETRY_INPUT_FACTOR = 2.0  # a retry resends the request plus the rejected memo: about 2x the first input
 RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is re-raised
 RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s
@@ -115,26 +119,64 @@ def request_tokens(request: dict) -> int:
     return round(len(json.dumps(request)) / CHARS_PER_TOKEN)
 
 
+def _placeholder_memo(key: str) -> dict:
+    """A specialist memo of typical length (EST_ANALYST_SPECIALIST_CHARS), only to size the analyst request."""
+    text = "x" * EST_ANALYST_SPECIALIST_CHARS
+    return {"sections": [{"key": key, "paragraphs": [{"sentences": [{"text": text, "cites": []}]}]}]}
+
+
+def _placeholder_memos(sheet) -> dict[str, dict]:
+    return {a: _placeholder_memo(AGENT_SECTIONS[a]) for a in SPECIALISTS if agent_sections(sheet, a)}
+
+
 def estimate_run(ctx: Context, banks: list[tuple[int, date, str]], model: str,
                  replay_dir: Path | None = None) -> dict:
-    """Dry-run estimate from the actual requests (no API calls). Batch price (half) for the first tries;
-    the retry allowance is priced at the full, non-batch rate."""
-    sizes = []
+    """Dry-run estimate from the actual requests (no API calls), per round and per call type.
+
+    Round 1 = the real trend and peer requests; round 2 = the real analyst requests built with placeholder
+    specialist sections (EST_ANALYST_SPECIALIST_CHARS each). Output is EST_OUTPUT_TOKENS_BY_AGENT per call.
+    Both rounds are priced at the batch rate (half). The retry allowance is per call type: RETRY_SHARE_BY_AGENT
+    of that agent's calls, each resending about RETRY_INPUT_FACTOR x the average request, at full price.
+    A bank that cannot be built is priced at the average request of the others, for every call type.
+    Returns {rounds: {1|2: {requests, input, output, cost, by_agent}}, retries: {agent: {calls, input, output,
+    cost}}, input, output, cost (batch total), retry_cost, total}.
+    """
+    sizes: dict[str, list[int]] = {a: [] for a in AGENTS}
+    unbuilt = 0
     for cert, as_of, _group in banks:
         try:
             sheet = build_fact_sheet(ctx, cert, as_of=as_of, replay_dir=replay_dir)
-        except ValueError:  # a bank that cannot be built is priced at the average of the others
+        except ValueError:
+            unbuilt += 1
             continue
-        sizes.append(request_tokens(build_request(sheet, sections_for(sheet), model)))
-    n_in = sum(sizes) + round((len(banks) - len(sizes)) * (sum(sizes) / len(sizes))) if sizes else 0
-    n_out = EST_OUTPUT_TOKENS * len(banks)
-    retries = round(RETRY_SHARE * len(banks))
-    retry_in = round(RETRY_INPUT_FACTOR * n_in * retries / max(len(banks), 1))
-    retry_out = EST_OUTPUT_TOKENS * retries
-    first = cost_usd(model, n_in, n_out) / 2
-    retry = cost_usd(model, retry_in, retry_out)
-    return {"input": n_in, "output": n_out, "cost": first, "retries": retries, "retry_input": retry_in,
-            "retry_output": retry_out, "retry_cost": retry, "total": first + retry}
+        for a in SPECIALISTS:
+            if agent_sections(sheet, a):
+                sizes[a].append(request_tokens(build_agent_request(sheet, a, model)))
+        sizes["analyst"].append(request_tokens(
+            build_agent_request(sheet, "analyst", model, _placeholder_memos(sheet))))
+    by_agent: dict[str, dict] = {}
+    for a in AGENTS:
+        n = len(sizes[a]) + (unbuilt if sizes[a] else 0)
+        n_in = sum(sizes[a]) + (round(unbuilt * sum(sizes[a]) / len(sizes[a])) if sizes[a] else 0)
+        n_out = EST_OUTPUT_TOKENS_BY_AGENT[a] * n
+        by_agent[a] = {"requests": n, "input": n_in, "output": n_out, "cost": cost_usd(model, n_in, n_out) / 2}
+    rounds = {}
+    for rnd, agents in ((1, SPECIALISTS), (2, ("analyst",))):
+        parts = {a: by_agent[a] for a in agents}
+        rounds[rnd] = {k: sum(v[k] for v in parts.values()) for k in ("requests", "input", "output", "cost")}
+        rounds[rnd]["by_agent"] = parts
+    retries = {}
+    for a in AGENTS:
+        n = by_agent[a]["requests"]
+        calls = round(RETRY_SHARE_BY_AGENT[a] * n)
+        r_in = round(RETRY_INPUT_FACTOR * by_agent[a]["input"] * calls / n) if n else 0
+        r_out = EST_OUTPUT_TOKENS_BY_AGENT[a] * calls
+        retries[a] = {"calls": calls, "input": r_in, "output": r_out, "cost": cost_usd(model, r_in, r_out)}
+    batch = sum(r["cost"] for r in rounds.values())
+    retry_cost = sum(r["cost"] for r in retries.values())
+    return {"rounds": rounds, "retries": retries, "input": sum(r["input"] for r in rounds.values()),
+            "output": sum(r["output"] for r in rounds.values()), "cost": batch, "retry_cost": retry_cost,
+            "total": batch + retry_cost}
 
 
 def custom_id(cert: int, as_of: date, agent: str | None = None) -> str:
@@ -209,8 +251,12 @@ class ResumeError(RuntimeError):
 
 
 class RunStopped(Exception):
-    """Raised from `_before_call` / `_round_boundary` to stop the run cleanly (spending limit, Task 4).
-    It propagates out of `run_showcase`; everything finished is already saved."""
+    """Raised from `_before_call` / `_round_boundary` to stop the run cleanly (spending limit, spec 6.1).
+    It propagates out of `run_showcase`; everything finished is already saved. `spent` and `limit` are USD."""
+
+    def __init__(self, message: str, spent: float = 0.0, limit: float | None = None) -> None:
+        super().__init__(message)
+        self.spent, self.limit = spent, limit
 
 
 def _zero_spend() -> dict:
@@ -226,8 +272,9 @@ class _Run:
     """
 
     def __init__(self, ctx, client, model, out_dir, report_path, poll_seconds, banks, replay_dir, trace_dir,
-                 state: dict) -> None:
+                 state: dict, max_cost: float | None = None) -> None:
         self.ctx, self.client, self.model = ctx, client, model
+        self.max_cost = max_cost
         self.out_dir, self.report_path, self.poll_seconds = out_dir, report_path, poll_seconds
         self.banks, self.replay_dir, self.trace_dir = banks, replay_dir, trace_dir
         self.state = state
@@ -235,6 +282,11 @@ class _Run:
         self.entries: dict[str, dict] = {}
         self.unfinished: set[str] = set()  # banks with an agent that raised: reported, but redone on resume
         self._mem: dict[tuple[str, str], tuple] = {}  # results not saved to disk (the agent raised)
+        self._live: list = []
+        self._todo2: list = []
+        self._spec_ok: dict = {}
+        self._cur_tokens: dict[str, int] = {}  # agent -> input tokens of the request now being run
+        self._cur_trace: list | None = None  # trace of the agent now being run (its direct spend so far)
 
     # -- saved state ------------------------------------------------------------------------
     def save(self) -> None:
@@ -310,6 +362,7 @@ class _Run:
                 sp["input"] += e.get("in", 0)
                 sp["output"] += e.get("out", 0)
             self.state[f"round{rnd}_collected"] = True
+            self.state[f"round{rnd}_requests"] = len(collected)
             self.save()
         return collected
 
@@ -322,6 +375,10 @@ class _Run:
         trace: list = []
         raised = False
         memo = first.get("memo") if first else None
+        self._cur_trace = trace
+        if self.max_cost is not None:  # size the call the limit check may have to price
+            self._cur_tokens[agent] = request_tokens(build_agent_request(sheet, agent, self.model,
+                                                                         specialist_memos))
         try:
             res = run_agent(sheet, agent, client=self.client, model=self.model, specialist_memos=specialist_memos,
                             first_memo=memo, trace=trace, before_call=self._before_call)
@@ -334,7 +391,9 @@ class _Run:
             self.save()
             raise
         except Exception as exc:  # one agent must never abort the run or lose the report
-            raised = True
+            # A model-side final error (refusal, cut off, unparseable) is final: saved as failed below, and
+            # resume does not pay for it again. Anything else (transport, unexpected) stays resumable.
+            raised = not isinstance(exc, (RefusalError, TruncatedError, ValueError))
             u = _usage_of(exc)  # calls made before the exception still cost money
             errors = [f"{type(exc).__name__}: {exc}"]
             if first and first.get("why"):
@@ -343,6 +402,8 @@ class _Run:
                               input_tokens=u.get("input_tokens", 0), output_tokens=u.get("output_tokens", 0),
                               cost_usd=u.get("cost_usd", 0.0), served_model=u.get("model"))
             log.warning("showcase: %s %s failed: %s", base, agent, exc)
+        finally:
+            self._cur_trace = None
         batch_cost = 0.0
         if memo is not None and first:
             batch_cost = first.get("cost", 0.0)
@@ -368,12 +429,62 @@ class _Run:
             self._write_file(f"{base}-{agent}", {"result": asdict(res), "trace": trace, "source": source})
         return res
 
+    # -- spending limit (spec 6.1) ----------------------------------------------------------
+    def spent(self) -> float:
+        """Everything paid so far: batch (half price) and direct (full price) spend of every round."""
+        return sum(v["batch"] + v["direct"] for v in self.state["spend"].values())
+
+    def _stop(self, why: str, spent: float) -> RunStopped:
+        return RunStopped(f"stopped at spending limit (${spent:.2f} spent of ${self.max_cost:.2f}): {why}",
+                          spent=spent, limit=self.max_cost)
+
+    def _round2_projection(self) -> tuple[float, float]:
+        """(batch cost, retry allowance) projected for round 2, in USD.
+
+        Batch cost = round 1's actual batch spend per request, times the number of analyst requests, times
+        the analyst/specialist ratio: the estimated cost of an average analyst request (its real size,
+        EST_OUTPUT_TOKENS_BY_AGENT output) over that of an average specialist request, both at the same
+        price basis. Retry allowance = RETRY_SHARE_BY_AGENT["analyst"] of the analyst calls, each resending
+        RETRY_INPUT_FACTOR x its request, at full price."""
+        n2 = len(self._todo2)
+        r1 = self.state["spend"].get("round1") or _zero_spend()
+        n1 = self.state.get("round1_requests") or 0
+        per_request = r1["batch"] / n1 if n1 else 0.0
+        spec = [cost_usd(self.model, request_tokens(build_agent_request(b[4], a, self.model)),
+                         EST_OUTPUT_TOKENS_BY_AGENT[a])
+                for b in self._live for a in SPECIALISTS if a in self._requested[b[3]]]
+        an_in = [request_tokens(build_agent_request(b[4], "analyst", self.model, self._spec_ok[b[3]]))
+                 for b in self._todo2]
+        avg_in = sum(an_in) / len(an_in) if an_in else 0.0
+        analyst = cost_usd(self.model, avg_in, EST_OUTPUT_TOKENS_BY_AGENT["analyst"])
+        ratio = analyst / (sum(spec) / len(spec)) if spec else 1.0
+        retries = round(RETRY_SHARE_BY_AGENT["analyst"] * n2)
+        retry = retries * cost_usd(self.model, RETRY_INPUT_FACTOR * avg_in, EST_OUTPUT_TOKENS_BY_AGENT["analyst"])
+        return per_request * ratio * n2, retry
+
     def _round_boundary(self, rnd: int) -> None:
-        """Called only before a round's batch is created (never for one already paid for). May raise
-        `RunStopped` (spending limit, Task 4)."""
+        """Called only before a round's batch is created (never for one already paid for). Checks the
+        spending limit before round 2: spent + projected round 2 (batch + retry allowance) over the limit
+        stops the run. Round 1 is not checked (nothing to project from; the limit guards what follows)."""
+        if self.max_cost is None or rnd != 2:
+            return
+        spent = self.spent()
+        batch, retry = self._round2_projection()
+        if spent + batch + retry > self.max_cost:
+            raise self._stop(f"round 2 is projected at ${batch:.2f} batch + ${retry:.2f} retry allowance, "
+                             f"total ${spent + batch + retry:.2f}", spent)
 
     def _before_call(self, agent: str, attempt: int) -> None:
-        """Called immediately before every full-price (direct) call. May raise `RunStopped` (Task 4)."""
+        """Called immediately before every full-price (direct) call. Stops the run if spent so far, plus
+        this agent's direct spend not yet recorded, plus this call's estimated cost, is over the limit."""
+        if self.max_cost is None:
+            return
+        spent = self.spent() + sum(t.get("cost_usd", 0.0) for t in (self._cur_trace or ())
+                                   if t.get("source") == "direct")
+        tokens = self._cur_tokens.get(agent, 0) * (1 if attempt == 1 else RETRY_INPUT_FACTOR)
+        est = cost_usd(self.model, tokens, EST_OUTPUT_TOKENS_BY_AGENT[agent])
+        if spent + est > self.max_cost:
+            raise self._stop(f"the {agent} call (try {attempt}) is estimated at ${est:.2f} full price", spent)
 
     # -- one bank ---------------------------------------------------------------------------
     def _finish(self, cert: int, as_of: date, group: str, base: str) -> None:
@@ -401,7 +512,10 @@ class _Run:
                  "first_errors": [f"[{a}] {e}" for a, r in results for e in r.first_errors], "agents": agents}
         try:
             res = write_memo(self.ctx, cert, as_of, client=self.client, model=self.model, out_dir=self.out_dir,
-                             replay_dir=self.replay_dir, trace_dir=self.trace_dir, prior=prior, prior_trace=trace)
+                             replay_dir=self.replay_dir, trace_dir=self.trace_dir, prior=prior, prior_trace=trace,
+                             before_call=self._before_call)
+        except RunStopped:
+            raise
         except Exception as exc:
             entry["errors"].append(f"{type(exc).__name__}: {exc}")
             log.warning("showcase: cert %s failed: %s", cert, exc)
@@ -434,6 +548,7 @@ class _Run:
             if base not in self.entries:
                 live.append((cert, as_of, group, base, sheet))
 
+        self._live = live
         # Round 1: trend and peer requests (a code-only specialist has none).
         todo = [(b, a) for b in live for a in SPECIALISTS if a in self._requested[b[3]]
                 and self._load_agent(b[3], a) is None]
@@ -458,6 +573,7 @@ class _Run:
         # Round 2: one analyst request per bank whose specialists passed.
         eligible = [b for b in live if b[3] in spec_ok]
         todo2 = [b for b in eligible if self._load_agent(b[3], "analyst") is None]
+        self._todo2, self._spec_ok = todo2, spec_ok
         if todo2:
             if not self.state.get("round2_batch_id"):
                 self._round_boundary(2)
@@ -474,13 +590,14 @@ class _Run:
 def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: Path,
                  poll_seconds: int = 60, *, banks: list[tuple[int, date, str]] | None = None,
                  model_dir: Path = Path("data/model"), replay_dir: Path = Path("data/replay"),
-                 resume: str | None = None, trace_dir: Path = Path("data/analyst/traces")) -> dict:
+                 resume: str | None = None, trace_dir: Path = Path("data/analyst/traces"),
+                 max_cost: float | None = None) -> dict:
     """Run the showcase in two batch rounds. With `resume=BATCH_ID` (either round's id), no finished round
     is created or paid again: saved results are reused, a batch that exists is polled and collected (the bank
     list and model come from the state file when it names that batch). The report is always written,
     partial if something escapes."""
-    state = read_state(report_path) if resume else None
-    if resume:
+    state = read_state(report_path) if resume is not None else None
+    if resume is not None:
         if state is None:
             raise ResumeError(f"--resume {resume}: no state file at {state_path(report_path)}; nothing changed")
         ids = {state.get(k) for k in ("batch_id", "round1_batch_id", "round2_batch_id")} - {None}
@@ -492,20 +609,29 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
         banks = [(int(c), date.fromisoformat(d), g) for c, d, g in state["banks"]]
         model = state.get("model", model)
         state.setdefault("spend", {})
+        state.pop("stopped", None)  # a resumed run starts un-stopped (it may be stopped again)
     else:
         state = {"batch_id": None, "round1_batch_id": None, "round2_batch_id": None, "spend": {},
                  "created_at": datetime.now().isoformat(timespec="seconds"), "model": model, "complete": False}
         banks = banks if banks is not None else showcase_banks(ctx, model_dir, replay_dir)
         state["banks"] = [[c, d.isoformat(), g] for c, d, g in banks]
         shutil.rmtree(Path(report_path).with_suffix(".progress"), ignore_errors=True)  # nothing stale carries over
-    run = _Run(ctx, client, model, out_dir, report_path, poll_seconds, banks, replay_dir, trace_dir, state)
+    run = _Run(ctx, client, model, out_dir, report_path, poll_seconds, banks, replay_dir, trace_dir, state,
+                 max_cost=max_cost)
     error = None
+    stopped = False
     try:
         run.run()
         # Only now are both rounds fully used: results collected and every bank written or retried.
         if state.get("round1_batch_id"):
             state["complete"] = not run.unfinished
             run.save()
+    except RunStopped:
+        stopped = True
+        state["stopped"] = "spending limit"
+        state["complete"] = False
+        run.save()
+        raise
     except BaseException as exc:
         error = f"{type(exc).__name__}: {exc}"
         raise
@@ -521,7 +647,9 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
             "batch_id": state.get("round1_batch_id"),
             "round1_batch_id": state.get("round1_batch_id"),
             "round2_batch_id": state.get("round2_batch_id"),
-            "complete": error is None and not run.unfinished,
+            "complete": error is None and not stopped and not run.unfinished,
+            "stopped": "spending limit" if stopped else None,
+            "max_cost": max_cost,
             "error": error,
             "banks_total": len(banks),
             "banks_done": len(entries),
