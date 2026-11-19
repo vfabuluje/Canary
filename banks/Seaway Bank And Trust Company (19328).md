@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2017-01-27
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-17T22:06:30"
+written_at: "2026-11-18T19:49:52"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-Seaway Bank And Trust Company, based in IL, ranked 7 out of 5,983 banks in Canary's national risk ranking as of 2016-12-31, placing it in the 99.9th percentile, where higher means riskier. Its capital, the cushion that absorbs losses, had turned negative, with equity at -1.9% of assets against a national median of 10.7%. Problem loans, meaning loans 90 or more days late or no longer paying interest, were 8.8% of loans versus a median of 0.6%, and the bank lost money, with a return on assets of -7.2% against a median of 0.9%. The bank was flagged on Canary's watchlist, which covers the top 2% of banks by score.
+Seaway Bank And Trust Company, based in IL, ranked 7 out of 5,983 banks nationally on Canary's risk score as of 2016-12-31, placing it in the 99.9th percentile. It was flagged on Canary's watchlist, which covers the riskiest 2% of banks. Its capital cushion had turned negative, with equity at -1.9% of assets against a national median of 10.7%. It was also losing money heavily, with a return on assets (profit as a share of assets) of -7.2% versus a median of 0.9%.
 
 ## Warning signs in the data
 
-Capital was the clearest problem: the leverage ratio, core capital as a share of average assets, was -1.8% against a national median of 10.4%. The Tier 1 risk-based capital ratio, which weighs capital against how risky the assets are, was -3.1% versus a median of 15.0%, and the total risk-based capital ratio was -1.8% versus 16.2%. Earnings were deeply negative, with return on equity at -156.0% against a median of 8.0%, and the efficiency ratio, operating costs as a share of revenue, at 249.2% versus 69.7%.
+Capital, the owners' money that absorbs losses, was below zero on every measure shown. Equity was -1.9% of assets against a national median of 10.7%, and the leverage ratio (core capital as a share of average assets) was -1.8% against a median of 10.4%. The Tier 1 risk-based capital ratio, which weighs assets by riskiness, was -3.1% against a median of 15.0%, and the total risk-based capital ratio was -1.8% against a median of 16.2%.
 
-Credit quality was weak across the board: loans 90 or more days past due or not accruing interest were 8.8% of loans versus a median of 0.6%. Loans that were recently past due but not yet seriously late, an early sign of trouble, were 5.4% of assets against a median of 0.3%, and nonaccrual assets plus foreclosed property were 4.1% of assets versus 0.5%. Net loan write-offs, loans given up as lost, ran at 1.3% of loans against a median of 0.1%, and commercial real estate loans made up 42.2% of loans versus 22.5%.
+Credit quality was weak: loans 90+ days past due or not accruing interest were 8.8% of loans, far above the median of 0.6%, and loans 30-89 days past due were 5.4% of assets against a median of 0.3%. Nonaccrual assets and foreclosed property were 4.1% of assets against a median of 0.5%, and net loan write-offs were 1.3% of loans against a median of 0.1%. Costs swamped income, with an efficiency ratio (operating costs as a share of revenue) of 249.2% against a median of 69.7%, and return on equity was -156.0% against a median of 8.0%.
 
-On funding, the bank leaned on Federal Home Loan Bank borrowings, a form of secured wholesale loan, at 14.3% of assets versus a median of 0.7%, and volatile funding was 17.7% of assets versus 5.2%. The bank was shrinking, with asset growth of -19.5% and deposit growth of -12.3% over the past four quarters, while the medians were 3.5% and 3.6%. It held cash of 17.1% of assets, well above the median of 6.6%, and unrealized losses on bonds available for sale were 1.7% of equity, above the median of 0.7%.
+On funding, the bank leaned on Federal Home Loan Bank borrowings at 14.3% of assets, well above the median of 0.7%, and volatile funding was 17.7% of assets against a median of 5.2%. It was shrinking, with asset growth of -19.5% and deposit growth of -12.3% over the past four quarters, while the medians were 3.5% and 3.6%. Some figures were less worrying: uninsured deposits were only 5.2% of deposits against a median of 17.3%, cash was 17.1% of assets against a median of 6.6%, and losses on bonds available for sale were a modest 1.7% of equity against a median of 0.7%.
 
 ## Understanding the score
 
-As of 2016-12-31, the bank ranked 7 out of 5,983 banks, the 99.9th percentile on a 0 to 100 scale where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks, or 120 banks that quarter.
+The bank ranked 7 out of 5,983 banks as of 2016-12-31, which is the 99.9th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, one of 120 banks that quarter, a list that holds the top 2% of banks by score.
 
-The five features pushing the score up most were the Tier 1 risk-based capital ratio at -3.1% (contribution +1.908), return on equity at -156.0% (+1.554), the total risk-based capital ratio at -1.8% (+0.881), the leverage ratio at -1.8% (+0.669), and loans 90 or more days past due or not accruing at 8.8% (+0.508).
+The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at -3.1% (+1.908), return on equity at -156.0% (+1.554), the total risk-based capital ratio at -1.8% (+0.881), the leverage ratio at -1.8% (+0.669), and loans 90+ days past due or not accruing interest at 8.8% of loans (+0.508).
 
-The five features pulling the score down most were interest expense at 0.6% of assets (contribution -1.391), the Texas ratio, troubled assets against capital plus reserves, at -2563.3% (-1.043), construction loans at 4.1% of loans (-0.199), total assets of $297.8 million (-0.162), and commercial real estate loans at 42.2% of loans (-0.099).
+The five factors that pulled the score down most were interest expense at 0.6% of assets (-1.391), the Texas ratio (troubled assets against capital plus reserves) at -2563.3% (-1.043), construction loans at 4.1% of loans (-0.199), total assets of $297.8 million (-0.162), and commercial real estate loans at 42.2% of loans (-0.099).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -52,15 +52,36 @@ The score ranks banks against each other; it is not a probability of failure, be
 | 2016-09-30 | 2 | 6,051 | ▲ watchlist |
 | 2016-12-31 | 7 | 5,983 | ▲ watchlist |
 
+## How its ratios moved
+
+Each ratio is compared with its own prior range over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 30 ratios checked, 16 were outside their own prior range, and the model ranked the bank 7 out of 5,983 at the 99.9th percentile.
+
+The leverage ratio fell to -1.8%, below its prior range of 1.9% to 9.4%, after a -7.5 pp change over four quarters, and contributed +0.669 model log-odds units, which pushed the score up. Return on equity dropped to -156.0%, far below its prior range of -30.5% to 2.2%, and contributed +1.554 model log-odds units, which pushed the score up. Return on assets fell to -7.2%, below its prior range of -2.9% to 0.2%, and contributed +0.175 model log-odds units, which pushed the score up.
+
+The Texas ratio swung to -2563.3%, far outside its prior range of 90.3% to 192.6%, yet it contributed -1.043 model log-odds units and pushed the score down. The efficiency ratio rose to 249.2%, above its prior range of 88.0% to 169.8%, but contributed only -0.027 model log-odds units, little effect on the score. Net interest margin, the spread earned on lending and investing, slipped to 3.1%, below its prior range of 4.0% to 4.9%, yet it contributed -0.054 model log-odds units and pushed the score down.
+
+There is no score from a year earlier to compare with (scores start 2016-03-31, or the bank did not report then).
+
+| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
+|---|---|---|---|---|---|---|---|
+| the Texas ratio (troubled assets against capital plus reserves) | -2563.3% | 90.3% to 192.6% | prior 12 quarters | -2755.9 pp | -2721.8 pp | -1.043 | pushed the score down |
+| return on equity (profit as a share of equity) | -156.0% | -30.5% to 2.2% | same quarter, prior 3 years | n/a | -125.5 pp | +1.554 | pushed the score up |
+| return on assets (profit as a share of assets) | -7.2% | -2.9% to 0.2% | same quarter, prior 3 years | n/a | -4.3 pp | +0.175 | pushed the score up |
+| the efficiency ratio (operating costs as a share of revenue) | 249.2% | 88.0% to 169.8% | same quarter, prior 3 years | n/a | +79.4 pp | -0.027 | little effect on the score |
+| net interest margin (the spread earned on lending and investing) | 3.1% | 4.0% to 4.9% | same quarter, prior 3 years | n/a | -0.9 pp | -0.054 | pushed the score down |
+| the leverage ratio (core capital as a share of average assets) | -1.8% | 1.9% to 9.4% | prior 12 quarters | -3.7 pp | -7.5 pp | +0.669 | pushed the score up |
+
+16 of 30 ratios were outside their prior range; the 6 furthest are shown.
+
+This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
+
 ## How early Canary caught it
 
-In hindsight, Canary first flagged the bank in Q1 2016, at 2016-03-31, giving a lead time of 4 quarters before the bank failed on 2017-01-27. At that first flag, the main drivers were a Tier 1 risk-based capital ratio of 5.5% (contribution +1.369), a Texas ratio of 167.1% (+1.342), and return on equity of -63.1% (+1.324). Loans 90 or more days past due or not accruing were then 19.5% of loans (+0.741), and the total risk-based capital ratio was 6.8% (+0.472).
-
-Looking back, capital was already thin and problem loans high at the first flag, and by the as-of quarter capital had turned negative.
+In hindsight, Canary first flagged the bank in the quarter ending 2016-03-31, a lead time of 4 quarters before it failed on 2017-01-27. At that first flag, the top factors pushing the score up were the Tier 1 risk-based capital ratio at 5.5% (+1.369), the Texas ratio at 167.1% (+1.342), and return on equity at -63.1% (+1.324). Loans 90+ days past due or not accruing interest were also high then, at 19.5% of loans (+0.741).
 
 ## What happened next
 
-In hindsight, the bank's last regulatory report covered the quarter ending 2016-12-31, and it failed on 2017-01-27. Because it stopped reporting after that, Canary has no later ranks or flags for it.
+In hindsight, the bank failed on January 27, 2017, shortly after the as-of quarter. Its last financial report was for the quarter ending 2016-12-31, so there are no later ranks or flags to show.
 
 ## Sources
 
@@ -90,14 +111,14 @@ In hindsight, the bank's last regulatory report covered the quarter ending 2016-
 - F26 · National median: loans 30-89 days past due, as a share of assets · 2016-12-31 · 0.3% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F29 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2016-12-31 · 1.3% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F30 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2016-12-31 · 0.1% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
-- F35 · Bank: commercial real estate loans as a share of loans · 2016-12-31 · 42.2% · data/features/fct_bank_features.parquet: cre_loans_to_loans
-- F36 · National median: commercial real estate loans as a share of loans · 2016-12-31 · 22.5% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2016-12-31 · -7.2% · data/features/fct_bank_features.parquet: return_on_assets
 - F40 · National median: return on assets (profit as a share of assets) · 2016-12-31 · 0.9% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2016-12-31 · -156.0% · data/features/fct_bank_features.parquet: return_on_equity
 - F42 · National median: return on equity (profit as a share of equity) · 2016-12-31 · 8.0% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
 - F45 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2016-12-31 · 249.2% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F46 · National median: the efficiency ratio (operating costs as a share of revenue) · 2016-12-31 · 69.7% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
+- F51 · Bank: uninsured deposits as a share of deposits · 2016-12-31 · 5.2% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F52 · National median: uninsured deposits as a share of deposits · 2016-12-31 · 17.3% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F57 · Bank: Federal Home Loan Bank borrowings as a share of assets · 2016-12-31 · 14.3% · data/features/fct_bank_features.parquet: fhlb_to_assets
 - F58 · National median: Federal Home Loan Bank borrowings as a share of assets · 2016-12-31 · 0.7% · data/features/fct_bank_features.parquet: fhlb_to_assets (median of all banks)
 - F59 · Bank: volatile funding as a share of assets · 2016-12-31 · 17.7% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
@@ -127,5 +148,39 @@ In hindsight, the bank's last regulatory report covered the quarter ending 2016-
 - F89 · Driver up #2 at 2016-03-31: the Texas ratio (troubled assets against capital plus reserves), value 167.1%; contribution to the score · 2016-03-31 · +1.342 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F90 · Driver up #3 at 2016-03-31: return on equity (profit as a share of equity), value -63.1%; contribution to the score · 2016-03-31 · +1.324 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F91 · Driver up #4 at 2016-03-31: loans 90+ days past due or not accruing interest, as a share of loans, value 19.5%; contribution to the score · 2016-03-31 · +0.741 · data/analyst/scores.parquet: feature noncurrent_loans_to_loans contribution
-- F92 · Driver up #5 at 2016-03-31: the total risk-based capital ratio, value 6.8%; contribution to the score · 2016-03-31 · +0.472 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F98 · Last quarter the bank reported · 2016-12-31 · 2016-12-31 · data/features/fct_bank_features.parquet: report_date
+- F99 · Trend: the Texas ratio (troubled assets against capital plus reserves), value at the as-of quarter · 2016-12-31 · -2563.3% · data/features/fct_bank_features.parquet: texas_ratio
+- F100 · Trend: the Texas ratio (troubled assets against capital plus reserves), lowest value in the comparison window · n/a · 90.3% · data/features/fct_bank_features.parquet: texas_ratio
+- F101 · Trend: the Texas ratio (troubled assets against capital plus reserves), highest value in the comparison window · n/a · 192.6% · data/features/fct_bank_features.parquet: texas_ratio
+- F104 · Trend: the Texas ratio (troubled assets against capital plus reserves), contribution to the score (model log-odds units) · 2016-12-31 · -1.043 · data/analyst/scores.parquet: feature texas_ratio contribution
+- F105 · Trend: the Texas ratio (troubled assets against capital plus reserves), what the model did with it · 2016-12-31 · pushed the score down · data/analyst/scores.parquet: feature texas_ratio contribution
+- F106 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2016-12-31 · -156.0% · data/features/fct_bank_features.parquet: return_on_equity
+- F107 · Trend: return on equity (profit as a share of equity), lowest value in the comparison window · n/a · -30.5% · data/features/fct_bank_features.parquet: return_on_equity
+- F108 · Trend: return on equity (profit as a share of equity), highest value in the comparison window · n/a · 2.2% · data/features/fct_bank_features.parquet: return_on_equity
+- F110 · Trend: return on equity (profit as a share of equity), contribution to the score (model log-odds units) · 2016-12-31 · +1.554 · data/analyst/scores.parquet: feature return_on_equity contribution
+- F111 · Trend: return on equity (profit as a share of equity), what the model did with it · 2016-12-31 · pushed the score up · data/analyst/scores.parquet: feature return_on_equity contribution
+- F112 · Trend: return on assets (profit as a share of assets), value at the as-of quarter · 2016-12-31 · -7.2% · data/features/fct_bank_features.parquet: return_on_assets
+- F113 · Trend: return on assets (profit as a share of assets), lowest value in the comparison window · n/a · -2.9% · data/features/fct_bank_features.parquet: return_on_assets
+- F114 · Trend: return on assets (profit as a share of assets), highest value in the comparison window · n/a · 0.2% · data/features/fct_bank_features.parquet: return_on_assets
+- F116 · Trend: return on assets (profit as a share of assets), contribution to the score (model log-odds units) · 2016-12-31 · +0.175 · data/analyst/scores.parquet: feature return_on_assets contribution
+- F117 · Trend: return on assets (profit as a share of assets), what the model did with it · 2016-12-31 · pushed the score up · data/analyst/scores.parquet: feature return_on_assets contribution
+- F118 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2016-12-31 · 249.2% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F119 · Trend: the efficiency ratio (operating costs as a share of revenue), lowest value in the comparison window · n/a · 88.0% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F120 · Trend: the efficiency ratio (operating costs as a share of revenue), highest value in the comparison window · n/a · 169.8% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F122 · Trend: the efficiency ratio (operating costs as a share of revenue), contribution to the score (model log-odds units) · 2016-12-31 · -0.027 · data/analyst/scores.parquet: feature efficiency_ratio contribution
+- F123 · Trend: the efficiency ratio (operating costs as a share of revenue), what the model did with it · 2016-12-31 · little effect on the score · data/analyst/scores.parquet: feature efficiency_ratio contribution
+- F124 · Trend: net interest margin (the spread earned on lending and investing), value at the as-of quarter · 2016-12-31 · 3.1% · data/features/fct_bank_features.parquet: net_interest_margin
+- F125 · Trend: net interest margin (the spread earned on lending and investing), lowest value in the comparison window · n/a · 4.0% · data/features/fct_bank_features.parquet: net_interest_margin
+- F126 · Trend: net interest margin (the spread earned on lending and investing), highest value in the comparison window · n/a · 4.9% · data/features/fct_bank_features.parquet: net_interest_margin
+- F128 · Trend: net interest margin (the spread earned on lending and investing), contribution to the score (model log-odds units) · 2016-12-31 · -0.054 · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F129 · Trend: net interest margin (the spread earned on lending and investing), what the model did with it · 2016-12-31 · pushed the score down · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F130 · Trend: the leverage ratio (core capital as a share of average assets), value at the as-of quarter · 2016-12-31 · -1.8% · data/features/fct_bank_features.parquet: leverage_ratio
+- F131 · Trend: the leverage ratio (core capital as a share of average assets), lowest value in the comparison window · n/a · 1.9% · data/features/fct_bank_features.parquet: leverage_ratio
+- F132 · Trend: the leverage ratio (core capital as a share of average assets), highest value in the comparison window · n/a · 9.4% · data/features/fct_bank_features.parquet: leverage_ratio
+- F134 · Trend: the leverage ratio (core capital as a share of average assets), change over four quarters, in percentage points · 2016-12-31 · -7.5 pp · data/features/fct_bank_features.parquet: leverage_ratio
+- F135 · Trend: the leverage ratio (core capital as a share of average assets), contribution to the score (model log-odds units) · 2016-12-31 · +0.669 · data/analyst/scores.parquet: feature leverage_ratio contribution
+- F136 · Trend: the leverage ratio (core capital as a share of average assets), what the model did with it · 2016-12-31 · pushed the score up · data/analyst/scores.parquet: feature leverage_ratio contribution
+- F137 · Trend: ratios outside their own prior range · 2016-12-31 · 16 · data/features/fct_bank_features.parquet
+- F139 · Trend: ratios compared with their own prior range · 2016-12-31 · 30 · data/features/fct_bank_features.parquet
+- F140 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
+- F141 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)

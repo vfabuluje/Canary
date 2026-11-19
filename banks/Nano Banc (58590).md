@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-17T22:07:23"
+written_at: "2026-11-18T19:53:14"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-Nano Banc, a California bank, ranked 3 out of 4,313 FDIC-insured banks on Canary's risk score as of 2026-06-30, placing it in the 100.0th percentile, where higher means riskier. That put it on Canary's watchlist, which covers the riskiest 2% of banks. Its figures show thin capital (the owners' cushion that absorbs losses), a very large share of loans that borrowers have stopped paying on time, and a loss for the period.
+Nano Banc (certificate 58590), a bank in CA, ranked 3 out of 4,313 banks nationally in Canary's model as of 2026-06-30, placing it in the 100.0th percentile on a scale where higher means riskier. That placed it on Canary's watchlist, the top 2% of banks by score, which held 87 banks that quarter. Its capital cushion was about half the national median, with equity at 5.3% of assets against a median of 10.6%, while troubled loans were far above typical levels. Loans 90+ days past due or not accruing interest made up 25.7% of its loans, compared with a national median of 0.5%.
 
 ## Warning signs in the data
 
-Capital was well below typical levels: equity was 5.3% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 5.0% against 11.0%. Its Tier 1 risk-based capital ratio (core capital measured against assets weighted by riskiness) was 7.8% versus a median of 14.6%, and its total risk-based capital ratio was 9.1% versus 15.8%.
+Capital, the owners' money that absorbs losses, was thin: equity was 5.3% of assets against a national median of 10.6%. The leverage ratio (core capital as a share of average assets) was 5.0% versus a median of 11.0%, the Tier 1 risk-based capital ratio was 7.8% versus 14.6%, and the total risk-based capital ratio was 9.1% versus 15.8%.
 
-Credit quality stood far outside the norm: 25.7% of loans were 90 or more days past due or no longer accruing interest, against a national median of 0.5%. Nonaccrual assets and foreclosed property made up 16.7% of assets versus 0.3%, and loans 30-89 days past due were 5.6% of assets versus 0.2%. The Texas ratio, which compares troubled assets with capital plus loss reserves, was 209.8% against a median of 2.9%, and net loan write-offs ran at 3.3% of loans versus 0.0%. The bank was losing money, with a return on assets of -0.5% compared with a median of 1.2%.
+Credit quality, meaning how well borrowers were repaying, was very weak: loans 90+ days past due or not accruing interest were 25.7% of loans, against a national median of 0.5%. Nonaccrual assets and foreclosed property were 16.7% of assets versus a median of 0.3%, and loans 30-89 days past due were 5.6% of assets versus 0.2%. The Texas ratio, which compares troubled assets with capital plus reserves, stood at 209.8%, far above the national median of 2.9%. The bank was also unprofitable, with a return on assets of -0.5% against a median of 1.2%, and annualized loan write-offs of 3.3% of loans against a median of 0.0%.
 
-On funding, uninsured deposits (balances above the government insurance limit) were 56.9% of deposits versus a median of 24.8%, and brokered deposits (money placed through third-party brokers) were 22.8% versus 0.0%. The bank was shrinking, with assets down -20.9% and deposits down -14.8% over the past four quarters, while the medians grew 4.5% and 4.2%. On the steadier side, cash was 27.3% of assets versus a median of 6.2%, and unrealized losses on bonds available for sale were 2.4% of equity, below the median of 5.6%, with 0.0% on bonds held to maturity.
+On funding, uninsured deposits (balances above the government insurance limit) were 56.9% of deposits versus a median of 24.8%, and brokered deposits (money placed through middlemen) were 22.8% versus 0.0%. On the other side, cash was a large 27.3% of assets against a median of 6.2%. Unrealized losses on bonds available for sale were 2.4% of equity, below the national median of 5.6%, so bond losses were not a standout concern.
 
 ## Understanding the score
 
-As of 2026-06-30, Nano Banc ranked 3 out of 4,313 banks, in the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks by score, or 87 banks that quarter.
+As of 2026-06-30, Nano Banc ranked 3 out of 4,313 banks, the 100.0th percentile on a 0 to 100 scale where higher means riskier. It was flagged for the watchlist, which covers the top 2% of banks and held 87 banks that quarter.
 
-The five features that pushed the score up most were the Texas ratio at 209.8% (+1.216), loans 90+ days past due or not accruing interest at 25.7% of loans (+0.867), the Tier 1 risk-based capital ratio at 7.8% (+0.575), loans 30-89 days past due at 5.6% of assets (+0.378), and brokered deposits at 22.8% of deposits (+0.360).
+The five factors that pushed its score up most were the Texas ratio at 209.8% (contribution +1.216), loans 90+ days past due or not accruing at 25.7% of loans (+0.867), and the Tier 1 risk-based capital ratio at 7.8% (+0.575). Next came loans 30-89 days past due at 5.6% of assets (+0.378) and brokered deposits at 22.8% of deposits (+0.360).
 
-The five features that pulled the score down most were return on equity at -10.9% (-0.340), construction loans at 9.8% of loans (-0.328), deposit growth over the past four quarters at -14.8% (-0.169), total assets of $736.2 million (-0.155), and volatile funding at 4.3% of assets (-0.077). These offsets were small next to the upward drivers.
+The five factors that pulled the score down most were return on equity at -10.9% (contribution -0.340), construction loans at 9.8% of loans (-0.328), and deposit growth at -14.8% (-0.169). Total assets of $736.2 million (-0.155) and volatile funding at 4.3% of assets (-0.077) also lowered the score slightly.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,17 +56,39 @@ The score ranks banks against each other; it is not a probability of failure, be
 | 2026-03-31 | 5 | 4,353 | ▲ watchlist |
 | 2026-06-30 | 3 | 4,313 | ▲ watchlist |
 
+## How its ratios moved
+
+Canary compares each ratio with the bank's own history: the prior 12 quarters for most ratios, or the same quarter in the prior 3 years for year-to-date ratios. Of 30 ratios compared, 8 sat outside their own prior range, and the table shows the 6 furthest outside. The bank was in the 97.3% percentile at 2025-06-30 and ranked 3 of 4,313 at the 100.0th percentile at 2026-06-30, so the model rated it riskier than a year earlier.
+
+The annualized provision for loan losses (money set aside for expected bad loans) was 3.9% of assets, above its prior range of -0.1% to 1.4%, and contributed +0.167, which pushed the score up. Annualized interest expense was 2.5% of assets, above its prior range of 1.3% to 1.7%, and contributed +0.262, which pushed the score up. The efficiency ratio was -5.6%, below its prior range of 71.5% to 178.0%, and contributed +0.162, which pushed the score up. Asset growth was -20.9%, below its prior range of -13.8% to 11.1%, and contributed +0.061, which pushed the score up.
+
+Net interest margin was 2.2%, below its prior range of 3.7% to 5.0%, yet its contribution of +0.045 had little effect on the score. Construction loans were 9.8% of loans, above their prior range of 4.2% to 8.4%, but this ratio contributed -0.328 and pushed the score down.
+
+| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
+|---|---|---|---|---|---|---|---|
+| annualized provision for loan losses as a share of assets | 3.9% | -0.1% to 1.4% | same quarter, prior 3 years | n/a | +2.5 pp | +0.167 | pushed the score up |
+| net interest margin (the spread earned on lending and investing) | 2.2% | 3.7% to 5.0% | same quarter, prior 3 years | n/a | -1.5 pp | +0.045 | little effect on the score |
+| annualized interest expense as a share of assets | 2.5% | 1.3% to 1.7% | same quarter, prior 3 years | n/a | +0.9 pp | +0.262 | pushed the score up |
+| the efficiency ratio (operating costs as a share of revenue) | -5.6% | 71.5% to 178.0% | same quarter, prior 3 years | n/a | -183.6 pp | +0.162 | pushed the score up |
+| construction loans as a share of loans | 9.8% | 4.2% to 8.4% | prior 12 quarters | +1.4 pp | +3.5 pp | -0.328 | pushed the score down |
+| asset growth over the past four quarters | -20.9% | -13.8% to 11.1% | prior 12 quarters | -7.2 pp | -18.1 pp | +0.061 | pushed the score up |
+
+8 of 30 ratios were outside their prior range; the 6 furthest are shown.
+
+This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
+
 ## Why it's on the watchlist
 
-In hindsight, this bank's outcome case is that it remains open and on the watchlist. Our fact sheet contains no data from after the as-of quarter, so this section cannot add later figures to explain that outcome. The reasons it sits on the watchlist are the as-of signals described above: thin capital, a very high share of troubled loans, losses and a shrinking balance sheet.
+In hindsight, this bank's case is an open watchlist case: it was flagged and the fact sheet records no failure. The fact sheet contains no data from after the as-of quarter, so there is nothing further to explain its later path with.
 
 ## What happened next
 
-In hindsight, the fact sheet provides no later ranks, watchlist flags or reporting status for this bank after the as-of quarter. Based on the outcome case, the bank is treated as still open and still on the watchlist, so its story is not yet resolved.
+Looking back with hindsight, the fact sheet provides no later ranks, watchlist flags or reporting status for this bank. Without those facts, we cannot say how its rank moved or whether it kept reporting after the as-of quarter.
 
 ## Sources
 
 - F1 · Bank name · n/a · Nano Banc · data/features/fct_bank_features.parquet: institution_name
+- F2 · Certificate number · n/a · 58590 · data/features/fct_bank_features.parquet: cert
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · CA · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2026-06-30 · 3 · data/analyst/scores.parquet: rank
@@ -102,13 +124,8 @@ In hindsight, the fact sheet provides no later ranks, watchlist flags or reporti
 - F54 · National median: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F61 · Bank: cash as a share of assets · 2026-06-30 · 27.3% · data/features/fct_bank_features.parquet: cash_to_assets
 - F62 · National median: cash as a share of assets · 2026-06-30 · 6.2% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
-- F63 · Bank: losses on bonds held to maturity, as a share of equity · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2026-06-30 · 2.4% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2026-06-30 · 5.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
-- F71 · Bank: asset growth over the past four quarters · 2026-06-30 · -20.9% · data/features/fct_bank_features.parquet: asset_growth_4q
-- F72 · National median: asset growth over the past four quarters · 2026-06-30 · 4.5% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
-- F73 · Bank: deposit growth over the past four quarters · 2026-06-30 · -14.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
-- F74 · National median: deposit growth over the past four quarters · 2026-06-30 · 4.2% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: the Texas ratio (troubled assets against capital plus reserves), value 209.8%; contribution to the score · 2026-06-30 · +1.216 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F76 · Driver up #2: loans 90+ days past due or not accruing interest, as a share of loans, value 25.7%; contribution to the score · 2026-06-30 · +0.867 · data/analyst/scores.parquet: feature noncurrent_loans_to_loans contribution
 - F77 · Driver up #3: the Tier 1 risk-based capital ratio, value 7.8%; contribution to the score · 2026-06-30 · +0.575 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
@@ -119,3 +136,40 @@ In hindsight, the fact sheet provides no later ranks, watchlist flags or reporti
 - F82 · Driver down #3: deposit growth over the past four quarters, value -14.8%; contribution to the score · 2026-06-30 · -0.169 · data/analyst/scores.parquet: feature deposit_growth_4q contribution
 - F83 · Driver down #4: total assets, value $736.2 million; contribution to the score · 2026-06-30 · -0.155 · data/analyst/scores.parquet: feature log_total_assets contribution
 - F84 · Driver down #5: volatile funding as a share of assets, value 4.3%; contribution to the score · 2026-06-30 · -0.077 · data/analyst/scores.parquet: feature volatile_liabilities_to_assets contribution
+- F85 · Trend: annualized provision for loan losses as a share of assets, value at the as-of quarter · 2026-06-30 · 3.9% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F86 · Trend: annualized provision for loan losses as a share of assets, lowest value in the comparison window · n/a · -0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F87 · Trend: annualized provision for loan losses as a share of assets, highest value in the comparison window · n/a · 1.4% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F89 · Trend: annualized provision for loan losses as a share of assets, contribution to the score (model log-odds units) · 2026-06-30 · +0.167 · data/analyst/scores.parquet: feature provision_to_assets_ann contribution
+- F90 · Trend: annualized provision for loan losses as a share of assets, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature provision_to_assets_ann contribution
+- F91 · Trend: net interest margin (the spread earned on lending and investing), value at the as-of quarter · 2026-06-30 · 2.2% · data/features/fct_bank_features.parquet: net_interest_margin
+- F92 · Trend: net interest margin (the spread earned on lending and investing), lowest value in the comparison window · n/a · 3.7% · data/features/fct_bank_features.parquet: net_interest_margin
+- F93 · Trend: net interest margin (the spread earned on lending and investing), highest value in the comparison window · n/a · 5.0% · data/features/fct_bank_features.parquet: net_interest_margin
+- F95 · Trend: net interest margin (the spread earned on lending and investing), contribution to the score (model log-odds units) · 2026-06-30 · +0.045 · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F96 · Trend: net interest margin (the spread earned on lending and investing), what the model did with it · 2026-06-30 · little effect on the score · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F97 · Trend: annualized interest expense as a share of assets, value at the as-of quarter · 2026-06-30 · 2.5% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F98 · Trend: annualized interest expense as a share of assets, lowest value in the comparison window · n/a · 1.3% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F99 · Trend: annualized interest expense as a share of assets, highest value in the comparison window · n/a · 1.7% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F101 · Trend: annualized interest expense as a share of assets, contribution to the score (model log-odds units) · 2026-06-30 · +0.262 · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
+- F102 · Trend: annualized interest expense as a share of assets, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
+- F103 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2026-06-30 · -5.6% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F104 · Trend: the efficiency ratio (operating costs as a share of revenue), lowest value in the comparison window · n/a · 71.5% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F105 · Trend: the efficiency ratio (operating costs as a share of revenue), highest value in the comparison window · n/a · 178.0% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F107 · Trend: the efficiency ratio (operating costs as a share of revenue), contribution to the score (model log-odds units) · 2026-06-30 · +0.162 · data/analyst/scores.parquet: feature efficiency_ratio contribution
+- F108 · Trend: the efficiency ratio (operating costs as a share of revenue), what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature efficiency_ratio contribution
+- F109 · Trend: construction loans as a share of loans, value at the as-of quarter · 2026-06-30 · 9.8% · data/features/fct_bank_features.parquet: construction_loans_to_loans
+- F110 · Trend: construction loans as a share of loans, lowest value in the comparison window · n/a · 4.2% · data/features/fct_bank_features.parquet: construction_loans_to_loans
+- F111 · Trend: construction loans as a share of loans, highest value in the comparison window · n/a · 8.4% · data/features/fct_bank_features.parquet: construction_loans_to_loans
+- F114 · Trend: construction loans as a share of loans, contribution to the score (model log-odds units) · 2026-06-30 · -0.328 · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
+- F115 · Trend: construction loans as a share of loans, what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
+- F116 · Trend: asset growth over the past four quarters, value at the as-of quarter · 2026-06-30 · -20.9% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F117 · Trend: asset growth over the past four quarters, lowest value in the comparison window · n/a · -13.8% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F118 · Trend: asset growth over the past four quarters, highest value in the comparison window · n/a · 11.1% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F121 · Trend: asset growth over the past four quarters, contribution to the score (model log-odds units) · 2026-06-30 · +0.061 · data/analyst/scores.parquet: feature asset_growth_4q contribution
+- F122 · Trend: asset growth over the past four quarters, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature asset_growth_4q contribution
+- F123 · Trend: ratios outside their own prior range · 2026-06-30 · 8 · data/features/fct_bank_features.parquet
+- F124 · Trend: ratios shown in the table (the furthest outside their prior range) · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
+- F125 · Trend: ratios compared with their own prior range · 2026-06-30 · 30 · data/features/fct_bank_features.parquet
+- F126 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
+- F127 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
+- F128 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 97.3% · data/analyst/scores.parquet: percentile
+- F129 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · the model rated it riskier than a year earlier · data/analyst/scores.parquet: percentile
