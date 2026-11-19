@@ -6,7 +6,7 @@ may be used only in the outcome sections (spec 4).
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
@@ -47,6 +47,8 @@ class Fact:
     forms: list[str]
     hindsight: bool
     source: str
+    feature: str | None = None
+    kind: str | None = None
 
 
 @dataclass
@@ -60,6 +62,8 @@ class FactSheet:
     after_history: pd.DataFrame
     cant_see: str
     section_keys: list[str]
+    code_only: set[str] = field(default_factory=set)
+    extras: dict = field(default_factory=dict)
 
     def by_id(self, id: str) -> Fact:
         for f in self.facts:
@@ -91,6 +95,13 @@ class _Builder:
 def _ordinal(n: int) -> str:
     suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
     return f"{n}{suffix}"
+
+
+def decimal_ordinal_forms(p: float) -> list[str]:
+    """Ordinal forms of a one-decimal percentile: "98.2th" and the natural "98.2nd" (suffix from the last digit)."""
+    s = f"{p:.1f}"
+    suffix = {"1": "st", "2": "nd", "3": "rd"}.get(s[-1], "th")
+    return list(dict.fromkeys([f"{s}th", f"{s}{suffix}"]))
 
 
 def _count_forms(n: int) -> list[str]:
@@ -199,7 +210,7 @@ def build_fact_sheet(
           _count_forms(rank) + [f"#{rank:,}", f"#{rank}"], f"{_SCORES_SRC}: rank", as_of)
     b.add("Banks ranked that quarter", n, f"{n:,}", _count_forms(n), f"{_SCORES_SRC}: n_banks", as_of)
     pct = float(row["percentile"])
-    pct_forms = [f"{pct:.1f}%", f"{pct:.0f}%", f"{pct:.1f}", f"{pct:.0f}", _ordinal(round(pct)), f"{pct:.1f}th"]
+    pct_forms = [f"{pct:.1f}%", f"{pct:.0f}%", f"{pct:.1f}", f"{pct:.0f}", _ordinal(round(pct)), *decimal_ordinal_forms(pct)]
     b.add("Percentile (100 = highest risk)", pct, f"{pct:.1f}%", pct_forms, f"{_SCORES_SRC}: percentile", as_of)
     b.add(PERCENTILE_SCALE_LABEL, 100, "0 to 100", ["100", "0 to 100", "0-100", "0"],
           "canary.analyst.facts: percentile scale (fixed)")

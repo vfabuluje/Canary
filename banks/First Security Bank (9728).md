@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-17T22:07:46"
+written_at: "2026-11-18T19:53:56"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-First Security Bank, a Minnesota bank with $161.7 million in total assets, ranked 7 out of 4,313 banks nationally on Canary's risk score as of 2026-06-30. That places it in the 99.9th percentile, where higher means riskier, and it is flagged on Canary's watchlist. Its profile combines thinner capital than most banks, more troubled loans, and a heavy reliance on less stable funding sources.
+As of 2026-06-30, First Security Bank, a Minnesota bank with $161.7 million in total assets, ranked 7 out of 4,313 FDIC-insured banks on Canary's risk score, placing it in the 99.9th percentile. That rank puts it on Canary's watchlist, the top 2% of banks by score, which held 87 banks that quarter. The score was pushed up mainly by heavy use of brokered deposits (money placed through middlemen rather than gathered from local customers) and by paper losses on its bond holdings. Strong profits and capital ratios pulled the score down somewhat, even though its capital sat below typical levels.
 
 ## Warning signs in the data
 
-Capital, the cushion a bank has to absorb losses, is thinner than at a typical bank: equity was 7.0% of assets against a national median of 10.6%. The leverage ratio, core capital as a share of average assets, was 7.9% versus a median of 11.0%. The Tier 1 risk-based capital ratio was 10.8% against a median of 14.6%, and the total risk-based capital ratio was 12.1% against 15.8%.
+Capital, the cushion of the owners' own money that absorbs losses, was thinner than at most banks: equity was 7.0% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 7.9% against 11.0%. Risk-weighted measures were also below typical levels, with a Tier 1 risk-based capital ratio of 10.8% against a median of 14.6% and a total risk-based capital ratio of 12.1% against 15.8%.
 
-Credit quality is weaker than average: loans 90 or more days past due or no longer earning interest were 2.6% of loans, well above the median of 0.5%. The Texas ratio, which compares troubled assets with capital plus reserves, was 24.5% against a median of 2.9%, and loans 30-89 days past due were 0.7% of assets versus 0.2%. Construction loans, often a riskier category, made up 12.1% of loans compared with a median of 5.3%.
+Credit quality was weaker than usual: loans 90 or more days past due or no longer accruing interest were 2.6% of loans, well above the national median of 0.5%. Nonaccrual assets and foreclosed property made up 2.0% of assets against a median of 0.3%, and the Texas ratio (troubled assets against capital plus reserves) was 24.5% against a median of 2.9%.
 
-On funding, brokered deposits, money placed through intermediaries that can leave quickly, were 23.9% of deposits while the median bank had 0.0%. Core deposits, the steadier everyday customer money, were 52.2% of assets against a median of 75.5%, and volatile funding was 22.5% of assets versus 9.0%. Loans equaled 98.6% of deposits against a median of 80.2%, and unrealized losses on bonds available for sale were 9.9% of equity compared with a median of 5.6%.
+Funding leaned on less stable sources: brokered deposits were 23.9% of deposits, while the national median was 0.0%, and core deposits (steady everyday customer deposits) were 52.2% of assets against 75.5%. Volatile funding was 22.5% of assets against a median of 9.0%, and loans equaled 98.6% of deposits against 80.2%. Unrealized losses on bonds available for sale, meaning drops in market value not yet booked as losses, equaled 9.9% of equity, well above the median of 5.6%.
 
 ## Understanding the score
 
-As of 2026-06-30, First Security Bank ranked 7 of 4,313 banks, placing it in the 99.9th percentile on a scale of 0 to 100 where higher means riskier. The watchlist covers the top 2% of banks, which was 87 banks that quarter, and this bank was flagged.
+First Security Bank ranked 7 of 4,313 banks as of 2026-06-30, the 99.9th percentile on a scale from 0 to 100 where higher means riskier. It was flagged on the watchlist, which covers the top 2% of banks and held 87 banks that quarter.
 
-The five factors pushing the score up most were brokered deposits at 23.9% of deposits, bond losses on available-for-sale securities at 9.9% of equity, core deposits at 52.2% of assets, the efficiency ratio (operating costs as a share of revenue) at 55.8%, and interest expense at 2.5% of assets. Their contributions to the score were +1.395, +0.965, +0.454, +0.424 and +0.230 respectively.
+The five factors pushing the score up most were brokered deposits at 23.9% of deposits (+1.395), unrealized losses on bonds available for sale at 9.9% of equity (+0.965), and core deposits at 52.2% of assets (+0.454). The other two were the efficiency ratio (operating costs as a share of revenue) at 55.8% (+0.424) and annualized interest expense at 2.5% of assets (+0.230).
 
-The five factors pulling the score down most were return on equity at 15.0%, the Tier 1 risk-based capital ratio at 10.8%, return on assets at 1.1%, the total risk-based capital ratio at 12.1%, and loans 30-89 days past due at 0.7% of assets. Their contributions were -0.630, -0.588, -0.288, -0.238 and -0.194 respectively.
+The five factors pulling the score down most were return on equity (profit as a share of the owners' stake) at 15.0% (-0.630), the Tier 1 risk-based capital ratio at 10.8% (-0.588), and return on assets at 1.1% (-0.288). The other two were the total risk-based capital ratio at 12.1% (-0.238) and loans 30-89 days past due at 0.7% of assets (-0.194).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,13 +56,34 @@ The score ranks banks against each other; it is not a probability of failure, be
 | 2026-03-31 | 19 | 4,353 | ▲ watchlist |
 | 2026-06-30 | 7 | 4,313 | ▲ watchlist |
 
+## How its ratios moved
+
+Canary compares each ratio with the bank's own history, usually the prior 12 quarters, or the same quarter in the prior 3 years for year-to-date ratios. As of 2026-06-30, 7 of the 30 ratios checked sat outside their own prior range, and the bank ranked 7 of 4,313. A year earlier it was in the 89.7th percentile, and the model rated it riskier than a year earlier.
+
+Commercial real estate loans fell to 8.2% of loans, below their prior range of 9.9% to 13.4%, and their contribution of +0.175 model log-odds units pushed the score up. The efficiency ratio was 55.8%, below its prior range of 57.8% to 63.2%, and its contribution of +0.424 pushed the score up.
+
+The total risk-based capital ratio rose to 12.1%, above its prior range of 10.8% to 11.9%, yet its contribution of -0.238 pushed the score down. The Tier 1 risk-based capital ratio reached 10.8%, above its prior range of 9.8% to 10.7%, yet its contribution of -0.588 pushed the score down. Net interest margin was 3.51%, above its prior range of 3.2% to 3.45%, yet its contribution of -0.066 pushed the score down. The provision for loan losses (money set aside for expected bad loans) was 0.5% of assets, above its prior range of 0.1% to 0.3%, yet its contribution of -0.033 had little effect on the score.
+
+| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
+|---|---|---|---|---|---|---|---|
+| commercial real estate loans as a share of loans | 8.2% | 9.9% to 13.4% | prior 12 quarters | -1.9 pp | -2.0 pp | +0.175 | pushed the score up |
+| the efficiency ratio (operating costs as a share of revenue) | 55.8% | 57.8% to 63.2% | same quarter, prior 3 years | n/a | -2.1 pp | +0.424 | pushed the score up |
+| the total risk-based capital ratio | 12.1% | 10.8% to 11.9% | prior 12 quarters | +0.3 pp | +0.9 pp | -0.238 | pushed the score down |
+| annualized provision for loan losses as a share of assets | 0.5% | 0.1% to 0.3% | same quarter, prior 3 years | n/a | +0.3 pp | -0.033 | little effect on the score |
+| the Tier 1 risk-based capital ratio | 10.8% | 9.8% to 10.7% | prior 12 quarters | +0.3 pp | +0.8 pp | -0.588 | pushed the score down |
+| net interest margin (the spread earned on lending and investing) | 3.51% | 3.2% to 3.45% | same quarter, prior 3 years | n/a | +0.2 pp | -0.066 | pushed the score down |
+
+7 of 30 ratios were outside their prior range; the 6 furthest are shown.
+
+This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
+
 ## Why it's on the watchlist
 
-In hindsight, this bank is an open watchlist case: it was flagged by the model and the data available to us does not show it leaving the system. The fact sheet contains no later-quarter figures, so there is no hindsight evidence yet to confirm or contradict the flag.
+In hindsight, this bank falls in Canary's open-watchlist group: it remains open and on the watchlist rather than having left the data. The fact sheet for this memo contains no figures from after the as-of quarter, so this section cannot add later measurements that explain the outcome. Its place on the watchlist rests on the as-of picture described above, chiefly its reliance on brokered and volatile funding and its bond losses.
 
 ## What happened next
 
-Looking back with hindsight, our data contains no reports for this bank after the as-of quarter. No later ranks, watchlist flags, or closure information are available, so it remains an open case to watch as new quarterly filings arrive.
+In hindsight, the bank is still open and still flagged on the watchlist, according to its outcome group. The fact sheet provided here does not include later ranks, later flags, or reporting status beyond the as-of quarter, so no further detail can be given.
 
 ## Sources
 
@@ -86,10 +107,8 @@ Looking back with hindsight, our data contains no reports for this bank after th
 - F20 · National median: the total risk-based capital ratio · 2026-06-30 · 15.8% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 2.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
-- F25 · Bank: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.7% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
-- F26 · National median: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
-- F33 · Bank: construction loans as a share of loans · 2026-06-30 · 12.1% · data/features/fct_bank_features.parquet: construction_loans_to_loans
-- F34 · National median: construction loans as a share of loans · 2026-06-30 · 5.3% · data/features/fct_bank_features.parquet: construction_loans_to_loans (median of all banks)
+- F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 2.0% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 0.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 24.5% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 2.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F49 · Bank: loans as a share of deposits · 2026-06-30 · 98.6% · data/features/fct_bank_features.parquet: loans_to_deposits
@@ -113,3 +132,39 @@ Looking back with hindsight, our data contains no reports for this bank after th
 - F82 · Driver down #3: return on assets (profit as a share of assets), value 1.1%; contribution to the score · 2026-06-30 · -0.288 · data/analyst/scores.parquet: feature return_on_assets contribution
 - F83 · Driver down #4: the total risk-based capital ratio, value 12.1%; contribution to the score · 2026-06-30 · -0.238 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F84 · Driver down #5: loans 30-89 days past due, as a share of assets, value 0.7%; contribution to the score · 2026-06-30 · -0.194 · data/analyst/scores.parquet: feature past_due_30_89_to_assets contribution
+- F89 · Trend: commercial real estate loans as a share of loans, value at the as-of quarter · 2026-06-30 · 8.2% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F90 · Trend: commercial real estate loans as a share of loans, lowest value in the comparison window · n/a · 9.9% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F91 · Trend: commercial real estate loans as a share of loans, highest value in the comparison window · n/a · 13.4% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F94 · Trend: commercial real estate loans as a share of loans, contribution to the score (model log-odds units) · 2026-06-30 · +0.175 · data/analyst/scores.parquet: feature cre_loans_to_loans contribution
+- F95 · Trend: commercial real estate loans as a share of loans, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature cre_loans_to_loans contribution
+- F96 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2026-06-30 · 55.8% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F97 · Trend: the efficiency ratio (operating costs as a share of revenue), lowest value in the comparison window · n/a · 57.8% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F98 · Trend: the efficiency ratio (operating costs as a share of revenue), highest value in the comparison window · n/a · 63.2% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F100 · Trend: the efficiency ratio (operating costs as a share of revenue), contribution to the score (model log-odds units) · 2026-06-30 · +0.424 · data/analyst/scores.parquet: feature efficiency_ratio contribution
+- F101 · Trend: the efficiency ratio (operating costs as a share of revenue), what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature efficiency_ratio contribution
+- F102 · Trend: the total risk-based capital ratio, value at the as-of quarter · 2026-06-30 · 12.1% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F103 · Trend: the total risk-based capital ratio, lowest value in the comparison window · n/a · 10.8% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F104 · Trend: the total risk-based capital ratio, highest value in the comparison window · n/a · 11.9% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F107 · Trend: the total risk-based capital ratio, contribution to the score (model log-odds units) · 2026-06-30 · -0.238 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
+- F108 · Trend: the total risk-based capital ratio, what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
+- F109 · Trend: annualized provision for loan losses as a share of assets, value at the as-of quarter · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F110 · Trend: annualized provision for loan losses as a share of assets, lowest value in the comparison window · n/a · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F111 · Trend: annualized provision for loan losses as a share of assets, highest value in the comparison window · n/a · 0.3% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F113 · Trend: annualized provision for loan losses as a share of assets, contribution to the score (model log-odds units) · 2026-06-30 · -0.033 · data/analyst/scores.parquet: feature provision_to_assets_ann contribution
+- F114 · Trend: annualized provision for loan losses as a share of assets, what the model did with it · 2026-06-30 · little effect on the score · data/analyst/scores.parquet: feature provision_to_assets_ann contribution
+- F115 · Trend: the Tier 1 risk-based capital ratio, value at the as-of quarter · 2026-06-30 · 10.8% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F116 · Trend: the Tier 1 risk-based capital ratio, lowest value in the comparison window · n/a · 9.8% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F117 · Trend: the Tier 1 risk-based capital ratio, highest value in the comparison window · n/a · 10.7% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F120 · Trend: the Tier 1 risk-based capital ratio, contribution to the score (model log-odds units) · 2026-06-30 · -0.588 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
+- F121 · Trend: the Tier 1 risk-based capital ratio, what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
+- F122 · Trend: net interest margin (the spread earned on lending and investing), value at the as-of quarter · 2026-06-30 · 3.51% · data/features/fct_bank_features.parquet: net_interest_margin
+- F123 · Trend: net interest margin (the spread earned on lending and investing), lowest value in the comparison window · n/a · 3.2% · data/features/fct_bank_features.parquet: net_interest_margin
+- F124 · Trend: net interest margin (the spread earned on lending and investing), highest value in the comparison window · n/a · 3.45% · data/features/fct_bank_features.parquet: net_interest_margin
+- F126 · Trend: net interest margin (the spread earned on lending and investing), contribution to the score (model log-odds units) · 2026-06-30 · -0.066 · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F127 · Trend: net interest margin (the spread earned on lending and investing), what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F128 · Trend: ratios outside their own prior range · 2026-06-30 · 7 · data/features/fct_bank_features.parquet
+- F130 · Trend: ratios compared with their own prior range · 2026-06-30 · 30 · data/features/fct_bank_features.parquet
+- F131 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
+- F132 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
+- F133 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 89.7% · data/analyst/scores.parquet: percentile
+- F134 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · the model rated it riskier than a year earlier · data/analyst/scores.parquet: percentile

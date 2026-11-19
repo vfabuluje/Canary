@@ -116,13 +116,23 @@ def test_bad_as_of_raises(analyst_ctx):
 
 
 def test_quiet_bank_has_no_outcome_section():
+    import canary.analyst.trends  # noqa: F401  (registers the trend specialist, one extra section)
+
     assert "outcome" not in [s.key for s in sections.all_sections("quiet")]
-    assert sections.all_sections("missed")[4].title == "Why the model missed it"
+    assert [x.title for x in sections.all_sections("missed")].index("Why the model missed it") == 4 + len(
+        [s for sp in sections.SPECIALISTS for s in sp.sections])
 
 
 def test_section_order_and_specialists():
+    saved = list(sections.SPECIALISTS)
+    base = [s.key for s in sections.ANALYST_SECTIONS]
     keys = [s.key for s in sections.all_sections("caught")]
-    assert keys == ["summary", "warning_signs", "score", "score_history", "outcome", "what_next", "sources"]
+    registered = [s.key for sp in saved for s in sp.sections]
+    expected = list(base)
+    i = expected.index("score_history") + 1
+    expected[i:i] = registered
+    assert keys == expected
+    assert keys[:4] == ["summary", "warning_signs", "score", "score_history"]
 
     class Spec:
         key = "x"
@@ -134,9 +144,9 @@ def test_section_order_and_specialists():
     sections.register(Spec())
     try:
         keys = [s.key for s in sections.all_sections("caught")]
-        assert keys[4] == "x" and keys[3] == "score_history"
+        assert keys.index("score_history") < keys.index("x") < keys.index("outcome")
     finally:
-        sections.SPECIALISTS.clear()
+        sections.SPECIALISTS[:] = saved
 
 
 def test_contribution_matrix_alias():

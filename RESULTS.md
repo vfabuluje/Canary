@@ -70,3 +70,6 @@ The failure list now runs past the 2016-2024 test window. Four banks failed in 2
 "First flag" is the first flag within the final four quarters before failure. Santa Anna National Bank (cert 5520) failed 2025-06-27, after the 2016-2024 test period; the model flagged it only at 2025-03-31, so its note says missed, and it is not counted as a catch or a miss in the reported metrics.
 
 This does not change the reported 2016-2024 metrics. Four banks is a small sample and the check was added after the fact, so treat it as encouraging, not proof. See [decision 0018](decisions/0018-failures-after-test-window.md).
+
+## Note on the Phase 5b trend section
+The "How its ratios moved" section in the analyst notes is descriptive. It compares a bank's ratios with the bank's own past range and has **no measured result**: no recall, catches, AUC or lead time are reported for it, and it is not part of the results above ([decision 0019](decisions/0019-ratio-trends-descriptive.md)).

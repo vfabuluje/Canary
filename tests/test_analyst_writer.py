@@ -8,7 +8,7 @@ import yaml
 from analyst_fakes import FakeClient, fake_message
 from canary.analyst import __main__ as cli
 from canary.analyst.facts import POSTHOC_LABEL, build_fact_sheet
-from canary.analyst.sections import all_sections
+from canary.analyst.sections import all_sections, sections_for
 from canary.analyst.writer import (
     FALLBACK_BETA,
     RefusalError,
@@ -31,7 +31,7 @@ def sheet(analyst_ctx, tmp_path):
 def _memo(sheet, rank_text=None, extra=None):
     rank = next(f for f in sheet.facts if f.label.startswith("National rank"))
     secs = []
-    for s in all_sections(sheet.outcome.kind):
+    for s in sections_for(sheet):
         if not s.ai_written:
             continue
         sents = [{"text": "The bank looked weak in plain terms.", "cites": []}]
@@ -146,7 +146,7 @@ def test_schema_section_enum():
     secs = all_sections("quiet")
     schema = memo_schema(secs)
     sec_item = schema["properties"]["sections"]["items"]
-    assert sec_item["properties"]["key"]["enum"] == ["summary", "warning_signs", "score", "what_next"]
+    assert sec_item["properties"]["key"]["enum"] == ["summary", "warning_signs", "score", "trends", "what_next"]
     assert schema["additionalProperties"] is False and sec_item["additionalProperties"] is False
 
 
@@ -228,6 +228,15 @@ def test_section_instructions_match_renderer(sheet):
     user = build_request(sheet, all_sections(sheet.outcome.kind), "claude-opus-5-5")["messages"][0]["content"]
     assert "Do not write those yourself" in user
     assert "fixed sentence" not in user.split("Write these sections")[1].split("Code adds")[0].lower()
+
+
+def test_ratio_table_line_only_when_trends_is_ai_written(analyst_ctx, sheet):
+    secs = all_sections(sheet.outcome.kind)
+    line = "Code adds the ratio table"
+    assert any(x.key == "trends" for x in secs)
+    assert line in build_request(sheet, secs, "claude-opus-5-5")["messages"][0]["content"]
+    no_trends = [x for x in secs if x.key != "trends"]
+    assert line not in build_request(sheet, no_trends, "claude-opus-5-5")["messages"][0]["content"]
 
 
 def test_cli_malformed_json_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):

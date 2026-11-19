@@ -7,10 +7,11 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
+import canary.analyst.trends  # noqa: F401  (registers the trend specialist)
 from canary.analyst.checker import check_memo
 from canary.analyst.facts import POSTHOC_LABEL, FactSheet, build_fact_sheet
 from canary.analyst.render import note_path, render_note
-from canary.analyst.sections import Section, all_sections
+from canary.analyst.sections import Section, sections_for
 
 DEFAULT_MODEL = "claude-opus-5-5"
 EFFORT = "medium"
@@ -147,6 +148,8 @@ def _user_message(sheet: FactSheet, sections: list[Section]) -> str:
         "the score is not a probability, and the \"What the model can't see\" paragraph after your score "
         "section. Do not write those yourself.",
     ]
+    if any(s.key == "trends" for s in ai_sections(sections)):
+        lines.append("Code adds the ratio table and the fixed sentence after your trends section.")
     return "\n".join(lines)
 
 
@@ -202,7 +205,7 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
     cost_usd, model} for those calls, so callers can still count the spend.
     """
     sheet = build_fact_sheet(ctx, cert, as_of, replay_dir=replay_dir)
-    sections = all_sections(sheet.outcome.kind)
+    sections = sections_for(sheet)
     to_check = ai_sections(sections)
     usage = {"in": 0, "out": 0, "cost": 0.0}
     served = model

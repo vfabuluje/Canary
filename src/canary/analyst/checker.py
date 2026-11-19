@@ -9,6 +9,12 @@ drivers") are not checked, nor is the exact post-hoc label text (it names 2023 a
 figure). A sentence citing a post-hoc fact must contain the post-hoc label. Phrase guards (ruling R12):
 probability-of-failure wording anywhere; "failed", "collapsed", "was closed", "was seized" in as-of
 sections.
+
+Trend section only (key "trends", spec 6.5, rulings R8/R9): (1) a sentence citing a contribution or
+direction fact must cite one ratio only (every per-ratio trend fact it cites is that ratio) and a
+contribution needs that ratio's value/low/high; (2) the text must not say the opposite of the direction label (the cited direction
+fact, or the sheet's direction fact for the cited contribution's ratio); a cited rank-phrase fact rules
+out the opposite of "safer"/"riskier"; (3) no prediction language.
 """
 
 import re
@@ -17,6 +23,7 @@ from dataclasses import dataclass
 from canary.analyst.facts import POSTHOC_LABEL, SPELLED_WORDS, FactSheet, date_forms, spelled_norm
 from canary.analyst.labels import PLAIN_NAMES
 from canary.analyst.sections import Section
+from canary.analyst.trends import TREND_KEY
 
 _MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
 _MONTH_NO = {m[:3].lower(): i for i, m in enumerate(_MONTHS.split("|"), 1)}
@@ -74,6 +81,70 @@ _PROBABILITY = re.compile(
 _DISCLAIMER = re.compile(r"\bnot\s+(?:a|the)\s+(?:probability|likelihood)\s+of\s+(?:failure|failing)\b",
                          re.IGNORECASE)
 _AS_OF_WORDS = re.compile(r"\b(?:failed|collapsed)\b|\bwas\s+(?:closed|seized)\b", re.IGNORECASE)
+# Trend-section rules (spec 6.5). Keys are the code-rendered direction labels (trends.direction_label).
+_UP = re.compile(r"\b(pushed|raised|lifted|increased)\s+(the\s+)?(risk\s+)?score\s+up\b|\braised the score\b",
+                 re.IGNORECASE)
+_DOWN = re.compile(r"\b(pushed|pulled|lowered)\s+(the\s+)?score\s+down\b|\btoward safe\b|\blowered the score\b",
+                   re.IGNORECASE)
+OPPOSITE_DIRECTION: dict[str, re.Pattern] = {
+    "pushed the score up": _DOWN,
+    "pushed the score down": _UP,
+    "little effect on the score": _UP,
+}
+PREDICTION_PHRASES = re.compile(
+    r"\bpredict\w*|\bforecast\w*|\bwarn(ed|ing|s)?\b|\bearly[- ]warning\b"
+    r"|\bwould have (caught|flagged|warned)\b|\bshould have (caught|flagged|been flagged)\b"
+    r"|\bforeshadow\w*|\bsign(al)?s? of (coming |impending )?failure\b",
+    re.IGNORECASE)
+_CONTRIB = {"trend_contribution", "trend_direction"}
+_SAFER = re.compile(r"\bsafer\b", re.IGNORECASE)
+_RISKIER = re.compile(r"\briskier\b", re.IGNORECASE)
+ONE_RATIO_MESSAGE = "give one ratio per sentence when stating its contribution or direction"
+
+
+def _trend_errors(where, text, cited, facts) -> list[str]:
+    errors = []
+    contrib = {f.feature for f in cited if f.kind in _CONTRIB}
+    per_ratio = {f.feature for f in cited if f.feature is not None and f.kind and f.kind.startswith("trend_")}
+    if contrib and (len(contrib) > 1 or per_ratio - contrib):
+        errors.append(f"{where}: cites more than one ratio with a contribution or direction; {ONE_RATIO_MESSAGE}")
+        return errors + _rank_errors(where, text, cited) + _prediction_errors(where, text)
+    if any(f.kind == "trend_contribution" for f in cited) and not any(
+            f.kind in {"trend_value", "trend_lo", "trend_hi"} and f.feature in contrib for f in cited):
+        errors.append(f"{where}: cites a contribution without that ratio's value or range")
+    labels = []
+    for f in cited:
+        if f.kind == "trend_direction":
+            labels.append(str(f.value))
+        elif f.kind == "trend_contribution":
+            d = next((g for g in facts.values() if g.kind == "trend_direction" and g.feature == f.feature), None)
+            if d is not None:
+                labels.append(str(d.value))
+    for label in dict.fromkeys(labels):
+        pat = OPPOSITE_DIRECTION.get(label)
+        if pat is not None and (m := pat.search(text)):
+            errors.append(f"{where}: says '{m.group(0)}' but the model's direction for that ratio was "
+                          f"\"{label}\"")
+    return errors + _rank_errors(where, text, cited) + _prediction_errors(where, text)
+
+
+def _rank_errors(where, text, cited) -> list[str]:
+    errors = []
+    for f in cited:
+        if f.kind == "trend_rank_phrase":
+            phrase = str(f.value)
+            bad = [("riskier", _RISKIER)] if "safer" in phrase else [("safer", _SAFER)] if "riskier" in phrase \
+                else [("riskier", _RISKIER), ("safer", _SAFER)]
+            for word, pat in bad:
+                if pat.search(text):
+                    errors.append(f"{where}: says '{word}' but the model's rating against a year earlier was "
+                                  f"\"{phrase}\"")
+    return errors
+
+
+def _prediction_errors(where, text) -> list[str]:
+    m = PREDICTION_PHRASES.search(text)
+    return [f"{where}: uses prediction language ('{m.group(0)}')"] if m else []
 
 
 @dataclass
@@ -180,6 +251,8 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
     if spec.window == "as_of":
         for m in _AS_OF_WORDS.finditer(text):
             errors.append(f"{where}: '{m.group(0)}' in an as-of section (says or hints at what happened later)")
+    if key == TREND_KEY:
+        errors.extend(_trend_errors(where, text, cited, facts))
     if any(POSTHOC_LABEL in f.label for f in cited) and POSTHOC_LABEL not in text:
         errors.append(f"{where}: cites a post-hoc fact but does not include the label \"{POSTHOC_LABEL}\"")
     if tokens and not cites:

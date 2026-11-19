@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-17T22:08:55"
+written_at: "2026-11-18T19:56:58"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-Talbot State Bank, a Georgia bank, ranked 22 out of 4,313 banks in Canary's national ranking for Q2 2026, placing it in the 99.5th percentile, where higher means riskier. That ranking put it on the watchlist, which covers the top 2% of banks, or 87 banks that quarter. Its profile pairs thin capital against total assets, a high level of late loan payments and heavy reliance on less stable funding with large paper losses on its bond holdings.
+Talbot State Bank, a Georgia bank, ranked 22 out of 4,313 banks nationally on Canary's risk score as of 2026-06-30, placing it in the 99.5th percentile, where higher means riskier. That puts it on Canary's watchlist, which covers the top 2% of banks by score. The biggest pressures on its score are paper losses on bonds available for sale equal to 76.0% of its equity, and brokered deposits (money placed through middlemen) making up 19.0% of its deposits. Its risk-based capital ratios, which measure its capital cushion against its riskier assets, are above the national median and pull the score down.
 
 ## Warning signs in the data
 
-Capital, the cushion a bank has to absorb losses, looks thin against total assets: equity was 4.5% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 7.8% against a median of 11.0%. Measured against risk-weighted assets, where safer assets count for less, capital looks stronger: the Tier 1 risk-based capital ratio was 16.8% versus a median of 14.6%, and the total risk-based capital ratio was 17.6% versus 15.8%. The bank also lost money, with a return on assets of -0.9% against a median of 1.2%, and its efficiency ratio (operating costs as a share of revenue) was 123.7% against a median of 62.1%, meaning costs exceeded revenue.
+Capital is thin when measured against all assets: equity was 4.5% of assets, against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 7.8%, against a median of 11.0%. By contrast, the Tier 1 risk-based capital ratio, which weighs assets by riskiness, was 16.8%, above the median of 14.6%. Paper losses on bonds available for sale equaled 76.0% of equity, far above the national median of 5.6%.
 
-Credit quality, meaning how well borrowers are repaying, is weak: loans 30-89 days past due equaled 5.2% of assets against a median of 0.2%, and loans 90+ days past due or not accruing interest were 2.3% of loans against a median of 0.5%. Loan-loss reserves, money set aside for bad loans, were 0.6% of loans, about half-way below the median of 1.2%, while the Texas ratio (troubled assets against capital plus reserves) was 30.9% against a median of 2.9%.
+On loan quality, loans 30-89 days past due were 5.2% of assets against a median of 0.2%, and loans 90+ days past due or not accruing interest were 2.3% of loans against a median of 0.5%. Reserves set aside for loan losses were 0.6% of loans, below the median of 1.2%, and the Texas ratio (troubled assets against capital plus reserves) was 30.9%, well above the median of 2.9%. The bank was losing money, with a return on assets of -0.9% against a median of 1.2%, and operating costs ran at 123.7% of revenue against a median of 62.1%.
 
-On funding, brokered deposits (money placed through middlemen, which can leave quickly) made up 19.0% of deposits against a median of 0.0%, and volatile funding was 26.8% of assets against a median of 9.0%. Federal Home Loan Bank borrowings were 7.7% of assets against a median of 0.2%, and core deposits, the steadiest funding, were 58.8% of assets against a median of 75.5%. Finally, unrealized losses on bonds available for sale equaled 76.0% of equity, far above the national median of 5.6%.
+Its funding leans on less stable sources: brokered deposits were 19.0% of deposits against a median of 0.0%, and volatile funding was 26.8% of assets against a median of 9.0%. Federal Home Loan Bank borrowings were 7.7% of assets against a median of 0.2%, while core deposits, the steadier everyday deposits, were 58.8% of assets against a median of 75.5%.
 
 ## Understanding the score
 
-In Q2 2026 Talbot State Bank ranked 22 of 4,313 banks, in the 99.5th percentile on a scale of 0 to 100 where higher means riskier, with a model score of 0.2961. It was flagged for the watchlist, which holds the top 2% of banks, 87 banks that quarter.
+As of 2026-06-30, Talbot State Bank ranked 22 out of 4,313 banks, in the 99.5th percentile on a 0 to 100 scale where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks and contained 87 banks that quarter.
 
-The five factors pushing the score up most were: losses on bonds available for sale at 76.0% of equity (+1.284), brokered deposits at 19.0% of deposits (+0.935), loans 30-89 days past due at 5.2% of assets (+0.445), commercial real estate loans at 1.6% of loans (+0.171), and interest expense at 2.5% of assets (+0.137).
+Five features pushed the score up most: paper losses on bonds available for sale at 76.0% of equity (+1.284), brokered deposits at 19.0% of deposits (+0.935), and loans 30-89 days past due at 5.2% of assets (+0.445). The other two were commercial real estate loans at 1.6% of loans (+0.171) and interest expense at 2.5% of assets (+0.137).
 
-The five factors pulling the score down most were: the Tier 1 risk-based capital ratio at 16.8% (-1.591), the Texas ratio at 30.9% (-0.505), the total risk-based capital ratio at 17.6% (-0.433), construction loans at 5.9% of loans (-0.257), and nonaccrual assets and foreclosed property at 0.8% of assets (-0.224).
+Five features pulled the score down most: the Tier 1 risk-based capital ratio at 16.8% (-1.591), the Texas ratio at 30.9% (-0.505), and the total risk-based capital ratio at 17.6% (-0.433). The other two were construction loans at 5.9% of loans (-0.257) and nonaccrual assets and foreclosed property at 0.8% of assets (-0.224).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,20 +56,38 @@ The score ranks banks against each other; it is not a probability of failure, be
 | 2026-03-31 | 27 | 4,353 | ▲ watchlist |
 | 2026-06-30 | 22 | 4,313 | ▲ watchlist |
 
+## How its ratios moved
+
+Each ratio is compared with its own range over the prior 12 quarters, and 6 of the 30 ratios checked sat outside that range as of 2026-06-30. The bank ranked 22 nationally, and its percentile a year earlier, on 2025-06-30, was 99.1%, so the model rated it about the same as a year earlier.
+
+The Tier 1 risk-based capital ratio was 16.8%, below its prior range of 17.6% to 25.6% after falling 2.4 pp over four quarters, yet at -1.591 log-odds units it still pushed the score down. The total risk-based capital ratio was 17.6%, below its prior range of 18.5% to 26.5%, but at -0.433 log-odds units it also pushed the score down. The leverage ratio was 7.8%, just below its prior range of 7.9% to 10.4%, and at +0.079 log-odds units it pushed the score up.
+
+Nonaccrual assets and foreclosed property were 0.75% of assets, below their prior range of 0.77% to 1.4%, and at -0.224 log-odds units this pushed the score down. Loans as a share of deposits were 72.5%, above their prior range of 63.9% to 71.4%, but at -0.010 log-odds units this had little effect on the score. The net interest margin was 3.7%, above its prior range of 3.1% to 3.6%, yet at -0.003 log-odds units it had little effect on the score.
+
+| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
+|---|---|---|---|---|---|---|---|
+| loans as a share of deposits | 72.5% | 63.9% to 71.4% | prior 12 quarters | +4.3 pp | +4.5 pp | -0.010 | little effect on the score |
+| net interest margin (the spread earned on lending and investing) | 3.7% | 3.1% to 3.6% | same quarter, prior 3 years | n/a | +0.4 pp | -0.003 | little effect on the score |
+| the total risk-based capital ratio | 17.6% | 18.5% to 26.5% | prior 12 quarters | -0.9 pp | -2.4 pp | -0.433 | pushed the score down |
+| the Tier 1 risk-based capital ratio | 16.8% | 17.6% to 25.6% | prior 12 quarters | -0.9 pp | -2.4 pp | -1.591 | pushed the score down |
+| the leverage ratio (core capital as a share of average assets) | 7.8% | 7.9% to 10.4% | prior 12 quarters | -0.2 pp | -1.0 pp | +0.079 | pushed the score up |
+| nonaccrual assets and foreclosed property, as a share of assets | 0.75% | 0.77% to 1.4% | prior 12 quarters | -0.01 pp | -0.3 pp | -0.224 | pushed the score down |
+
+This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
+
 ## Why it's on the watchlist
 
-In hindsight, this fact sheet contains no data from after the as-of quarter, so there is no later outcome to report for this bank. The bank remains on the watchlist on the strength of its Q2 2026 rank of 22, driven mainly by large bond losses relative to equity and reliance on brokered deposits.
+In hindsight, this bank falls in the open watchlist case: it was flagged by the model and is not recorded in our data as having failed. The fact sheet contains no data from after the as-of quarter, so this hindsight view cannot add anything beyond the as-of figures described above.
 
 ## What happened next
 
-In hindsight, our data holds no later ranks, flags or filings for this bank beyond the as-of quarter. Its story is still open, and later quarters will show whether its position on the ranking changes.
+In hindsight, the fact sheet provides no later ranks, watchlist flags or failure date for this bank. Without those later facts, we cannot say how its position moved after the as-of quarter or whether it kept reporting to regulators.
 
 ## Sources
 
 - F1 · Bank name · n/a · Talbot State Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · GA · data/raw/financials: STALP
-- F5 · Model score · 2026-06-30 · 0.2961 · data/analyst/scores.parquet: score
 - F6 · National rank (1 = highest score) · 2026-06-30 · 22 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2026-06-30 · 4,313 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2026-06-30 · 99.5% · data/analyst/scores.parquet: percentile
@@ -83,8 +101,6 @@ In hindsight, our data holds no later ranks, flags or filings for this bank beyo
 - F16 · National median: the leverage ratio (core capital as a share of average assets) · 2026-06-30 · 11.0% · data/features/fct_bank_features.parquet: leverage_ratio (median of all banks)
 - F17 · Bank: the Tier 1 risk-based capital ratio · 2026-06-30 · 16.8% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F18 · National median: the Tier 1 risk-based capital ratio · 2026-06-30 · 14.6% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio (median of all banks)
-- F19 · Bank: the total risk-based capital ratio · 2026-06-30 · 17.6% · data/features/fct_bank_features.parquet: total_risk_based_ratio
-- F20 · National median: the total risk-based capital ratio · 2026-06-30 · 15.8% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 2.3% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F25 · Bank: loans 30-89 days past due, as a share of assets · 2026-06-30 · 5.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
@@ -117,3 +133,39 @@ In hindsight, our data holds no later ranks, flags or filings for this bank beyo
 - F82 · Driver down #3: the total risk-based capital ratio, value 17.6%; contribution to the score · 2026-06-30 · -0.433 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F83 · Driver down #4: construction loans as a share of loans, value 5.9%; contribution to the score · 2026-06-30 · -0.257 · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
 - F84 · Driver down #5: nonaccrual assets and foreclosed property, as a share of assets, value 0.8%; contribution to the score · 2026-06-30 · -0.224 · data/analyst/scores.parquet: feature nonaccrual_ore_to_assets contribution
+- F89 · Trend: loans as a share of deposits, value at the as-of quarter · 2026-06-30 · 72.5% · data/features/fct_bank_features.parquet: loans_to_deposits
+- F90 · Trend: loans as a share of deposits, lowest value in the comparison window · n/a · 63.9% · data/features/fct_bank_features.parquet: loans_to_deposits
+- F91 · Trend: loans as a share of deposits, highest value in the comparison window · n/a · 71.4% · data/features/fct_bank_features.parquet: loans_to_deposits
+- F94 · Trend: loans as a share of deposits, contribution to the score (model log-odds units) · 2026-06-30 · -0.010 · data/analyst/scores.parquet: feature loans_to_deposits contribution
+- F95 · Trend: loans as a share of deposits, what the model did with it · 2026-06-30 · little effect on the score · data/analyst/scores.parquet: feature loans_to_deposits contribution
+- F96 · Trend: net interest margin (the spread earned on lending and investing), value at the as-of quarter · 2026-06-30 · 3.7% · data/features/fct_bank_features.parquet: net_interest_margin
+- F97 · Trend: net interest margin (the spread earned on lending and investing), lowest value in the comparison window · n/a · 3.1% · data/features/fct_bank_features.parquet: net_interest_margin
+- F98 · Trend: net interest margin (the spread earned on lending and investing), highest value in the comparison window · n/a · 3.6% · data/features/fct_bank_features.parquet: net_interest_margin
+- F100 · Trend: net interest margin (the spread earned on lending and investing), contribution to the score (model log-odds units) · 2026-06-30 · -0.003 · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F101 · Trend: net interest margin (the spread earned on lending and investing), what the model did with it · 2026-06-30 · little effect on the score · data/analyst/scores.parquet: feature net_interest_margin contribution
+- F102 · Trend: the total risk-based capital ratio, value at the as-of quarter · 2026-06-30 · 17.6% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F103 · Trend: the total risk-based capital ratio, lowest value in the comparison window · n/a · 18.5% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F104 · Trend: the total risk-based capital ratio, highest value in the comparison window · n/a · 26.5% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F107 · Trend: the total risk-based capital ratio, contribution to the score (model log-odds units) · 2026-06-30 · -0.433 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
+- F108 · Trend: the total risk-based capital ratio, what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
+- F109 · Trend: the Tier 1 risk-based capital ratio, value at the as-of quarter · 2026-06-30 · 16.8% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F110 · Trend: the Tier 1 risk-based capital ratio, lowest value in the comparison window · n/a · 17.6% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F111 · Trend: the Tier 1 risk-based capital ratio, highest value in the comparison window · n/a · 25.6% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F113 · Trend: the Tier 1 risk-based capital ratio, change over four quarters, in percentage points · 2026-06-30 · -2.4 pp · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F114 · Trend: the Tier 1 risk-based capital ratio, contribution to the score (model log-odds units) · 2026-06-30 · -1.591 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
+- F115 · Trend: the Tier 1 risk-based capital ratio, what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
+- F116 · Trend: the leverage ratio (core capital as a share of average assets), value at the as-of quarter · 2026-06-30 · 7.8% · data/features/fct_bank_features.parquet: leverage_ratio
+- F117 · Trend: the leverage ratio (core capital as a share of average assets), lowest value in the comparison window · n/a · 7.9% · data/features/fct_bank_features.parquet: leverage_ratio
+- F118 · Trend: the leverage ratio (core capital as a share of average assets), highest value in the comparison window · n/a · 10.4% · data/features/fct_bank_features.parquet: leverage_ratio
+- F121 · Trend: the leverage ratio (core capital as a share of average assets), contribution to the score (model log-odds units) · 2026-06-30 · +0.079 · data/analyst/scores.parquet: feature leverage_ratio contribution
+- F122 · Trend: the leverage ratio (core capital as a share of average assets), what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature leverage_ratio contribution
+- F123 · Trend: nonaccrual assets and foreclosed property, as a share of assets, value at the as-of quarter · 2026-06-30 · 0.75% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F124 · Trend: nonaccrual assets and foreclosed property, as a share of assets, lowest value in the comparison window · n/a · 0.77% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F125 · Trend: nonaccrual assets and foreclosed property, as a share of assets, highest value in the comparison window · n/a · 1.4% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F128 · Trend: nonaccrual assets and foreclosed property, as a share of assets, contribution to the score (model log-odds units) · 2026-06-30 · -0.224 · data/analyst/scores.parquet: feature nonaccrual_ore_to_assets contribution
+- F129 · Trend: nonaccrual assets and foreclosed property, as a share of assets, what the model did with it · 2026-06-30 · pushed the score down · data/analyst/scores.parquet: feature nonaccrual_ore_to_assets contribution
+- F130 · Trend: ratios outside their own prior range · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
+- F132 · Trend: ratios compared with their own prior range · 2026-06-30 · 30 · data/features/fct_bank_features.parquet
+- F133 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
+- F135 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 99.1% · data/analyst/scores.parquet: percentile
+- F136 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · about the same as a year earlier · data/analyst/scores.parquet: percentile
