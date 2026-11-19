@@ -110,11 +110,11 @@ The first six below (S3, Athena, Glue, IAM, dbt, XGBoost) are running today. The
 **Why it's here.** A risk score alone doesn't say *why* a bank looks risky. The Claude API powers Canary's risk analyst, which turns a bank's numbers into a short plain-English memo. A project rule says every memo must cite the bank, the quarter and the exact numbers it relies on, so it can be checked rather than trusted blindly. (This is separate from Claude Code, the coding assistant used to *build* Canary. The Claude API is part of the *product*.)
 
 **What it does in Canary now.**
-- **Memo writer.** Code builds a fact sheet for one bank and quarter, Claude writes the memo sections citing fact ids, and a citation checker rejects any number it cannot match ([decision 0016](../decisions/0016-analyst-memo-design.md)). Notes land in `banks/`.
-- **Batch showcase.** About 130 notes are written in one Message Batches job at half price; failures are retried one by one.
+- **Memo writer.** Code builds a fact sheet for one bank and quarter, and three Claude agents write the memo in turn (a trend agent, a peer agent, then the risk analyst), each citing fact ids; a citation checker rejects any number it cannot match ([decision 0016](../decisions/0016-analyst-memo-design.md), [decision 0022](../decisions/0022-three-agent-memo-pipeline.md)). Notes land in `banks/`.
+- **Batch showcase.** Notes are written in two Message Batches rounds at half price (specialists, then analysts); failures are retried one by one at full price, with an optional spending limit.
 - **`ask` agent.** Plain-English questions answered with four local tools through the SDK's tool runner ([decision 0017](../decisions/0017-analyst-agent-tool-runner.md)).
 - **Models.** Claude Opus 5.5 writes the memos (chosen by the owner). Claude Sonnet 5.5 was compared on three banks: cheaper, but it needed more retries.
-- **Cost and where it runs.** About 9-10 cents per memo call at full price. This calls Anthropic's API, not AWS, so the AWS cost is unchanged. Setup and commands: [runbooks/analyst.md](../runbooks/analyst.md).
+- **Cost and where it runs.** Cost per memo with three agents: to be filled from the Phase 5e calibration. This calls Anthropic's API, not AWS, so the AWS cost is unchanged. Setup and commands: [runbooks/analyst.md](../runbooks/analyst.md).
 
 ## Streamlit *(planned: Phase 6)*
 

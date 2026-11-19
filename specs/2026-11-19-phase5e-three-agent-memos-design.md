@@ -1,7 +1,7 @@
 # Phase 5e Spec: Three-agent memo pipeline
 
 **Date:** 2026-11-19
-**Status:** Approved by Victor 2026-11-19 (builder check done)
+**Status:** Built (approved by Victor 2026-11-19; decision [[decisions/0022-three-agent-memo-pipeline]])
 **Phase:** Rework of the Phase 5 memo writer (5a-5d), before Phase 6. Branch `phase5e-three-agents`.
 
 ## 1. Intent: why this exists

@@ -21,17 +21,41 @@ Always written, partial if the run stopped. Top level:
 | Key | Meaning |
 |---|---|
 | `model` | Writer model asked for. |
-| `batch_id` | Message Batches id (null if no batch was created). |
-| `complete` | False if an error escaped. |
+| `batch_id` | Same as `round1_batch_id` (kept for older readers). |
+| `round1_batch_id`, `round2_batch_id` | Message Batches ids: round 1 = trend and peer requests, round 2 = analyst requests. Null if that round was never created. |
+| `complete` | False if an error escaped, the run stopped at the spending limit, or a bank is unfinished. |
+| `stopped` | `"spending limit"` if the run stopped there, else null. |
+| `max_cost` | The `--max-cost` limit in USD, or null. |
 | `error` | Error text or null. |
 | `banks_total`, `banks_done`, `written`, `failed` | Counts. |
-| `input_tokens`, `output_tokens`, `cost_usd` | Totals; batch results are counted at half price, retries at full price. |
+| `first_try_passed`, `first_try_passed_by_agent` | Banks written with no first-attempt errors; and, per agent (`trend`, `peer`, `analyst`), how many of its memos passed the checker on the first attempt (code-only skips not counted). |
+| `spend_by_round` | `round1` and `round2`, each with `batch`, `direct` and `total` USD plus `input` and `output` tokens. Batch results at half price, direct calls (retries) at full price. |
+| `input_tokens`, `output_tokens`, `cost_usd` | Totals across both rounds. |
 | `banks` | One entry per bank (below). |
 
-Each `banks` entry: `cert`, `as_of`, `group` (`case_study`, `test_miss`, `test_catch`, `after_window`, `latest_watchlist`, `false_alarm`), `ok`, `attempts` (batch result counts as 1; a retry adds 1 or more), `path` (the note, or null), `errors` (checker errors if it failed), `source` (`batch` or `retry`), `served_model`, `first_errors` (the checker's complaints about the first attempt; empty if it passed first try or never got a checked first attempt). Top level also has `first_try_passed` (banks written with no first-attempt errors) and `first_error_sections` (first-attempt errors counted by memo section, most first), so a high retry rate can be traced to the section causing it.
+Each `banks` entry: `cert`, `as_of`, `group` (`case_study`, `test_miss`, `test_catch`, `after_window`, `latest_watchlist`, `false_alarm`), `ok`, `attempts` (batch result counts as 1; a retry adds 1 or more), `path` (the note, or null), `errors` (checker errors if it failed), `source`, `served_model`, `first_errors` (the checker's complaints about each agent's first attempt, each prefixed `[agent] `; empty if all passed first try), and `agents`: per agent (`trend`, `peer`, `analyst`) `ok`, `attempts`, `first_errors` and `source` (`batch`, `direct` or `code` when the agent was skipped because its section is code-only). `attempts` counts a batch result as 1; a retry adds 1. Top level also has `first_try_passed` (banks written with no first-attempt errors) and `first_error_sections` (first-attempt errors counted by memo section, most first), so a high retry rate can be traced to the section causing it.
 
 ## `showcase_report.state.json` (resume file)
-Written the moment the batch is created: `batch_id`, `created_at`, `banks` (list of `[cert, as_of, group]`), `model`, `complete`. `complete` becomes true only after every result is collected and every failed bank retried. A new `showcase` run refuses to start while an incomplete state file exists; use `--resume BATCH_ID` ([[runbooks/analyst]]).
+Written the moment round 1 is created: `batch_id` and `round1_batch_id` (the same), `round2_batch_id` (null until round 2 is created), `created_at`, `banks` (list of `[cert, as_of, group]`), `model`, `spend` (per round: batch and direct USD and tokens, saved before each result file so a crash is never under-counted), `agents` (per bank, each agent's checked result summary), `complete`, and `stopped` (`"spending limit"` while stopped, else absent). `complete` becomes true only after both rounds are collected and every bank is finished. A new `showcase` run refuses to start while an incomplete state file exists; use `--resume BATCH_ID` with either round's id ([[runbooks/analyst]]). Resume is refused, with nothing changed, for: an id the state does not name, no state file, a complete state, a state from the old single-batch run (no `round1_batch_id`), and an empty id (`--resume ""`).
+
+## `showcase_report.progress/` (resume detail)
+A folder beside the report: each round's collected batch results and, per bank and agent, the checked result and its trace entries. It is what lets a resumed run skip finished work. A fresh run clears it.
+
+## `traces/<cert>_<as_of>.json` (call traces)
+One file per written-or-attempted memo, under `data/analyst/traces/` (git-ignored), written by `memo`, `showcase` and `compare`. Top level: `cert`, `as_of`, `ok` (true if a note was written), `calls`. Each call:
+
+| Key | Meaning |
+|---|---|
+| `agent` | `trend`, `peer` or `analyst`. |
+| `attempt` | 1, or 2 for the retry. |
+| `request` | The arguments sent to the API (system prompt, messages, output format). No API key or header is stored. |
+| `response_text` | What the model returned (empty if the call failed before a reply). |
+| `checker_errors` | The checker's errors for this attempt (empty if it passed). |
+| `input_tokens`, `output_tokens`, `cost_usd` | This call's usage and cost; a batch call is at half price. |
+| `served_model` | The model that actually answered. |
+| `source` | `batch` or `direct`. |
+
+Running the same bank and quarter again overwrites its file (compare runs too, per cert and as-of). A failed memo keeps its trace, so a rejection can be read afterwards.
 
 ## `compare/compare.json` and `compare/<model>/`
 From `python -m canary.analyst compare`. `compare/<model>/` holds that model's notes (never `banks/`). `compare.json`:
