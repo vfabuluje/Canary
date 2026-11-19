@@ -180,3 +180,22 @@ def test_ask_write_memo_tool_uses_pipeline(analyst_ctx, tmp_path, monkeypatch):
     assert out["ok"] is True and out["errors"] == [] and out["attempts"] == 1 and len(client.calls) == 3
     assert out["path"].startswith("banks/")
     assert (tmp_path / out["path"]).exists()
+
+
+def test_before_call_fires_per_direct_call_and_can_stop(analyst_ctx, tmp_path):
+    sheet = _sheet(analyst_ctx, FULL, tmp_path)
+    memos = fake_agent_memos(sheet)
+    seen = []
+    res, client = _run(analyst_ctx, FULL, tmp_path, memos, before_call=lambda a, n: seen.append((a, n)))
+    assert res.ok and len(client.calls) == len(seen) == 3
+    assert [a for a, _ in seen] == ["trend", "peer", "analyst"] and all(n == 1 for _, n in seen)
+
+    def stop(agent, attempt):
+        if attempt == 2:
+            raise RuntimeError("limit")
+
+    client = FakeClient([memos[0], memos[1], _bad(fake_agent_memo(sheet, "analyst"))])
+    with pytest.raises(RuntimeError, match="limit"):
+        write_memo(analyst_ctx, FULL, client=client, out_dir=tmp_path / "b2", replay_dir=tmp_path / "none",
+                   trace_dir=tmp_path / "t2", before_call=stop)
+    assert len(client.calls) == 3  # the retry call was never made

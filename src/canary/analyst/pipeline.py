@@ -163,11 +163,13 @@ class AgentResult:
 
 
 def run_agent(sheet: FactSheet, agent: str, *, client, model: str, specialist_memos: dict[str, dict] | None = None,
-              first_memo: dict | None = None, trace: list) -> AgentResult:
+              first_memo: dict | None = None, trace: list, before_call=None) -> AgentResult:
     """One agent: a call (or the given batch `first_memo`), check, one retry with the errors, check.
 
     Checks run against this agent's sheet and sections. Appends one entry per attempt to `trace`.
     An exception from a call carries `exc.usage` for this agent's calls so far.
+    `before_call(agent, attempt)`, if given, runs immediately before each direct (non-batch) API call;
+    raising from it stops that call (none is made) and propagates.
     """
     _check_agent(agent)
     sections = agent_sections(sheet, agent)
@@ -180,6 +182,8 @@ def run_agent(sheet: FactSheet, agent: str, *, client, model: str, specialist_me
         return build_agent_request(sheet, agent, model, specialist_memos, errors, previous)
 
     def call(errors=None, previous=None) -> dict:
+        if before_call is not None:
+            before_call(agent, res.attempts + 1)
         kw = request(errors, previous)
         entry = {"agent": agent, "attempt": res.attempts + 1, "request": kw, "response_text": "",
                  "checker_errors": [], "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0,

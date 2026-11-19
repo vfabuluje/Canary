@@ -228,7 +228,8 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
                out_dir: Path = Path("banks"), first_memos: dict[str, dict] | None = None,
                replay_dir: Path = Path("data/replay"),
                trace_dir: Path = Path("data/analyst/traces"), prior: dict | None = None,
-               prior_trace: list[dict] | None = None) -> MemoResult:
+               prior_trace: list[dict] | None = None,
+               before_call=None) -> MemoResult:
     """Write one checked note with three calls: trend, peer (each skipped if code-only), then the analyst.
 
     A specialist (or the analyst) that fails its check after one retry stops the pipeline: no later call,
@@ -262,7 +263,7 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
                 r = prior[agent] if agent in prior else run_agent(
                     sheet, agent, client=client, model=model,
                     specialist_memos=specialist_memos if agent == "analyst" else None,
-                    first_memo=first_memos.get(agent), trace=trace)
+                    first_memo=first_memos.get(agent), trace=trace, before_call=before_call)
             except Exception as exc:
                 u = getattr(exc, "usage", {})
                 done = totals()

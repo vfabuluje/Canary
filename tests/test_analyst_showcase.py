@@ -717,3 +717,164 @@ def test_first_attempt_errors_recorded(analyst_ctx, tmp_path):
     assert all(e.startswith("[analyst]") for e in by[101]["first_errors"])
     assert rep["first_try_passed"] == sum(1 for b in rep["banks"] if b["ok"] and not b["first_errors"]) == 3
     assert rep["first_error_sections"]["summary"] >= 1
+
+
+# ---- review fixes: resume safety, before_call hook, round boundary ----------------------
+
+def _stop_after_round1(ctx, tmp_path, **kw):
+    """A first run that dies when round 2's batch would be created; returns the client and its spend."""
+    first = BatchClient(ctx, tmp_path, **kw)
+    real_create = first.messages.batches.create
+
+    def create(requests):
+        if first.created:
+            raise RuntimeError("round 2 create broke")
+        return real_create(requests)
+
+    first.messages.batches.create = create
+    with pytest.raises(RuntimeError):
+        _run(ctx, tmp_path, first)
+    return first
+
+
+def test_typo_resume_id_refused_and_touches_nothing(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import ResumeError
+
+    _stop_after_round1(analyst_ctx, tmp_path)
+    prog = tmp_path / "report.progress"
+    before = sorted(p.name for p in prog.iterdir())
+    state_before = (tmp_path / "report.state.json").read_text()
+    second = BatchClient(analyst_ctx, tmp_path, first_id=2)
+    with pytest.raises(ResumeError, match="batch_TYPO"):
+        _run(analyst_ctx, tmp_path, second, resume="batch_TYPO")
+    assert sorted(p.name for p in prog.iterdir()) == before
+    assert (tmp_path / "report.state.json").read_text() == state_before
+    assert second.created == [] and second.calls == []
+
+
+def test_resume_without_state_refused(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import ResumeError
+
+    with pytest.raises(ResumeError, match="no state file"):
+        _run(analyst_ctx, tmp_path, BatchClient(analyst_ctx, tmp_path), resume="batch_1")
+
+
+def test_old_single_round_state_refused(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import ResumeError
+
+    (tmp_path / "report.state.json").write_text(json.dumps({
+        "batch_id": "batch_1", "created_at": "x", "model": "claude-opus-5-5", "complete": True,
+        "banks": [[c, "2026-06-30", "latest_watchlist"] for c in CERTS]}))
+    client = BatchClient(analyst_ctx, tmp_path)
+    with pytest.raises(ResumeError, match="old single-batch|complete"):
+        _run(analyst_ctx, tmp_path, client, resume="batch_1")
+    assert client.calls == [] and client.created == [] and client.result_calls == []
+    (tmp_path / "report.state.json").write_text(json.dumps({
+        "batch_id": "batch_1", "complete": False, "model": "m", "banks": []}))
+    with pytest.raises(ResumeError, match="round1_batch_id"):
+        _run(analyst_ctx, tmp_path, client, resume="batch_1")
+
+
+def test_batch_with_none_of_the_requested_ids_aborts(analyst_ctx, tmp_path):
+    from canary.analyst.showcase import ResumeError
+
+    client = BatchClient(analyst_ctx, tmp_path)
+    client.messages.batches.results = lambda bid: iter([SimpleNamespace(
+        custom_id=f"{c}-20260630", result=SimpleNamespace(type="errored")) for c in CERTS])
+    with pytest.raises(ResumeError, match="none of"):
+        _run(analyst_ctx, tmp_path, client)
+    assert client.calls == []  # no fall-through to full-price calls
+    assert not (tmp_path / "report.progress" / "round1_batch.json").exists()
+
+
+def test_cli_resume_error_exits_1(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr(cli, "make_client", lambda: BatchClient(analyst_ctx, tmp_path))
+    rc = cli.main(["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+                   "--report", str(tmp_path / "rep.json"), "--out", str(tmp_path / "banks"), "--resume", "nope"])
+    assert rc == 1 and "no state file" in capsys.readouterr().err
+
+
+def test_before_call_fires_once_per_direct_call_never_for_batch(analyst_ctx, tmp_path, monkeypatch):
+    from canary.analyst.showcase import _Run
+
+    seen = []
+    real = _Run._before_call
+    monkeypatch.setattr(_Run, "_before_call", lambda self, agent, attempt: (seen.append((agent, attempt)),
+                                                                           real(self, agent, attempt))[1])
+    # 100 trend: bad batch memo -> retry (1 direct); 101 analyst: errored batch -> redo (1 direct, passes)
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad", (101, "analyst"): "errored"})
+    _run(analyst_ctx, tmp_path, client)
+    assert len(client.calls) == 2 and len(seen) == 2
+    assert sorted(seen) == [("analyst", 1), ("trend", 2)]
+
+
+def test_before_call_raising_stops_without_a_call(analyst_ctx, tmp_path, monkeypatch):
+    from canary.analyst.showcase import RunStopped, _Run
+
+    def stop(self, agent, attempt):
+        raise RunStopped("limit")
+
+    monkeypatch.setattr(_Run, "_before_call", stop)
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"})
+    with pytest.raises(RunStopped):
+        _run(analyst_ctx, tmp_path, client)
+    assert client.calls == []
+    assert not (tmp_path / "report.progress" / "100-20260630-trend.json").exists()
+    assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is False
+
+
+def test_round_boundary_not_called_for_a_created_round(analyst_ctx, tmp_path, monkeypatch):
+    from canary.analyst.showcase import _Run
+
+    first = BatchClient(analyst_ctx, tmp_path)
+    real = _break_round2_results(first)
+    with pytest.raises(RuntimeError):
+        _run(analyst_ctx, tmp_path, first)
+    calls = []
+    monkeypatch.setattr(_Run, "_round_boundary", lambda self, rnd: calls.append(rnd))
+    second = BatchClient(analyst_ctx, tmp_path)
+    second.created = first.created
+    second.messages.batches.results = lambda bid: real(bid)
+    _run(analyst_ctx, tmp_path, second, resume="batch_2")
+    assert calls == []  # both batches already existed
+    # a fresh run does call it, once per round
+    calls.clear()
+    _run(analyst_ctx, tmp_path, BatchClient(analyst_ctx, tmp_path))
+    assert calls == [1, 2]
+
+
+def test_resume_after_direct_retries_does_not_recall_or_recount(analyst_ctx, tmp_path):
+    first = _stop_after_round1(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad"})
+    assert len(first.calls) == 1  # the retry of 100's trend, paid at full price
+    second = BatchClient(analyst_ctx, tmp_path, first_id=2)
+    rep = _run(analyst_ctx, tmp_path, second, resume="batch_1")
+    assert second.calls == []  # nothing from round 1 was called again
+    assert rep["written"] == 4
+    n = len(first.created[0]) + len(second.created[0])
+    assert rep["cost_usd"] == pytest.approx(n * FULL / 2 + FULL)  # the retry counted once
+    assert rep["spend_by_round"]["round1"]["direct"] == pytest.approx(FULL)
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert by[100]["agents"]["trend"]["attempts"] == 2
+
+
+def test_raised_agent_is_not_saved_so_resume_retries_it(analyst_ctx, tmp_path):
+    import anthropic
+
+    err = anthropic.APIConnectionError(request=SimpleNamespace(method="POST", url="https://x"))
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "analyst"): "errored"},
+                         direct={(100, "analyst"): [err]})
+    rep = _run(analyst_ctx, tmp_path, client)
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert not by[100]["ok"] and "APIConnectionError" in " ".join(by[100]["errors"])
+    assert rep["complete"] is False
+    st = json.loads((tmp_path / "report.state.json").read_text())
+    assert st["complete"] is False
+    assert not (tmp_path / "report.progress" / "100-20260630-analyst.json").exists()
+    assert not (tmp_path / "report.progress" / "100-20260630-entry.json").exists()
+    second = BatchClient(analyst_ctx, tmp_path, first_id=3)
+    second.created = client.created
+    second.messages.batches.create = lambda **kw: pytest.fail("created a batch")
+    rep2 = _run(analyst_ctx, tmp_path, second, resume="batch_1")
+    assert rep2["written"] == 4 and len(second.calls) == 1  # only 100's analyst, via its saved errored result
+    assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is True

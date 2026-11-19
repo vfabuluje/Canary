@@ -142,8 +142,14 @@ def _showcase(args) -> int:
               f"rerun with --resume {state['batch_id']} (or delete that file to start a new batch)",
               file=sys.stderr)
         return 1
-    report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
-                          banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume)
+    from canary.analyst.showcase import ResumeError
+
+    try:
+        report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
+                              banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume)
+    except ResumeError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
     print(f"{report['written']} written, {report['failed']} failed of {report['banks_total']} "
           f"(${report['cost_usd']:.2f}); report {args.report}")
     if "first_try_passed" in report:

@@ -204,6 +204,15 @@ def _usage_of(exc: BaseException) -> dict:
 SPECIALISTS = ("trend", "peer")
 
 
+class ResumeError(RuntimeError):
+    """`--resume` cannot continue from the saved state (nothing was changed)."""
+
+
+class RunStopped(Exception):
+    """Raised from `_before_call` / `_round_boundary` to stop the run cleanly (spending limit, Task 4).
+    It propagates out of `run_showcase`; everything finished is already saved."""
+
+
 def _zero_spend() -> dict:
     return {"batch": 0.0, "direct": 0.0, "input": 0, "output": 0}
 
@@ -224,6 +233,8 @@ class _Run:
         self.state = state
         self.progress = Path(report_path).with_suffix(".progress")
         self.entries: dict[str, dict] = {}
+        self.unfinished: set[str] = set()  # banks with an agent that raised: reported, but redone on resume
+        self._mem: dict[tuple[str, str], tuple] = {}  # results not saved to disk (the agent raised)
 
     # -- saved state ------------------------------------------------------------------------
     def save(self) -> None:
@@ -246,6 +257,8 @@ class _Run:
         return json.loads(path.read_text()) if path.exists() else None
 
     def _load_agent(self, base: str, agent: str):
+        if (base, agent) in self._mem:
+            return self._mem[(base, agent)]
         d = self._read_file(f"{base}-{agent}")
         return None if d is None else (AgentResult(**d["result"]), d["trace"], d["source"])
 
@@ -286,6 +299,9 @@ class _Run:
                 except (RefusalError, TruncatedError, ValueError) as exc:
                     entry["why"] = f"batch result unusable: {exc}"
                 collected[cid] = entry
+            if requests and not any(r["custom_id"] in collected for r in requests):
+                raise ResumeError(f"batch {batch_id} has none of the {len(requests)} round {rnd} requests; "
+                                  "it is not this run's batch (no calls were made)")
             self._write_file(f"round{rnd}_batch", collected)
         if not self.state.get(f"round{rnd}_collected"):
             sp = self._spend(rnd)
@@ -304,11 +320,21 @@ class _Run:
         and save the outcome. This is the one place a full-price call can start (spending-limit check
         point); the round boundary is `_round_boundary`."""
         trace: list = []
+        raised = False
         memo = first.get("memo") if first else None
         try:
             res = run_agent(sheet, agent, client=self.client, model=self.model, specialist_memos=specialist_memos,
-                            first_memo=memo, trace=trace)
+                            first_memo=memo, trace=trace, before_call=self._before_call)
+        except RunStopped as exc:
+            sp = self._spend(rnd)  # calls made before the stop were paid for
+            u = _usage_of(exc)
+            sp["direct"] += u.get("cost_usd", 0.0)
+            sp["input"] += u.get("input_tokens", 0)
+            sp["output"] += u.get("output_tokens", 0)
+            self.save()
+            raise
         except Exception as exc:  # one agent must never abort the run or lose the report
+            raised = True
             u = _usage_of(exc)  # calls made before the exception still cost money
             errors = [f"{type(exc).__name__}: {exc}"]
             if first and first.get("why"):
@@ -330,15 +356,24 @@ class _Run:
         sp["direct"] += res.cost_usd
         sp["input"] += res.input_tokens
         sp["output"] += res.output_tokens
-        self._write_file(f"{base}-{agent}", {"result": asdict(res), "trace": trace,
-                                             "source": "batch" if memo is not None else "direct"})
+        source = "batch" if memo is not None else "direct"
         self.state.setdefault("agents", {}).setdefault(base, {})[agent] = {
             "ok": res.ok, "spend": batch_cost + res.cost_usd}
-        self.save()
+        self.save()  # spend first: a crash before the progress file means the agent is redone, and repaid
+        if raised:
+            # Not saved as finished: resume tries this agent again (at most one repeated call).
+            self._mem[(base, agent)] = (res, trace, source)
+            self.unfinished.add(base)
+        else:
+            self._write_file(f"{base}-{agent}", {"result": asdict(res), "trace": trace, "source": source})
         return res
 
     def _round_boundary(self, rnd: int) -> None:
-        """Called before a round's batch is submitted (and after round 1's checks and retries)."""
+        """Called only before a round's batch is created (never for one already paid for). May raise
+        `RunStopped` (spending limit, Task 4)."""
+
+    def _before_call(self, agent: str, attempt: int) -> None:
+        """Called immediately before every full-price (direct) call. May raise `RunStopped` (Task 4)."""
 
     # -- one bank ---------------------------------------------------------------------------
     def _finish(self, cert: int, as_of: date, group: str, base: str) -> None:
@@ -372,7 +407,8 @@ class _Run:
             log.warning("showcase: cert %s failed: %s", cert, exc)
         else:
             entry.update(ok=res.ok, path=str(res.path) if res.path else None)
-        self._write_file(f"{base}-entry", entry)
+        if not any((base, a) in self._mem for a in AGENTS):
+            self._write_file(f"{base}-entry", entry)
         self.entries[base] = entry
 
     def _needs(self, base: str, agent: str) -> bool:
@@ -402,7 +438,8 @@ class _Run:
         todo = [(b, a) for b in live for a in SPECIALISTS if a in self._requested[b[3]]
                 and self._load_agent(b[3], a) is None]
         if todo:
-            self._round_boundary(1)
+            if not self.state.get("round1_batch_id"):
+                self._round_boundary(1)
             requests = [{"custom_id": custom_id(b[0], b[1], a), "params": build_agent_request(b[4], a, self.model)}
                         for b, a in todo]
             batch = self._collect(1, requests)
@@ -422,7 +459,8 @@ class _Run:
         eligible = [b for b in live if b[3] in spec_ok]
         todo2 = [b for b in eligible if self._load_agent(b[3], "analyst") is None]
         if todo2:
-            self._round_boundary(2)
+            if not self.state.get("round2_batch_id"):
+                self._round_boundary(2)
             requests = [{"custom_id": custom_id(b[0], b[1], "analyst"),
                          "params": build_agent_request(b[4], "analyst", self.model, spec_ok[b[3]])} for b in todo2]
             batch = self._collect(2, requests)
@@ -442,14 +480,20 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
     list and model come from the state file when it names that batch). The report is always written,
     partial if something escapes."""
     state = read_state(report_path) if resume else None
-    ids = {state.get(k) for k in ("batch_id", "round1_batch_id", "round2_batch_id")} - {None} if state else set()
-    if state is not None and resume in ids:
+    if resume:
+        if state is None:
+            raise ResumeError(f"--resume {resume}: no state file at {state_path(report_path)}; nothing changed")
+        ids = {state.get(k) for k in ("batch_id", "round1_batch_id", "round2_batch_id")} - {None}
+        if resume not in ids:
+            raise ResumeError(f"--resume {resume}: the state file names {sorted(ids)}; nothing changed")
+        if state.get("complete") or not state.get("round1_batch_id"):
+            raise ResumeError(f"--resume {resume}: that state is complete or from the old single-batch run "
+                              "(no round1_batch_id); it cannot be resumed. Delete the state file to start a new run")
         banks = [(int(c), date.fromisoformat(d), g) for c, d, g in state["banks"]]
         model = state.get("model", model)
-        state.setdefault("round1_batch_id", state.get("batch_id"))
         state.setdefault("spend", {})
     else:
-        state = {"batch_id": resume, "round1_batch_id": resume, "round2_batch_id": None, "spend": {},
+        state = {"batch_id": None, "round1_batch_id": None, "round2_batch_id": None, "spend": {},
                  "created_at": datetime.now().isoformat(timespec="seconds"), "model": model, "complete": False}
         banks = banks if banks is not None else showcase_banks(ctx, model_dir, replay_dir)
         state["banks"] = [[c, d.isoformat(), g] for c, d, g in banks]
@@ -460,7 +504,7 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
         run.run()
         # Only now are both rounds fully used: results collected and every bank written or retried.
         if state.get("round1_batch_id"):
-            state["complete"] = True
+            state["complete"] = not run.unfinished
             run.save()
     except BaseException as exc:
         error = f"{type(exc).__name__}: {exc}"
@@ -477,7 +521,7 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
             "batch_id": state.get("round1_batch_id"),
             "round1_batch_id": state.get("round1_batch_id"),
             "round2_batch_id": state.get("round2_batch_id"),
-            "complete": error is None,
+            "complete": error is None and not run.unfinished,
             "error": error,
             "banks_total": len(banks),
             "banks_done": len(entries),
