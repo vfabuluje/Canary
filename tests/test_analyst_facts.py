@@ -117,7 +117,7 @@ def test_bad_as_of_raises(analyst_ctx):
 
 def test_quiet_bank_has_no_outcome_section():
     assert "outcome" not in [s.key for s in sections.all_sections("quiet")]
-    assert sections.all_sections("missed")[4].title == "Why the model missed it"
+    assert [x.title for x in sections.all_sections("missed")].index("Why the model missed it") == 5
 
 
 def test_section_order_and_specialists():

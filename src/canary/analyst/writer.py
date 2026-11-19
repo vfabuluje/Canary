@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
+import canary.analyst.trends  # noqa: F401  (registers the trend specialist)
 from canary.analyst.checker import check_memo
 from canary.analyst.facts import POSTHOC_LABEL, FactSheet, build_fact_sheet
 from canary.analyst.render import note_path, render_note
@@ -146,6 +147,7 @@ def _user_message(sheet: FactSheet, sections: list[Section]) -> str:
         "Code adds the score history table, the sources list, the outcome banner, the fixed sentence that "
         "the score is not a probability, and the \"What the model can't see\" paragraph after your score "
         "section. Do not write those yourself.",
+        "Code adds the ratio table and the fixed sentence after your trends section.",
     ]
     return "\n".join(lines)
 
