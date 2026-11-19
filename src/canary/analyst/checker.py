@@ -9,6 +9,11 @@ drivers") are not checked, nor is the exact post-hoc label text (it names 2023 a
 figure). A sentence citing a post-hoc fact must contain the post-hoc label. Phrase guards (ruling R12):
 probability-of-failure wording anywhere; "failed", "collapsed", "was closed", "was seized" in as-of
 sections.
+
+Trend section only (key "trends", spec 6.5): (1) a sentence citing a contribution fact must cite a value/
+low/high fact for the same ratio, and every cited per-ratio trend fact must belong to a cited
+contribution's ratio; (2) the text must not say the opposite of the direction label (the cited direction
+fact, or the sheet's direction fact for a cited contribution's ratio); (3) no prediction language.
 """
 
 import re
@@ -17,6 +22,7 @@ from dataclasses import dataclass
 from canary.analyst.facts import POSTHOC_LABEL, SPELLED_WORDS, FactSheet, date_forms, spelled_norm
 from canary.analyst.labels import PLAIN_NAMES
 from canary.analyst.sections import Section
+from canary.analyst.trends import TREND_KEY
 
 _MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
 _MONTH_NO = {m[:3].lower(): i for i, m in enumerate(_MONTHS.split("|"), 1)}
@@ -74,6 +80,48 @@ _PROBABILITY = re.compile(
 _DISCLAIMER = re.compile(r"\bnot\s+(?:a|the)\s+(?:probability|likelihood)\s+of\s+(?:failure|failing)\b",
                          re.IGNORECASE)
 _AS_OF_WORDS = re.compile(r"\b(?:failed|collapsed)\b|\bwas\s+(?:closed|seized)\b", re.IGNORECASE)
+# Trend-section rules (spec 6.5). Keys are the code-rendered direction labels (trends.direction_label).
+_UP = re.compile(r"\b(pushed|raised|lifted|increased)\s+(the\s+)?(risk\s+)?score\s+up\b|\braised the score\b",
+                 re.IGNORECASE)
+_DOWN = re.compile(r"\b(pushed|pulled|lowered)\s+(the\s+)?score\s+down\b|\btoward safe\b|\blowered the score\b",
+                   re.IGNORECASE)
+OPPOSITE_DIRECTION: dict[str, re.Pattern] = {
+    "pushed the score up": _DOWN,
+    "pushed the score down": _UP,
+    "little effect on the score": _UP,
+}
+PREDICTION_PHRASES = re.compile(
+    r"\bpredict\w*|\bforecast\w*|\bwarn(ed|ing|s)?\b|\bearly[- ]warning\b"
+    r"|\bwould have (caught|flagged|warned)\b|\bshould have (caught|flagged|been flagged)\b"
+    r"|\bforeshadow\w*|\bsign(al)?s? of (coming |impending )?failure\b",
+    re.IGNORECASE)
+_PER_RATIO = {"trend_value", "trend_lo", "trend_hi"}
+
+
+def _trend_errors(where, text, cited, facts) -> list[str]:
+    errors = []
+    contrib = {f.feature for f in cited if f.kind == "trend_contribution"}
+    if contrib:
+        ratio_feats = {f.feature for f in cited if f.kind in _PER_RATIO}
+        stray = any(f.kind in _PER_RATIO and f.feature not in contrib for f in cited)
+        if not (ratio_feats & contrib) or stray:
+            errors.append(f"{where}: pairs a contribution with a different ratio's figures")
+    labels = []
+    for f in cited:
+        if f.kind == "trend_direction":
+            labels.append(str(f.value))
+        elif f.kind == "trend_contribution":
+            d = next((g for g in facts.values() if g.kind == "trend_direction" and g.feature == f.feature), None)
+            if d is not None:
+                labels.append(str(d.value))
+    for label in dict.fromkeys(labels):
+        pat = OPPOSITE_DIRECTION.get(label)
+        if pat is not None and (m := pat.search(text)):
+            errors.append(f"{where}: says '{m.group(0)}' but the model's direction for that ratio was "
+                          f"\"{label}\"")
+    if m := PREDICTION_PHRASES.search(text):
+        errors.append(f"{where}: uses prediction language ('{m.group(0)}')")
+    return errors
 
 
 @dataclass
@@ -180,6 +228,8 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
     if spec.window == "as_of":
         for m in _AS_OF_WORDS.finditer(text):
             errors.append(f"{where}: '{m.group(0)}' in an as-of section (says or hints at what happened later)")
+    if key == TREND_KEY:
+        errors.extend(_trend_errors(where, text, cited, facts))
     if any(POSTHOC_LABEL in f.label for f in cited) and POSTHOC_LABEL not in text:
         errors.append(f"{where}: cites a post-hoc fact but does not include the label \"{POSTHOC_LABEL}\"")
     if tokens and not cites:
