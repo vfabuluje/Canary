@@ -5,14 +5,25 @@ Descriptive only. An unusual figure is not a prediction of failure.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from typing import Literal
 
 import pandas as pd
 
-from canary.analyst.labels import PLAIN_NAMES
-from canary.analyst.trends import TREND_RATIOS
+from canary.analyst import sections as sections_mod
+from canary.analyst.facts import (
+    SPELLED_SPAN,
+    Fact,
+    _count_forms,
+    _ordinal,
+    date_forms,
+    decimal_ordinal_forms,
+    spelled_norm,
+)
+from canary.analyst.labels import PLAIN_NAMES, display_forms
+from canary.analyst.sections import Section
+from canary.analyst.trends import TREND_RATIOS, _nz
 
 SPECIALTY_NAMES: dict[int, str] = {
     1: "International Specialization",
@@ -170,3 +181,196 @@ def compute_peers(quarter: pd.DataFrame, cert: int, as_of: date) -> PeerResult:
         specialty_name=SPECIALTY_NAMES.get(specgrp) if specgrp is not None else None,
         tier=tier, basis=basis, n_peers=n_peers, rows=rows,
     )
+
+
+PEER_KEY = "peers"
+PEER_SENTENCE = (
+    "This section only compares the bank with banks the FDIC groups with it; an unusual figure is not a "
+    "prediction of failure, and the comparison has not been tested as a warning signal."
+)
+SPECIALTY_LINE = "The FDIC's specialty group for this bank at {as_of}: {name}."
+GENERAL_LINE = "This is a general group: the FDIC did not record a lending specialty for this bank."
+TIER_LINE = "Peers: {n} banks in the same specialty group and size tier ({tier})."
+SPECIALTY_ONLY_LINE = ("Peers: {n} banks in the same specialty group (all sizes), because fewer than "
+                       f"{MIN_PEERS} shared its size tier.")
+TOO_FEW_LINE = ("There are not enough comparable banks ({n} in its specialty group) for a reliable "
+                "comparison, so none is shown.")
+NO_SPECIALTY_LINE = "The FDIC recorded no specialty group for this bank at {as_of}, so no peer comparison is shown."
+NONE_UNUSUAL = "None of this bank's ratios were in the national top or bottom 10% at {as_of}."
+_FEATURES_SRC = "data/features/fct_bank_features.parquet"
+_SPECIALTY_SRC = "data/raw/specialty/: SPECGRP"
+_RULE_SRC = "canary.analyst.peers: peer rule (fixed)"
+
+
+def _basis_line(r: PeerResult) -> str:
+    if r.basis == "no_specialty":
+        return NO_SPECIALTY_LINE.format(as_of=r.as_of)
+    if r.basis == "too_few":
+        return TOO_FEW_LINE.format(n=r.n_peers)
+    if r.basis == "specialty":
+        return SPECIALTY_ONLY_LINE.format(n=r.n_peers)
+    return TIER_LINE.format(n=r.n_peers, tier=r.tier)
+
+
+def render_peer_lines(sheet) -> list[str]:
+    """Code lines placed before the AI text: specialty, general-group note, basis (paragraph per line)."""
+    r: PeerResult | None = sheet.extras.get(PEER_KEY)
+    if r is None:
+        return []
+    lines: list[str] = []
+    if r.specgrp is not None:
+        lines.append(SPECIALTY_LINE.format(as_of=r.as_of, name=r.specialty_name))
+        if r.specgrp in GENERAL_GROUPS:
+            lines.append(GENERAL_LINE)
+    lines.append(_basis_line(r))
+    out: list[str] = []
+    for ln in lines:
+        out += [ln, ""]
+    return out[:-1]
+
+
+def _pct_text(p: float) -> str:
+    return decimal_ordinal_forms(p)[-1]
+
+
+def _first(feature: str, v: float) -> str:
+    return _nz(display_forms(feature, v)[0])
+
+
+def render_peer_table(sheet) -> list[str]:
+    r: PeerResult | None = sheet.extras.get(PEER_KEY)
+    if r is None:
+        return []
+    if r.basis in ("too_few", "no_specialty"):
+        return [PEER_SENTENCE]
+    if not r.shown:
+        return [NONE_UNUSUAL.format(as_of=r.as_of), "", PEER_SENTENCE]
+    lines = ["| Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |",
+             "|---|---|---|---|---|---|"]
+    for row in r.shown:
+        nat_word = NATIONAL_HIGH if row.nat_side == "high" else NATIONAL_LOW
+        peer_pct = "n/a" if row.peer_pct is None else _pct_text(row.peer_pct)
+        med = "n/a" if row.peer_median is None else _first(row.feature, row.peer_median)
+        lines.append(f"| {PLAIN_NAMES[row.feature]} | {_first(row.feature, row.value)} | "
+                     f"{_pct_text(row.nat_pct)} ({nat_word}) | {med} | {peer_pct} | {row.reading} |")
+    return lines + ["", PEER_SENTENCE]
+
+
+PEER_SECTION = Section(
+    PEER_KEY, "Compared with similar banks", "as_of",
+    "Cite only the peer facts (labels starting \"Peers\") and the as-of rank facts. For each ratio you "
+    "discuss, give the bank's value, its national percentile with the national word, and, where the "
+    "fact exists, the peer percentile and the peer median, with the reading. Give one ratio per sentence "
+    "whenever you state its peer reading or peer percentile. Use the reading and the national word with "
+    "the same meaning, no stronger or weaker claim; say \"unusually high\" or \"unusually low\", never "
+    "\"risky\". Code adds the specialty and peer-group lines before your text, so don't repeat them. "
+    "Don't write a disclaimer; code adds one after your text. In this section don't use the words risky, "
+    "warning, predict or forecast at all, even negated, and do not mention the outcome. End with one "
+    "sentence on the overall picture using the count of ratios in the national top or bottom 10% and the "
+    "count of those that are also unusual among peers.",
+    True,
+    render=render_peer_table,
+    render_before=render_peer_lines,
+)
+
+
+def _ok(x: float | None) -> bool:
+    return x is not None and math.isfinite(x)
+
+
+def _clean(result: PeerResult) -> PeerResult:
+    """No NaN reaches a fact or the table: a row with a non-finite value or national percentile is
+    dropped; a non-finite peer percentile or median is treated as missing."""
+    rows = []
+    for r in result.rows:
+        if not (_ok(r.value) and _ok(r.nat_pct)):
+            continue
+        ok = _ok(r.peer_pct) and _ok(r.peer_median)
+        rows.append(replace(r, peer_pct=r.peer_pct if ok else None,
+                            peer_median=r.peer_median if ok else None,
+                            reading=r.reading if ok else READING_TOO_FEW))
+    return replace(result, rows=rows)
+
+
+def _value_forms(feature: str, v: float) -> list[str]:
+    return list(dict.fromkeys(_nz(x) for x in display_forms(feature, v)))
+
+
+def _pct_forms(p: float) -> list[str]:
+    return [f"{p:.1f}", f"{p:.0f}", f"{p:.1f}%", f"{p:.0f}%", _ordinal(round(p)), *decimal_ordinal_forms(p)]
+
+
+def _fact(label, value, display, forms, source, quarter, feature=None, kind=None) -> Fact:
+    forms = list(forms) + (date_forms(quarter) if quarter else [])
+    forms += [spelled_norm(m["sw"], m["su"]) for m in SPELLED_SPAN.finditer(f"{label} {display}")]
+    return Fact("", label, quarter, value, display, list(dict.fromkeys(forms)), False, source, feature, kind)
+
+
+def _quarter_rows(ctx, as_of: date) -> pd.DataFrame:
+    ts = pd.Timestamp(as_of)
+    q = ctx.features[ctx.features["report_date"] == ts].drop(columns=["specgrp"], errors="ignore")
+    spec = ctx.specialty[ctx.specialty["report_date"] == ts][["cert", "specgrp"]]
+    spec = spec.drop_duplicates("cert", keep="last")
+    return q.merge(spec, on="cert", how="left")
+
+
+class PeerSpecialist:
+    key = PEER_KEY
+    sections = [PEER_SECTION]
+
+    def build_facts(self, ctx, sheet) -> list[Fact]:
+        as_of = sheet.as_of
+        result = _clean(compute_peers(_quarter_rows(ctx, as_of), sheet.cert, as_of))
+        sheet.extras[PEER_KEY] = result
+        comparing = result.basis in ("specialty_tier", "specialty")
+        if not comparing or not result.shown:
+            sheet.code_only.add(PEER_KEY)
+
+        out: list[Fact] = []
+        if result.specgrp is not None:
+            disp = f"{result.specialty_name} (group {result.specgrp})"
+            out.append(_fact("Peers: the FDIC specialty group at the as-of quarter", disp, disp,
+                             [str(result.specgrp)], _SPECIALTY_SRC, as_of, None, "peer_specialty"))
+        out.append(_fact("Peers: size tier used", result.tier, result.tier, [], _FEATURES_SRC, as_of,
+                         None, "peer_tier"))
+        line = _basis_line(result)
+        out.append(_fact("Peers: how the peer group was formed", line, line, [], _SPECIALTY_SRC, as_of,
+                         None, "peer_basis"))
+        if comparing:
+            for r in result.shown:
+                name = PLAIN_NAMES[r.feature]
+                src = f"{_FEATURES_SRC}: {r.feature}"
+                v = _value_forms(r.feature, r.value)
+                out.append(_fact(f"Peers: {name}, bank value at the as-of quarter", r.value, v[0], v, src,
+                                 as_of, r.feature, "peer_value"))
+                nat = _pct_forms(r.nat_pct)
+                out.append(_fact(f"Peers: {name}, national percentile (100 = highest value among all banks)",
+                                 r.nat_pct, _pct_text(r.nat_pct), nat, src, as_of, r.feature, "peer_nat_pct"))
+                word = NATIONAL_HIGH if r.nat_side == "high" else NATIONAL_LOW
+                out.append(_fact(f"Peers: {name}, national reading", word, word, [], src, as_of,
+                                 r.feature, "peer_nat_dir"))
+                if r.peer_pct is not None and r.peer_median is not None:
+                    pf = _pct_forms(r.peer_pct)
+                    out.append(_fact(f"Peers: {name}, percentile among its peers (100 = highest value)",
+                                     r.peer_pct, _pct_text(r.peer_pct), pf, src, as_of, r.feature,
+                                     "peer_pct"))
+                    mf = _value_forms(r.feature, r.peer_median)
+                    out.append(_fact(f"Peers: {name}, peer median", r.peer_median, mf[0], mf, src, as_of,
+                                     r.feature, "peer_median"))
+                out.append(_fact(f"Peers: {name}, reading against its peers", r.reading, r.reading, [], src,
+                                 as_of, r.feature, "peer_reading"))
+        counts = [
+            ("Peers: banks in the peer group", result.n_peers, "peer_count", _SPECIALTY_SRC),
+            ("Peers: ratios in the national top or bottom 10%", len(result.rows), "peer_count_unusual",
+             _FEATURES_SRC),
+            ("Peers: those ratios also unusual among peers", result.n_unusual_peers,
+             "peer_count_unusual_peers", _FEATURES_SRC),
+            ("Peers: ratios shown in the table (the furthest from the middle nationally)",
+             len(result.shown) if comparing else 0, "peer_count_shown", _FEATURES_SRC),
+        ]
+        for label, n, kind, src in counts:
+            out.append(_fact(label, n, str(n), _count_forms(n), src, as_of, None, kind))
+        return out
+
+
+sections_mod.register(PeerSpecialist())

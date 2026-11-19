@@ -8,6 +8,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import canary.analyst.trends  # noqa: F401  (registers the trend specialist)
+import canary.analyst.peers  # noqa: F401  (registers the peer specialist, after trends)
 from canary.analyst.checker import check_memo
 from canary.analyst.facts import POSTHOC_LABEL, FactSheet, build_fact_sheet
 from canary.analyst.render import note_path, render_note
@@ -150,6 +151,15 @@ def _user_message(sheet: FactSheet, sections: list[Section]) -> str:
     ]
     if any(s.key == "trends" for s in ai_sections(sections)):
         lines.append("Code adds the ratio table and the fixed sentence after your trends section.")
+    for s in ai_sections(sections):
+        if s.key == "trends" or (s.render is None and s.render_before is None):
+            continue
+        parts = []
+        if s.render_before is not None:
+            parts.append(f"lines before your {s.key} section")
+        if s.render is not None:
+            parts.append(f"the table and the fixed sentence after your {s.key} section")
+        lines.append("Code adds " + " and ".join(parts) + ".")
     return "\n".join(lines)
 
 
