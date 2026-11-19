@@ -163,8 +163,8 @@ _UNUSUAL_PEERS = re.compile(r"\bunusual(?:ly\s+(?:high|low))?\s+among its peers\
 _HIGH_PEERS = re.compile(r"\bunusually high among its peers\b", re.IGNORECASE)
 _LOW_PEERS = re.compile(r"\bunusually low among its peers\b", re.IGNORECASE)
 _TYPICAL_PEERS = re.compile(r"\btypical for its peer group\b", re.IGNORECASE)
-_NAT_LOW = re.compile(r"\bunusually low\b(?!\s+among its peers)", re.IGNORECASE)
-_NAT_HIGH = re.compile(r"\bunusually high\b(?!\s+among its peers)", re.IGNORECASE)
+_NAT_LOW = re.compile(r"\bunusually low\b(?!\s+among (?:its )?peers)", re.IGNORECASE)
+_NAT_HIGH = re.compile(r"\bunusually high\b(?!\s+among (?:its )?peers)", re.IGNORECASE)
 _RISKY = re.compile(r"\brisk(?:y|ier)\b", re.IGNORECASE)
 
 

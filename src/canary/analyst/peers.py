@@ -263,11 +263,14 @@ PEER_SECTION = Section(
     "fact exists, the peer percentile and the peer median, with the reading. Give one ratio per sentence "
     "whenever you state its peer reading or peer percentile. Use the reading and the national word with "
     "the same meaning, no stronger or weaker claim; say \"unusually high\" or \"unusually low\", never "
-    "\"risky\". Code adds the specialty and peer-group lines before your text, so don't repeat them. "
+    "\"risky\". Write each reading exactly as given (for example \"typical for its peer group\" or "
+    "\"unusually high among its peers\"); don't paraphrase it (no \"not unusual among its peers\", no "
+    "\"relative to its peers\"). Code adds the specialty and peer-group lines before your text, so don't repeat them. "
     "Don't write a disclaimer; code adds one after your text. In this section don't use the words risky, "
     "warning, predict or forecast at all, even negated, and do not mention the outcome. End with one "
     "sentence on the overall picture using the count of ratios in the national top or bottom 10% and the "
-    "count of those that are also unusual among peers.",
+    "count of those that are also unusual among peers. If you mention the 10% cut-off or the minimum peer "
+    "group size, cite the facts \"Peers: cut-off for unusual\" or \"Peers: minimum peer group size\".",
     True,
     render=render_peer_table,
     render_before=render_peer_lines,
@@ -360,7 +363,7 @@ class PeerSpecialist:
                 out.append(_fact(f"Peers: {name}, reading against its peers", r.reading, r.reading, [], src,
                                  as_of, r.feature, "peer_reading"))
         counts = [
-            ("Peers: banks in the peer group", result.n_peers, "peer_count", _SPECIALTY_SRC),
+            ("Peers: banks in the peer group (including this bank)", result.n_peers, "peer_count", _SPECIALTY_SRC),
             ("Peers: ratios in the national top or bottom 10%", len(result.rows), "peer_count_unusual",
              _FEATURES_SRC),
             ("Peers: those ratios also unusual among peers", result.n_unusual_peers,
@@ -370,6 +373,10 @@ class PeerSpecialist:
         ]
         for label, n, kind, src in counts:
             out.append(_fact(label, n, str(n), _count_forms(n), src, as_of, None, kind))
+        out.append(_fact("Peers: cut-off for unusual (top or bottom share of banks)", "10%", "10%",
+                         ["10%", "10", "10 percent"], _FEATURES_SRC, as_of, None, "peer_cutoff"))
+        out.append(_fact("Peers: minimum peer group size", "15", "15", ["15", "fifteen"], _SPECIALTY_SRC,
+                         as_of, None, "peer_min"))
         return out
 
 

@@ -55,12 +55,15 @@ Size tiers, the 15-bank minimum, the 10% cut-off, the fallback order and the cap
 Narrow rules, applied only to sentences in this section, feeding the existing single retry ([[decisions/0016-analyst-memo-design]]):
 
 1. **One ratio per sentence** when a peer reading or peer percentile fact is cited, and every per-ratio peer fact cited is that ratio's ("give one ratio per sentence when stating its peer reading").
-2. **No opposite reading.** A sentence citing "typical for its peer group" must not say "unusual among its peers" or "unusually high/low among its peers" (contiguous claims only, so "unusually high nationally, yet typical among its peers" is accepted). A sentence citing a high reading must not say "unusually low among its peers" or "typical for its peer group", and the reverse. A national direction fact rules out the opposite national word, except where that word is part of "... among its peers".
+2. **No opposite reading.** A sentence citing "typical for its peer group" must not say "unusual among its peers" or "unusually high/low among its peers" (contiguous claims only, so "unusually high nationally, yet typical among its peers" is accepted). A sentence citing a high reading must not say "unusually low among its peers" or "typical for its peer group", and the reverse. A national direction fact rules out the opposite national word, except where that word is part of "... among its peers" or "... among peers" (the lookahead is `(?!\s+among (?:its )?peers)`).
 3. **No prediction language** (the 5b list) and no "risky"/"riskier" anywhere in the section.
+
+## Facts the model can cite for the cut-off and the minimum
+Two sheet-level facts carry the fixed values so the closing sentence and any mention of them can be checked: "Peers: cut-off for unusual (top or bottom share of banks)" (display "10%", forms "10%", "10", "10 percent"; kind `peer_cutoff`) and "Peers: minimum peer group size" (display "15", forms "15", "fifteen"; kind `peer_min`). Both are as-of, no feature. The count fact label is "Peers: banks in the peer group (including this bank)". The prompt also says to write each reading exactly as given.
 
 ## Limits (honest list)
 - **The rules are blunt regexes.** Paraphrases evade them ("on the high side compared with similar banks", "out of line with the group").
-- **The national-word rule exempts only "among its peers".** "Unusually low among peers" (no "its") is falsely rejected as a national word and can cost the one retry.
+- **The national-word rule exempts only "among its peers" and "among peers".** Other phrasings of a peer claim (for example "relative to its peers") are read as national words; the prompt tells the model to write each reading exactly as given.
 - **The checker reads cited ids, not prose.** A sentence that names a second ratio without citing it is not caught.
 - As in 0016 and 0019, the checker verifies numbers and some phrasing, not every claim; the prompt is the first line of defence.
 - **The peer group is the FDIC's grouping, not ours.** Group 9 mixes very different large banks, so "typical for its peer group" can mean little. A small group (15 to 25 banks) gives a coarse percentile.

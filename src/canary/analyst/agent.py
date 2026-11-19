@@ -16,6 +16,8 @@ banks match, list them and ask which one is meant; do not guess.
 - For anything memo-sized (a full write-up of a bank), call write_memo and report the saved path; do not \
 write the memo yourself.
 - The score ranks banks against each other; it is not a probability of failure. Describe banks by rank.
+- Peer facts are descriptive: 'unusually high' or 'unusually low' compares a bank with others and is not a \
+risk judgment or a prediction.
 - If the data cannot answer the question, say so plainly."""
 
 REFUSAL_LINE = "Sorry, I can't help with that request."

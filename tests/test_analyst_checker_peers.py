@@ -32,6 +32,9 @@ def _sheet():
         _f("D2", "Loans national direction", "unusually low", [], "ln", "peer_nat_dir"),
         _f("R5", "High reading eq", READING_HIGH, [], "eq", "peer_reading"),
         _f("S1", "Summary fact", 7, ["7"]),
+        _f("C1", "Peers: ratios in the national top or bottom 10%", 3, ["3", "three"], None, "peer_count_unusual"),
+        _f("K1", "Peers: cut-off for unusual (top or bottom share of banks)", "10%", ["10%", "10", "10 percent"],
+           None, "peer_cutoff"),
     ]
     empty = pd.DataFrame()
     return FactSheet(1, "X Bank", AS_OF, None, facts, empty, empty, "", ["summary", PEER_KEY])
@@ -109,3 +112,14 @@ def test_risky_and_prediction_rejected():
 def test_rules_do_not_fire_elsewhere():
     assert run("Equity looks risky and was unusually low among its peers.", [], key="summary") == []
     assert run("Equity was unusually high among its peers.", ["R4"], key="summary") == []
+
+
+def test_closing_sentence_with_cutoff_passes():
+    text = "Three ratios were in the national top or bottom 10%."
+    assert run(text, ["C1", "K1"]) == []
+
+
+def test_national_word_exempts_among_peers_without_its():
+    text = "Equity was unusually high nationally but unusually low among peers."
+    assert run(text, ["D1", "R1"]) == []
+    assert run("Equity was unusually low among peers.", ["D1", "R1"]) == []

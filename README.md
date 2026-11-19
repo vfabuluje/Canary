@@ -198,6 +198,7 @@ For a bank and a quarter, code builds a **fact sheet** of numbered facts from th
 - **Claude API cost** is separate from AWS: about $14.14 so far (5a: model comparison $1.48, showcase $3.94, `ask` tests about $0.20; 5b: one test memo $0.27, showcase re-run $7.98, cert 17719 re-run $0.24). AWS cost is unchanged because Phase 5a runs locally.
 - **Out-of-sample extra:** the 4 banks that failed after the test window (2026) were all flagged 4 quarters ahead. They are not part of the reported 2016-2024 results ([decision 0018](decisions/0018-failures-after-test-window.md), [RESULTS.md](RESULTS.md)).
 - **Ratio trends (Phase 5b):** each new memo has a "How its ratios moved" section: the ratios outside the bank's own prior range, how fast they moved, and the model's contribution for the same ratio. It is **descriptive only**; the range rule is fixed by convention and has not been tested as a warning signal ([decision 0019](decisions/0019-ratio-trends-descriptive.md)). All 61 showcase notes have it (re-run 2026-11-18).
+- **Peer comparison (Phase 5c):** each new memo has a "Compared with similar banks" section: for ratios in the national top or bottom 10%, whether the bank is also unusual among banks the FDIC groups with it (same specialty group and size tier). It is **descriptive only**, with no measured result ([decision 0020](decisions/0020-peer-comparison-descriptive.md)). The 61 committed notes get it at the next showcase re-run, after 5d.
 - Memos are AI-written and checked for numbers and labels, not for every claim; see the limits in decisions 0016 and 0019.
 
 ### Scale (measured)
@@ -231,7 +232,7 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 2. **(done) Warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
 3. **(done) Features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024 (time-based only). Results are above.
 4. **(done) SVB / Signature / First Republic replay; error analysis.** The training-era failure mix, a what-if test of the model, a post-hoc run-risk check and a corrected baseline. See the post-hoc section above and [analysis/phase4-replay.md](analysis/phase4-replay.md).
-5. **(5a and 5b done; 5c-5d next)** AI risk analyst agent that writes cited risk memos per bank (see below), now with a descriptive ratio-trends section. Next: peer-comparison agent, concentration-risk agent.
+5. **(5a-5c done; 5d next)** AI risk analyst agent that writes cited risk memos per bank (see below), now with descriptive ratio-trends and peer-comparison sections. Next: concentration-risk agent (5d).
 6. Streamlit dashboard; metrics and limitations; demo video.
 
 ## Reference

@@ -81,6 +81,13 @@ def test_facts_per_ratio_paired(analyst_ctx, tmp_path, monkeypatch):
         (f,) = _kind(sheet, kind)
         assert f.feature is None and not f.hindsight and f.quarter == sheet.as_of
     assert _kind(sheet, "peer_count")[0].value == 40
+    assert _kind(sheet, "peer_count")[0].label == "Peers: banks in the peer group (including this bank)"
+    (cut,) = _kind(sheet, "peer_cutoff")
+    assert cut.display == "10%" and {"10%", "10", "10 percent"} <= set(cut.forms)
+    assert cut.label == "Peers: cut-off for unusual (top or bottom share of banks)"
+    (mn,) = _kind(sheet, "peer_min")
+    assert mn.display == "15" and {"15", "fifteen"} <= set(mn.forms)
+    assert mn.label == "Peers: minimum peer group size" and mn.feature is None
     assert _kind(sheet, "peer_count_shown")[0].value == 2
     assert _kind(sheet, "peer_count_unusual")[0].value == 2
     assert _kind(sheet, "peer_count_unusual_peers")[0].value == 1
