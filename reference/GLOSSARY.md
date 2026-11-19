@@ -125,3 +125,12 @@ See [STACK.md](STACK.md) and [decision 0008](../decisions/0008-aws-setup-and-cos
 
 ### Hindsight (in Canary notes)
 **Anything that happened after the quarter a note is written "as of".** A note uses only data filed by its as-of quarter, so it reads as it would have then. Whether the bank later failed, the later ranks and any flag after the test window go in labelled hindsight parts (the banner, Outcome, What happened next). Facts marked `hindsight` in the fact sheet can be cited only there ([data dictionary](../data-dictionary/bank_notes.md)).
+
+### Prior range
+**The lowest and highest value a ratio held over a bank's own recent past.** Canary's Phase 5b uses the 12 quarters before the as-of quarter (the same quarter of the 3 prior years for year-to-date ratios such as return on assets). A ratio is "outside its prior range" when today's value is below the low or above the high. It is a convention for describing a bank's own history, not a tested warning signal ([decision 0019](../decisions/0019-ratio-trends-descriptive.md); `src/canary/analyst/trends.py`).
+
+### Percentage point (pp)
+**The plain difference between two percentages.** HTM losses going from 6.6% of equity to 48.4% is a rise of 41.8 percentage points (not "41.8%", which would be a relative change). Canary's trend tables write every change in pp so a change is not mistaken for a level.
+
+### Log-odds contribution
+**How much one ratio moved the model's raw score for one bank, in the model's own units.** Positive pushes the score up (riskier), negative pushes it down. It is not a probability: the model's raw score is on a log-odds scale and, because of the extra weight on failures, is not a real chance of failing ([decision 0016](../decisions/0016-analyst-memo-design.md)). The trend section words it as "pushed the score up" at +0.05 or more, "pushed the score down" at -0.05 or less, and "little effect on the score" in between.

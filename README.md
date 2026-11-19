@@ -42,7 +42,7 @@ The training data shows how unusual that was. SVB's held-to-maturity bond loss w
 2. **Build the warehouse (done).** Store the data in the cloud (AWS) and clean it into tidy, tested tables, so every number can be trusted and traced.
 3. **Train and test the model (done).** Turn each report into about 30 health measures (capital, bad loans, profits, funding, bond losses), train the model on 2001-2014, and test it once on 2016-2024. The results are above.
 4. **Replay the 2023 failures (done).** Work out why SVB, Signature and First Republic were missed, and test whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. It is reported separately from the clean test, because it was designed after seeing the 2023 failures. The results are above.
-5. **Add AI analyst agents (first one done).** The risk analyst, an AI agent (Claude), writes a short memo for a bank citing the exact quarter and numbers it relies on, and a code checker rejects any number it cannot trace. 61 notes are written. Next in Phase 5: a trend/watchlist agent, a peer-comparison agent and a concentration-risk agent.
+5. **Add AI analyst agents (first one done).** The risk analyst, an AI agent (Claude), writes a short memo for a bank citing the exact quarter and numbers it relies on, and a code checker rejects any number it cannot trace. 61 notes are written. The trend section (5b) is built: every new memo shows which of the bank's ratios left their own prior range, descriptive only, with no measured result. Next in Phase 5: a peer-comparison agent and a concentration-risk agent.
 6. **Build a dashboard.** An interactive web page to look up any bank's risk over time, plus a short demo video.
 
 ## Built with
@@ -196,7 +196,8 @@ For a bank and a quarter, code builds a **fact sheet** of numbered facts from th
 - **Showcase (2026-11-17, Claude Opus 5.5, batch):** 61 banks (a trimmed set, with only the latest watchlist's top 20 to control cost), 61 written, 0 failed; 43 passed the checker first try, 18 after one retry; 525,985 input and 216,030 output tokens, $3.94. Outcomes in the notes: 25 caught, 8 missed, 5 false alarms, 23 still on the watchlist.
 - **Claude API cost** is separate from AWS: about $5.65 so far (model comparison $1.48, showcase $3.94, `ask` tests about $0.20). AWS cost is unchanged because Phase 5a runs locally.
 - **Out-of-sample extra:** the 4 banks that failed after the test window (2026) were all flagged 4 quarters ahead. They are not part of the reported 2016-2024 results ([decision 0018](decisions/0018-failures-after-test-window.md), [RESULTS.md](RESULTS.md)).
-- Memos are AI-written and checked for numbers and labels, not for every claim; see the limits in decision 0016.
+- **Ratio trends (Phase 5b):** each new memo has a "How its ratios moved" section: the ratios outside the bank's own prior range, how fast they moved, and the model's contribution for the same ratio. It is **descriptive only**; the range rule is fixed by convention and has not been tested as a warning signal ([decision 0019](decisions/0019-ratio-trends-descriptive.md)). The 61 showcase notes get it when the showcase is re-run.
+- Memos are AI-written and checked for numbers and labels, not for every claim; see the limits in decisions 0016 and 0019.
 
 ### Scale (measured)
 - **Financials:** 710,691 rows over 102 quarters (2001-03-31 to 2026-06-30); 9,940 banks in the first quarter, 4,313 in the latest.
@@ -229,7 +230,7 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 2. **(done) Warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
 3. **(done) Features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024 (time-based only). Results are above.
 4. **(done) SVB / Signature / First Republic replay; error analysis.** The training-era failure mix, a what-if test of the model, a post-hoc run-risk check and a corrected baseline. See the post-hoc section above and [analysis/phase4-replay.md](analysis/phase4-replay.md).
-5. **(5a done; 5b-5d next)** AI risk analyst agent that writes cited risk memos per bank (see below). Next: trend/watchlist agent, peer-comparison agent, concentration-risk agent.
+5. **(5a and 5b done; 5c-5d next)** AI risk analyst agent that writes cited risk memos per bank (see below), now with a descriptive ratio-trends section. Next: peer-comparison agent, concentration-risk agent.
 6. Streamlit dashboard; metrics and limitations; demo video.
 
 ## Reference

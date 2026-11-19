@@ -1,7 +1,7 @@
 # Phase 5b Spec: Ratio Trends (descriptive)
 
 **Date:** 2026-11-18
-**Status:** Design approved by Victor 2026-11-18; builder check done; spec awaiting Victor's approval
+**Status:** Built (Phase 5b, 2026-11-18). Design approved by Victor; see [[decisions/0019-ratio-trends-descriptive]] for the rule. Section 6.2 below was updated to match the build.
 **Phase:** 5b of Phase 5 (5a risk analyst → **5b trends** → 5c peer comparison → 5d concentration risk).
 Builds on [[specs/2026-11-17-phase5a-risk-analyst-design]] §7 (section registry).
 
@@ -157,9 +157,13 @@ specialist section to have a code-rendered body after its AI text. How is left t
 
 ### 6.2 Facts added to the sheet
 Per shown ratio (all `hindsight=False`, as-of only, `source` naming the parquet column):
-value at as-of; range min; range max; window type; 1q change; 4q change; contribution; direction
-label (text fact, no number). Plus: count of ratios outside the range; count of ratios checked;
-year-earlier rank, banks ranked and percentile; the rank-phrase text fact.
+value at as-of; range min; range max; 1q change; 4q change (year-to-date ratios have 4q only);
+contribution; direction label (text fact, no number). Sheet-level: count of ratios outside the
+range; count of ratios checked; two comparison-window facts (the 12-quarter window and the
+3-year year-to-date window); the year-earlier percentile; the rank-phrase text fact (both omitted
+without a year-earlier score). The window type per ratio shows in the code-rendered table, not as
+a fact, and the rank phrase is by percentile, so there are no year-earlier rank or banks-ranked
+facts (decision 0019).
 Display forms reuse `labels.display_forms` for values and bounds. Changes get forms in percentage
 points ("+28.0 pp", "28.0 percentage points", "28 percentage points", and the plain
 "28.0%"-style form is **not** allowed for a change, so a change can't be read as a level).
