@@ -24,7 +24,7 @@ Set by plain convention before any further bank was looked at. **Do not change a
 - **Excess and ordering:** excess is the distance beyond the bound in percentage points. Ratios are ordered by excess divided by the larger of the range width and 1.0 pp (the floor stops a flat ratio, such as 0.0% for 12 quarters then 0.3%, from outranking a large move on a wide range). Ties break by plain name. **At most 6 are shown**; the count outside is stated.
 - **Changes:** 1 quarter and 4 quarters for point-in-time ratios; 4 quarters only for year-to-date ratios. In percentage points. Ratios stored as percent are already percentage points; ratios stored as fractions are multiplied by 100.
 - **Direction label** from the ratio's own contribution to the score (log-odds): +0.05 or more is "pushed the score up"; -0.05 or less is "pushed the score down"; anything between is "little effect on the score".
-- **Rank phrase** (percentile now against the same quarter a year earlier): higher by more than 1.0 gives "the model rated it riskier than a year earlier"; lower by more than 1.0 gives "the model rated it safer than a year earlier"; otherwise "about the same as a year earlier". With no year-earlier score the phrase is left out.
+- **Rank phrase** (percentile now against the same quarter a year earlier): higher by more than 1.0 gives "the model rated it riskier than a year earlier"; lower by more than 1.0 gives "the model rated it safer than a year earlier"; otherwise "about the same as a year earlier". With no year-earlier score the phrase is left out and code renders the line "There is no score from a year earlier to compare with (scores start 2016-03-31, or the bank did not report then)." as the first line of the code part of the section. A sheet-level fact `trend_count_shown` (how many ratios the table shows, at most 6) makes "the 6 furthest are shown" citable.
 - **Nothing outside, or too little history:** one code-written line ("None of this bank's ratios were outside their own prior range at {as_of}." or "This bank has too little history before {as_of} to compare its ratios with its own prior range.") plus the fixed sentence, and no AI request is made for the section.
 
 Contributions and ranks are labelled as different quantities: the ratio is a level, the contribution is the model's weight in log-odds units. The fixed sentence, code-rendered at the end of the section, reads: "This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure."
@@ -39,17 +39,21 @@ The rule flags a ratio when it **breaks out** of its own prior range, not while 
 The spec's section 6.2 listed a per-ratio "window type" fact and year-earlier rank and banks-ranked facts. The build uses two sheet-level comparison-window facts (the 12-quarter and the 3-year windows), and one year-earlier **percentile** fact, because the table already shows the window per ratio and the rank phrase is defined by percentile. The spec was updated to match.
 
 ## What the checker enforces for this section
-Three narrow rules, applied only to sentences in this section, feeding the existing single retry ([[decisions/0016-analyst-memo-design]]):
+Narrow rules, applied only to sentences in this section, feeding the existing single retry ([[decisions/0016-analyst-memo-design]]):
 
-1. **Pairing.** A sentence that cites a ratio's contribution must also cite that ratio's own value or range, and must not cite another ratio's figures.
-2. **Direction words.** A sentence about a ratio must not use a phrase opposite to the code's label for it (for example "pushed the score up" when the label is "pushed the score down").
-3. **No prediction language.** "predict", "forecast", "warned/warning", "early warning", "would have caught/flagged", "should have caught/flagged", "foreshadow" and "signs of failure" are rejected anywhere in the section.
+1. **One ratio per contribution sentence (ruling R8).** A sentence that cites any contribution or direction fact must cite those facts for exactly one ratio, and every per-ratio trend fact it cites (value, range, change) must be that same ratio. The retry message says "give one ratio per sentence when stating its contribution or direction". A contribution also still needs that ratio's own value or range. A sentence that cites several ratios' values or ranges but no contribution or direction fact is allowed (for example listing ranges): the anti-goal is pairing one ratio's contribution with another's figures.
+2. **Direction words.** Against that single ratio's label, a sentence must not use a phrase opposite to it (for example "pushed the score up" when the label is "pushed the score down").
+3. **Rank-phrase direction (ruling R9).** A sentence that cites the rank-phrase fact must not say "riskier" when the phrase says safer, "safer" when it says riskier, or either word when it says "about the same".
+4. **No prediction language.** "predict", "forecast", "warned/warning", "early warning", "would have caught/flagged", "should have caught/flagged", "foreshadow" and "signs of failure" are rejected anywhere in the section.
 
 A change must be written in percentage points ("+41.8 pp"), never as "41.8%", so a change cannot be read as a level.
 
 ## Limits (honest list)
 - **The rules are blunt regexes.** Paraphrases evade them: "pushed up the score" or "pulled the score up" gets past the direction rule; implied prediction without a banned word ("this is the kind of move that precedes trouble") gets past rule 3.
 - **Rule 3 over-rejects.** It also rejects negations such as "this is not a prediction", which can waste the one retry.
+- **The rank-phrase and direction checks are word matches.** They test only "safer"/"riskier" and the listed up/down phrases; a paraphrase passes, and they apply only when the sentence cites the relevant fact.
+- **The one-ratio rule needs correct cites.** It reads the cited fact ids, not the prose: a sentence that names a second ratio without citing it is not caught.
+- **The prompt also tells Claude not to write a disclaimer and not to use predict, forecast or warning even negated** (code adds the disclaimer); the regex is unchanged, so rule 4 still rejects negations that slip through.
 - **"Little effect on the score" only rejects up-words.** A sentence that implies a downward push for such a ratio is not caught.
 - As in 0016, the checker verifies numbers and some phrasing, not every claim. The prompt is the first line of defence and the checker the second.
 - The range rule is a convention. It is not evidence that a ratio outside its range matters.

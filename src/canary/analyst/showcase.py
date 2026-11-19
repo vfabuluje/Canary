@@ -27,9 +27,13 @@ from canary.model.train import CASE_STUDY_CERTS
 
 log = logging.getLogger(__name__)
 
-# Measured averages per call from the 2026-11-17 live Opus comparison (adaptive thinking adds output tokens).
-EST_INPUT_TOKENS = 7300  # per bank
-EST_OUTPUT_TOKENS = 3200  # per bank
+# Dry-run estimate (derivation in runbooks/analyst.md). Phase 5b live SVB 2022-03-31 memo: 22,571 input /
+# 9,233 output over 2 calls, so about 4,600 output per call (adaptive thinking included). Input is estimated
+# from the real request size; CHARS_PER_TOKEN is calibrated so that request maps to its measured input.
+EST_OUTPUT_TOKENS = 4600  # per call (per bank first try, and per retry)
+CHARS_PER_TOKEN = 2.4  # calibrated on the SVB 2022-03-31 request (22,979 chars); 3.5 would under-count ~30%
+RETRY_SHARE = 0.30  # share of banks retried (5a: 18 of 61 needed a retry)
+RETRY_INPUT_FACTOR = 2.0  # a retry resends the request plus the rejected memo: about 2x the first input
 RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is re-raised
 RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s
 
@@ -99,9 +103,31 @@ def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path,
     return picks
 
 
-def estimate_cost(n_banks: int, model: str) -> float:
-    """Dry-run estimate at the batch (half) price."""
-    return cost_usd(model, EST_INPUT_TOKENS * n_banks, EST_OUTPUT_TOKENS * n_banks) / 2
+def request_tokens(request: dict) -> int:
+    """Input tokens estimated from the size of the built request."""
+    return round(len(json.dumps(request)) / CHARS_PER_TOKEN)
+
+
+def estimate_run(ctx: Context, banks: list[tuple[int, date, str]], model: str,
+                 replay_dir: Path | None = None) -> dict:
+    """Dry-run estimate from the actual requests (no API calls). Batch price (half) for the first tries;
+    the retry allowance is priced at the full, non-batch rate."""
+    sizes = []
+    for cert, as_of, _group in banks:
+        try:
+            sheet = build_fact_sheet(ctx, cert, as_of=as_of, replay_dir=replay_dir)
+        except ValueError:  # a bank that cannot be built is priced at the average of the others
+            continue
+        sizes.append(request_tokens(build_request(sheet, sections_for(sheet), model)))
+    n_in = sum(sizes) + round((len(banks) - len(sizes)) * (sum(sizes) / len(sizes))) if sizes else 0
+    n_out = EST_OUTPUT_TOKENS * len(banks)
+    retries = round(RETRY_SHARE * len(banks))
+    retry_in = round(RETRY_INPUT_FACTOR * n_in * retries / max(len(banks), 1))
+    retry_out = EST_OUTPUT_TOKENS * retries
+    first = cost_usd(model, n_in, n_out) / 2
+    retry = cost_usd(model, retry_in, retry_out)
+    return {"input": n_in, "output": n_out, "cost": first, "retries": retries, "retry_input": retry_in,
+            "retry_output": retry_out, "retry_cost": retry, "total": first + retry}
 
 
 def custom_id(cert: int, as_of: date) -> str:

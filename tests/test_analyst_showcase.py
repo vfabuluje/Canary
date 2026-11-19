@@ -115,9 +115,27 @@ def test_cli_watchlist_top_dry_run(analyst_ctx, tmp_model_dir, tmp_replay_dir, c
     assert rc == 0 and out.count("\tlatest_watchlist") == 2
 
 
-def test_estimates_are_measured_averages():
-    from canary.analyst.showcase import EST_INPUT_TOKENS, EST_OUTPUT_TOKENS
-    assert (EST_INPUT_TOKENS, EST_OUTPUT_TOKENS) == (7300, 3200)
+def test_estimate_constants_and_calibration():
+    from canary.analyst import showcase
+    assert showcase.EST_OUTPUT_TOKENS == 4600 and showcase.CHARS_PER_TOKEN == 2.4
+    assert showcase.RETRY_SHARE == 0.30 and showcase.RETRY_INPUT_FACTOR == 2.0
+    assert not hasattr(showcase, "EST_INPUT_TOKENS")
+    # the SVB request (22,979 chars) maps to about 9,570 input tokens
+    assert showcase.request_tokens({"x": "a" * (22979 - 8)}) == round(22979 / 2.4)
+
+
+def test_estimate_run_uses_built_requests(analyst_ctx, tmp_replay_dir):
+    from canary.analyst import showcase
+    from canary.analyst.writer import cost_usd
+    banks = [(3, date(2019, 9, 30), "x")] * 2
+    est = showcase.estimate_run(analyst_ctx, banks, "claude-opus-5-5", tmp_replay_dir.path)
+    assert est["input"] > 0 and est["output"] == 2 * 4600
+    assert est["retries"] == 1 and est["retry_output"] == 4600
+    assert est["retry_input"] == round(2 * est["input"] / 2)
+    assert est["cost"] == pytest.approx(cost_usd("claude-opus-5-5", est["input"], est["output"]) / 2)
+    assert est["retry_cost"] == pytest.approx(
+        cost_usd("claude-opus-5-5", est["retry_input"], est["retry_output"]))
+    assert est["total"] == pytest.approx(est["cost"] + est["retry_cost"])
 
 
 # ---- batch run ------------------------------------------------------------------------
@@ -212,6 +230,7 @@ def test_dry_run_makes_no_calls(analyst_ctx, tmp_model_dir, tmp_replay_dir, caps
     rc = cli.main(["showcase", "--dry-run", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path)])
     out = capsys.readouterr().out
     assert rc == 0 and "banks" in out and "estimated cost" in out and "false_alarm" in out
+    assert "retry allowance" in out and "estimated total with retries" in out
 
 
 def test_unexpected_retry_error_does_not_abort_run(analyst_ctx, tmp_path):

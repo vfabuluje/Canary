@@ -113,9 +113,8 @@ def _compare(args) -> int:
 
 def _showcase(args) -> int:
     from canary.analyst.showcase import (
-        EST_INPUT_TOKENS,
-        EST_OUTPUT_TOKENS,
-        estimate_cost,
+        RETRY_SHARE,
+        estimate_run,
         read_state,
         run_showcase,
         showcase_banks,
@@ -130,10 +129,12 @@ def _showcase(args) -> int:
             counts[group] = counts.get(group, 0) + 1
             print(f"{cert}\t{as_of}\t{group}")
         print(f"{len(banks)} banks: " + ", ".join(f"{g} {n}" for g, n in counts.items()))
-        n_in, n_out = EST_INPUT_TOKENS * len(banks), EST_OUTPUT_TOKENS * len(banks)
-        print(f"estimated tokens: {n_in:,} input, {n_out:,} output")
-        print(f"estimated cost: ${estimate_cost(len(banks), args.model):.2f} "
-              f"(batch price, {args.model}; excludes retries)")
+        est = estimate_run(ctx, banks, args.model, Path(args.replay_dir))
+        print(f"estimated tokens: {est['input']:,} input, {est['output']:,} output")
+        print(f"estimated cost: ${est['cost']:.2f} (batch price, {args.model}; first tries only)")
+        print(f"retry allowance: {est['retries']} banks ({round(100 * RETRY_SHARE)}%) retried at full price, "
+              f"{est['retry_input']:,} input, {est['retry_output']:,} output tokens: ${est['retry_cost']:.2f}")
+        print(f"estimated total with retries: ${est['total']:.2f}")
         return 0
     state = read_state(Path(args.report))
     if args.resume is None and state is not None and not state.get("complete"):
