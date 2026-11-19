@@ -227,20 +227,25 @@ def _trace_write(trace_dir: Path, sheet: FactSheet, ok: bool, calls: list[dict])
 def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str = DEFAULT_MODEL,
                out_dir: Path = Path("banks"), first_memos: dict[str, dict] | None = None,
                replay_dir: Path = Path("data/replay"),
-               trace_dir: Path = Path("data/analyst/traces")) -> MemoResult:
+               trace_dir: Path = Path("data/analyst/traces"), prior: dict | None = None,
+               prior_trace: list[dict] | None = None) -> MemoResult:
     """Write one checked note with three calls: trend, peer (each skipped if code-only), then the analyst.
 
     A specialist (or the analyst) that fails its check after one retry stops the pipeline: no later call,
     no note. A trace of every call is written to `trace_dir` either way. Raises ValueError for a bad
     as-of, RefusalError / TruncatedError from Claude. Any exception raised after calls were made carries
     `exc.usage` = {input_tokens, output_tokens, cost_usd, model} for all those calls.
+
+    `prior` maps agent name -> an `AgentResult` already run and checked elsewhere (the showcase's batch
+    rounds); those agents are not called again, and `prior_trace` (their trace entries) starts the trace.
     """
     from canary.analyst.pipeline import AGENTS, AgentResult, run_agent
 
     sheet = build_fact_sheet(ctx, cert, as_of, replay_dir=replay_dir)
     sections = sections_for(sheet)
     first_memos = first_memos or {}
-    trace: list[dict] = []
+    prior = prior or {}
+    trace: list[dict] = list(prior_trace or [])
     results: dict[str, AgentResult] = {}
     specialist_memos: dict[str, dict] = {}
 
@@ -254,9 +259,10 @@ def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str 
     try:
         for agent in AGENTS:
             try:
-                r = run_agent(sheet, agent, client=client, model=model,
-                              specialist_memos=specialist_memos if agent == "analyst" else None,
-                              first_memo=first_memos.get(agent), trace=trace)
+                r = prior[agent] if agent in prior else run_agent(
+                    sheet, agent, client=client, model=model,
+                    specialist_memos=specialist_memos if agent == "analyst" else None,
+                    first_memo=first_memos.get(agent), trace=trace)
             except Exception as exc:
                 u = getattr(exc, "usage", {})
                 done = totals()

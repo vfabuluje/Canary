@@ -1,5 +1,5 @@
 """Risk analyst: python -m canary.analyst ask "question" [--model M], memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks],
-showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] (notes for the showcase set in one batch job), and
+showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] (notes for the showcase set in two batch rounds), and
 compare [--models A,B] (case-study notes with several models, pass rate and cost per model).
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
@@ -66,14 +66,14 @@ def build_parser() -> argparse.ArgumentParser:
     ask = sub.add_parser("ask", parents=[shared], help="answer a plain-English question about the banks")
     ask.add_argument("question")
     ask.add_argument("--model", default=DEFAULT_MODEL, help="agent model")
-    show = sub.add_parser("showcase", parents=[shared], help="write notes for the showcase set in one batch job")
+    show = sub.add_parser("showcase", parents=[shared], help="write notes for the showcase set in two batch rounds (specialists, then analysts)")
     show.add_argument("--model", default=DEFAULT_MODEL, help="writer model")
     show.add_argument("--out", default="banks", help="notes folder")
     show.add_argument("--replay-dir", default=str(REPLAY_DIR), help="Phase 4 replay folder")
     show.add_argument("--report", default="data/analyst/showcase_report.json", help="run report (JSON)")
     show.add_argument("--dry-run", action="store_true", help="list the banks and estimate the cost; no API calls")
     show.add_argument("--resume", metavar="BATCH_ID", default=None,
-                      help="collect an existing batch (id from the log or the .state.json file) instead of creating one")
+                      help="continue an earlier run (either round's batch id, from the log or the .state.json file); finished rounds are not paid again")
     show.add_argument("--watchlist-top", type=int, default=None, metavar="N",
                       help="only the N best-ranked banks of the latest-quarter watchlist (default: all); "
                            "used by --dry-run and the real run, ignored with --resume (the bank list comes "

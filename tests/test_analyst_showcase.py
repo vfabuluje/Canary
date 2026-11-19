@@ -5,14 +5,13 @@ from types import SimpleNamespace
 import pandas as pd
 import pytest
 
-from analyst_fakes import FakeClient, fake_message
+from analyst_fakes import FakeClient, fake_agent_memo, fake_message
 from canary.analyst import __main__ as cli
 from canary.analyst.facts import build_fact_sheet
 from canary.analyst.sections import all_sections
 from canary.analyst.showcase import run_showcase, showcase_banks
 from canary.analyst.writer import PRICES, cost_usd
 
-from test_analyst_writer import _memo
 
 
 @pytest.fixture
@@ -138,91 +137,324 @@ def test_estimate_run_uses_built_requests(analyst_ctx, tmp_replay_dir):
     assert est["total"] == pytest.approx(est["cost"] + est["retry_cost"])
 
 
-# ---- batch run ------------------------------------------------------------------------
+# ---- batch run (two rounds) -------------------------------------------------------------
 
 BANKS = [(100, date(2026, 6, 30), "latest_watchlist"), (101, date(2026, 6, 30), "latest_watchlist"),
          (102, date(2026, 6, 30), "latest_watchlist"), (103, date(2026, 6, 30), "latest_watchlist")]
+CERTS = (100, 101, 102, 103)
+AS_OF = date(2026, 6, 30)
+FULL = cost_usd("claude-opus-5-5", 1000, 500)  # one fake call's usage at full price
+
+
+def _sheet(ctx, tmp_path, cert):
+    return build_fact_sheet(ctx, cert, AS_OF, replay_dir=tmp_path / "none")
+
+
+def _agents_for(ctx, tmp_path, cert):
+    """Agents with a request for this bank, in call order (a code-only specialist has none)."""
+    from canary.analyst.pipeline import AGENTS, agent_sections
+
+    sheet = _sheet(ctx, tmp_path, cert)
+    return [a for a in AGENTS if agent_sections(sheet, a)]
+
+
+def _agent_of(kw) -> str:
+    text = kw["messages"][0]["content"]
+    if "Sections written by other agents" in text:
+        return "analyst"
+    return "trend" if "- trends (" in text else "peer"
 
 
 class BatchClient(FakeClient):
-    """FakeClient plus messages.batches. `outcomes` maps cert -> 'ok'|'errored'|'expired'|'refusal'|'bad'."""
+    """FakeClient plus messages.batches for two rounds.
 
-    def __init__(self, ctx, tmp_path, outcomes, responses=(), polls=2):
-        super().__init__(list(responses))
-        self.ctx, self.tmp_path, self.outcomes, self.polls = ctx, tmp_path, outcomes, polls
-        self.created, self.retrieved = [], 0
+    `outcomes` maps cert -> 'ok'|'errored'|'expired'|'refusal'|'bad'; `agent_outcomes` maps (cert, agent) to
+    the same and wins. Direct (retry) calls answer from `direct[(cert, agent)]` (a list, popped), else with a
+    good memo for that agent. Batch ids are batch_<first_id>, batch_<first_id + 1>, ...
+    """
+
+    def __init__(self, ctx, tmp_path, outcomes=None, direct=None, polls=2, agent_outcomes=None, first_id=1):
+        super().__init__([])
+        self.ctx, self.tmp_path, self.polls = ctx, tmp_path, polls
+        self.outcomes = outcomes if outcomes is not None else {c: "ok" for c in CERTS}
+        self.agent_outcomes = agent_outcomes or {}
+        self.direct = {k: list(v) for k, v in (direct or {}).items()}
+        self.first_id = first_id
+        self.created, self.events, self.result_calls = [], [], []
+        self.polled: dict[str, int] = {}
+        self.beta.messages.create = self._direct
         self.messages = SimpleNamespace(batches=SimpleNamespace(
             create=self._create, retrieve=self._retrieve, results=self._results))
 
+    def _bid(self, index):
+        return f"batch_{self.first_id + index}"
+
     def _create(self, requests):
         self.created.append(requests)
-        return SimpleNamespace(id="batch_1", processing_status="in_progress")
+        bid = self._bid(len(self.created) - 1)
+        self.events.append(("create", bid))
+        return SimpleNamespace(id=bid, processing_status="in_progress")
 
     def _retrieve(self, batch_id):
-        self.retrieved += 1
-        return SimpleNamespace(id=batch_id, processing_status="ended" if self.retrieved >= self.polls else "in_progress")
+        self.polled[batch_id] = self.polled.get(batch_id, 0) + 1
+        ended = self.polled[batch_id] >= self.polls
+        if ended and ("ended", batch_id) not in self.events:
+            self.events.append(("ended", batch_id))
+        return SimpleNamespace(id=batch_id, processing_status="ended" if ended else "in_progress")
+
+    def _direct(self, **kw):
+        self.calls.append(kw)
+        cert = int(kw["messages"][0]["content"].split("(cert ")[1].split(")")[0])
+        agent = _agent_of(kw)
+        queue = self.direct.get((cert, agent))
+        item = queue.pop(0) if queue else fake_agent_memo(_sheet(self.ctx, self.tmp_path, cert), agent)
+        if isinstance(item, BaseException):
+            raise item
+        msg = fake_message(json.dumps(item))
+        msg.model = kw["model"]
+        return msg
 
     def _results(self, batch_id):
+        self.result_calls.append(batch_id)
         out = []
-        for req in reversed(self.created[0]):  # any order
-            cert = int(req["custom_id"].split("-")[0])
-            kind = self.outcomes[cert]
+        for req in reversed(self.created[int(batch_id.split("_")[1]) - self.first_id]):  # any order
+            cert, _, agent = req["custom_id"].split("-")
+            kind = self.agent_outcomes.get((int(cert), agent), self.outcomes[int(cert)])
+            model = req["params"]["model"]
             if kind == "ok":
-                sheet = build_fact_sheet(self.ctx, cert, date(2026, 6, 30), replay_dir=self.tmp_path / "none")
-                res = SimpleNamespace(type="succeeded", message=fake_message(json.dumps(_memo(sheet)), model=req["params"]["model"]))
+                memo = fake_agent_memo(_sheet(self.ctx, self.tmp_path, int(cert)), agent)
+                res = SimpleNamespace(type="succeeded", message=fake_message(json.dumps(memo), model=model))
             elif kind == "refusal":
-                res = SimpleNamespace(type="succeeded", message=fake_message("", stop_reason="refusal"))
+                res = SimpleNamespace(type="succeeded", message=fake_message("", stop_reason="refusal", model=model))
             elif kind == "bad":
-                res = SimpleNamespace(type="succeeded", message=fake_message(json.dumps({"sections": []})))
+                res = SimpleNamespace(type="succeeded", message=fake_message(json.dumps({"sections": []}), model=model))
             else:
                 res = SimpleNamespace(type=kind)
             out.append(SimpleNamespace(custom_id=req["custom_id"], result=res))
         return iter(out)
 
 
-def _good(ctx, tmp_path, cert):
-    return _memo(build_fact_sheet(ctx, cert, date(2026, 6, 30), replay_dir=tmp_path / "none"))
+def _batch_cost(client) -> float:
+    """Half price for every batch request whose result carried usage (the fake sends 1000/500 for those)."""
+    n = 0
+    for index, reqs in enumerate(client.created):
+        for r in reqs:
+            cert, _, agent = r["custom_id"].split("-")
+            if client.agent_outcomes.get((int(cert), agent), client.outcomes[int(cert)]) in ("ok", "refusal", "bad"):
+                n += 1
+    return n * FULL / 2
 
 
 def _run(ctx, tmp_path, client, banks=BANKS, **kw):
+    kw.setdefault("trace_dir", tmp_path / "traces")
     return run_showcase(ctx, client, "claude-opus-5-5", tmp_path / "banks", tmp_path / "report.json",
                         poll_seconds=0, banks=banks, replay_dir=tmp_path / "none", **kw)
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
+def test_two_rounds_created(analyst_ctx, tmp_path):
+    client = BatchClient(analyst_ctx, tmp_path)
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert len(client.created) == 2
+    r1 = {r["custom_id"] for r in client.created[0]}
+    r2 = {r["custom_id"] for r in client.created[1]}
+    want1 = {f"{c}-20260630-{a}" for c in CERTS for a in _agents_for(analyst_ctx, tmp_path, c) if a != "analyst"}
+    assert r1 == want1 and r2 == {f"{c}-20260630-analyst" for c in CERTS}
+    # round 2 was created only after round 1 ended
+    assert client.events.index(("ended", "batch_1")) < client.events.index(("create", "batch_2"))
+    # analyst requests carry the checked specialist text; no batch request sets fallbacks
+    for r in client.created[1]:
+        text = r["params"]["messages"][0]["content"]
+        assert "Trend agent's section (checked, do not rewrite)" in text or "trends" in _sheet(
+            analyst_ctx, tmp_path, int(r["custom_id"].split("-")[0])).code_only
+    assert any("The trends section reads calmly." in r["params"]["messages"][0]["content"]
+               for r in client.created[1])
+    assert all("fallbacks" not in r["params"] for rd in client.created for r in rd)
+    # no direct call, every call at half price, nothing counted twice
+    assert client.calls == []
+    assert rep["written"] == 4 and rep["failed"] == 0 and len(list((tmp_path / "banks").glob("*.md"))) == 4
+    n = len(r1) + len(r2)
+    assert rep["cost_usd"] == pytest.approx(n * FULL / 2)
+    assert rep["input_tokens"] == 1000 * n and rep["output_tokens"] == 500 * n
+
+
+def test_specialist_failure_excludes_bank_from_round2(analyst_ctx, tmp_path):
+    bad = {"sections": []}
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(101, "trend"): "bad"},
+                         direct={(101, "trend"): [bad]})
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert not any(r["custom_id"].startswith("101-") for r in client.created[1])
+    assert len(client.created[1]) == 3
+    assert len(client.calls) == 1  # the one retry of 101's trend; no analyst call for 101
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert not by[101]["ok"] and by[101]["agents"]["trend"]["ok"] is False
+    assert by[101]["agents"]["analyst"]["attempts"] == 0 and by[101]["path"] is None
+    assert any("[trend]" in e for e in by[101]["errors"])
+    assert rep["written"] == 3 and rep["failed"] == 1
+    assert (tmp_path / "traces" / "101_2026-06-30.json").exists()
+    assert len(list((tmp_path / "banks").glob("*.md"))) == 3
+
+
+def test_retries_are_direct_calls(analyst_ctx, tmp_path):
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad", (101, "analyst"): "bad"})
+    rep = _run(analyst_ctx, tmp_path, client)
+    assert len(client.calls) == 2  # one retry per failed first try, both direct with fallbacks
+    assert all(c.get("fallbacks") == "default" for c in client.calls)
+    assert all(len(c["messages"]) == 3 for c in client.calls)  # the request, the rejected memo, the errors
+    assert rep["written"] == 4
+    # retries at full price, batch first tries at half; the retry replaces nothing already counted
+    assert rep["cost_usd"] == pytest.approx(_batch_cost(client) + 2 * FULL)
+    assert rep["spend_by_round"]["round1"]["direct"] == pytest.approx(FULL)
+    assert rep["spend_by_round"]["round2"]["direct"] == pytest.approx(FULL)
+
+
+def test_report_per_agent(analyst_ctx, tmp_path):
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(100, "trend"): "bad", (101, "analyst"): "bad",
+                                                                (102, "peer"): "errored"})
+    rep = _run(analyst_ctx, tmp_path, client)
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert set(by[100]["agents"]) == {"trend", "peer", "analyst"}
+    t = by[100]["agents"]["trend"]
+    assert t["ok"] and t["attempts"] == 2 and t["first_errors"] and t["source"] == "batch"
+    a = by[101]["agents"]["analyst"]
+    assert a["ok"] and a["attempts"] == 2 and a["first_errors"] and "missing section" in a["first_errors"][0]
+    if "peer" in _agents_for(analyst_ctx, tmp_path, 102):
+        p = by[102]["agents"]["peer"]
+        assert p["ok"] and p["attempts"] == 1 and p["first_errors"] == [] and p["source"] == "direct"
+    assert by[103]["agents"]["analyst"] == {"ok": True, "attempts": 1, "first_errors": [], "source": "batch"}
+    tally = rep["first_try_passed_by_agent"]
+    assert set(tally) == {"trend", "peer", "analyst"}
+    n_trend = sum("trend" in _agents_for(analyst_ctx, tmp_path, c) for c in CERTS)
+    assert tally["trend"] == n_trend - 1 and tally["analyst"] == 3
+    assert rep["first_error_sections"]["trends"] >= 1 and rep["first_error_sections"]["summary"] >= 1
+    assert set(rep["spend_by_round"]) == {"round1", "round2"}
+    assert rep["cost_usd"] == pytest.approx(sum(v["total"] for v in rep["spend_by_round"].values()))
+
+
+def _break_round2_results(client):
+    """Round 2's results download breaks (after round 1 is done and round 2 is created)."""
+    real = client._results
+
+    def results(bid):
+        if bid == "batch_2":
+            raise RuntimeError("results download broke")
+        return real(bid)
+
+    client.messages.batches.results = results
+    return real
+
+
+def test_resume_after_round1(analyst_ctx, tmp_path):
+    first = BatchClient(analyst_ctx, tmp_path)
+    real_create = first.messages.batches.create
+
+    def create(requests):
+        if first.created:
+            raise RuntimeError("round 2 create broke")
+        return real_create(requests)
+
+    first.messages.batches.create = create
+    with pytest.raises(RuntimeError):
+        _run(analyst_ctx, tmp_path, first)
+    st = json.loads((tmp_path / "report.state.json").read_text())
+    assert st["round1_batch_id"] == "batch_1" and st.get("round2_batch_id") is None and st["complete"] is False
+    spent_round1 = json.loads((tmp_path / "report.json").read_text())["cost_usd"]
+    assert spent_round1 == pytest.approx(len(first.created[0]) * FULL / 2)
+
+    second = BatchClient(analyst_ctx, tmp_path, first_id=2)
+    real2 = second._results
+    second.messages.batches.results = lambda bid: real2(bid) if bid == "batch_2" else pytest.fail("round 1 refetched")
+    rep = _run(analyst_ctx, tmp_path, second, resume="batch_1")
+    assert len(second.created) == 1  # only round 2 was submitted
+    assert {r["custom_id"].rsplit("-", 1)[1] for r in second.created[0]} == {"analyst"}
+    assert second.result_calls == ["batch_2"]
+    assert rep["written"] == 4 and rep["complete"] and rep["round1_batch_id"] == "batch_1"
+    assert rep["round2_batch_id"] == "batch_2"
+    # round 1 spend carried over once, round 2 added: nothing paid or counted twice
+    assert rep["cost_usd"] == pytest.approx((len(first.created[0]) + len(second.created[0])) * FULL / 2)
+    assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is True
+
+
+def test_resume_mid_round2(analyst_ctx, tmp_path):
+    first = BatchClient(analyst_ctx, tmp_path)
+    real = _break_round2_results(first)
+    with pytest.raises(RuntimeError):
+        _run(analyst_ctx, tmp_path, first)
+    st = json.loads((tmp_path / "report.state.json").read_text())
+    assert st["round1_batch_id"] == "batch_1" and st["round2_batch_id"] == "batch_2"
+    assert not list((tmp_path / "banks").glob("*.md"))
+
+    second = BatchClient(analyst_ctx, tmp_path)
+    second.created = first.created  # the batches exist on the server
+    second.messages.batches.create = lambda **kw: pytest.fail("a batch was created on resume")
+    second.messages.batches.results = lambda bid: real(bid) if bid == "batch_2" else pytest.fail("round 1 refetched")
+    rep = _run(analyst_ctx, tmp_path, second, resume="batch_2")  # either round's id resumes the run
+    assert rep["written"] == 4 and rep["complete"]
+    n = len(first.created[0]) + len(first.created[1])
+    assert rep["cost_usd"] == pytest.approx(n * FULL / 2) and second.calls == []
+
+
+def test_resume_skips_banks_already_written(analyst_ctx, tmp_path):
+    first = BatchClient(analyst_ctx, tmp_path)
+    import canary.analyst.showcase as showcase
+
+    real_write = showcase.write_memo
+    done = []
+
+    def write_then_stop(ctx, cert, *a, **k):
+        if len(done) == 2:
+            raise KeyboardInterrupt
+        done.append(cert)
+        return real_write(ctx, cert, *a, **k)
+
+    showcase.write_memo = write_then_stop
+    try:
+        with pytest.raises(KeyboardInterrupt):
+            _run(analyst_ctx, tmp_path, first)
+    finally:
+        showcase.write_memo = real_write
+    second = BatchClient(analyst_ctx, tmp_path)
+    second.created = first.created
+    second.messages.batches.create = lambda **kw: pytest.fail("a batch was created on resume")
+    second.messages.batches.results = lambda bid: pytest.fail("results fetched again")
+    rep = _run(analyst_ctx, tmp_path, second, resume="batch_1")
+    assert rep["written"] == 4 and len(rep["banks"]) == 4 and second.calls == []
+    n = len(first.created[0]) + len(first.created[1])
+    assert rep["cost_usd"] == pytest.approx(n * FULL / 2)
+
+
 def test_partial_batch_failures_retried(analyst_ctx, tmp_path):
     outcomes = {100: "ok", 101: "errored", 102: "expired", 103: "refusal"}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes,
-                         responses=[_good(analyst_ctx, tmp_path, c) for c in (101, 102, 103)])
+    client = BatchClient(analyst_ctx, tmp_path, outcomes)
     rep = _run(analyst_ctx, tmp_path, client)
-    assert len(client.created) == 1 and len(client.created[0]) == 4
-    ids = {r["custom_id"] for r in client.created[0]}
-    assert ids == {f"{c}-20260630" for c in (100, 101, 102, 103)}
-    assert "fallbacks" not in client.created[0][0]["params"]
-    assert len(client.calls) == 3  # three normal retries, with fallbacks
+    assert len(client.created) == 2
+    n_spec = sum(len(_agents_for(analyst_ctx, tmp_path, c)) - 1 for c in CERTS)
+    assert len(client.created[0]) == n_spec and len(client.created[1]) == 4
+    ids = {r["custom_id"] for r in client.created[0]} | {r["custom_id"] for r in client.created[1]}
+    assert f"100-20260630-analyst" in ids and "103-20260630-trend" in ids
+    # every failed batch result (errored, expired, refusal) is redone as a normal call with fallbacks
+    expect = sum(len(_agents_for(analyst_ctx, tmp_path, c)) for c in (101, 102, 103))
+    assert len(client.calls) == expect
     assert all(c.get("fallbacks") == "default" for c in client.calls)
     assert rep["written"] == 4 and rep["failed"] == 0
     assert len(list((tmp_path / "banks").glob("*.md"))) == 4
     assert json.loads((tmp_path / "report.json").read_text())["written"] == 4
-    # cost: 2 batch results with usage (ok, refusal) at half price + 3 retries at full price
-    full = cost_usd("claude-opus-5-5", 1000, 500)
-    assert rep["cost_usd"] == pytest.approx(2 * full / 2 + 3 * full)
-    assert rep["input_tokens"] == 5000 and rep["output_tokens"] == 2500
+    # cost: batch results that carried usage (ok, refusal) at half price, every redo at full price
+    assert rep["cost_usd"] == pytest.approx(_batch_cost(client) + expect * FULL)
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
 def test_still_failing_listed_in_report(analyst_ctx, tmp_path):
     from canary.analyst.writer import RefusalError
 
-    outcomes = {100: "ok", 101: "bad", 102: "errored", 103: "ok"}
     bad = {"sections": []}
-    # 101: bad batch memo -> check fails -> retry call also bad; 102: retry refuses (raises)
-    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[bad, RefusalError("no")])
+    # 101: bad analyst batch memo -> retry also bad; 102: analyst batch errored -> its direct call refuses
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(101, "analyst"): "bad", (102, "analyst"): "errored"},
+                         direct={(101, "analyst"): [bad], (102, "analyst"): [RefusalError("no")]})
     rep = _run(analyst_ctx, tmp_path, client)
     assert rep["written"] == 2 and rep["failed"] == 2
     failed = {b["cert"]: b for b in rep["banks"] if not b["ok"]}
     assert set(failed) == {101, 102}
     assert failed[101]["errors"] and "no" in " ".join(failed[102]["errors"])
+    assert failed[101]["path"] is None and failed[102]["path"] is None
     assert json.loads((tmp_path / "report.json").read_text())["failed"] == 2
 
 
@@ -235,14 +467,13 @@ def test_dry_run_makes_no_calls(analyst_ctx, tmp_model_dir, tmp_replay_dir, caps
     assert "retry allowance" in out and "estimated total with retries" in out
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
 def test_unexpected_retry_error_does_not_abort_run(analyst_ctx, tmp_path):
     import anthropic
 
     err = anthropic.APIConnectionError(request=SimpleNamespace(method="POST", url="https://x"))
-    outcomes = {100: "errored", 101: "errored", 102: "errored", 103: "ok"}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes,
-                         responses=[RuntimeError("boom"), err, _good(analyst_ctx, tmp_path, 102)])
+    ao = {(c, "analyst"): "errored" for c in (100, 101, 102)}
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes=ao,
+                         direct={(100, "analyst"): [RuntimeError("boom")], (101, "analyst"): [err]})
     rep = _run(analyst_ctx, tmp_path, client)
     by = {b["cert"]: b for b in rep["banks"]}
     assert len(by) == 4 and rep["written"] == 2 and rep["failed"] == 2
@@ -252,17 +483,17 @@ def test_unexpected_retry_error_does_not_abort_run(analyst_ctx, tmp_path):
     assert json.loads((tmp_path / "report.json").read_text())["failed"] == 2
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
 def test_missing_batch_result_is_retried(analyst_ctx, tmp_path):
-    outcomes = {100: "ok", 101: "ok", 102: "ok", 103: "ok"}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[_good(analyst_ctx, tmp_path, 102)])
+    cert = next(c for c in CERTS if "trend" in _agents_for(analyst_ctx, tmp_path, c))
+    client = BatchClient(analyst_ctx, tmp_path)
     orig = client._results
     client.messages.batches.results = lambda bid: iter(
-        [r for r in orig(bid) if not r.custom_id.startswith("102-")])
+        [r for r in orig(bid) if r.custom_id != f"{cert}-20260630-trend"])
     rep = _run(analyst_ctx, tmp_path, client)
     assert rep["written"] == 4 and len(rep["banks"]) == 4
-    assert len(client.calls) == 1
-    assert {b["cert"]: b["source"] for b in rep["banks"]}[102] == "retry"
+    assert len(client.calls) == 1  # the missing round-1 result, redone directly
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert by[cert]["source"] == "retry" and by[cert]["agents"]["trend"]["source"] == "direct"
 
 
 # ---- final-review fixes ----------------------------------------------------------------
@@ -270,37 +501,40 @@ def test_missing_batch_result_is_retried(analyst_ctx, tmp_path):
 def test_state_file_written_with_batch_id(analyst_ctx, tmp_path):
     from canary.analyst.showcase import state_path
 
-    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes)
+    client = BatchClient(analyst_ctx, tmp_path)
     rep = _run(analyst_ctx, tmp_path, client)
     st = json.loads(state_path(tmp_path / "report.json").read_text())
     assert state_path(tmp_path / "report.json") == tmp_path / "report.state.json"
-    assert st["batch_id"] == "batch_1" and st["model"] == "claude-opus-5-5" and st["created_at"]
-    assert st["banks"] == [[c, "2026-06-30", "latest_watchlist"] for c in (100, 101, 102, 103)]
+    assert st["batch_id"] == "batch_1" == st["round1_batch_id"] and st["round2_batch_id"] == "batch_2"
+    assert st["model"] == "claude-opus-5-5" and st["created_at"]
+    assert st["banks"] == [[c, "2026-06-30", "latest_watchlist"] for c in CERTS]
     assert st["complete"] is True
+    assert st["agents"]["100-20260630"]["analyst"]["ok"] is True
     assert rep["batch_id"] == "batch_1" and rep["complete"] is True
+    assert rep["round1_batch_id"] == "batch_1" and rep["round2_batch_id"] == "batch_2"
     assert all(b["served_model"] == "claude-opus-5-5" for b in rep["banks"])
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
 def test_resume_makes_no_create_call(analyst_ctx, tmp_path):
-    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
-    first = BatchClient(analyst_ctx, tmp_path, outcomes)
-    first.created.append([{"custom_id": f"{c}-20260630", "params": {"model": "claude-sonnet-5-5"}}
-                          for c in (100, 101, 102, 103)])  # the earlier run's batch
+    """A hand-written state naming both rounds' batches: nothing is created, both are only collected."""
+    client = BatchClient(analyst_ctx, tmp_path)
+    specs = [(c, a) for c in CERTS for a in _agents_for(analyst_ctx, tmp_path, c) if a != "analyst"]
+    client.created = [[{"custom_id": f"{c}-20260630-{a}", "params": {"model": "claude-sonnet-5-5"}} for c, a in specs],
+                      [{"custom_id": f"{c}-20260630-analyst", "params": {"model": "claude-sonnet-5-5"}} for c in CERTS]]
     (tmp_path / "report.state.json").write_text(json.dumps({
-        "batch_id": "batch_1", "created_at": "2026-11-17T10:00:00", "model": "claude-sonnet-5-5", "complete": False,
-        "banks": [[c, "2026-06-30", "latest_watchlist"] for c in (100, 101, 102, 103)]}))
+        "batch_id": "batch_1", "round1_batch_id": "batch_1", "round2_batch_id": "batch_2",
+        "created_at": "2026-11-17T10:00:00", "model": "claude-sonnet-5-5", "complete": False,
+        "banks": [[c, "2026-06-30", "latest_watchlist"] for c in CERTS]}))
     create_calls = []
-    first.messages.batches.create = lambda **kw: create_calls.append(kw)
-    rep = run_showcase(analyst_ctx, first, "claude-opus-5-5", tmp_path / "banks", tmp_path / "report.json",
-                       poll_seconds=0, replay_dir=tmp_path / "none", resume="batch_1")
-    assert create_calls == [] and first.retrieved >= 1
+    client.messages.batches.create = lambda **kw: create_calls.append(kw)
+    rep = run_showcase(analyst_ctx, client, "claude-opus-5-5", tmp_path / "banks", tmp_path / "report.json",
+                       poll_seconds=0, replay_dir=tmp_path / "none", resume="batch_1",
+                       trace_dir=tmp_path / "traces")
+    assert create_calls == [] and sum(client.polled.values()) >= 2
     assert rep["written"] == 4 and rep["batch_id"] == "batch_1" and rep["model"] == "claude-sonnet-5-5"
     assert json.loads((tmp_path / "report.state.json").read_text())["complete"] is True
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
 def test_transient_retrieve_error_then_success(analyst_ctx, tmp_path, monkeypatch):
     import anthropic
 
@@ -309,8 +543,7 @@ def test_transient_retrieve_error_then_success(analyst_ctx, tmp_path, monkeypatc
 
     sleeps = []
     monkeypatch.setattr(showcase.time, "sleep", lambda s: sleeps.append(s))
-    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes, polls=1)
+    client = BatchClient(analyst_ctx, tmp_path, polls=1)
     errs = [anthropic.APIConnectionError(request=SimpleNamespace(method="GET", url="https://x")),
             api_status_error("InternalServerError", 500)]
     real = client._retrieve
@@ -332,7 +565,7 @@ def test_retrieve_gives_up_and_partial_report_written(analyst_ctx, tmp_path, mon
     from canary.analyst import showcase
 
     monkeypatch.setattr(showcase.time, "sleep", lambda s: None)
-    client = BatchClient(analyst_ctx, tmp_path, {c: "ok" for c in (100, 101, 102, 103)})
+    client = BatchClient(analyst_ctx, tmp_path)
     calls = []
 
     def down(batch_id):
@@ -354,7 +587,7 @@ def test_auth_error_not_retried(analyst_ctx, tmp_path, monkeypatch):
     from canary.analyst import showcase
 
     monkeypatch.setattr(showcase.time, "sleep", lambda s: pytest.fail("retried a non-transient error"))
-    client = BatchClient(analyst_ctx, tmp_path, {c: "ok" for c in (100, 101, 102, 103)})
+    client = BatchClient(analyst_ctx, tmp_path)
     client.messages.batches.retrieve = lambda bid: (_ for _ in ()).throw(api_status_error("AuthenticationError", 401))
     with pytest.raises(Exception, match="api error"):
         _run(analyst_ctx, tmp_path, client)
@@ -363,15 +596,18 @@ def test_auth_error_not_retried(analyst_ctx, tmp_path, monkeypatch):
 def test_failed_retry_usage_counted(analyst_ctx, tmp_path):
     from canary.analyst.writer import RefusalError
 
-    outcomes = {100: "ok", 101: "bad", 102: "ok", 103: "ok"}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[RefusalError("no")])
+    # 101's analyst batch memo is bad; its retry raises -> nothing extra to count
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(101, "analyst"): "bad"},
+                         direct={(101, "analyst"): [RefusalError("no")]})
     rep = _run(analyst_ctx, tmp_path, client)
-    # 4 batch results at half price; the 101 retry raised before returning usage -> nothing extra
-    assert rep["input_tokens"] == 4000
-    client = BatchClient(analyst_ctx, tmp_path, {100: "ok", 101: "errored", 102: "ok", 103: "ok"},
-                         responses=[{"sections": []}, RefusalError("no")])
+    n = len(client.created[0]) + len(client.created[1])
+    assert rep["input_tokens"] == 1000 * n
+    # the bad retry memo's tokens survive a later failure: retry returns a bad memo (tokens counted)
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(101, "analyst"): "errored"},
+                         direct={(101, "analyst"): [{"sections": []}, {"sections": []}]})
     rep = _run(analyst_ctx, tmp_path, client)
-    assert rep["input_tokens"] == 3000 + 1000  # the bad retry memo's tokens survive the refusal
+    n = len(client.created[0]) + len(client.created[1]) - 1  # the errored result had no usage
+    assert rep["input_tokens"] == 1000 * n + 1000 * 2  # two direct analyst calls for 101 (first, retry)
     by = {b["cert"]: b for b in rep["banks"]}
     assert not by[101]["ok"] and by[101]["served_model"] == "claude-opus-5-5"
 
@@ -431,8 +667,8 @@ def test_failed_collection_blocks_plain_rerun_resume_works(analyst_ctx, tmp_mode
     args = ["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
             "--report", str(report), "--out", str(tmp_path / "banks")]
     monkeypatch.setattr(cli, "REPLAY_DIR", tmp_path / "none")
-    outcomes = {c: "ok" for c in (100, 101, 102, 103)}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes)
+    monkeypatch.chdir(tmp_path)  # the traces default to a relative path
+    client = BatchClient(analyst_ctx, tmp_path)
     real_results = client._results
 
     def broken(batch_id):
@@ -449,7 +685,7 @@ def test_failed_collection_blocks_plain_rerun_resume_works(analyst_ctx, tmp_mode
     assert "--resume batch_1" in capsys.readouterr().err and len(client.created) == 1
     client.messages.batches.results = real_results
     rc = cli.main(args + ["--resume", "batch_1"])
-    assert len(client.created) == 1  # resume created nothing
+    assert len(client.created) == 2  # round 1 was not created again; only round 2 was
     assert json.loads((tmp_path / "rep.state.json").read_text())["complete"] is True
     assert json.loads(report.read_text())["complete"] is True and rc in (0, 1)
     assert cli.main(args + ["--dry-run"]) == 0
@@ -465,21 +701,19 @@ def test_interrupted_retry_loop_keeps_state_incomplete(analyst_ctx, tmp_path, mo
         raise KeyboardInterrupt
 
     monkeypatch.setattr(showcase, "write_memo", interrupt)
-    client = BatchClient(analyst_ctx, tmp_path, {c: "ok" for c in (100, 101, 102, 103)})
+    client = BatchClient(analyst_ctx, tmp_path)
     with pytest.raises(KeyboardInterrupt):
         _run(analyst_ctx, tmp_path, client)
     assert calls and json.loads((tmp_path / "report.state.json").read_text())["complete"] is False
 
 
-@pytest.mark.skip(reason="rewritten in Task 3 (two batch rounds)")
 def test_first_attempt_errors_recorded(analyst_ctx, tmp_path):
     """Why a first try failed is kept per bank, with a per-section tally, so retry rates can be explained."""
-    outcomes = {100: "ok", 101: "bad", 102: "ok", 103: "ok"}
-    bad = {"sections": []}
-    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[bad])
+    client = BatchClient(analyst_ctx, tmp_path, agent_outcomes={(101, "analyst"): "bad"})
     rep = _run(analyst_ctx, tmp_path, client)
     by = {b["cert"]: b for b in rep["banks"]}
     assert by[100]["first_errors"] == []
     assert by[101]["first_errors"] and all("missing section" in e for e in by[101]["first_errors"])
-    assert rep["first_try_passed"] == sum(1 for b in rep["banks"] if b["ok"] and not b["first_errors"])
+    assert all(e.startswith("[analyst]") for e in by[101]["first_errors"])
+    assert rep["first_try_passed"] == sum(1 for b in rep["banks"] if b["ok"] and not b["first_errors"]) == 3
     assert rep["first_error_sections"]["summary"] >= 1
