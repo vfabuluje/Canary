@@ -51,8 +51,7 @@ def find_bank(ctx: Context, query: str, state: str | None = None, failed_year: i
     else:
         low = q.lower()
         by_name = banks["name"].fillna("").str.lower().str.contains(low, regex=False)
-        failed = banks["failure_date"].notna()
-        by_city = failed & banks["city"].fillna("").str.lower().str.contains(low, regex=False)
+        by_city = banks["city"].fillna("").str.lower().str.contains(low, regex=False)
         hit = banks[by_name | by_city]
     if state:
         hit = hit[hit["state"].fillna("").str.upper() == state.strip().upper()]

@@ -26,6 +26,9 @@ compare                                 # SVB, Signature, First Republic with ea
 
 Other options: `--model` (default `claude-opus-5-5`), `--out` (default `banks`; `data/analyst/compare` for compare), `--report`, `--replay-dir`. `showcase` without `--watchlist-top` covers every latest-watchlist bank (about 130 notes in all).
 
+## City search
+`find_bank` matches a city for every bank, not just failed ones. The city is the FDIC's `CITY` at the bank's last row in `data/raw/specialty/` (falling back to the failures list); the context needs that table, so run `python -m canary.ingest specialty` first or loading fails with a message saying so.
+
 ## The trends section (Phase 5b)
 Every memo now includes "How its ratios moved" after Score history, so no new command or flag. It makes each memo a little more expensive: a live memo for SVB as of 2022-03-31 cost $0.27 (2 attempts, 22,571 in / 9,233 out tokens), against about 9-10 cents for a 5a memo, because the facts list is longer and a retry costs a full call. A bank with no ratio outside its own range gets a single code-written line and no extra AI work. The section is descriptive only ([[decisions/0019-ratio-trends-descriptive]]); its format is in [[data-dictionary/bank_notes]]. If a memo is rejected for this section, the error mentions pairing, direction or prediction language: re-run, and if one bank keeps failing, read the error before suspecting the prompt.
 

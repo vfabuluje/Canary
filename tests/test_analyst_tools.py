@@ -11,18 +11,17 @@ from canary.analyst.writer import DEFAULT_MODEL, EFFORT, MAX_TOKENS, RefusalErro
 from canary.model.metrics import WATCHLIST_SHARE
 
 
-def test_find_bank_by_city_failed_only(analyst_ctx):
-    hit = json.loads(tools.find_bank(analyst_ctx, "city24735"))
+def test_find_bank_by_city_failed_bank(analyst_ctx):
+    hit = json.loads(tools.find_bank(analyst_ctx, "santa clara"))
     assert [b["cert"] for b in hit] == [24735]
-    assert hit[0]["failure_date"] == "2023-03-31" and hit[0]["city"] == "City24735"
+    assert hit[0]["failure_date"] == "2023-03-31" and hit[0]["city"] == "SANTA CLARA"
     assert hit[0]["first_report"] == "2001-03-31"
-    # an open bank has no city, so a city query never reaches it
     assert json.loads(tools.find_bank(analyst_ctx, "nowhere")) == []
 
 
 def test_find_bank_by_cert_and_name(analyst_ctx):
     by_cert = json.loads(tools.find_bank(analyst_ctx, "100"))
-    assert [b["cert"] for b in by_cert] == [100] and by_cert[0]["city"] is None
+    assert [b["cert"] for b in by_cert] == [100] and by_cert[0]["city"] == "City 100"
     assert by_cert[0]["failure_date"] is None
     by_name = json.loads(tools.find_bank(analyst_ctx, "bank 101"))
     assert [b["cert"] for b in by_name] == [101]
@@ -171,3 +170,13 @@ def test_cli_ask_api_error_exits_1(analyst_ctx, monkeypatch, capsys):
     assert cli.main(["ask", "q"]) == 1
     err_out = capsys.readouterr().err
     assert "Claude API call failed (APIConnectionError)" in err_out and len(err_out.strip().splitlines()) == 1
+
+
+def test_find_bank_by_city_any_bank(analyst_ctx):
+    import json
+
+    from canary.analyst.tools import find_bank
+
+    hits = json.loads(find_bank(analyst_ctx, "City 105"))
+    assert [h["cert"] for h in hits] == [105]
+    assert hits[0]["failure_date"] is None

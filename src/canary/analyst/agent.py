@@ -26,10 +26,10 @@ STOPPED_LINE = f"(Stopped after {MAX_ITERATIONS} steps without a final answer.)"
 def make_tools(ctx, client, model: str) -> list:
     @beta_tool
     def find_bank(query: str, state: str | None = None, failed_year: int | None = None) -> str:
-        """Find banks by name, certificate number, or (for failed banks) city. Returns up to 10 matches.
+        """Find banks by name, certificate number, or city. Returns up to 10 matches.
 
         Args:
-            query: Bank name fragment, FDIC certificate number (digits), or city of a failed bank.
+            query: Bank name fragment, FDIC certificate number (digits), or city of any bank.
             state: Optional two-letter state code to narrow the matches.
             failed_year: Optional year the bank failed, to narrow the matches.
         """

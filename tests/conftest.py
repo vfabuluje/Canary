@@ -175,8 +175,38 @@ def financials_dir(raw, tmp_path):
     return out
 
 
+def _specgrp(cert: int) -> int:
+    if cert in (24735, 120, 121, 122, 123, 124, 125, 126, 127):
+        return 9
+    if cert == 57053 or 100 <= cert <= 119:
+        return 4
+    if cert == 59017:
+        return 6
+    if 128 <= cert <= 133:
+        return 3
+    return 8  # certs 1-3
+
+
 @pytest.fixture
-def analyst_ctx(raw, trained_model, failures_path, financials_dir, tmp_path):
+def specialty_dir(raw, tmp_path):
+    out = tmp_path / "specialty"
+    for q in sorted(raw["report_date"].unique()):
+        part = out / f"repdte={q.strftime('%Y%m%d')}"
+        part.mkdir(parents=True)
+        certs = raw.loc[raw["report_date"] == q, "cert"].to_numpy()
+        pd.DataFrame(
+            {
+                "CERT": certs,
+                "REPDTE": q.isoformat(),
+                "SPECGRP": pd.array([_specgrp(int(c)) for c in certs], dtype="Int64"),
+                "CITY": ["SANTA CLARA" if c == 24735 else f"City {c}" for c in certs],
+            }
+        ).to_parquet(part / "part.parquet")
+    return out
+
+
+@pytest.fixture
+def analyst_ctx(raw, trained_model, failures_path, financials_dir, specialty_dir, tmp_path):
     from canary.analyst.context import load_context
 
     features = tmp_path / "features.parquet"
@@ -184,4 +214,4 @@ def analyst_ctx(raw, trained_model, failures_path, financials_dir, tmp_path):
     model_dir = tmp_path / "model"
     model_dir.mkdir()
     trained_model.save_model(model_dir / "model.json")
-    return load_context(features, model_dir, failures_path, financials_dir, tmp_path / "cache")
+    return load_context(features, model_dir, failures_path, financials_dir, tmp_path / "cache", specialty_dir)
