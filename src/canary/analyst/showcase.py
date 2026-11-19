@@ -4,7 +4,9 @@ then every failure is retried one by one through the normal path (with fallbacks
 
 import json
 import logging
+import re
 import time
+from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 
@@ -174,6 +176,19 @@ def _retry(fn, *args):
             time.sleep(wait)
 
 
+_SECTION = re.compile(r"section '(\w+)'")
+
+
+def _section_tally(entries: list[dict]) -> dict[str, int]:
+    """First-attempt checker errors counted by memo section (one count per error)."""
+    c: Counter = Counter()
+    for e in entries:
+        for err in e.get("first_errors") or []:
+            m = _SECTION.search(err)
+            c[m.group(1) if m else "other"] += 1
+    return dict(c.most_common())
+
+
 def _usage_of(exc: BaseException) -> dict:
     u = getattr(exc, "usage", None)
     return u if isinstance(u, dict) else {}
@@ -215,6 +230,8 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
             "banks_done": len(entries),
             "written": sum(e["ok"] for e in entries),
             "failed": sum(not e["ok"] for e in entries),
+            "first_try_passed": sum(e["ok"] and not e.get("first_errors") for e in entries),
+            "first_error_sections": _section_tally(entries),
             "input_tokens": totals["in"],
             "output_tokens": totals["out"],
             "cost_usd": totals["cost"],
@@ -275,7 +292,7 @@ def _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, me
     for cid, (cert, as_of, group) in meta.items():
         entry = {"cert": cert, "as_of": as_of.isoformat(), "group": group, "ok": False, "attempts": 0,
                  "path": None, "errors": [], "source": "batch" if cid in first else "retry",
-                 "served_model": None}
+                 "served_model": None, "first_errors": []}
         try:
             res = write_memo(ctx, cert, as_of, client=client, model=model, out_dir=out_dir,
                              first_memo=first.get(cid), replay_dir=replay_dir)
@@ -295,5 +312,6 @@ def _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, me
             totals["out"] += res.output_tokens
             totals["cost"] += res.cost_usd
             entry.update(ok=res.ok, attempts=res.attempts + (1 if cid not in first else 0),
-                         path=str(res.path) if res.path else None, errors=res.errors, served_model=res.model)
+                         path=str(res.path) if res.path else None, errors=res.errors, served_model=res.model,
+                         first_errors=res.first_errors)
         entries.append(entry)

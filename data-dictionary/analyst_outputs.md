@@ -28,7 +28,7 @@ Always written, partial if the run stopped. Top level:
 | `input_tokens`, `output_tokens`, `cost_usd` | Totals; batch results are counted at half price, retries at full price. |
 | `banks` | One entry per bank (below). |
 
-Each `banks` entry: `cert`, `as_of`, `group` (`case_study`, `test_miss`, `test_catch`, `after_window`, `latest_watchlist`, `false_alarm`), `ok`, `attempts` (batch result counts as 1; a retry adds 1 or more), `path` (the note, or null), `errors` (checker errors if it failed), `source` (`batch` or `retry`), `served_model`.
+Each `banks` entry: `cert`, `as_of`, `group` (`case_study`, `test_miss`, `test_catch`, `after_window`, `latest_watchlist`, `false_alarm`), `ok`, `attempts` (batch result counts as 1; a retry adds 1 or more), `path` (the note, or null), `errors` (checker errors if it failed), `source` (`batch` or `retry`), `served_model`, `first_errors` (the checker's complaints about the first attempt; empty if it passed first try or never got a checked first attempt). Top level also has `first_try_passed` (banks written with no first-attempt errors) and `first_error_sections` (first-attempt errors counted by memo section, most first), so a high retry rate can be traced to the section causing it.
 
 ## `showcase_report.state.json` (resume file)
 Written the moment the batch is created: `batch_id`, `created_at`, `banks` (list of `[cert, as_of, group]`), `model`, `complete`. `complete` becomes true only after every result is collected and every failed bank retried. A new `showcase` run refuses to start while an incomplete state file exists; use `--resume BATCH_ID` ([[runbooks/analyst]]).
