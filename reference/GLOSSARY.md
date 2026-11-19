@@ -42,7 +42,7 @@ Real CAMELS ratings are confidential, so Canary builds a **"CAMELS-style"** vers
 - **In Canary:** the FDIC field `NIMY` (the "Y" means annualized, year-to-date), which becomes `net_interest_margin`, in percent.
 
 ### Tier 1 capital
-A bank's highest-quality loss cushion: mainly common stock and retained earnings, minus items like goodwill. Regulators judge it in two ways:
+(Phase 5d also adds the loan-loss allowance to it for concentration ratios from 2020-03-31; see "Loan-loss allowance".) A bank's highest-quality loss cushion: mainly common stock and retained earnings, minus items like goodwill. Regulators judge it in two ways:
 - **Leverage ratio** = Tier 1 ÷ average total assets. FDIC field `RBC1AAJ` ("LEVERAGE RATIO-PCA"), which becomes `leverage_ratio`.
 - **Tier 1 risk-based ratio** = Tier 1 ÷ risk-weighted assets, where riskier assets count for more. FDIC field `IDT1RWAJR`, which becomes `tier1_risk_based_ratio`.
 
@@ -143,6 +143,18 @@ See [STACK.md](STACK.md) and [decision 0008](../decisions/0008-aws-setup-and-cos
 
 ### Peer group
 **The banks a bank is compared with in the Phase 5c section: the same specialty group and size tier, with at least 15 banks.** If fewer than 15, the same specialty at any size; if still fewer, no comparison is shown. It is the FDIC's grouping, not one Canary designed ([decision 0020](../decisions/0020-peer-comparison-descriptive.md); `src/canary/analyst/peers.py`).
+
+### CRE concentration guidance
+**The 2006 US regulator screens for banks with heavy commercial real estate (CRE) lending.** A bank is flagged for closer supervisory review if construction and land loans are 100% or more of its capital, or if total CRE loans are 300% or more of capital and grew 50% or more over 36 months. They are screens, not lending limits. Source: OCC Bulletin 2006-46 / 71 FR 74580. Used by the Phase 5d section ([decision 0021](../decisions/0021-cre-concentration-2006-thresholds.md)); not tested as a warning signal in Canary.
+
+### Total risk-based capital
+**Tier 1 plus Tier 2 capital: the loss cushion measured against risk-weighted assets.** Call Report item 3792, FDIC field `RBC`. The 2006 guidance's capital denominator, used by Canary for as-of quarters before 2020-03-31. Banks on the community bank leverage ratio framework do not report Tier 2, so `RBC` is 0 for many of them ([data dictionary](../data-dictionary/fdic_concentration.md)).
+
+### Loan-loss allowance
+**Money a bank sets aside for loans it expects not to be repaid.** FDIC field `LNATRES` (for banks using CECL, the allowance for credit losses on loans and leases). Added to Tier 1 capital for the concentration ratios from 2020-03-31 (FDIC FIL-31-2020; Federal Reserve SR 20-8).
+
+### Community bank leverage ratio (CBLR)
+**A simplified capital rule for small banks: a bank that keeps a high enough Tier 1 leverage ratio (the minimum has changed over time) is treated as meeting its risk-based capital requirements.** Such banks do not report risk-based capital (Tier 2), which is why `RBC` is 0 for many banks. FDIC FIL-31-2020 applies to all FDIC-supervised institutions eligible to elect it.
 
 ### Mid-rank percentile
 **Where a value sits among a set of banks, 0 to 100, counting ties as half.** (Banks below + half the banks equal) / banks with a value x 100. A value tied with many others lands in the middle of the tie, so the maximum is not shown as exactly 100. "Unusual" is a separate test: at most 10% of banks at or below the value (unusually low) or at or above it (unusually high), so a value shared by many banks is never unusual.

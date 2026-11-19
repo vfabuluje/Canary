@@ -1,7 +1,7 @@
 # Phase 5d Spec: Real-estate Concentration (2006 regulator thresholds)
 
 **Date:** 2026-11-19
-**Status:** Approved by Victor 2026-11-19 (builder check done)
+**Status:** Built (approved by Victor 2026-11-19, builder check done)
 **Phase:** 5d of Phase 5 (5a risk analyst → 5b trends → 5c peers → **5d concentration**).
 Builds on the 5a section registry and the 5b/5c hooks (`code_only`, `render_before`, `render`).
 

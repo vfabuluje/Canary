@@ -1,6 +1,6 @@
 # Runbook: the risk analyst (Phase 5a)
 
-How to write bank notes and ask questions. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]]. Output formats: [[data-dictionary/bank_notes]], [[data-dictionary/analyst_outputs]].
+How to write bank notes and ask questions. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]], [[decisions/0021-cre-concentration-2006-thresholds]]. Output formats: [[data-dictionary/bank_notes]], [[data-dictionary/analyst_outputs]].
 
 This calls **Anthropic's API, not AWS**, so AWS cost is unchanged. It needs the Phase 3 feature export and saved model on disk (read only).
 
@@ -38,6 +38,11 @@ To try one memo without touching the committed notes, write it elsewhere: `memo 
 Every memo now includes "Compared with similar banks" after "How its ratios moved". It needs the specialty table, so run `python -m canary.ingest specialty` once first (see [[runbooks/fdic-ingestion]]); without it the context fails with a message naming that command. It is descriptive only ([[decisions/0020-peer-comparison-descriptive]]); the format is in [[data-dictionary/bank_notes]]. Banks with no nationally unusual ratio, or too few peers, get code-written lines and no extra AI work.
 
 One live test memo (SVB, 2022-12-31, written to `data/analyst/peer_check`, git-ignored) cost $0.3457 (2 attempts, 29,965 in / 11,292 out tokens), so expect roughly $0.25-0.35 per memo with both sections and the second attempt. Try one without touching the committed notes: `memo --cert 24735 --out data/analyst/peer_check`. If a memo is rejected for this section, the error mentions one ratio per sentence, an opposite reading or prediction language. **Notes already in `banks/` do not have this section.** The showcase is not re-run until Phase 5d is built, then once, with a dry-run estimate approved first.
+
+## The concentration section (Phase 5d)
+Every memo now includes "Real-estate concentration (2006 regulator thresholds)" after "Compared with similar banks". It needs the concentration table, so run `python -m canary.ingest concentration` once first (see [[runbooks/fdic-ingestion]]); without it the context fails with a message naming that command. The section is written by code, so it adds **no Claude API cost**, no retry risk and no checker rules, and no live test memo was needed. It is a supervisory screen, not a prediction, with no measured result ([[decisions/0021-cre-concentration-2006-thresholds]]); the format is in [[data-dictionary/bank_notes]].
+
+To see it for free, without a memo, build a fact sheet and print the section: after `import canary.analyst.writer`, load the context with `canary.analyst.context.load_context(...)`, call `canary.analyst.facts.build_fact_sheet(ctx, cert)` and print `render_concentration(sheet.extras["concentration"])` from `canary.analyst.concentration`. **Notes already in `banks/` do not have this section until the showcase is re-run** (once, with both the 5c and 5d sections, after the owner approves a dry-run estimate).
 
 ## Exit codes
 - `0` success (for `showcase`, every bank written).
