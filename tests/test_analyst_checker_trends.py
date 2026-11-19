@@ -26,6 +26,10 @@ def _sheet():
         _f("A1", "AFS value", 5.0, ["5.0%"], "afs", "trend_value"),
         _f("A4", "AFS contribution", 0.3, ["0.300"], "afs", "trend_contribution"),
         _f("A5", "AFS direction", "pushed the score up", [], "afs", "trend_direction"),
+        _f("R1", "Rank phrase", "the model rated it safer than a year earlier", ["a year"], None, "trend_rank_phrase"),
+        _f("R3", "Rank phrase riskier", "the model rated it riskier than a year earlier", ["a year"], None, "trend_rank_phrase"),
+        _f("R2", "Rank phrase same", "about the same as a year earlier", ["a year"], None, "trend_rank_phrase"),
+        _f("A2", "AFS lo", 1.0, ["1.0%"], "afs", "trend_lo"),
         _f("S1", "Summary fact", 7, ["7"]),
     ]
     empty = pd.DataFrame()
@@ -52,7 +56,24 @@ def test_contrast_sentence_passes():
 
 def test_htm_value_with_afs_contribution_rejected():
     errs = run("Held-to-maturity losses were 48.4% and the other ratio's contribution was 0.300.", ["H1", "A4"])
-    assert any("pairs a contribution with a different ratio's figures" in e for e in errs)
+    assert any("give one ratio per sentence" in e for e in errs)
+
+
+def test_htm_value_and_contribution_with_afs_contribution_rejected():
+    errs = run("Held-to-maturity losses were 48.4% with a contribution of -0.164, and the other was 0.300.",
+               ["H1", "H4", "A4"])
+    assert any("give one ratio per sentence when stating its contribution or direction" in e for e in errs)
+
+
+def test_two_ratio_direction_sentence_gets_one_ratio_message():
+    errs = run("Held-to-maturity losses pushed the score down, while available-for-sale losses pushed "
+               "the score up.", ["H1", "H5", "A1", "A5"])
+    assert len(errs) == 1 and "give one ratio per sentence" in errs[0]
+
+
+def test_two_ratio_ranges_without_contribution_allowed():
+    assert run("Held-to-maturity losses ranged from -11.7% to 6.6%, and available-for-sale from 1.0% to 5.0%.",
+               ["H2", "H3", "A2", "A1"]) == []
 
 
 def test_contribution_without_ratio_figure_rejected():
@@ -97,3 +118,24 @@ def test_unicode_minus_ok():
 
 def test_rules_only_in_trend_section():
     assert run("The bank predicted it.", [], key="summary") == []
+
+
+def test_rank_phrase_safer_rejects_riskier():
+    errs = run("The model rated it riskier than a year earlier.", ["R1"])
+    assert any("riskier" in e for e in errs)
+    assert run("The model rated it safer than a year earlier.", ["R1"]) == []
+
+
+def test_rank_phrase_riskier_rejects_safer():
+    errs = run("The model rated it safer than a year earlier.", ["R3"])
+    assert any("safer" in e for e in errs)
+
+
+def test_rank_phrase_same_rejects_both():
+    assert run("It was about the same as a year earlier.", ["R2"]) == []
+    for w in ("riskier", "safer"):
+        assert run(f"The model rated it {w} than a year earlier.", ["R2"])
+
+
+def test_rank_phrase_not_cited_not_checked():
+    assert run("The model rated it riskier than before.", []) == []

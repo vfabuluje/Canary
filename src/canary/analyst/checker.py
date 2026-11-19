@@ -10,10 +10,11 @@ figure). A sentence citing a post-hoc fact must contain the post-hoc label. Phra
 probability-of-failure wording anywhere; "failed", "collapsed", "was closed", "was seized" in as-of
 sections.
 
-Trend section only (key "trends", spec 6.5): (1) a sentence citing a contribution fact must cite a value/
-low/high fact for the same ratio, and every cited per-ratio trend fact must belong to a cited
-contribution's ratio; (2) the text must not say the opposite of the direction label (the cited direction
-fact, or the sheet's direction fact for a cited contribution's ratio); (3) no prediction language.
+Trend section only (key "trends", spec 6.5, rulings R8/R9): (1) a sentence citing a contribution or
+direction fact must cite one ratio only (every per-ratio trend fact it cites is that ratio) and a
+contribution needs that ratio's value/low/high; (2) the text must not say the opposite of the direction label (the cited direction
+fact, or the sheet's direction fact for the cited contribution's ratio); a cited rank-phrase fact rules
+out the opposite of "safer"/"riskier"; (3) no prediction language.
 """
 
 import re
@@ -95,17 +96,23 @@ PREDICTION_PHRASES = re.compile(
     r"|\bwould have (caught|flagged|warned)\b|\bshould have (caught|flagged|been flagged)\b"
     r"|\bforeshadow\w*|\bsign(al)?s? of (coming |impending )?failure\b",
     re.IGNORECASE)
-_PER_RATIO = {"trend_value", "trend_lo", "trend_hi"}
+_CONTRIB = {"trend_contribution", "trend_direction"}
+_SAFER = re.compile(r"\bsafer\b", re.IGNORECASE)
+_RISKIER = re.compile(r"\briskier\b", re.IGNORECASE)
+ONE_RATIO_MESSAGE = "give one ratio per sentence when stating its contribution or direction"
 
 
 def _trend_errors(where, text, cited, facts) -> list[str]:
     errors = []
-    contrib = {f.feature for f in cited if f.kind == "trend_contribution"}
-    if contrib:
-        ratio_feats = {f.feature for f in cited if f.kind in _PER_RATIO}
-        stray = any(f.kind in _PER_RATIO and f.feature not in contrib for f in cited)
-        if not (ratio_feats & contrib) or stray:
-            errors.append(f"{where}: pairs a contribution with a different ratio's figures")
+    contrib = {f.feature for f in cited if f.kind in _CONTRIB}
+    per_ratio = {f.feature for f in cited if f.feature is not None and f.kind and f.kind.startswith("trend_")}
+    if contrib and (len(contrib) > 1 or per_ratio - contrib):
+        errors.append(f"{where}: cites more than one ratio with a contribution or direction; {ONE_RATIO_MESSAGE}")
+        return errors + _prediction_errors(where, text)
+    if any(f.kind == "trend_contribution" for f in cited) and not any(
+            f.kind in {"trend_value", "trend_lo", "trend_hi"} and f.feature in contrib for f in cited):
+        errors.append(f"{where}: pairs a contribution with a different ratio's figures (no value or range "
+                      f"for the same ratio)")
     labels = []
     for f in cited:
         if f.kind == "trend_direction":
@@ -119,9 +126,21 @@ def _trend_errors(where, text, cited, facts) -> list[str]:
         if pat is not None and (m := pat.search(text)):
             errors.append(f"{where}: says '{m.group(0)}' but the model's direction for that ratio was "
                           f"\"{label}\"")
-    if m := PREDICTION_PHRASES.search(text):
-        errors.append(f"{where}: uses prediction language ('{m.group(0)}')")
-    return errors
+    for f in cited:
+        if f.kind == "trend_rank_phrase":
+            phrase = str(f.value)
+            bad = [("riskier", _RISKIER)] if "safer" in phrase else [("safer", _SAFER)] if "riskier" in phrase \
+                else [("riskier", _RISKIER), ("safer", _SAFER)]
+            for word, pat in bad:
+                if pat.search(text):
+                    errors.append(f"{where}: says '{word}' but the model's rating against a year earlier was "
+                                  f"\"{phrase}\"")
+    return errors + _prediction_errors(where, text)
+
+
+def _prediction_errors(where, text) -> list[str]:
+    m = PREDICTION_PHRASES.search(text)
+    return [f"{where}: uses prediction language ('{m.group(0)}')"] if m else []
 
 
 @dataclass
