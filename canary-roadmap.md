@@ -11,7 +11,7 @@ kanban-plugin: board
 - [ ] Phase 3: CAMELS-style features; train XGBoost; test on 2016–2024
 - [ ] Phase 4: SVB / Signature / First Republic replay; error analysis
 - [ ] Phase 5a: AI risk analyst agent (memo writer, citation checker, ask agent, 61 showcase notes)
-- [ ] Phase 5b: Ratio trends section (descriptive; 60 showcase notes re-run)
+- [ ] Phase 5b: Ratio trends section (descriptive; 61 showcase notes re-run)
 
 
 ## In Progress

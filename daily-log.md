@@ -6,13 +6,13 @@
 - **Phase 5b built: "How its ratios moved"** (spec [[specs/2026-11-18-phase5b-trend-design]], plan [[plans/2026-11-18-phase5b-trend]], decision [[decisions/0019-ratio-trends-descriptive]]). Each memo lists the ratios outside the bank's own prior range (prior 12 quarters; same quarter of the prior 3 years for year-to-date ratios), how fast they moved, and the model's contribution for that same ratio, side by side. **Descriptive only**: no measured result, the rule was fixed before looking at more banks and not tuned.
 - Seen during spec review and kept on purpose: SVB's note (as of 2022-12-31) does not list HTM bond losses, because 98% was inside its 12-quarter range by then. At 2022-03-31 it is listed (48.4% vs a prior range of -11.7% to 6.6%). SVB's note instead shows funding signals (deposit growth, core deposits, FHLB borrowings, volatile funding) outside their ranges, all pushing the score down.
 - Checker gained trend rules: one ratio per sentence when stating a contribution or direction; no contradicting direction or rank wording; no prediction words.
-- Built with subagent-driven development: 5 tasks, task reviews, a whole-branch review (6 fixes, incl. a pairing gap and false rejections), two follow-up fixes. 466 pytest pass.
-- **Showcase re-run:** 60 of 61 written, $7.98 (estimate $6.87). Cert 17719 failed twice (checker rejected the ordinal "98.2nd") and keeps its 5a note. 36 of 60 needed a retry; the run report doesn't record first-attempt errors, so the cause is unknown.
-- **Cost:** Claude API about $8.25 for 5b ($0.27 test memo + $7.98 showcase); total so far about $13.90. AWS unchanged.
+- Built with subagent-driven development: 5 tasks, task reviews, a whole-branch review (6 fixes, incl. a pairing gap and false rejections), two follow-up fixes. 471 pytest pass.
+- **Showcase re-run:** 60 of 61 written, $7.98 (estimate $6.87). Cert 17719 failed twice (checker rejected the ordinal "98.2nd"); fixed the checker forms and re-ran it alone ($0.24, passed after one retry), so all 61 notes have the section. 36 of 60 needed a retry; the run report doesn't record first-attempt errors, so the cause is unknown.
+- **Cost:** Claude API about $8.49 for 5b ($0.27 test memo + $7.98 showcase + $0.24 re-run of 17719); total so far about $14.14. AWS unchanged.
 
 **Next**
 - Merge `phase5b-trend-agent` (owner's consent), then Phase 5c (peer comparison).
-- Small follow-ups: accept decimal ordinals like "98.2nd" in percentile forms; record first-attempt checker errors in the showcase report (to see why retries were 60%, not 30%); then re-run cert 17719 (about $0.25) if wanted.
+- Small follow-up: record first-attempt checker errors in the showcase report (to see why retries were 60%, not 30%).
 - Older 5a follow-ups still open: rename "(first flag)", the checker residuals in decision 0016.
 
 **Open questions**
