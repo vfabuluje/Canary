@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from canary.analyst import peers
 from canary.analyst.peers import (
     compute_peers, midrank_pct, size_tier, unusual_side,
 )
@@ -42,7 +41,7 @@ def _quarter(n_bank_group, n_tier_other=0, n_other_spec=0, bank_spec=4,
     rows = []
     def add(cert, spec, lta):
         r = {"cert": cert, "log_total_assets": lta, "specgrp": spec}
-        for i, f in enumerate(TREND_RATIOS):
+        for f in TREND_RATIOS:
             r[f] = float(cert % 50)
         rows.append(r)
     add(1, bank_spec, bank_log)
@@ -119,35 +118,71 @@ def test_readings():
 
 def test_nan_excluded():
     f = "return_on_assets"
-    q = _readings_quarter(100.0, list(np.linspace(0, 10, 20)), list(np.linspace(0, 10, 200)))
-    q[f] = q[f].astype(float)
-    q.loc[1, f] = np.nan
-    q.loc[2:4, f] = np.nan
-    r = compute_peers(q, 1, AS_OF)
-    row = next(x for x in r.rows if x.feature == f)
-    assert row.feature == f  # peer NaNs excluded, still enough (17)
-    peers_vals = q.loc[(q["specgrp"] == 4), f].dropna()
-    assert row.peer_median == pytest.approx(float(peers_vals.median()))
-    # bank NaN -> skipped
+    # 20 in the group (bank + 19), 180 elsewhere; bank is the top value
+    q = _quarter(20, n_other_spec=180)
+    q[f] = np.arange(len(q), dtype=float)
+    q.loc[0, f] = 1000.0
+    q.loc[1:3, f] = np.nan        # 3 peers without a value
+    q.loc[30:49, f] = np.nan      # 20 national (non-peer) NaNs
+    row = next(x for x in compute_peers(q, 1, AS_OF).rows if x.feature == f)
+    n_nat = 200 - 3 - 20
+    assert row.nat_pct == pytest.approx((n_nat - 0.5) / n_nat * 100)
+    assert row.peer_pct == pytest.approx((17 - 0.5) / 17 * 100)
+    pv = q.loc[q["specgrp"] == 4, f].dropna()
+    assert row.peer_median == pytest.approx(float(pv.median()))
+    # bank NaN -> ratio skipped
     q.loc[0, f] = np.nan
-    r = compute_peers(q, 1, AS_OF)
-    assert f not in [x.feature for x in r.rows]
+    assert f not in [x.feature for x in compute_peers(q, 1, AS_OF).rows]
 
 
 def test_order_and_cap():
-    q = _quarter(20)
-    feats = list(TREND_RATIOS)[:10]
-    for f in TREND_RATIOS:
-        q[f] = np.linspace(0, 1, len(q))
-    for i, f in enumerate(feats):
-        q[f] = np.linspace(0, 1, len(q))
-        q.loc[0, f] = 10.0 + i  # top of group, all share top percentile
+    q = _quarter(100)
+    feats = list(TREND_RATIOS)
+    # (feature index, side, rank from that extreme among 100); distance = 50.5 - rank
+    spec = [(0, "high", 1), (1, "low", 2), (2, "high", 3), (3, "low", 3),
+            (4, "high", 5), (5, "low", 6), (6, "high", 7), (7, "low", 8),
+            (8, "high", 9), (9, "high", 10)]
+    for f in feats:
+        q[f] = np.arange(100, dtype=float)
+        q.loc[0, f] = 50.0  # mid-pack: not unusual
+    for idx, side, rank in spec:
+        target = float(100 - rank) if side == "high" else float(rank - 1)
+        col = list(range(100))
+        col[0], col[int(target)] = int(target), 0
+        q[feats[idx]] = np.array(col, dtype=float)
     r = compute_peers(q, 1, AS_OF)
-    assert len(r.rows) >= 10
-    assert len(r.shown) == 8
     from canary.analyst.labels import PLAIN_NAMES
-    keys = [(-abs(x.nat_pct - 50), PLAIN_NAMES[x.feature]) for x in r.rows]
-    assert keys == sorted(keys)
+    tie = sorted([feats[2], feats[3]], key=PLAIN_NAMES.get)
+    expected = [feats[0], feats[1], *tie, feats[4], feats[5], feats[6],
+                feats[7], feats[8], feats[9]]
+    assert [x.feature for x in r.rows] == expected
+    assert len(r.rows) == 10 and len(r.shown) == 8
+    assert [x.feature for x in r.shown] == expected[:8]
+
+
+def test_nan_assets_not_in_tier_group():
+    q = _quarter(15, n_other_spec=0)
+    extra = q.iloc[[1]].copy()
+    extra["cert"] = 999
+    extra["log_total_assets"] = np.nan
+    q = pd.concat([q, extra], ignore_index=True)
+    r = compute_peers(q, 1, AS_OF)
+    # 15 in tier only if the NaN-assets bank counted; it must not
+    assert (r.basis, r.n_peers) == ("specialty_tier", 15)
+    q2 = _quarter(14)
+    q2 = pd.concat([q2, extra], ignore_index=True)
+    r2 = compute_peers(q2, 1, AS_OF)
+    assert (r2.basis, r2.n_peers) == ("specialty", 15)
+    with pytest.raises(ValueError):
+        size_tier(float("nan"))
+
+
+def test_input_errors():
+    q = _quarter(15)
+    with pytest.raises(ValueError, match="12345"):
+        compute_peers(q, 12345, AS_OF)
+    with pytest.raises(KeyError, match="return_on_assets"):
+        compute_peers(q.drop(columns=["return_on_assets"]), 1, AS_OF)
 
 
 def test_log_total_assets_not_a_ratio():

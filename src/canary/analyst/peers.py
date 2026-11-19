@@ -51,6 +51,8 @@ Side = Literal["high", "low"]
 
 
 def size_tier(log_total_assets: float) -> str:
+    if pd.isna(log_total_assets):
+        raise ValueError("log_total_assets is missing; cannot assign a size tier")
     # log_total_assets is ln(assets in $ thousands); round away float noise
     dollars = round(math.exp(log_total_assets) * 1000, 6)
     for upper, label in TIERS:
@@ -114,7 +116,13 @@ def _reading(peer_side: Side | None, nat_side: Side) -> str:
 
 
 def compute_peers(quarter: pd.DataFrame, cert: int, as_of: date) -> PeerResult:
-    me = quarter[quarter["cert"] == cert].iloc[0]
+    mine = quarter[quarter["cert"] == cert]
+    if mine.empty:
+        raise ValueError(f"cert {cert} is not in the quarter's rows at {as_of}")
+    me = mine.iloc[0]
+    missing = [f for f in TREND_RATIOS if f not in quarter.columns]
+    if missing:
+        raise KeyError(f"quarter is missing ratio column(s): {missing}")
     tier = size_tier(float(me["log_total_assets"]))
     sg = me["specgrp"]
     specgrp = None if pd.isna(sg) else int(sg)
@@ -125,7 +133,9 @@ def compute_peers(quarter: pd.DataFrame, cert: int, as_of: date) -> PeerResult:
         basis = "no_specialty"
     else:
         in_spec = quarter[quarter["specgrp"] == specgrp]
-        in_tier = in_spec[in_spec["log_total_assets"].map(size_tier) == tier]
+        # banks with no assets figure belong to no tier group
+        known = in_spec[in_spec["log_total_assets"].notna()]
+        in_tier = known[known["log_total_assets"].map(size_tier) == tier]
         if len(in_tier) >= MIN_PEERS:
             basis, peer_set, n_peers = "specialty_tier", in_tier, len(in_tier)
         elif len(in_spec) >= MIN_PEERS:
@@ -135,7 +145,7 @@ def compute_peers(quarter: pd.DataFrame, cert: int, as_of: date) -> PeerResult:
 
     rows: list[PeerRow] = []
     for f in TREND_RATIOS:
-        if f not in quarter.columns or pd.isna(me[f]):
+        if pd.isna(me[f]):
             continue
         v = float(me[f])
         nat = quarter[f].dropna().astype(float)
