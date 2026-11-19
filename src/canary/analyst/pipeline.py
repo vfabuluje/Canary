@@ -4,14 +4,15 @@ risk analyst writes every other AI section after seeing the specialists' checked
 """
 
 import json
-from dataclasses import replace
+from dataclasses import dataclass, field, replace
 
+from canary.analyst.checker import check_memo
 from canary.analyst.concentration import CONCENTRATION_KEY, render_concentration
 from canary.analyst.facts import PERCENTILE_SCALE_LABEL, FactSheet
 from canary.analyst.sections import Section, sections_for
 from canary.analyst.writer import (
-    EFFORT, MAX_TOKENS, SYSTEM_PROMPT, _cell, _retry_message, _user_message, ai_sections, memo_schema,
-    system_prompt,
+    EFFORT, FALLBACK_BETA, MAX_TOKENS, PRICES, SYSTEM_PROMPT, _cell, _retry_message, _user_message, ai_sections,
+    cost_usd, memo_schema, parse_response, system_prompt,
 )
 
 AGENTS = ("trend", "peer", "analyst")
@@ -144,3 +145,85 @@ def build_agent_request(sheet: FactSheet, agent: str, model: str,
         "messages": messages,
         "output_config": {"effort": EFFORT, "format": {"type": "json_schema", "schema": memo_schema(sections)}},
     }
+
+
+@dataclass
+class AgentResult:
+    agent: str
+    ok: bool
+    attempts: int = 0
+    errors: list[str] = field(default_factory=list)
+    first_errors: list[str] = field(default_factory=list)
+    memo: dict | None = None
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float = 0.0
+    served_model: str | None = None
+    skipped: bool = False
+
+
+def run_agent(sheet: FactSheet, agent: str, *, client, model: str, specialist_memos: dict[str, dict] | None = None,
+              first_memo: dict | None = None, trace: list) -> AgentResult:
+    """One agent: a call (or the given batch `first_memo`), check, one retry with the errors, check.
+
+    Checks run against this agent's sheet and sections. Appends one entry per attempt to `trace`.
+    An exception from a call carries `exc.usage` for this agent's calls so far.
+    """
+    _check_agent(agent)
+    sections = agent_sections(sheet, agent)
+    if agent != "analyst" and not sections:
+        return AgentResult(agent, ok=True, skipped=True)
+    check_sheet = agent_sheet(sheet, agent)
+    res = AgentResult(agent, ok=False, served_model=model)
+
+    def request(errors=None, previous=None) -> dict:
+        return build_agent_request(sheet, agent, model, specialist_memos, errors, previous)
+
+    def call(errors=None, previous=None) -> dict:
+        kw = request(errors, previous)
+        entry = {"agent": agent, "attempt": res.attempts + 1, "request": kw, "response_text": "",
+                 "checker_errors": [], "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0,
+                 "served_model": None, "source": "direct"}
+        trace.append(entry)
+        try:
+            msg = client.beta.messages.create(**kw, betas=[FALLBACK_BETA], fallbacks="default")
+            served = msg.model or model
+            i, o = msg.usage.input_tokens, msg.usage.output_tokens
+            c = cost_usd(served if served in PRICES else model, i, o)
+            res.served_model = served
+            res.input_tokens += i
+            res.output_tokens += o
+            res.cost_usd += c
+            entry.update(input_tokens=i, output_tokens=o, cost_usd=c, served_model=served,
+                         response_text=next((b.text for b in msg.content if b.type == "text"), ""))
+            return parse_response(msg)
+        finally:
+            res.attempts += 1
+
+    def given(memo: dict) -> dict:
+        trace.append({"agent": agent, "attempt": 1, "request": request(), "response_text": json.dumps(memo),
+                      "checker_errors": [], "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0,
+                      "served_model": None, "source": "batch"})
+        res.attempts += 1
+        return memo
+
+    try:
+        memo = given(first_memo) if first_memo is not None else call()
+        errors = check_memo(memo, check_sheet, sections)
+        trace[-1]["checker_errors"] = list(errors)
+        res.first_errors = list(errors)
+        if errors:
+            memo = call(errors, memo)
+            errors = check_memo(memo, check_sheet, sections)
+            trace[-1]["checker_errors"] = list(errors)
+    except Exception as exc:
+        try:
+            exc.usage = {"input_tokens": res.input_tokens, "output_tokens": res.output_tokens,
+                         "cost_usd": res.cost_usd, "model": res.served_model}
+        except AttributeError:
+            pass
+        raise
+    res.errors = list(errors)
+    res.ok = not errors
+    res.memo = memo
+    return res

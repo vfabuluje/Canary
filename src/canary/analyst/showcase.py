@@ -295,7 +295,7 @@ def _run_batch(ctx, client, model, out_dir, report_path, poll_seconds, banks, me
                  "served_model": None, "first_errors": []}
         try:
             res = write_memo(ctx, cert, as_of, client=client, model=model, out_dir=out_dir,
-                             first_memo=first.get(cid), replay_dir=replay_dir)
+                             replay_dir=replay_dir)
         except Exception as exc:  # one bank must never abort the run or lose the report
             entry["errors"] = [f"{type(exc).__name__}: {exc}"]
             if cid in why_retry:

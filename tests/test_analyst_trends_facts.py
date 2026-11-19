@@ -25,7 +25,7 @@ from canary.analyst.trends import (
 from canary.analyst.writer import write_memo
 from canary.model.dataset import FEATURE_COLUMNS
 from canary.replay.probe import contribution_matrix
-from tests.analyst_fakes import FakeClient
+from tests.analyst_fakes import FakeClient, split_memo
 
 CERT = 3
 PER_RATIO = ["trend_value", "trend_lo", "trend_hi", "trend_change_1q", "trend_change_4q",
@@ -225,7 +225,7 @@ def test_table_rendered_and_section_position(analyst_ctx, tmp_path):
     from tests.test_analyst_writer import _memo
 
     sheet = _sheet(analyst_ctx, tmp_path)
-    client = FakeClient([_memo(sheet)])
+    client = FakeClient(split_memo(sheet, _memo(sheet)))
     res = write_memo(analyst_ctx, CERT, client=client, out_dir=tmp_path / "banks",
                      replay_dir=tmp_path / "none")
     assert res.ok, res.errors

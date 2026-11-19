@@ -191,7 +191,10 @@ def _memo(args) -> int:
     except TruncatedError as exc:
         print(f"error: cert {args.cert}: {exc}; no note written.", file=sys.stderr)
         return 1
-    usage = f"{res.attempts} attempt(s), {res.input_tokens:,} in / {res.output_tokens:,} out tokens, ${res.cost_usd:.4f}"
+    per_agent = ", ".join(f"{name}: " + ("skipped (code-only)" if r.skipped else f"{r.attempts} attempt(s)")
+                          for name, r in res.agents.items())
+    usage = (f"{res.attempts} attempt(s) [{per_agent}], {res.input_tokens:,} in / {res.output_tokens:,} out "
+             f"tokens, ${res.cost_usd:.4f}")
     if not res.ok:
         print(f"cert {args.cert}: memo failed the citation check twice; no note written ({usage}).",
               file=sys.stderr)

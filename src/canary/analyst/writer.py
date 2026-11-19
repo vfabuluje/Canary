@@ -86,7 +86,8 @@ class MemoResult:
     output_tokens: int = 0
     model: str = DEFAULT_MODEL
     cost_usd: float = 0.0
-    first_errors: list[str] = field(default_factory=list)  # first attempt's checker errors; [] if it passed
+    first_errors: list[str] = field(default_factory=list)  # first attempts' checker errors, "[agent] "-prefixed
+    agents: dict = field(default_factory=dict)  # agent name -> pipeline.AgentResult
 
 
 def cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
@@ -215,55 +216,77 @@ def parse_response(message) -> dict:
     return json.loads(text)
 
 
-def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str = DEFAULT_MODEL,
-               out_dir: Path = Path("banks"), first_memo: dict | None = None,
-               replay_dir: Path = Path("data/replay")) -> MemoResult:
-    """Write one checked note. Raises ValueError for a bad as-of, RefusalError / TruncatedError from Claude.
+def _trace_write(trace_dir: Path, sheet: FactSheet, ok: bool, calls: list[dict]) -> Path:
+    trace_dir.mkdir(parents=True, exist_ok=True)
+    path = trace_dir / f"{sheet.cert}_{sheet.as_of.isoformat()}.json"
+    path.write_text(json.dumps({"cert": sheet.cert, "as_of": sheet.as_of.isoformat(), "ok": ok, "calls": calls},
+                               indent=2, default=str))
+    return path
 
-    Any exception raised after calls were made carries `exc.usage` = {input_tokens, output_tokens,
-    cost_usd, model} for those calls, so callers can still count the spend.
+
+def write_memo(ctx, cert: int, as_of: date | None = None, *, client, model: str = DEFAULT_MODEL,
+               out_dir: Path = Path("banks"), first_memos: dict[str, dict] | None = None,
+               replay_dir: Path = Path("data/replay"),
+               trace_dir: Path = Path("data/analyst/traces")) -> MemoResult:
+    """Write one checked note with three calls: trend, peer (each skipped if code-only), then the analyst.
+
+    A specialist (or the analyst) that fails its check after one retry stops the pipeline: no later call,
+    no note. A trace of every call is written to `trace_dir` either way. Raises ValueError for a bad
+    as-of, RefusalError / TruncatedError from Claude. Any exception raised after calls were made carries
+    `exc.usage` = {input_tokens, output_tokens, cost_usd, model} for all those calls.
     """
+    from canary.analyst.pipeline import AGENTS, AgentResult, run_agent
+
     sheet = build_fact_sheet(ctx, cert, as_of, replay_dir=replay_dir)
     sections = sections_for(sheet)
-    to_check = ai_sections(sections)
-    usage = {"in": 0, "out": 0, "cost": 0.0}
-    served = model
+    first_memos = first_memos or {}
+    trace: list[dict] = []
+    results: dict[str, AgentResult] = {}
+    specialist_memos: dict[str, dict] = {}
 
-    def call(errors=None, previous=None) -> dict:
-        nonlocal served
-        msg = client.beta.messages.create(
-            **build_request(sheet, sections, model, errors, previous), betas=[FALLBACK_BETA], fallbacks="default"
-        )
-        served = msg.model or model
-        i, o = msg.usage.input_tokens, msg.usage.output_tokens
-        usage["in"] += i
-        usage["out"] += o
-        usage["cost"] += cost_usd(served if served in PRICES else model, i, o)
-        return parse_response(msg)
+    def totals() -> dict:
+        rs = list(results.values())
+        served = next((r.served_model for r in reversed(rs) if r.served_model), model)
+        return {"input_tokens": sum(r.input_tokens for r in rs), "output_tokens": sum(r.output_tokens for r in rs),
+                "cost_usd": sum(r.cost_usd for r in rs), "model": served}
 
+    ok = False
     try:
-        memo = first_memo if first_memo is not None else call()
-        attempts = 1
-        errors = check_memo(memo, sheet, to_check)
-        first_errors = list(errors)
-        if errors:
-            memo = call(errors, memo)
-            attempts = 2
-            errors = check_memo(memo, sheet, to_check)
-    except Exception as exc:
-        try:
-            exc.usage = {"input_tokens": usage["in"], "output_tokens": usage["out"],
-                         "cost_usd": usage["cost"], "model": served}
-        except AttributeError:  # an exception type that refuses attributes; nothing to attach
-            pass
-        raise
+        for agent in AGENTS:
+            try:
+                r = run_agent(sheet, agent, client=client, model=model,
+                              specialist_memos=specialist_memos if agent == "analyst" else None,
+                              first_memo=first_memos.get(agent), trace=trace)
+            except Exception as exc:
+                u = getattr(exc, "usage", {})
+                done = totals()
+                try:
+                    exc.usage = {"input_tokens": done["input_tokens"] + u.get("input_tokens", 0),
+                                 "output_tokens": done["output_tokens"] + u.get("output_tokens", 0),
+                                 "cost_usd": done["cost_usd"] + u.get("cost_usd", 0.0),
+                                 "model": u.get("model") or done["model"]}
+                except AttributeError:
+                    pass
+                raise
+            results[agent] = r
+            if not r.ok:
+                break
+            if agent != "analyst" and not r.skipped:
+                specialist_memos[agent] = r.memo
+        ok = len(results) == len(AGENTS) and all(r.ok for r in results.values())
+    finally:
+        _trace_write(trace_dir, sheet, ok, trace)
 
+    errors = [f"[{a}] {e}" for a, r in results.items() for e in r.errors]
+    first_errors = [f"[{a}] {e}" for a, r in results.items() for e in r.first_errors]
+    t = totals()
     path = None
-    if not errors:
+    if ok:
+        merged = {"sections": [s for a in AGENTS if results[a].memo for s in results[a].memo["sections"]]}
         meta = {"model_run": ctx.model_run, "written_at": datetime.now().isoformat(timespec="seconds"),
-                "writer_model": served}
+                "writer_model": t["model"]}
         path = note_path(out_dir, sheet.name, cert)
         out_dir.mkdir(parents=True, exist_ok=True)
-        path.write_text(render_note(sheet, memo, sections, meta))
-    return MemoResult(cert, sheet.as_of, path, not errors, attempts, errors,
-                      usage["in"], usage["out"], served, usage["cost"], first_errors)
+        path.write_text(render_note(sheet, merged, sections, meta))
+    return MemoResult(cert, sheet.as_of, path, ok, max((r.attempts for r in results.values()), default=0), errors,
+                      t["input_tokens"], t["output_tokens"], t["model"], t["cost_usd"], first_errors, results)
