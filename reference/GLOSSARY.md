@@ -134,3 +134,15 @@ See [STACK.md](STACK.md) and [decision 0008](../decisions/0008-aws-setup-and-cos
 
 ### Log-odds contribution
 **How much one ratio moved the model's raw score for one bank, in the model's own units.** Positive pushes the score up (riskier), negative pushes it down. It is not a probability: the model's raw score is on a log-odds scale and, because of the extra weight on failures, is not a real chance of failing ([decision 0016](../decisions/0016-analyst-memo-design.md)). The trend section words it as "pushed the score up" at +0.05 or more, "pushed the score down" at -0.05 or less, and "little effect on the score" in between.
+
+### Specialty group
+**The FDIC's label for what a bank mostly does, recorded per bank per quarter.** Nine codes, from "International Specialization" to "All Other Over 1 Billion" (a general group for large banks that meet no specialty's threshold; SVB was in it at 2022-12-31). Canary uses the label the FDIC recorded for the as-of quarter, never today's ([decision 0020](../decisions/0020-peer-comparison-descriptive.md); [data dictionary](../data-dictionary/fdic_specialty.md)).
+
+### Size tier
+**A bank's asset band: under $100 million, $100 million to $1 billion, $1 billion to $10 billion, or over $10 billion.** The same bands the FDIC's Quarterly Banking Profile uses. Computed from the bank's total assets at the as-of quarter; a lower bound belongs to the higher tier.
+
+### Peer group
+**The banks a bank is compared with in the Phase 5c section: the same specialty group and size tier, with at least 15 banks.** If fewer than 15, the same specialty at any size; if still fewer, no comparison is shown. It is the FDIC's grouping, not one Canary designed ([decision 0020](../decisions/0020-peer-comparison-descriptive.md); `src/canary/analyst/peers.py`).
+
+### Mid-rank percentile
+**Where a value sits among a set of banks, 0 to 100, counting ties as half.** (Banks below + half the banks equal) / banks with a value x 100. A value tied with many others lands in the middle of the tie, so the maximum is not shown as exactly 100. "Unusual" is a separate test: at most 10% of banks at or below the value (unusually low) or at or above it (unusually high), so a value shared by many banks is never unusual.

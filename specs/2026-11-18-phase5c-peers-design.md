@@ -1,7 +1,7 @@
 # Phase 5c Spec: Peer Comparison (descriptive)
 
 **Date:** 2026-11-18
-**Status:** Approved by Victor 2026-11-18 (builder check done)
+**Status:** Built (Phase 5c, 2026-11-18). Approved by Victor 2026-11-18 (builder check done)
 **Phase:** 5c of Phase 5 (5a risk analyst → 5b trends → **5c peer comparison** → 5d concentration risk).
 Builds on [[specs/2026-11-17-phase5a-risk-analyst-design]] §7 (section registry) and the hooks added in
 [[specs/2026-11-18-phase5b-trend-design]] (code-only sections, code-rendered section bodies).
@@ -112,7 +112,7 @@ with commercial lenders.
   `log_total_assets`).
 - **Banks counted:** for a ratio and a set of banks, only banks with a value (NaN left out of both
   the set and the count).
-- **Displayed percentile:** mid-rank, 0-100: `rank(pct=True, method="average") * 100`.
+- **Displayed percentile:** true mid-rank, 0-100: (count below + 0.5 × count equal) / n × 100. (The first draft wrote `rank(pct=True, method="average") * 100`, which gives 100 for the maximum; corrected at build, see [[decisions/0020-peer-comparison-descriptive]]. It affects display and ordering only; the "unusual" test below is unchanged.)
 - **Unusual (ties handled conservatively):** a value is **unusually low** in a set when the share of
   banks with a value **at or below** it is ≤ 10%, and **unusually high** when the share with a value
   **at or above** it is ≤ 10%. So a value shared by many banks (e.g. 0 for brokered deposits at 15%

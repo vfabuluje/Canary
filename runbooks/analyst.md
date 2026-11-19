@@ -1,6 +1,6 @@
 # Runbook: the risk analyst (Phase 5a)
 
-How to write bank notes and ask questions. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]]. Output formats: [[data-dictionary/bank_notes]], [[data-dictionary/analyst_outputs]].
+How to write bank notes and ask questions. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]]. Output formats: [[data-dictionary/bank_notes]], [[data-dictionary/analyst_outputs]].
 
 This calls **Anthropic's API, not AWS**, so AWS cost is unchanged. It needs the Phase 3 feature export and saved model on disk (read only).
 
@@ -33,6 +33,11 @@ Other options: `--model` (default `claude-opus-5-5`), `--out` (default `banks`; 
 Every memo now includes "How its ratios moved" after Score history, so no new command or flag. It makes each memo a little more expensive: a live memo for SVB as of 2022-03-31 cost $0.27 (2 attempts, 22,571 in / 9,233 out tokens), against about 9-10 cents for a 5a memo, because the facts list is longer and a retry costs a full call. A bank with no ratio outside its own range gets a single code-written line and no extra AI work. The section is descriptive only ([[decisions/0019-ratio-trends-descriptive]]); its format is in [[data-dictionary/bank_notes]]. If a memo is rejected for this section, the error mentions pairing, direction or prediction language: re-run, and if one bank keeps failing, read the error before suspecting the prompt.
 
 To try one memo without touching the committed notes, write it elsewhere: `memo --cert 24735 --as-of 2022-03-31 --out data/analyst/trend_check` (`data/` is git-ignored). Notes already in `banks/` do not have the section until the showcase is re-run.
+
+## The peer section (Phase 5c)
+Every memo now includes "Compared with similar banks" after "How its ratios moved". It needs the specialty table, so run `python -m canary.ingest specialty` once first (see [[runbooks/fdic-ingestion]]); without it the context fails with a message naming that command. It is descriptive only ([[decisions/0020-peer-comparison-descriptive]]); the format is in [[data-dictionary/bank_notes]]. Banks with no nationally unusual ratio, or too few peers, get code-written lines and no extra AI work.
+
+One live test memo (SVB, 2022-12-31, written to `data/analyst/peer_check`, git-ignored) cost $0.3457 (2 attempts, 29,965 in / 11,292 out tokens), so expect roughly $0.25-0.35 per memo with both sections and the second attempt. Try one without touching the committed notes: `memo --cert 24735 --out data/analyst/peer_check`. If a memo is rejected for this section, the error mentions one ratio per sentence, an opposite reading or prediction language; a false rejection of "unusually low among peers" (no "its") is a known limit and a retry usually clears it. **Notes already in `banks/` do not have this section.** The showcase is not re-run until Phase 5d is built, then once, with a dry-run estimate approved first.
 
 ## Exit codes
 - `0` success (for `showcase`, every bank written).

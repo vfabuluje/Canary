@@ -1,6 +1,6 @@
 # bank_notes (Phase 5a risk-analyst notes)
 
-One Markdown note per bank in `banks/`, written by `python -m canary.analyst memo` / `showcase` / `ask`. They are **notes in the vault, not warehouse tables**. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]]. Runbook: [[runbooks/analyst]].
+One Markdown note per bank in `banks/`, written by `python -m canary.analyst memo` / `showcase` / `ask`. They are **notes in the vault, not warehouse tables**. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]]. Runbook: [[runbooks/analyst]].
 
 | | |
 |---|---|
@@ -48,6 +48,7 @@ One Markdown note per bank in `banks/`, written by `python -m canary.analyst mem
 | Understanding the score | Claude, then code adds the fixed sentence "The score ranks banks against each other; it is not a probability of failure..." and **What the model can't see** | As-of only |
 | Score history | Code (table: quarter, rank, of, watchlist; first flag marked) | The 8 quarters up to as-of |
 | How its ratios moved (key `trends`, added in 5b) | Claude (one or two paragraphs), then a code table and the fixed sentence; or one code-written line | As-of only |
+| Compared with similar banks (key `peers`, added in 5c) | Claude (one or two paragraphs), then a code table and the fixed sentence; or code-written lines only | As-of only |
 | Outcome (title depends on `outcome`: "How early Canary caught it", "Why the model missed it", "Why it was flagged, and what happened", "Why it's on the watchlist"; absent for `quiet`) | Claude | Hindsight, labelled |
 | What happened next | Claude, plus a code table of later ranks when there are any | Hindsight, labelled |
 | Sources | Code: every cited fact as `id · label · quarter · value · file` | n/a |
@@ -90,3 +91,34 @@ A change is always written in pp (a ratio that moved from 6.6% to 48.4% changed 
 **Extra checker rules for this section only:** a sentence that cites a contribution or direction fact must cite one ratio only, and every per-ratio trend fact it cites must be that ratio ("give one ratio per sentence when stating its contribution or direction"); a contribution must be cited with its own ratio's value or range; the direction wording must not contradict the code's label; a cited rank phrase must not be contradicted ("riskier" vs "safer"); prediction language ("predict", "warned", "early warning", "would have caught" and close variants) is rejected. The rules are blunt and miss paraphrases ([[decisions/0019-ratio-trends-descriptive]]).
 
 **A ratio that was high for a while is not listed.** The rule flags a break-out of the bank's own past range. SVB's last-report note (2022-12-31) therefore does not list its HTM loss ratio, which had already been high for three quarters. Note as of 2022-03-31 does.
+
+## Compared with similar banks (Phase 5c)
+Sits after "How its ratios moved". Descriptive only: it compares the bank with banks the FDIC groups with it and has **no measured result** ([[decisions/0020-peer-comparison-descriptive]]). Code: `src/canary/analyst/peers.py`. Specialty data: [[data-dictionary/fdic_specialty]].
+
+**Which ratios are shown.** Of the 30 model ratios, those where the bank is in the national top or bottom 10% at the as-of quarter (the share of banks with a value at or below the bank's, or at or above it, is at most 10%; tied values are never unusual). At most 8 are shown, furthest from the national middle first (distance of the national percentile from 50, ties by plain name). Percentiles are true mid-rank: (count below + 0.5 x count equal) / n x 100.
+
+**Peer group.** Same FDIC specialty group (at the as-of quarter) and size tier ("under $100 million", "$100 million to $1 billion", "$1 billion to $10 billion", "over $10 billion"; lower bound inclusive), at least 15 banks including the bank. If fewer, the same specialty at all sizes; if still fewer, no comparison. A ratio needs at least 15 peers with a value, or its reading is "too few peers with this figure".
+
+**Table columns (code-rendered).**
+
+| Column | Meaning |
+|---|---|
+| Ratio | Plain-English name. |
+| Bank | The bank's value at the as-of quarter. |
+| National percentile | Mid-rank percentile among all banks that quarter, with "(unusually high)" or "(unusually low)". |
+| Peer median | Median among the peer group's banks with a value. |
+| Peer percentile | Mid-rank percentile among peers (blank if too few). |
+| Reading | One of: "unusually high among its peers too", "unusually high among its peers", "unusually low among its peers too", "unusually low among its peers", "typical for its peer group", "too few peers with this figure". "Too" means the same side as nationally. |
+
+**Facts added to the sheet** (all as-of, none hindsight), with a `kind` the checker uses: per shown ratio, `peer_value`, `peer_nat_pct`, `peer_nat_dir` (text), `peer_pct` and `peer_median` (when enough peers) and `peer_reading` (text); sheet-level, `peer_specialty` (group code and name), `peer_tier`, `peer_basis` (how the group was formed), `peer_count`, `peer_count_unusual`, `peer_count_unusual_peers` and `peer_count_shown`.
+
+**Code-written text.**
+- "The FDIC's specialty group for this bank at {as_of}: {name}." For groups 8 and 9 only: "This is a general group: the FDIC did not record a lending specialty for this bank." Example: SVB at 2022-12-31 is "All Other Over 1 Billion".
+- "Peers: {n} banks in the same specialty group and size tier ({tier})." or "Peers: {n} banks in the same specialty group (all sizes), because fewer than 15 shared its size tier." or "There are not enough comparable banks ({n} in its specialty group) for a reliable comparison, so none is shown."
+- No specialty value that quarter: "The FDIC recorded no specialty group for this bank at {as_of}, so no peer comparison is shown."
+- Nothing nationally unusual: "None of this bank's ratios were in the national top or bottom 10% at {as_of}." No Claude request is made when the section is code-only.
+- Fixed sentence, last in the section: "This section only compares the bank with banks the FDIC groups with it; an unusual figure is not a prediction of failure, and the comparison has not been tested as a warning signal."
+
+**Extra checker rules for this section only:** one ratio per sentence when a peer reading or percentile is cited; the opposite reading is rejected (a "typical" reading rules out contiguous "unusually high/low among its peers"; a high reading rules out "unusually low among its peers" and "typical for its peer group"; the national word may not contradict the national direction); prediction language and "risky"/"riskier" are rejected. The rules are blunt, paraphrases evade them, and "unusually low among peers" (no "its") is falsely rejected ([[decisions/0020-peer-comparison-descriptive]]).
+
+**Not in the committed notes yet.** Notes in `banks/` do not have this section until the showcase is re-run after Phase 5d.
