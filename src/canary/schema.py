@@ -79,6 +79,20 @@ SPECIALTY_FIELDS: dict[str, Field] = {
     "CITY": Field("string", "City"),
 }
 
+# Phase 5d: loan-concentration and capital fields, kept apart from
+# FINANCIAL_FIELDS and SPECIALTY_FIELDS. Order = API `fields=` order.
+CONCENTRATION_FIELDS: dict[str, Field] = {
+    "CERT": Field("int64", "FDIC Certificate #"),
+    "REPDTE": Field("date_ymd", "Report Date"),
+    "LNRECONS": Field("float64", "RE CONSTRUCTION & LAND DEVELOP"),
+    "LNREMULT": Field("float64", "RE MULTIFAMILY"),
+    "LNRENROT": Field("float64", "RE NONFARM NONRES OTHER (NON-OWNER-OCCUPIED)"),
+    "LNCOMRE": Field("float64", "LOANS TO FINANCE CRE NOT SECURED BY RE"),
+    "RBC": Field("float64", "TOTAL RISK-BASED CAPITAL"),
+    "RBCT1J": Field("float64", "TIER 1 CAPITAL"),
+    "LNATRES": Field("float64", "ALLOWANCE FOR LOAN AND LEASE LOSSES"),
+}
+
 
 FAILURE_FIELDS: dict[str, Field] = {
     "NAME": Field("string", "Institution Name"),

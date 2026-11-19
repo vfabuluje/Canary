@@ -292,3 +292,11 @@ def test_two_decimals_when_they_differ(analyst_ctx, tmp_path, monkeypatch):
     (lo,) = _kind(sheet, "trend_lo")
     assert v.display == "0.58%" and lo.display == "0.63%"
     assert "| 0.58% | 0.63% to 1.6% |" in "\n".join(render_trends(sheet))
+
+
+def test_instructions_require_value_with_contribution():
+    """Showcase diagnostic 2026-11-19: a contribution sentence without the ratio's value or range was the
+    first-attempt failure; the instructions must say both go in the same sentence."""
+    from canary.analyst.trends import TREND_SECTION
+
+    assert "in that same sentence also give that ratio's as-of value or its prior range" in TREND_SECTION.instructions

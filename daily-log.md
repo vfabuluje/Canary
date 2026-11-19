@@ -9,9 +9,15 @@
 - Built subagent-driven: 6 tasks with reviews, a whole-branch review (fixes: a "10%" figure no fact supported, paraphrases rejected, an optimistic cost estimate). 525 pytest pass.
 - **Cost:** one live memo, $0.35. Dry-run estimate for re-running the 61 showcase notes with both new sections is now **$12.99** ($5.02 batch + $7.97 retry allowance at the measured 60% retry rate).
 
+- PRs #9 and #10 merged. Credits: Victor topped up to $25.52, meant to cover the rest of the project (5d, a retry diagnostic, one showcase re-run). AWS promo credits ($120) checked: probably can't pay for Claude via Bedrock (newer Claude models reportedly billed through AWS Marketplace), so not used for Claude.
+- **Phase 5d built: "Real-estate concentration (2006 regulator thresholds)"** (spec [[specs/2026-11-19-phase5d-concentration-design]], plan [[plans/2026-11-19-phase5d-concentration]], decision [[decisions/0021-cre-concentration-2006-thresholds]]). Code-written section (no AI, $0): construction loans ≥ 100% of capital, or total CRE ≥ 300% of capital with ≥ 50% growth over 36 months (OCC Bulletin 2006-46). Capital is total risk-based capital before 2020-03-31 and Tier 1 + loan-loss allowance from then (FDIC FIL-31-2020, Fed SR 20-8), labelled as such. States it covers a different, more common failure mode than SVB's.
+- New raw table `data/raw/concentration/` (710,691 rows, 102 quarters). Local check: SVB 2022-12-31 crossed neither line; Allied Bank (91, failed 2016) crossed the construction line (144.9%).
+- Found in review: four 2016-2017 failures had negative capital at their last report; the section now says so ("capital was zero or negative") instead of "no usable capital figure".
+
 **Next**
-- Merge `phase5c-peers` and PR #9 (owner's consent), then Phase 5d (concentration risk).
-- After 5d: one paid showcase re-run with 5b+5c+5d sections, only after a fresh dry run and Victor's approval. Check the new first-attempt error tally (PR #9) to cut the retry rate first.
+- Merge `phase5d-concentration` (owner's consent). Phase 5 is then complete.
+- Before the one paid showcase re-run: cheap retry diagnostic (2-3 memos, read the first-attempt error tally), free fixes, fresh dry run, Victor's approval. Budget $25.52.
+- Then Phase 6: read-only Streamlit dashboard, README polish, demo video, LinkedIn post.
 
 **Open questions**
 - The retry rate (60%) roughly doubles the showcase cost. Worth one cheap diagnostic (a few memos with first-attempt errors logged) before the big run?

@@ -76,3 +76,6 @@ The "How its ratios moved" section in the analyst notes is descriptive. It compa
 
 ## Note on the Phase 5c peer section
 The "Compared with similar banks" section is descriptive. It compares a bank's ratios with banks the FDIC groups with it and has **no measured result**: no recall, catches, AUC or lead time are reported for it, and it is not part of the results above ([decision 0020](decisions/0020-peer-comparison-descriptive.md)).
+
+## Note on the Phase 5d concentration section
+The "Real-estate concentration (2006 regulator thresholds)" section is a descriptive screen written by code. It applies published regulator lines to a bank's call report figures and has **no measured result**: no recall, catches, AUC or lead time are reported for it, and it is not part of the results above ([decision 0021](decisions/0021-cre-concentration-2006-thresholds.md)).

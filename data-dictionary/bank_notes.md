@@ -49,6 +49,7 @@ One Markdown note per bank in `banks/`, written by `python -m canary.analyst mem
 | Score history | Code (table: quarter, rank, of, watchlist; first flag marked) | The 8 quarters up to as-of |
 | How its ratios moved (key `trends`, added in 5b) | Claude (one or two paragraphs), then a code table and the fixed sentence; or one code-written line | As-of only |
 | Compared with similar banks (key `peers`, added in 5c) | Claude (one or two paragraphs), then a code table and the fixed sentence; or code-written lines only | As-of only |
+| Real-estate concentration (2006 regulator thresholds) (key `concentration`, added in 5d) | Code only: lead, capital line, table, summary sentences, definitions line, closing | As-of only |
 | Outcome (title depends on `outcome`: "How early Canary caught it", "Why the model missed it", "Why it was flagged, and what happened", "Why it's on the watchlist"; absent for `quiet`) | Claude | Hindsight, labelled |
 | What happened next | Claude, plus a code table of later ranks when there are any | Hindsight, labelled |
 | Sources | Code: every cited fact as `id · label · quarter · value · file` | n/a |
@@ -122,3 +123,26 @@ Sits after "How its ratios moved". Descriptive only: it compares the bank with b
 **Extra checker rules for this section only:** one ratio per sentence when a peer reading or percentile is cited; the opposite reading is rejected (a "typical" reading rules out contiguous "unusually high/low among its peers"; a high reading rules out "unusually low among its peers" and "typical for its peer group"; the national word may not contradict the national direction, except inside "among its peers" or "among peers"); prediction language and "risky"/"riskier" are rejected. The rules are blunt, paraphrases evade them ([[decisions/0020-peer-comparison-descriptive]]).
 
 **Not in the committed notes yet.** Notes in `banks/` do not have this section until the showcase is re-run after Phase 5d.
+
+## Real-estate concentration (2006 regulator thresholds) (Phase 5d)
+Sits after "Compared with similar banks". **Written entirely by code**: no AI text, no AI request, and no facts added for Claude (it is always in the sheet's `code_only` list; the writer's user message does not mention it). It has **no measured result** ([[decisions/0021-cre-concentration-2006-thresholds]]). Code: `src/canary/analyst/concentration.py`. Data: [[data-dictionary/fdic_concentration]]. As-of only, never hindsight.
+
+Lines, in order:
+1. **Lead (fixed):** says this checks a different, more common way banks have failed than SVB's, applying the 2006 OCC, Federal Reserve and FDIC screens, which are not lending limits.
+2. **Capital line:** before 2020-03-31, "total risk-based capital, as the 2006 guidance specifies"; from 2020-03-31, "Tier 1 capital plus the loan-loss allowance" (FDIC FIL-31-2020; Federal Reserve SR 20-8), noting the 2006 thresholds were not restated for it.
+3. **Table** `| Test | Bank | Line | Meets it? |` with three rows:
+
+| Test | Bank | Line | Meets it? |
+|---|---|---|---|
+| Construction and land loans ÷ capital | the bank's percentage | 100% or more | yes / no / n/a |
+| Total commercial real estate loans ÷ capital | the bank's percentage | 300% or more | yes / no / n/a |
+| Growth in commercial real estate loans over the prior 36 months | the bank's percentage | 50% or more | yes / no / n/a |
+
+   The Bank cell and the last cell show "n/a" when the value can't be computed. Percentages have one decimal, thousands separators and a minus sign where needed (`1,234.5%`, `-12.0%`); dollars are not shown. Comparisons use unrounded values, so 299.99% displays as "300.0%" with "no".
+4. **Summary:** one code-chosen sentence per line (construction first), or a combined form ("It did not cross either line." / "It crossed both lines: construction loans and total commercial real estate loans."). Each line is judged separately. Line 2 can read: crossed; did not cross; reached 300% but grew less than 50% (so did not cross); reached 300% but the growth part can't be checked; or can't be checked. Reasons: "the bank reported no capital figure for this quarter", "the bank's capital was zero or negative this quarter", "a loan figure the test needs is missing for this quarter", "there is no concentration data for this bank this quarter"; growth reasons: "there is no figure from 12 quarters earlier", "it reported no commercial real estate loans 12 quarters earlier".
+5. **Definitions line (fixed)** for "total commercial real estate".
+6. **Closing (fixed):** "Crossing a line is a supervisory screen, not a prediction: it has not been tested as a warning signal in Canary."
+
+Example: SVB at 2022-12-31 (Tier 1 plus allowance): construction 2.4%, total CRE 13.7%, growth 953.0%; "It did not cross either line." The section has no "approaching" label. Memos exist only from 2016-03-31, so 2008-era failures are not covered.
+
+**Not in the committed notes yet.** Notes in `banks/` do not have this section until the showcase is re-run.

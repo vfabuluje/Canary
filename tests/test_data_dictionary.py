@@ -3,7 +3,12 @@ from pathlib import Path
 import pytest
 import yaml
 
-from canary.schema import FAILURE_FIELDS, FINANCIAL_FIELDS, SPECIALTY_FIELDS
+from canary.schema import (
+    CONCENTRATION_FIELDS,
+    FAILURE_FIELDS,
+    FINANCIAL_FIELDS,
+    SPECIALTY_FIELDS,
+)
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -14,6 +19,7 @@ REPO = Path(__file__).resolve().parent.parent
         ("fdic_financials.md", FINANCIAL_FIELDS),
         ("fdic_failures.md", FAILURE_FIELDS),
         ("fdic_specialty.md", SPECIALTY_FIELDS),
+        ("fdic_concentration.md", CONCENTRATION_FIELDS),
     ],
 )
 def test_every_field_documented(doc, fields):

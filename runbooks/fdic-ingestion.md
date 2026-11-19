@@ -16,6 +16,8 @@ No API key is needed; the FDIC API is public.
 .venv/bin/python -m canary.ingest failures              # always re-pull (one call)
 .venv/bin/python -m canary.ingest specialty             # FDIC specialty group + city, per quarter (Phase 5c)
 .venv/bin/python -m canary.ingest specialty --force     # re-pull every quarter
+.venv/bin/python -m canary.ingest concentration         # CRE loan and capital fields, per quarter (Phase 5d)
+.venv/bin/python -m canary.ingest concentration --force # re-pull every quarter
 ```
 All accept `--root DIR` (default `data/raw`).
 
@@ -26,6 +28,9 @@ All accept `--root DIR` (default `data/raw`).
 
 ## Specialty pull (Phase 5c)
 A separate raw table, `data/raw/specialty/repdte=YYYYMMDD/part.parquet`: `CERT, REPDTE, SPECGRP, CITY` from the same `financials` endpoint, so the 45-field financials files are never touched ([[decisions/0020-peer-comparison-descriptive]], [[data-dictionary/fdic_specialty]]). Same resume, latest-2-quarters and `--force` rules as financials, and the same failure handling. First full pull (2026-11-18): 102 quarters, 710,691 rows, 0 null `SPECGRP`, about 5 minutes. It is not uploaded to S3 and not in Athena or dbt. The analyst needs it: without it, memos fail with a message naming `python -m canary.ingest specialty`.
+
+## Concentration pull (Phase 5d)
+A separate raw table, `data/raw/concentration/repdte=YYYYMMDD/part.parquet`: `CERT, REPDTE, LNRECONS, LNREMULT, LNRENROT, LNCOMRE, RBC, RBCT1J, LNATRES` from the same `financials` endpoint, so neither the 45-field financials files nor the specialty table is touched ([[decisions/0021-cre-concentration-2006-thresholds]], [[data-dictionary/fdic_concentration]]). Same resume, latest-2-quarters and `--force` rules as financials, and the same failure handling. First full pull (2026-11-19): 102 quarters, 710,691 rows, about 6 minutes; null counts are in the decision. It is not uploaded to S3 and not in Athena or dbt. The analyst needs it: without it, memos fail with a message naming `python -m canary.ingest concentration`.
 
 ## What resume and `--force` do
 - **Resume (default):** a quarter is skipped if its `part.parquet` already exists. Files are written to a temporary name and renamed, so a crash never leaves a half-written file that resume would trust.
