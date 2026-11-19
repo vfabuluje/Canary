@@ -146,6 +146,9 @@ def _showcase(args) -> int:
                           banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume)
     print(f"{report['written']} written, {report['failed']} failed of {report['banks_total']} "
           f"(${report['cost_usd']:.2f}); report {args.report}")
+    if "first_try_passed" in report:
+        tally = ", ".join(f"{k} {v}" for k, v in report.get("first_error_sections", {}).items()) or "none"
+        print(f"first try passed: {report['first_try_passed']}; first-attempt errors by section: {tally}")
     for e in report["banks"]:
         if not e["ok"]:
             print(f"  cert {e['cert']}: {'; '.join(e['errors'])}", file=sys.stderr)

@@ -463,3 +463,16 @@ def test_interrupted_retry_loop_keeps_state_incomplete(analyst_ctx, tmp_path, mo
     with pytest.raises(KeyboardInterrupt):
         _run(analyst_ctx, tmp_path, client)
     assert calls and json.loads((tmp_path / "report.state.json").read_text())["complete"] is False
+
+
+def test_first_attempt_errors_recorded(analyst_ctx, tmp_path):
+    """Why a first try failed is kept per bank, with a per-section tally, so retry rates can be explained."""
+    outcomes = {100: "ok", 101: "bad", 102: "ok", 103: "ok"}
+    bad = {"sections": []}
+    client = BatchClient(analyst_ctx, tmp_path, outcomes, responses=[bad])
+    rep = _run(analyst_ctx, tmp_path, client)
+    by = {b["cert"]: b for b in rep["banks"]}
+    assert by[100]["first_errors"] == []
+    assert by[101]["first_errors"] and all("missing section" in e for e in by[101]["first_errors"])
+    assert rep["first_try_passed"] == sum(1 for b in rep["banks"] if b["ok"] and not b["first_errors"])
+    assert rep["first_error_sections"]["summary"] >= 1

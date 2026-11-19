@@ -28,7 +28,7 @@
 
 **Next**
 - Merge `phase5b-trend-agent` (owner's consent), then Phase 5c (peer comparison).
-- Small follow-up: record first-attempt checker errors in the showcase report (to see why retries were 60%, not 30%).
+- Done (same day, branch `showcase-first-errors`): the showcase report now records first-attempt checker errors per bank and a per-section tally, and the CLI prints it.
 - Older 5a follow-ups still open: rename "(first flag)", the checker residuals in decision 0016.
 
 **Open questions**
