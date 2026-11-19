@@ -116,8 +116,11 @@ def test_bad_as_of_raises(analyst_ctx):
 
 
 def test_quiet_bank_has_no_outcome_section():
+    import canary.analyst.trends  # noqa: F401  (registers the trend specialist, one extra section)
+
     assert "outcome" not in [s.key for s in sections.all_sections("quiet")]
-    assert [x.title for x in sections.all_sections("missed")].index("Why the model missed it") == 5
+    assert [x.title for x in sections.all_sections("missed")].index("Why the model missed it") == 4 + len(
+        [s for sp in sections.SPECIALISTS for s in sp.sections])
 
 
 def test_section_order_and_specialists():

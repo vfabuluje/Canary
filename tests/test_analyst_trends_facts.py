@@ -1,6 +1,8 @@
 from dataclasses import replace
 from datetime import date
 
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -134,6 +136,42 @@ def test_no_year_earlier_score(analyst_ctx, tmp_path):
     assert _kind(sheet, "trend_prior_percentile") == []
     assert _kind(sheet, "trend_rank_phrase") == []
     assert TREND_KEY in [s.key for s in sections_for(sheet)]
+    lines = render_trends(sheet)
+    assert lines[0] == ("There is no score from a year earlier to compare with (scores start 2016-03-31, "
+                        "or the bank did not report then).")
+
+
+def test_year_earlier_line_absent_when_rank_phrase_present(analyst_ctx, tmp_path):
+    sheet = _sheet(analyst_ctx, tmp_path)
+    assert not any("no score from a year earlier" in ln for ln in render_trends(sheet))
+
+
+def test_shown_count_fact(analyst_ctx, tmp_path, monkeypatch):
+    outs = [_trend(f, 20.0 + i, 8.0, 10.0) for i, f in enumerate(
+        ["equity_to_assets", "leverage_ratio", "tier1_risk_based_ratio", "total_risk_based_ratio",
+         "return_on_assets", "return_on_equity", "net_interest_margin"])]
+    _force(monkeypatch, date(2019, 12, 31), outs, checked=20)
+    sheet = _sheet(analyst_ctx, tmp_path)
+    (f,) = _kind(sheet, "trend_count_shown")
+    assert f.value == 6 and f.display == "6" and "6" in f.forms and f.feature is None
+    (o,) = _kind(sheet, "trend_count_outside")
+    assert o.value == 7
+
+
+def test_no_negative_zero(analyst_ctx, tmp_path, monkeypatch):
+    tiny = _trend("allowance_to_loans", -0.0001, 0.0, 0.0, c1=-0.0001, c4=-0.0, contribution=-0.0001)
+    _force(monkeypatch, date(2019, 12, 31), [tiny])
+    sheet = _sheet(analyst_ctx, tmp_path)
+    text = "\n".join(render_trends(sheet))
+    bad = ("-0.0%", "-0.00 pp", "-0.0 pp", "-0.000", "-0.00%")
+    for f in sheet.facts:
+        if f.kind and f.kind.startswith("trend_"):
+            for x in [f.display, *f.forms]:
+                assert not re.fullmatch(r"-0(\.0+)?%?", x), (f.label, x)
+                assert not any(b in x for b in bad), (f.label, x)
+    assert not any(b in text for b in bad), text
+    (v,) = _kind(sheet, "trend_value")
+    assert v.display == "-0.01%"  # reads differently from the 0.00% bound
 
 
 def test_year_earlier_facts_present(analyst_ctx, tmp_path):
@@ -218,6 +256,10 @@ def test_section_definition():
     assert TREND_SECTION.window == "as_of" and TREND_SECTION.ai_written
     assert TREND_SECTION.render is render_trends
     assert "percentage points" in TREND_SECTION.instructions
+    ins = TREND_SECTION.instructions
+    assert "one ratio per sentence" in ins and "fixed sentence" not in ins
+    assert "Don't write a disclaimer" in ins and "predict, forecast or warning" in ins
+    assert "if a rank-phrase fact is given" in ins.lower()
 
 
 def test_near_bound_values_get_more_decimals(analyst_ctx, tmp_path, monkeypatch):

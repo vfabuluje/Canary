@@ -230,6 +230,15 @@ def test_section_instructions_match_renderer(sheet):
     assert "fixed sentence" not in user.split("Write these sections")[1].split("Code adds")[0].lower()
 
 
+def test_ratio_table_line_only_when_trends_is_ai_written(analyst_ctx, sheet):
+    secs = all_sections(sheet.outcome.kind)
+    line = "Code adds the ratio table"
+    assert any(x.key == "trends" for x in secs)
+    assert line in build_request(sheet, secs, "claude-opus-5-5")["messages"][0]["content"]
+    no_trends = [x for x in secs if x.key != "trends"]
+    assert line not in build_request(sheet, no_trends, "claude-opus-5-5")["messages"][0]["content"]
+
+
 def test_cli_malformed_json_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
     assert _cli(monkeypatch, analyst_ctx, tmp_path, ["not json {"]) == 1
     assert "malformed" in capsys.readouterr().err

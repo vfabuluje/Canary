@@ -156,6 +156,16 @@ TOO_LITTLE = "This bank has too little history before {as_of} to compare its rat
 _FEATURES_SRC = "data/features/fct_bank_features.parquet"
 _SCORES_SRC = "data/analyst/scores.parquet"
 _WINDOW_TEXT = {"pit": "prior 12 quarters", "ytd": "same quarter, prior 3 years"}
+NO_YEAR_EARLIER = ("There is no score from a year earlier to compare with (scores start 2016-03-31, "
+                   "or the bank did not report then).")
+
+
+def _nz(text: str, plus: bool = False) -> str:
+    """Drop the sign of a formatted zero ("-0.0%" -> "0.0%", signed "-0.000" -> "+0.000")."""
+    if text.startswith("-") and not any(c in "123456789" for c in text):
+        return ("+" if plus else "") + text[1:]
+    return text
+
 
 def _percent(feature: str, v: float) -> float:
     return v if UNIT[feature] == "pct" else v * 100
@@ -166,16 +176,16 @@ def _decimals(r: RatioTrend) -> int:
     bound = r.hi if r.value > r.hi else r.lo
     pv, pb = _percent(r.feature, r.value), _percent(r.feature, bound)
     for d in (1, 2):
-        if f"{pv:.{d}f}" != f"{pb:.{d}f}":
+        if float(f"{pv:.{d}f}") != float(f"{pb:.{d}f}"):
             return d
     return 3
 
 
 def _shown_forms(feature: str, v: float, decimals: int = 1) -> list[str]:
     forms = display_forms(feature, v)
-    if decimals == 1:
-        return forms
-    return list(dict.fromkeys([f"{_percent(feature, v):.{decimals}f}%", *forms]))
+    if decimals != 1:
+        forms = [f"{_percent(feature, v):.{decimals}f}%", *forms]
+    return list(dict.fromkeys(_nz(x) for x in forms))
 
 
 def _bound_decimals(r: RatioTrend) -> tuple[int, int, int]:
@@ -192,7 +202,12 @@ def _range(r: RatioTrend) -> str:
 def _pp(d: float | None) -> str:
     if d is None:
         return "n/a"
-    return f"{d:+.2f} pp" if f"{d:+.1f}" in ("+0.0", "-0.0") else f"{d:+.1f} pp"
+    text = f"{d:+.2f}" if f"{d:+.1f}" in ("+0.0", "-0.0") else f"{d:+.1f}"
+    return f"{_nz(text, True)} pp"
+
+
+def _signed3(c: float) -> str:
+    return _nz(f"{c:+.3f}", True)
 
 
 def render_trends(sheet) -> list[str]:
@@ -200,15 +215,16 @@ def render_trends(sheet) -> list[str]:
     if result is None:
         return []
     shown = result.shown
+    head = [] if any(f.kind == "trend_rank_phrase" for f in sheet.facts) else [NO_YEAR_EARLIER, ""]
     if not shown:
         line = (TOO_LITTLE if result.checked == 0 else NONE_OUTSIDE).format(as_of=result.as_of)
-        return [line, "", TREND_SENTENCE]
-    lines = ["| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |",
+        return [*head, line, "", TREND_SENTENCE]
+    lines = head + ["| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |",
              "|---|---|---|---|---|---|---|---|"]
     for r in shown:
         lines.append(f"| {PLAIN_NAMES[r.feature]} | {_shown_forms(r.feature, r.value, _bound_decimals(r)[0])[0]} | {_range(r)} | "
                      f"{_WINDOW_TEXT[r.window]} | {_pp(r.change_1q_pp)} | {_pp(r.change_4q_pp)} | "
-                     f"{r.contribution:+.3f} | {r.direction} |")
+                     f"{_signed3(r.contribution)} | {r.direction} |")
     lines.append("")
     if len(result.outside) > len(shown):
         lines += [f"{len(result.outside)} of {result.checked} ratios were outside their prior range; "
@@ -222,11 +238,14 @@ TREND_SECTION = Section(
     "Cite only the trend facts (labels starting \"Trend\"), the two comparison-window facts, the "
     "\"Percentile a year earlier\" fact and the as-of rank facts. For each ratio you discuss, give its "
     "as-of value, its prior range (low and high) and the model's contribution for that same ratio, with "
-    "that ratio's direction label. State the rank phrase (how the model rated the bank against a year "
+    "that ratio's direction label. Give one ratio per sentence whenever you state its contribution or "
+    "direction. If a rank-phrase fact is given, state it (how the model rated the bank against a year "
     "earlier). Use each ratio's direction label and the rank phrase with the same meaning, no stronger "
     "or weaker claim. Where a ratio is outside its range but its direction is \"pushed the score down\" "
     "or \"little effect on the score\", say that contrast plainly. Never say a trend predicted, warned "
-    "of or would have caught anything, and do not mention the outcome. Contributions are in "
+    "of or would have caught anything, and do not mention the outcome. Don't write a disclaimer; code "
+    "adds one after your text. In this section don't use the words predict, forecast or warning at all, "
+    "even negated. Contributions are in "
     "\"model log-odds units\" (positive pushes the score up). Write changes with \"percentage points\" "
     "or \"pp\", never \"%\".",
     True,
@@ -259,7 +278,7 @@ def _change_forms(d: float) -> list[str]:
     forms = [f"{d:+.1f}", f"{abs(d):.1f}", f"{d:+.0f}", f"{abs(d):.0f}"]
     if f"{d:+.1f}" in ("+0.0", "-0.0"):
         forms = [f"{d:+.2f}", f"{abs(d):.2f}"] + forms
-    return forms
+    return list(dict.fromkeys(_nz(x, True) for x in forms))
 
 
 def _fact(label, value, display, forms, source, quarter, feature=None, kind=None) -> Fact:
@@ -302,8 +321,10 @@ class TrendSpecialist:
                     out.append(_fact(f"Trend: {name}, change over {span}, in percentage points", d,
                                      _pp(d), _change_forms(d), src, as_of, r.feature, kind))
             c = r.contribution
+            cforms = list(dict.fromkeys(_nz(x, True) for x in
+                                        (f"{c:+.3f}", f"{abs(c):.3f}", f"{abs(c):.2f}", f"{c:+.2f}")))
             out.append(_fact(f"Trend: {name}, contribution to the score (model log-odds units)", c,
-                             f"{c:+.3f}", [f"{c:+.3f}", f"{abs(c):.3f}", f"{abs(c):.2f}", f"{c:+.2f}"],
+                             cforms[0], cforms,
                              f"{_SCORES_SRC}: feature {r.feature} contribution", as_of, r.feature,
                              "trend_contribution"))
             out.append(_fact(f"Trend: {name}, what the model did with it", r.direction, r.direction, [],
@@ -313,6 +334,9 @@ class TrendSpecialist:
         n_out = len(result.outside)
         out.append(_fact("Trend: ratios outside their own prior range", n_out, str(n_out), _count_forms(n_out),
                          _FEATURES_SRC, as_of, None, "trend_count_outside"))
+        n_shown = len(result.shown)
+        out.append(_fact("Trend: ratios shown in the table (the furthest outside their prior range)", n_shown,
+                         str(n_shown), _count_forms(n_shown), _FEATURES_SRC, as_of, None, "trend_count_shown"))
         out.append(_fact("Trend: ratios compared with their own prior range", result.checked,
                          str(result.checked), _count_forms(result.checked), _FEATURES_SRC, as_of, None,
                          "trend_count_checked"))
@@ -337,5 +361,6 @@ class TrendSpecialist:
                 out.append(_fact("Trend: how the model's rating compares with a year earlier", phrase, phrase,
                                  [], f"{_SCORES_SRC}: percentile", as_of, None, "trend_rank_phrase"))
         return out
+
 
 sections_mod.register(TrendSpecialist())

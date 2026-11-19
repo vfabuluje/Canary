@@ -147,8 +147,9 @@ def _user_message(sheet: FactSheet, sections: list[Section]) -> str:
         "Code adds the score history table, the sources list, the outcome banner, the fixed sentence that "
         "the score is not a probability, and the \"What the model can't see\" paragraph after your score "
         "section. Do not write those yourself.",
-        "Code adds the ratio table and the fixed sentence after your trends section.",
     ]
+    if any(s.key == "trends" for s in ai_sections(sections)):
+        lines.append("Code adds the ratio table and the fixed sentence after your trends section.")
     return "\n".join(lines)
 
 
