@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2019-11-01
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-18T19:49:53"
+written_at: "2026-11-19T14:05:15"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2019-09-30, City National Bank Of New Jersey ranked 21 out of 5,325 banks nationally on Canary's risk score, placing it in the 99.6th percentile, where higher means riskier. That put it on Canary's watchlist, which covers the top 2% of banks by score. Its equity, the owners' cushion against losses, was 2.9% of assets against a national median of 11.6%, and it was losing money, with a return on assets of -1.4%.
+As of 2019-09-30, City National Bank Of New Jersey, a New Jersey bank, ranked 21 out of 5,325 banks nationally on Canary's risk score, which puts it in the 99.6th percentile on a scale where higher means riskier. That placed it on Canary's watchlist, which covers the top 2% of banks and held 107 banks that quarter. Its equity, the owners' money that absorbs losses, was only 2.9% of assets against a national median of 11.6%, and its return on equity, a measure of profit, was -45.9%. The bank was also shrinking: its assets changed by -33.2% over the past four quarters, while the national median grew 4.7%.
 
 ## Warning signs in the data
 
-Capital was very thin: the leverage ratio, core capital as a share of average assets, was 2.6% against a national median of 11.0%. The Tier 1 risk-based capital ratio, which measures core capital against riskier assets, was 4.9% versus a median of 15.6%, and the total risk-based capital ratio was 6.2% versus 16.7%. The bank was also unprofitable, with a return on equity of -45.9% against a median of 9.6%, and an efficiency ratio, operating costs as a share of revenue, of 148.2% versus 66.8%.
+Capital, the cushion that absorbs losses, was far below typical levels: equity was 2.9% of assets against a national median of 11.6%, and the leverage ratio (core capital as a share of average assets) was 2.6% against 11.0%. The Tier 1 risk-based capital ratio, which measures core capital against assets weighted by their riskiness, was 4.9% against a median of 15.6%, and the total risk-based capital ratio was 6.2% against 16.7%. The bank was losing money, with a return on assets of -1.4% against a median of 1.1%, and its operating costs ran at 148.2% of revenue against a median of 66.8%.
 
-Credit quality was weaker than typical: loans 90 or more days past due or not accruing interest were 2.6% of loans against a median of 0.6%. The Texas ratio, which compares troubled assets with capital plus reserves, was 25.5%, well above the median of 3.7%. Commercial real estate loans made up 62.1% of the loan book, far above the median of 22.6%.
+Credit quality, meaning how well borrowers were repaying, was weaker than usual: loans 90+ days past due or not accruing interest were 2.6% of loans against a median of 0.6%, and loans 30-89 days past due were 1.3% of assets against 0.3%. Nonaccrual assets and foreclosed property were 1.5% of assets against a median of 0.4%, and the Texas ratio, which compares troubled assets with capital plus reserves, was 25.5% against 3.7%. Commercial real estate loans made up 62.1% of its loans, well above the median of 22.6%, while its loan-loss reserves were 5.8% of loans against 1.2%. Its annualized provision for loan losses, the amount set aside for expected bad loans, was negative at -2.7% of assets against a median of 0.1%, meaning it reduced that set-aside rather than adding to it.
 
-On funding, deposits shrank by -36.3% over the past four quarters while the median bank grew deposits by 4.4%, and uninsured deposits, balances above the government insurance limit, were 32.1% of deposits against a median of 19.0%. The bank did hold more cash than usual, at 17.3% of assets versus a median of 6.9%. Unrealized losses on bonds available for sale equaled 4.0% of equity, compared with a median of -0.8%.
+On funding, deposits changed by -36.3% over the past four quarters against a median of 4.4%, and uninsured deposits (balances above the government insurance limit) were 32.1% of deposits against 19.0%. Some funding figures looked steadier: core deposits were 90.2% of assets against a median of 77.3%, and cash was 17.3% of assets against 6.9%. Unrealized losses on bonds available for sale were 4.0% of equity, against a national median of -0.8%.
 
 ## Understanding the score
 
-City National Bank Of New Jersey ranked 21 out of 5,325 banks on 2019-09-30, the 99.6th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, one of 107 banks that quarter in the top 2% by score.
+On 2019-09-30 the bank ranked 21 of 5,325 banks, in the 99.6th percentile, and was flagged on the watchlist that covers the top 2% of banks.
 
-The five factors that pushed its score up most were return on equity at -45.9%, the Tier 1 risk-based capital ratio at 4.9%, asset growth over the past four quarters at -33.2%, the total risk-based capital ratio at 6.2%, and loans as a share of deposits at 54.0%. The five factors that pulled its score down most were interest expense as a share of assets at 0.3%, the Texas ratio at 25.5%, nonaccrual assets and foreclosed property at 1.5% of assets, construction loans at 4.8% of loans, and commercial real estate loans at 62.1% of loans.
+Five features pushed the score up the most. The largest was its return on equity of -45.9%, followed by its Tier 1 risk-based capital ratio of 4.9%. Next came asset growth over the past four quarters of -33.2%, the total risk-based capital ratio of 6.2%, and loans equal to 54.0% of deposits.
+
+Five features pulled the score down the most. The largest was its low interest expense of 0.3% of assets, followed by its Texas ratio of 25.5%. Next came nonaccrual assets and foreclosed property at 1.5% of assets, construction loans at 4.8% of loans, and commercial real estate loans at 62.1% of loans.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-The bank ranked 21 out of 5,325 banks, and a year earlier it sat in the 99.9th percentile, so the model rated it about the same as a year earlier. Of 30 ratios compared with the bank's own prior range, 12 were outside it; most ratios are compared with the prior 12 quarters and year-to-date ratios with the same quarter in the prior 3 years.
+Most ratios are compared with the bank's own prior 12 quarters, and year-to-date ratios with the same quarter in the prior 3 years. Of 30 ratios checked this way, 12 sat outside their own prior range, and the 6 furthest outside are discussed here. The model's rating was about the same as a year earlier, when the bank sat in the 99.9th percentile, and it ranked 21 of 5,325 banks at 2019-09-30.
 
-The provision for loan losses, money set aside for expected bad loans, was -2.7% of assets, below its prior range of 0.0% to 3.0%, and its contribution of +0.060 model log-odds units pushed the score up. The efficiency ratio rose to 148.2%, above its prior range of 108.8% to 139.0%, yet its contribution of -0.084 pushed the score down. Deposit growth was -36.3%, below its prior range of -29.3% to 4.2%, yet its contribution of -0.232 pushed the score down.
+The provision for loan losses was -2.7% of assets, below its prior range of 0.0% to 3.0%, and this pushed the score up with a contribution of +0.060. Deposit growth was -36.3%, below its prior range of -29.3% to 4.2%, yet this pushed the score down with a contribution of -0.232. The efficiency ratio was 148.2%, above its prior range of 108.8% to 139.0%, yet this pushed the score down with a contribution of -0.084.
 
-Securities reached 25.2% of assets, above their prior range of 15.4% to 22.6%, and their contribution of -0.086 pushed the score down. Construction loans were 4.8% of loans, above their prior range of 1.8% to 4.4%, and their contribution of -0.461 pushed the score down. Net interest margin was 4.1%, above its prior range of 2.9% to 3.7%, but its contribution of -0.019 had little effect on the score.
+Construction loans were 4.8% of loans, above their prior range of 1.8% to 4.4%, and this pushed the score down with a contribution of -0.461. Securities were 25.2% of assets, above their prior range of 15.4% to 22.6%, and this pushed the score down with a contribution of -0.086. The net interest margin was 4.1%, above its prior range of 2.9% to 3.7%, yet it had little effect on the score, with a contribution of -0.019.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -75,22 +77,65 @@ Securities reached 25.2% of assets, above their prior range of 15.4% to 22.6%, a
 
 This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
 
+## Compared with similar banks
+
+The FDIC's specialty group for this bank at 2019-09-30: Commercial Lending Specialization.
+
+Peers: 1873 banks in the same specialty group and size tier ($100 million to $1 billion).
+
+The bank's provision for loan losses was -2.7% of assets, in the 0.0th percentile nationally, which is unusually low, and in the 0.0th percentile among peers against a peer median of 0.1%, which is unusually low among its peers too. Unrealized losses on bonds available for sale were 4.0% of equity, in the 99.9th percentile nationally, which is unusually high, and in the 100.0th percentile among peers against a peer median of -0.6%, which is unusually high among its peers too. Return on equity was -45.9%, in the 0.1st percentile nationally, which is unusually low, and in the 0.1st percentile among peers against a peer median of 10.1%, which is unusually low among its peers too. The total risk-based capital ratio was 6.2%, in the 0.1st percentile nationally, which is unusually low, and in the 0.1st percentile among peers against a peer median of 15.4%, which is unusually low among its peers too.
+
+The Tier 1 risk-based capital ratio was 4.9%, in the 0.1st percentile nationally, which is unusually low, and in the 0.1st percentile among peers against a peer median of 14.4%, which is unusually low among its peers too. Deposit growth was -36.3%, in the 0.2nd percentile nationally, which is unusually low, and in the 0.1st percentile among peers against a peer median of 5.6%, which is unusually low among its peers too. Asset growth was -33.2%, in the 0.2nd percentile nationally, which is unusually low, and in the 0.1st percentile among peers against a peer median of 5.7%, which is unusually low among its peers too. Equity was 2.9% of assets, in the 0.4th percentile nationally, which is unusually low, and in the 0.2nd percentile among peers against a peer median of 11.0%, which is unusually low among its peers too.
+
+Overall, 17 of the bank's ratios fell in the national top or bottom 10%, and 17 of those were also unusual among its peers.
+
+| Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
+|---|---|---|---|---|---|
+| annualized provision for loan losses as a share of assets | -2.7% | 0.0th (unusually low) | 0.1% | 0.0th | unusually low among its peers too |
+| losses on bonds available for sale, as a share of equity | 4.0% | 99.9th (unusually high) | -0.6% | 100.0th | unusually high among its peers too |
+| return on equity (profit as a share of equity) | -45.9% | 0.1st (unusually low) | 10.1% | 0.1st | unusually low among its peers too |
+| the total risk-based capital ratio | 6.2% | 0.1st (unusually low) | 15.4% | 0.1st | unusually low among its peers too |
+| the Tier 1 risk-based capital ratio | 4.9% | 0.1st (unusually low) | 14.4% | 0.1st | unusually low among its peers too |
+| deposit growth over the past four quarters | -36.3% | 0.2nd (unusually low) | 5.6% | 0.1st | unusually low among its peers too |
+| asset growth over the past four quarters | -33.2% | 0.2nd (unusually low) | 5.7% | 0.1st | unusually low among its peers too |
+| equity as a share of assets | 2.9% | 0.4th (unusually low) | 11.0% | 0.2nd | unusually low among its peers too |
+
+This section only compares the bank with banks the FDIC groups with it; an unusual figure is not a prediction of failure, and the comparison has not been tested as a warning signal.
+
+## Real-estate concentration (2006 regulator thresholds)
+
+This section checks a different, more common way banks have failed than SVB's: heavy lending tied to commercial real estate. It applies the screens the OCC, Federal Reserve and FDIC set in 2006 to flag a bank for closer supervisory review; they are not lending limits.
+
+Capital measure: total risk-based capital, as the 2006 guidance specifies.
+
+| Test | Bank | Line | Meets it? |
+|---|---|---|---|
+| Construction and land loans ÷ capital | 67.0% | 100% or more | no |
+| Total commercial real estate loans ÷ capital | 192.8% | 300% or more | no |
+| Growth in commercial real estate loans over the prior 36 months | -70.7% | 50% or more | no |
+
+It did not cross either line.
+
+Total commercial real estate here means construction and land, multifamily, and non-owner-occupied commercial property loans, plus loans to finance commercial real estate not secured by real estate (FDIC call report data).
+
+Crossing a line is a supervisory screen, not a prediction: it has not been tested as a warning signal in Canary.
+
 ## How early Canary caught it
 
-In hindsight, Canary first flagged the bank in the quarter ending 2018-12-31, and the bank failed on 2019-11-01, a lead time of 4 quarters. At that first flag, the main factors pushing the score up were a Tier 1 risk-based capital ratio of 5.3%, a return on equity of -88.2%, and unrealized losses on bonds available for sale equal to 34.1% of equity. The Texas ratio of 56.8% and a total risk-based capital ratio of 6.6% also pushed the score up at that time.
+In hindsight, Canary first flagged this bank in the quarter ending 2018-12-31, a lead time of 4 quarters before it failed on 2019-11-01. At that first flag, the main factors pushing the score up were a Tier 1 risk-based capital ratio of 5.3% and a return on equity of -88.2%. They were followed by unrealized losses on bonds available for sale of 34.1% of equity, a Texas ratio of 56.8%, and a total risk-based capital ratio of 6.6%.
 
 ## What happened next
 
-In hindsight, the bank's last reported quarter was 2019-09-30, and it failed on 2019-11-01. After that it stopped reporting, so there are no later ranks or flags; our data does not distinguish a merger from a closure for banks that stop reporting.
+In hindsight, the bank failed on 2019-11-01. Its last quarterly report in our data was for 2019-09-30, after which it stopped reporting; our data does not distinguish between a merger and a closure when a bank stops reporting.
 
 ## Sources
 
 - F1 · Bank name · n/a · City National Bank Of New Jersey · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2019-09-30 · 2019-09-30 · data/features/fct_bank_features.parquet: report_date
+- F4 · State · n/a · NJ · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2019-09-30 · 21 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2019-09-30 · 5,325 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2019-09-30 · 99.6% · data/analyst/scores.parquet: percentile
-- F9 · Percentile scale (0 to 100; higher means riskier) · n/a · 0 to 100 · canary.analyst.facts: percentile scale (fixed)
 - F10 · On the watchlist · 2019-09-30 · flagged · data/analyst/scores.parquet: flagged
 - F11 · Watchlist share of banks · n/a · 2% · canary.model.metrics.WATCHLIST_SHARE
 - F12 · Banks on the watchlist that quarter · 2019-09-30 · 107 · data/analyst/scores.parquet: flagged
@@ -104,21 +149,33 @@ In hindsight, the bank's last reported quarter was 2019-09-30, and it failed on 
 - F20 · National median: the total risk-based capital ratio · 2019-09-30 · 16.7% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2019-09-30 · 2.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2019-09-30 · 0.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
+- F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2019-09-30 · 1.5% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2019-09-30 · 0.4% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
+- F25 · Bank: loans 30-89 days past due, as a share of assets · 2019-09-30 · 1.3% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
+- F26 · National median: loans 30-89 days past due, as a share of assets · 2019-09-30 · 0.3% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
+- F27 · Bank: loan-loss reserves as a share of loans · 2019-09-30 · 5.8% · data/features/fct_bank_features.parquet: allowance_to_loans
+- F28 · National median: loan-loss reserves as a share of loans · 2019-09-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
+- F31 · Bank: annualized provision for loan losses as a share of assets · 2019-09-30 · -2.7% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F32 · National median: annualized provision for loan losses as a share of assets · 2019-09-30 · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
 - F35 · Bank: commercial real estate loans as a share of loans · 2019-09-30 · 62.1% · data/features/fct_bank_features.parquet: cre_loans_to_loans
 - F36 · National median: commercial real estate loans as a share of loans · 2019-09-30 · 22.6% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2019-09-30 · 25.5% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2019-09-30 · 3.7% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2019-09-30 · -1.4% · data/features/fct_bank_features.parquet: return_on_assets
+- F40 · National median: return on assets (profit as a share of assets) · 2019-09-30 · 1.1% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2019-09-30 · -45.9% · data/features/fct_bank_features.parquet: return_on_equity
-- F42 · National median: return on equity (profit as a share of equity) · 2019-09-30 · 9.6% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
 - F45 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2019-09-30 · 148.2% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F46 · National median: the efficiency ratio (operating costs as a share of revenue) · 2019-09-30 · 66.8% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2019-09-30 · 32.1% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2019-09-30 · 19.0% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
+- F55 · Bank: core deposits as a share of assets · 2019-09-30 · 90.2% · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F56 · National median: core deposits as a share of assets · 2019-09-30 · 77.3% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
 - F61 · Bank: cash as a share of assets · 2019-09-30 · 17.3% · data/features/fct_bank_features.parquet: cash_to_assets
 - F62 · National median: cash as a share of assets · 2019-09-30 · 6.9% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2019-09-30 · 4.0% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2019-09-30 · -0.8% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
+- F71 · Bank: asset growth over the past four quarters · 2019-09-30 · -33.2% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F72 · National median: asset growth over the past four quarters · 2019-09-30 · 4.7% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
 - F73 · Bank: deposit growth over the past four quarters · 2019-09-30 · -36.3% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F74 · National median: deposit growth over the past four quarters · 2019-09-30 · 4.4% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: return on equity (profit as a share of equity), value -45.9%; contribution to the score · 2019-09-30 · +1.116 · data/analyst/scores.parquet: feature return_on_equity contribution
@@ -171,8 +228,60 @@ In hindsight, the bank's last reported quarter was 2019-09-30, and it failed on 
 - F140 · Trend: construction loans as a share of loans, contribution to the score (model log-odds units) · 2019-09-30 · -0.461 · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
 - F141 · Trend: construction loans as a share of loans, what the model did with it · 2019-09-30 · pushed the score down · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
 - F142 · Trend: ratios outside their own prior range · 2019-09-30 · 12 · data/features/fct_bank_features.parquet
+- F143 · Trend: ratios shown in the table (the furthest outside their prior range) · 2019-09-30 · 6 · data/features/fct_bank_features.parquet
 - F144 · Trend: ratios compared with their own prior range · 2019-09-30 · 30 · data/features/fct_bank_features.parquet
 - F145 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F146 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F147 · Percentile a year earlier (100 = highest risk) · 2018-09-30 · 99.9% · data/analyst/scores.parquet: percentile
 - F148 · Trend: how the model's rating compares with a year earlier · 2019-09-30 · about the same as a year earlier · data/analyst/scores.parquet: percentile
+- F152 · Peers: annualized provision for loan losses as a share of assets, bank value at the as-of quarter · 2019-09-30 · -2.7% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F153 · Peers: annualized provision for loan losses as a share of assets, national percentile (100 = highest value among all banks) · 2019-09-30 · 0.0th · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F154 · Peers: annualized provision for loan losses as a share of assets, national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F155 · Peers: annualized provision for loan losses as a share of assets, percentile among its peers (100 = highest value) · 2019-09-30 · 0.0th · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F156 · Peers: annualized provision for loan losses as a share of assets, peer median · 2019-09-30 · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F157 · Peers: annualized provision for loan losses as a share of assets, reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: provision_to_assets_ann
+- F158 · Peers: losses on bonds available for sale, as a share of equity, bank value at the as-of quarter · 2019-09-30 · 4.0% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
+- F159 · Peers: losses on bonds available for sale, as a share of equity, national percentile (100 = highest value among all banks) · 2019-09-30 · 99.9th · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
+- F160 · Peers: losses on bonds available for sale, as a share of equity, national reading · 2019-09-30 · unusually high · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
+- F161 · Peers: losses on bonds available for sale, as a share of equity, percentile among its peers (100 = highest value) · 2019-09-30 · 100.0th · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
+- F162 · Peers: losses on bonds available for sale, as a share of equity, peer median · 2019-09-30 · -0.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
+- F163 · Peers: losses on bonds available for sale, as a share of equity, reading against its peers · 2019-09-30 · unusually high among its peers too · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
+- F164 · Peers: return on equity (profit as a share of equity), bank value at the as-of quarter · 2019-09-30 · -45.9% · data/features/fct_bank_features.parquet: return_on_equity
+- F165 · Peers: return on equity (profit as a share of equity), national percentile (100 = highest value among all banks) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: return_on_equity
+- F166 · Peers: return on equity (profit as a share of equity), national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: return_on_equity
+- F167 · Peers: return on equity (profit as a share of equity), percentile among its peers (100 = highest value) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: return_on_equity
+- F168 · Peers: return on equity (profit as a share of equity), peer median · 2019-09-30 · 10.1% · data/features/fct_bank_features.parquet: return_on_equity
+- F169 · Peers: return on equity (profit as a share of equity), reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: return_on_equity
+- F170 · Peers: the total risk-based capital ratio, bank value at the as-of quarter · 2019-09-30 · 6.2% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F171 · Peers: the total risk-based capital ratio, national percentile (100 = highest value among all banks) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F172 · Peers: the total risk-based capital ratio, national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F173 · Peers: the total risk-based capital ratio, percentile among its peers (100 = highest value) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F174 · Peers: the total risk-based capital ratio, peer median · 2019-09-30 · 15.4% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F175 · Peers: the total risk-based capital ratio, reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F176 · Peers: the Tier 1 risk-based capital ratio, bank value at the as-of quarter · 2019-09-30 · 4.9% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F177 · Peers: the Tier 1 risk-based capital ratio, national percentile (100 = highest value among all banks) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F178 · Peers: the Tier 1 risk-based capital ratio, national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F179 · Peers: the Tier 1 risk-based capital ratio, percentile among its peers (100 = highest value) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F180 · Peers: the Tier 1 risk-based capital ratio, peer median · 2019-09-30 · 14.4% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F181 · Peers: the Tier 1 risk-based capital ratio, reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F182 · Peers: deposit growth over the past four quarters, bank value at the as-of quarter · 2019-09-30 · -36.3% · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F183 · Peers: deposit growth over the past four quarters, national percentile (100 = highest value among all banks) · 2019-09-30 · 0.2nd · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F184 · Peers: deposit growth over the past four quarters, national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F185 · Peers: deposit growth over the past four quarters, percentile among its peers (100 = highest value) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F186 · Peers: deposit growth over the past four quarters, peer median · 2019-09-30 · 5.6% · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F187 · Peers: deposit growth over the past four quarters, reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F188 · Peers: asset growth over the past four quarters, bank value at the as-of quarter · 2019-09-30 · -33.2% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F189 · Peers: asset growth over the past four quarters, national percentile (100 = highest value among all banks) · 2019-09-30 · 0.2nd · data/features/fct_bank_features.parquet: asset_growth_4q
+- F190 · Peers: asset growth over the past four quarters, national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: asset_growth_4q
+- F191 · Peers: asset growth over the past four quarters, percentile among its peers (100 = highest value) · 2019-09-30 · 0.1st · data/features/fct_bank_features.parquet: asset_growth_4q
+- F192 · Peers: asset growth over the past four quarters, peer median · 2019-09-30 · 5.7% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F193 · Peers: asset growth over the past four quarters, reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: asset_growth_4q
+- F194 · Peers: equity as a share of assets, bank value at the as-of quarter · 2019-09-30 · 2.9% · data/features/fct_bank_features.parquet: equity_to_assets
+- F195 · Peers: equity as a share of assets, national percentile (100 = highest value among all banks) · 2019-09-30 · 0.4th · data/features/fct_bank_features.parquet: equity_to_assets
+- F196 · Peers: equity as a share of assets, national reading · 2019-09-30 · unusually low · data/features/fct_bank_features.parquet: equity_to_assets
+- F197 · Peers: equity as a share of assets, percentile among its peers (100 = highest value) · 2019-09-30 · 0.2nd · data/features/fct_bank_features.parquet: equity_to_assets
+- F198 · Peers: equity as a share of assets, peer median · 2019-09-30 · 11.0% · data/features/fct_bank_features.parquet: equity_to_assets
+- F199 · Peers: equity as a share of assets, reading against its peers · 2019-09-30 · unusually low among its peers too · data/features/fct_bank_features.parquet: equity_to_assets
+- F201 · Peers: ratios in the national top or bottom 10% · 2019-09-30 · 17 · data/features/fct_bank_features.parquet
+- F202 · Peers: those ratios also unusual among peers · 2019-09-30 · 17 · data/features/fct_bank_features.parquet
+- F204 · Peers: cut-off for unusual (top or bottom share of banks) · 2019-09-30 · 10% · data/features/fct_bank_features.parquet

@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2017-01-13
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-18T19:51:05"
+written_at: "2026-11-19T14:05:47"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-Harvest Community Bank, a New Jersey bank with $124.2 million in total assets, ranked 3 out of 5,983 banks nationally on Canary's risk score as of 2016-12-31, placing it in the 100.0th percentile. That put it on Canary's watchlist, the 2% of banks with the highest scores. Its capital cushion (the owners' money that absorbs losses) was very thin, with equity at 1.4% of assets against a national median of 10.7%. At the same time, 18.2% of its loans were 90 or more days past due or no longer earning interest, far above the national median of 0.6%.
+As of 2016-12-31, Harvest Community Bank, based in NJ, ranked 3 out of 5,983 banks nationally on Canary's risk score, which puts it in the 100.0th percentile. That places it on Canary's watchlist, which covers the top 2% of banks by score. Its capital cushion, the owners' money that absorbs losses, was very thin: equity was 1.4% of assets against a national median of 10.7%. At the same time, 18.2% of its loans were seriously overdue or no longer paying interest, against a national median of 0.6%.
 
 ## Warning signs in the data
 
-Capital was the weakest point: the leverage ratio (core capital as a share of average assets) was 1.4% against a national median of 10.4%. The Tier 1 risk-based capital ratio (core capital measured against riskier assets) was 1.9% versus a median of 15.0%, and the total risk-based capital ratio was 3.2% versus 16.2%. Profits were negative, with return on assets at -1.3% against a median of 0.9% and return on equity at -64.3% against 8.0%.
+Capital, the owners' money that absorbs losses, was very low: equity was 1.4% of assets against a national median of 10.7%. The leverage ratio, core capital as a share of average assets, was 1.4% versus a median of 10.4%. The Tier 1 risk-based capital ratio, which measures core capital against assets weighted by their riskiness, was 1.9% versus 15.0%, and the broader total risk-based capital ratio was 3.2% versus 16.2%.
 
-Credit quality, meaning how well borrowers were repaying, was poor. Loans 90 or more days past due or not accruing interest were 18.2% of loans against a median of 0.6%, and nonaccrual assets plus foreclosed property were 16.3% of assets against 0.5%. The Texas ratio, which compares troubled assets with capital plus reserves, stood at 382.7% versus a national median of 4.9%. Loans that were recently past due but not yet seriously late were 1.9% of assets, well above the median of 0.3%.
+Loan quality was poor: loans 90+ days past due or not accruing interest made up 18.2% of loans, against a national median of 0.6%. Nonaccrual assets and foreclosed property, meaning loans no longer earning interest plus repossessed real estate, were 16.3% of assets versus a median of 0.5%. The Texas ratio, troubled assets measured against capital plus reserves, stood at 382.7% compared with a median of 4.9%. The bank was losing money, with return on assets at -1.3% versus 0.9% and return on equity at -64.3% versus 8.0%.
 
-Funding looked steadier: core deposits (stable everyday deposits) were 96.6% of assets against a median of 78.8%, and uninsured deposits were only 2.3% of deposits versus 17.3%. Still, the bank was shrinking, with asset growth of -12.4% and deposit growth of -9.5% over the past four quarters, while the medians were 3.5% and 3.6%. Unrealized losses on bonds available for sale were 6.7% of equity, well above the median of 0.7%.
+Funding looked steadier: core deposits, the stable everyday deposits a bank relies on, were 96.6% of assets versus a median of 78.8%, and uninsured deposits were only 2.3% of deposits against 17.3%. Unrealized losses on bonds available for sale, paper losses on bonds the bank could sell, equaled 6.7% of equity, well above the 0.7% median. Total assets changed by -12.4% over the past four quarters, while the median bank grew by 3.5%.
 
 ## Understanding the score
 
-As of 2016-12-31, Harvest Community Bank ranked 3 out of 5,983 banks, the 100.0th percentile on a scale where higher means riskier. It was flagged on the watchlist, which held 120 banks that quarter, the top 2% by score.
+For the quarter ending 2016-12-31, Harvest Community Bank ranked 3 out of 5,983 banks, placing it in the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which covers the top 2% of banks, or 120 banks that quarter.
 
-The five factors that pushed the score up most were a Tier 1 risk-based capital ratio of 1.9% (+2.139), a Texas ratio of 382.7% (+1.450), and return on equity of -64.3% (+1.282). They also included loans 90 or more days past due or not accruing interest at 18.2% of loans (+0.755) and a leverage ratio of 1.4% (+0.636).
+The factors pushing the score up most were the Tier 1 risk-based capital ratio at 1.9%, the Texas ratio at 382.7%, and return on equity at -64.3%. Next came loans 90+ days past due or not accruing interest at 18.2% of loans, and the leverage ratio at 1.4%.
 
-The five factors that pulled the score down most were interest expense at 0.7% of assets (-0.720), construction loans at 9.7% of loans (-0.124), and volatile funding at 1.8% of assets (-0.112). They also included cash at 5.6% of assets (-0.098) and an efficiency ratio, operating costs as a share of revenue, of 143.4% (-0.078).
+The factors pulling the score down most were interest expense at 0.7% of assets, construction loans at 9.7% of loans, and volatile funding, money that can leave quickly, at 1.8% of assets. Cash at 5.6% of assets and the efficiency ratio, operating costs as a share of revenue, at 143.4% also pulled the score down slightly.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -54,11 +54,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-As of 2016-12-31 the bank ranked 3 out of 5,983 banks, and 12 of the 30 ratios Canary tracks sat outside their own prior range, with the 6 furthest outside shown in the table. For most ratios the comparison window is the prior 12 quarters, and for year-to-date ratios it is the same quarter in the prior 3 years.
+Canary compared 30 of the bank's ratios with their own history over the prior 12 quarters, and 12 of them sat outside that prior range as of 2016-12-31. At that quarter the bank ranked 3 out of 5,983 banks.
 
-The Texas ratio reached 382.7%, above its prior range of 81.9% to 362.8% after rising +75.7 pp over four quarters, and its contribution of +1.450 model log-odds units pushed the score up. Losses on bonds available for sale were 6.7% of equity, above their prior range of -7.9% to 4.7%, and contributed +0.164, which pushed the score up. Core deposits were 96.6% of assets, above their prior range of 87.0% to 95.9%, and contributed +0.195, which pushed the score up.
+The Texas ratio, troubled assets against capital plus reserves, reached 382.7%, above its prior range of 81.9% to 362.8%, and pushed the score up with a contribution of +1.450. It rose +19.9 pp over one quarter and +75.7 pp over four quarters. Losses on bonds available for sale were 6.7% of equity, above their prior range of -7.9% to 4.7%, and pushed the score up with a contribution of +0.164. Core deposits reached 96.6% of assets, above their prior range of 87.0% to 95.9%, and pushed the score up with a contribution of +0.195.
 
-The efficiency ratio was 143.4%, above its prior range of 82.3% to 139.7%, yet its contribution of -0.078 pushed the score down. Securities were 11.6% of assets, below their prior range of 12.3% to 21.1%, and their contribution of -0.061 pushed the score down. Uninsured deposits were 2.3% of deposits, below their prior range of 2.6% to 5.8%, but their contribution of +0.043 had little effect on the score.
+The efficiency ratio, operating costs as a share of revenue, climbed to 143.4%, above its prior range of 82.3% to 139.7%, yet it pushed the score down, with a contribution of -0.078. Securities fell to 11.6% of assets, below their prior range of 12.3% to 21.1%, and this pushed the score down, with a contribution of -0.061. Uninsured deposits were 2.3% of deposits, below their prior range of 2.6% to 5.8%, but had little effect on the score, with a contribution of +0.043.
 
 There is no score from a year earlier to compare with (scores start 2016-03-31, or the bank did not report then).
 
@@ -75,15 +75,59 @@ There is no score from a year earlier to compare with (scores start 2016-03-31, 
 
 This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
 
+## Compared with similar banks
+
+The FDIC's specialty group for this bank at 2016-12-31: Commercial Lending Specialization.
+
+Peers: 2106 banks in the same specialty group and size tier ($100 million to $1 billion).
+
+The Tier 1 risk-based capital ratio was 1.9%, at the 0.1st percentile nationally, which is unusually low, and at the 0.1st percentile among peers against a peer median of 13.6%, unusually low among its peers too. The total risk-based capital ratio was 3.2%, at the 0.1st percentile nationally, which is unusually low, and at the 0.1st percentile among peers against a peer median of 14.7%, unusually low among its peers too. Equity as a share of assets was 1.4%, at the 0.4th percentile nationally, which is unusually low, and at the 0.3rd percentile among peers against a peer median of 10.3%, unusually low among its peers too. Return on equity was -64.3%, at the 0.1st percentile nationally, which is unusually low, and at the 0.2nd percentile among peers against a peer median of 8.4%, unusually low among its peers too.
+
+The Texas ratio was 382.7%, at the 99.9th percentile nationally, which is unusually high, and at the 99.9th percentile among peers against a peer median of 6.1%, unusually high among its peers too. Loans 90+ days past due or not accruing interest were 18.2% of loans, at the 99.9th percentile nationally, which is unusually high, and at the 99.9th percentile among peers against a peer median of 0.6%, unusually high among its peers too. Nonaccrual assets and foreclosed property were 16.3% of assets, at the 99.9th percentile nationally, which is unusually high, and at the 99.7th percentile among peers against a peer median of 0.7%, unusually high among its peers too. Core deposits were 96.6% of assets, at the 100.0th percentile nationally, which is unusually high, and at the 100.0th percentile among peers against a peer median of 78.5%, unusually high among its peers too.
+
+Overall, 18 of the bank's ratios were in the national top or bottom 10%, and 18 of those were also unusual among its peers.
+
+| Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
+|---|---|---|---|---|---|
+| core deposits as a share of assets | 96.6% | 100.0th (unusually high) | 78.5% | 100.0th | unusually high among its peers too |
+| the Texas ratio (troubled assets against capital plus reserves) | 382.7% | 99.9th (unusually high) | 6.1% | 99.9th | unusually high among its peers too |
+| the total risk-based capital ratio | 3.2% | 0.1st (unusually low) | 14.7% | 0.1st | unusually low among its peers too |
+| the Tier 1 risk-based capital ratio | 1.9% | 0.1st (unusually low) | 13.6% | 0.1st | unusually low among its peers too |
+| loans 90+ days past due or not accruing interest, as a share of loans | 18.2% | 99.9th (unusually high) | 0.6% | 99.9th | unusually high among its peers too |
+| nonaccrual assets and foreclosed property, as a share of assets | 16.3% | 99.9th (unusually high) | 0.7% | 99.7th | unusually high among its peers too |
+| return on equity (profit as a share of equity) | -64.3% | 0.1st (unusually low) | 8.4% | 0.2nd | unusually low among its peers too |
+| equity as a share of assets | 1.4% | 0.4th (unusually low) | 10.3% | 0.3rd | unusually low among its peers too |
+
+This section only compares the bank with banks the FDIC groups with it; an unusual figure is not a prediction of failure, and the comparison has not been tested as a warning signal.
+
+## Real-estate concentration (2006 regulator thresholds)
+
+This section checks a different, more common way banks have failed than SVB's: heavy lending tied to commercial real estate. It applies the screens the OCC, Federal Reserve and FDIC set in 2006 to flag a bank for closer supervisory review; they are not lending limits.
+
+Capital measure: total risk-based capital, as the 2006 guidance specifies.
+
+| Test | Bank | Line | Meets it? |
+|---|---|---|---|
+| Construction and land loans ÷ capital | 318.8% | 100% or more | yes |
+| Total commercial real estate loans ÷ capital | 652.6% | 300% or more | yes |
+| Growth in commercial real estate loans over the prior 36 months | -18.3% | 50% or more | no |
+
+It crossed the construction line (100% or more of capital).
+Its commercial real estate loans reached 300% of capital, but grew less than 50% over 36 months, so it did not cross the second line.
+
+Total commercial real estate here means construction and land, multifamily, and non-owner-occupied commercial property loans, plus loans to finance commercial real estate not secured by real estate (FDIC call report data).
+
+Crossing a line is a supervisory screen, not a prediction: it has not been tested as a warning signal in Canary.
+
 ## How early Canary caught it
 
-In hindsight, Canary first flagged Harvest Community Bank in the quarter ending 2016-03-31, and the bank failed on 2017-01-13. That gave a lead time of 4 quarters before failure under Canary's lead-time rule.
+In hindsight, Canary first flagged the bank in the quarter ending 2016-03-31, a lead time of 4 quarters before it failed on 2017-01-13. At that first flag, the main factors pushing the score up were the Tier 1 risk-based capital ratio at 2.9%, the Texas ratio at 322.2%, and return on equity at -51.7%. Loans 90+ days past due or not accruing interest at 17.9% of loans and the total risk-based capital ratio at 4.2% also pushed it up.
 
-At that first flag, the main factors pushing the score up were a Tier 1 risk-based capital ratio of 2.9% (+2.088), a Texas ratio of 322.2% (+1.217), and return on equity of -51.7% (+0.923). Loans 90 or more days past due or not accruing interest at 17.9% of loans (+0.661) and a total risk-based capital ratio of 4.2% (+0.492) completed the top five.
+By 2016-12-31 the same weaknesses had deepened, with the Tier 1 ratio down to 1.9% and the Texas ratio up to 382.7%.
 
 ## What happened next
 
-In hindsight, the last quarter Harvest Community Bank reported was 2016-12-31, the same quarter this memo describes. The bank failed on 2017-01-13, shortly after that report, so it has no later ranks or flags.
+In hindsight, the bank failed on 2017-01-13, shortly after the as-of quarter. Its last regulatory report was for the quarter ending 2016-12-31, so no later ranks or flags exist.
 
 ## Sources
 
@@ -109,8 +153,6 @@ In hindsight, the last quarter Harvest Community Bank reported was 2016-12-31, t
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2016-12-31 · 0.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2016-12-31 · 16.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2016-12-31 · 0.5% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
-- F25 · Bank: loans 30-89 days past due, as a share of assets · 2016-12-31 · 1.9% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
-- F26 · National median: loans 30-89 days past due, as a share of assets · 2016-12-31 · 0.3% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2016-12-31 · 382.7% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2016-12-31 · 4.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2016-12-31 · -1.3% · data/features/fct_bank_features.parquet: return_on_assets
@@ -123,11 +165,8 @@ In hindsight, the last quarter Harvest Community Bank reported was 2016-12-31, t
 - F56 · National median: core deposits as a share of assets · 2016-12-31 · 78.8% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2016-12-31 · 6.7% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2016-12-31 · 0.7% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
-- F69 · Bank: total assets · 2016-12-31 · $124.2 million · data/features/fct_bank_features.parquet: log_total_assets
 - F71 · Bank: asset growth over the past four quarters · 2016-12-31 · -12.4% · data/features/fct_bank_features.parquet: asset_growth_4q
 - F72 · National median: asset growth over the past four quarters · 2016-12-31 · 3.5% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
-- F73 · Bank: deposit growth over the past four quarters · 2016-12-31 · -9.5% · data/features/fct_bank_features.parquet: deposit_growth_4q
-- F74 · National median: deposit growth over the past four quarters · 2016-12-31 · 3.6% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: the Tier 1 risk-based capital ratio, value 1.9%; contribution to the score · 2016-12-31 · +2.139 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F76 · Driver up #2: the Texas ratio (troubled assets against capital plus reserves), value 382.7%; contribution to the score · 2016-12-31 · +1.450 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F77 · Driver up #3: return on equity (profit as a share of equity), value -64.3%; contribution to the score · 2016-12-31 · +1.282 · data/analyst/scores.parquet: feature return_on_equity contribution
@@ -170,6 +209,7 @@ In hindsight, the last quarter Harvest Community Bank reported was 2016-12-31, t
 - F127 · Trend: the Texas ratio (troubled assets against capital plus reserves), value at the as-of quarter · 2016-12-31 · 382.7% · data/features/fct_bank_features.parquet: texas_ratio
 - F128 · Trend: the Texas ratio (troubled assets against capital plus reserves), lowest value in the comparison window · n/a · 81.9% · data/features/fct_bank_features.parquet: texas_ratio
 - F129 · Trend: the Texas ratio (troubled assets against capital plus reserves), highest value in the comparison window · n/a · 362.8% · data/features/fct_bank_features.parquet: texas_ratio
+- F130 · Trend: the Texas ratio (troubled assets against capital plus reserves), change over one quarter, in percentage points · 2016-12-31 · +19.9 pp · data/features/fct_bank_features.parquet: texas_ratio
 - F131 · Trend: the Texas ratio (troubled assets against capital plus reserves), change over four quarters, in percentage points · 2016-12-31 · +75.7 pp · data/features/fct_bank_features.parquet: texas_ratio
 - F132 · Trend: the Texas ratio (troubled assets against capital plus reserves), contribution to the score (model log-odds units) · 2016-12-31 · +1.450 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F133 · Trend: the Texas ratio (troubled assets against capital plus reserves), what the model did with it · 2016-12-31 · pushed the score up · data/analyst/scores.parquet: feature texas_ratio contribution
@@ -179,7 +219,56 @@ In hindsight, the last quarter Harvest Community Bank reported was 2016-12-31, t
 - F138 · Trend: the efficiency ratio (operating costs as a share of revenue), contribution to the score (model log-odds units) · 2016-12-31 · -0.078 · data/analyst/scores.parquet: feature efficiency_ratio contribution
 - F139 · Trend: the efficiency ratio (operating costs as a share of revenue), what the model did with it · 2016-12-31 · pushed the score down · data/analyst/scores.parquet: feature efficiency_ratio contribution
 - F140 · Trend: ratios outside their own prior range · 2016-12-31 · 12 · data/features/fct_bank_features.parquet
-- F141 · Trend: ratios shown in the table (the furthest outside their prior range) · 2016-12-31 · 6 · data/features/fct_bank_features.parquet
 - F142 · Trend: ratios compared with their own prior range · 2016-12-31 · 30 · data/features/fct_bank_features.parquet
 - F143 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F144 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
+- F148 · Peers: core deposits as a share of assets, bank value at the as-of quarter · 2016-12-31 · 96.6% · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F149 · Peers: core deposits as a share of assets, national percentile (100 = highest value among all banks) · 2016-12-31 · 100.0th · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F150 · Peers: core deposits as a share of assets, national reading · 2016-12-31 · unusually high · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F151 · Peers: core deposits as a share of assets, percentile among its peers (100 = highest value) · 2016-12-31 · 100.0th · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F152 · Peers: core deposits as a share of assets, peer median · 2016-12-31 · 78.5% · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F153 · Peers: core deposits as a share of assets, reading against its peers · 2016-12-31 · unusually high among its peers too · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F154 · Peers: the Texas ratio (troubled assets against capital plus reserves), bank value at the as-of quarter · 2016-12-31 · 382.7% · data/features/fct_bank_features.parquet: texas_ratio
+- F155 · Peers: the Texas ratio (troubled assets against capital plus reserves), national percentile (100 = highest value among all banks) · 2016-12-31 · 99.9th · data/features/fct_bank_features.parquet: texas_ratio
+- F156 · Peers: the Texas ratio (troubled assets against capital plus reserves), national reading · 2016-12-31 · unusually high · data/features/fct_bank_features.parquet: texas_ratio
+- F157 · Peers: the Texas ratio (troubled assets against capital plus reserves), percentile among its peers (100 = highest value) · 2016-12-31 · 99.9th · data/features/fct_bank_features.parquet: texas_ratio
+- F158 · Peers: the Texas ratio (troubled assets against capital plus reserves), peer median · 2016-12-31 · 6.1% · data/features/fct_bank_features.parquet: texas_ratio
+- F159 · Peers: the Texas ratio (troubled assets against capital plus reserves), reading against its peers · 2016-12-31 · unusually high among its peers too · data/features/fct_bank_features.parquet: texas_ratio
+- F160 · Peers: the total risk-based capital ratio, bank value at the as-of quarter · 2016-12-31 · 3.2% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F161 · Peers: the total risk-based capital ratio, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F162 · Peers: the total risk-based capital ratio, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F163 · Peers: the total risk-based capital ratio, percentile among its peers (100 = highest value) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F164 · Peers: the total risk-based capital ratio, peer median · 2016-12-31 · 14.7% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F165 · Peers: the total risk-based capital ratio, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F166 · Peers: the Tier 1 risk-based capital ratio, bank value at the as-of quarter · 2016-12-31 · 1.9% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F167 · Peers: the Tier 1 risk-based capital ratio, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F168 · Peers: the Tier 1 risk-based capital ratio, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F169 · Peers: the Tier 1 risk-based capital ratio, percentile among its peers (100 = highest value) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F170 · Peers: the Tier 1 risk-based capital ratio, peer median · 2016-12-31 · 13.6% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F171 · Peers: the Tier 1 risk-based capital ratio, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F172 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, bank value at the as-of quarter · 2016-12-31 · 18.2% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F173 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, national percentile (100 = highest value among all banks) · 2016-12-31 · 99.9th · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F174 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, national reading · 2016-12-31 · unusually high · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F175 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, percentile among its peers (100 = highest value) · 2016-12-31 · 99.9th · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F176 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, peer median · 2016-12-31 · 0.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F177 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, reading against its peers · 2016-12-31 · unusually high among its peers too · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F178 · Peers: nonaccrual assets and foreclosed property, as a share of assets, bank value at the as-of quarter · 2016-12-31 · 16.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F179 · Peers: nonaccrual assets and foreclosed property, as a share of assets, national percentile (100 = highest value among all banks) · 2016-12-31 · 99.9th · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F180 · Peers: nonaccrual assets and foreclosed property, as a share of assets, national reading · 2016-12-31 · unusually high · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F181 · Peers: nonaccrual assets and foreclosed property, as a share of assets, percentile among its peers (100 = highest value) · 2016-12-31 · 99.7th · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F182 · Peers: nonaccrual assets and foreclosed property, as a share of assets, peer median · 2016-12-31 · 0.7% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F183 · Peers: nonaccrual assets and foreclosed property, as a share of assets, reading against its peers · 2016-12-31 · unusually high among its peers too · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F184 · Peers: return on equity (profit as a share of equity), bank value at the as-of quarter · 2016-12-31 · -64.3% · data/features/fct_bank_features.parquet: return_on_equity
+- F185 · Peers: return on equity (profit as a share of equity), national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: return_on_equity
+- F186 · Peers: return on equity (profit as a share of equity), national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: return_on_equity
+- F187 · Peers: return on equity (profit as a share of equity), percentile among its peers (100 = highest value) · 2016-12-31 · 0.2nd · data/features/fct_bank_features.parquet: return_on_equity
+- F188 · Peers: return on equity (profit as a share of equity), peer median · 2016-12-31 · 8.4% · data/features/fct_bank_features.parquet: return_on_equity
+- F189 · Peers: return on equity (profit as a share of equity), reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: return_on_equity
+- F190 · Peers: equity as a share of assets, bank value at the as-of quarter · 2016-12-31 · 1.4% · data/features/fct_bank_features.parquet: equity_to_assets
+- F191 · Peers: equity as a share of assets, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.4th · data/features/fct_bank_features.parquet: equity_to_assets
+- F192 · Peers: equity as a share of assets, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: equity_to_assets
+- F193 · Peers: equity as a share of assets, percentile among its peers (100 = highest value) · 2016-12-31 · 0.3rd · data/features/fct_bank_features.parquet: equity_to_assets
+- F194 · Peers: equity as a share of assets, peer median · 2016-12-31 · 10.3% · data/features/fct_bank_features.parquet: equity_to_assets
+- F195 · Peers: equity as a share of assets, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: equity_to_assets
+- F197 · Peers: ratios in the national top or bottom 10% · 2016-12-31 · 18 · data/features/fct_bank_features.parquet
+- F198 · Peers: those ratios also unusual among peers · 2016-12-31 · 18 · data/features/fct_bank_features.parquet
+- F200 · Peers: cut-off for unusual (top or bottom share of banks) · 2016-12-31 · 10% · data/features/fct_bank_features.parquet

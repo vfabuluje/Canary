@@ -14,10 +14,14 @@
 - New raw table `data/raw/concentration/` (710,691 rows, 102 quarters). Local check: SVB 2022-12-31 crossed neither line; Allied Bank (91, failed 2016) crossed the construction line (144.9%).
 - Found in review: four 2016-2017 failures had negative capital at their last report; the section now says so ("capital was zero or negative") instead of "no usable capital figure".
 
+- PR #11 (5d) merged. Retry diagnostic (3 memos, $0.70): the only first-attempt error was a trends sentence giving a contribution without the ratio's value or range; the trends instructions now require both in one sentence (on PR #11).
+- **Showcase re-run with all Phase 5 sections** (Victor approved; branch `showcase-5bcd`): 61/61 written, 0 failed, **51 passed first try** (84%, vs 39% in 5b), **$6.60** (dry-run estimate $13.02). First-attempt errors by section: warning signs 10, score 4, peers 4, outcome 2, trends 2, summary 1. All 61 notes have the trends, peer and concentration sections; no prediction or risk words outside the fixed sentences (the only "riskier" is the code's year-over-year phrase).
+- **Cost:** Claude API total about $21.79; balance about $18.22. AWS unchanged.
+
 **Next**
-- Merge `phase5d-concentration` (owner's consent). Phase 5 is then complete.
-- Before the one paid showcase re-run: cheap retry diagnostic (2-3 memos, read the first-attempt error tally), free fixes, fresh dry run, Victor's approval. Budget $25.52.
-- Then Phase 6: read-only Streamlit dashboard, README polish, demo video, LinkedIn post.
+- Merge the showcase PR (owner's consent). **Phase 5 is complete.**
+- Phase 6: read-only Streamlit dashboard (reads saved notes, no live Claude calls), README polish, demo video, LinkedIn post.
+- Optional, free: look at the 10 "warning signs" first-attempt errors (the most common section) before any future re-run.
 
 **Open questions**
 - The retry rate (60%) roughly doubles the showcase cost. Worth one cheap diagnostic (a few memos with first-attempt errors logged) before the big run?

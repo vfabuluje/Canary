@@ -12,8 +12,9 @@ kanban-plugin: board
 - [ ] Phase 4: SVB / Signature / First Republic replay; error analysis
 - [ ] Phase 5a: AI risk analyst agent (memo writer, citation checker, ask agent, 61 showcase notes)
 - [ ] Phase 5b: Ratio trends section (descriptive; 61 showcase notes re-run)
-- [ ] Phase 5c: Peer comparison section (FDIC specialty + size tier; descriptive; notes get it at the next showcase re-run)
-- [ ] Phase 5d: Real-estate concentration section (2006 regulator thresholds; code-written, no AI; notes get it at the next showcase re-run)
+- [ ] Phase 5c: Peer comparison section (FDIC specialty + size tier; descriptive; in all 61 showcase notes)
+- [ ] Phase 5d: Real-estate concentration section (2006 regulator thresholds; code-written, no AI; in all 61 showcase notes)
+- [ ] Showcase re-run with all Phase 5 sections: 61/61 notes, $6.60 (2026-11-19)
 
 
 ## In Progress

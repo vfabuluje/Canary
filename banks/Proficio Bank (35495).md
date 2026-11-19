@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2017-03-03
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-18T19:51:56"
+written_at: "2026-11-19T14:06:47"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2016-12-31, Proficio Bank, a Utah bank, ranked number 6 out of 5,983 FDIC-insured banks on Canary's risk score, which places it in the 99.9th percentile. That put it on Canary's watchlist, the top 2% of banks by score. Its capital cushion was thin, with equity (the owners' own money) at 3.4% of assets against a national median of 10.7%. It was also losing money, with a return on assets of -4.5% versus a national median of 0.9%.
+As of 2016-12-31, Proficio Bank, based in UT, ranked 6 out of 5,983 FDIC-insured banks on Canary's risk score, placing it in the 99.9th percentile on a scale where higher means riskier. That put it on Canary's watchlist, the group of banks with the highest scores, which covers the top 2% of banks. Its capital cushion (the owners' money that absorbs losses) was thin, with equity at 3.4% of assets against a national median of 10.7%. It was also losing money, with a return on assets (profit as a share of assets) of -4.5% against a national median of 0.9%.
 
 ## Warning signs in the data
 
-Capital, the buffer that absorbs losses, was far below typical levels: the leverage ratio (core capital as a share of average assets) was 3.1% against a national median of 10.4%. The Tier 1 risk-based capital ratio, which weighs capital against the riskiness of assets, was 3.6% versus a median of 15.0%, and the total risk-based capital ratio was 4.7% versus 16.2%. Earnings were deeply negative, with return on equity at -133.2% against a median of 8.0%, and the efficiency ratio (operating costs as a share of revenue) at 179.2% versus 69.7%.
+Capital was far below normal levels: equity was 3.4% of assets against a national median of 10.7%, and the leverage ratio (core capital as a share of average assets) was 3.1% against 10.4%. The Tier 1 risk-based capital ratio (core capital measured against assets weighted by riskiness) was 3.6% against a national median of 15.0%, and the total risk-based capital ratio was 4.7% against 16.2%.
 
-Credit quality was weak: loans 90 or more days past due or not accruing interest were 2.2% of loans, well above the median of 0.6%. Nonaccrual assets and foreclosed property made up 5.0% of assets against a median of 0.5%, and the Texas ratio (troubled assets against capital plus reserves) stood at 114.1% versus a median of 4.9%. Lending leaned heavily on property, with commercial real estate loans at 60.6% of loans versus a median of 22.5%, and construction loans at 13.5% versus 4.2%.
+Credit quality was weak: seriously overdue loans, or loans no longer accruing interest, made up 2.2% of loans, well above the national median of 0.6%. Nonaccrual assets and foreclosed property were 5.0% of assets against a national median of 0.5%, and the Texas ratio (troubled assets against capital plus reserves) was 114.1% against 4.9%. Lending was concentrated in property: commercial real estate loans were 60.6% of loans against a national median of 22.5%, and construction loans were 13.5% against 4.2%.
 
-The bank was shrinking quickly: assets changed by -37.7% over the past four quarters and deposits by -32.8%, while the national medians grew by 3.5% and 3.6%. Volatile funding (money that can leave quickly) was 15.4% of assets versus a median of 5.2%, and interest expense was 1.3% of assets versus 0.4%. Some funding figures were steadier: uninsured deposits were only 0.8% of deposits against a median of 17.3%, and cash was 11.1% of assets versus 6.6%. On bonds, the measure of losses on bonds available for sale was -4.9% of equity, below the median of 0.7%, and losses on bonds held to maturity were 0.0%, matching the median.
+On funding, volatile funding (money that can leave quickly) was 15.4% of assets against a national median of 5.2%, and interest expense was 1.3% of assets against 0.4%. Deposit growth over the past four quarters was -32.8%, while the national median was 3.6%; cash was 11.1% of assets against a median of 6.6%. Losses on bonds available for sale stood at -4.9% of equity against a national median of 0.7%, and losses on bonds held to maturity were 0.0%, the same as the median of 0.0%.
 
 ## Understanding the score
 
-As of 2016-12-31, Proficio Bank ranked number 6 out of 5,983 banks, placing it in the 99.9th percentile on a scale where higher means riskier. It was flagged on Canary's watchlist, which covers the top 2% of banks by score, or 120 banks that quarter.
+Proficio Bank ranked 6 out of 5,983 banks at 2016-12-31, which is the 99.9th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, one of 120 banks that quarter, a list that holds the top 2% of banks by score.
 
-Five features pushed the score up the most. The largest was the Tier 1 risk-based capital ratio at 3.6%, adding +2.373, followed by return on equity at -133.2%, adding +1.406. Next came the Texas ratio at 114.1%, adding +0.569, the total risk-based capital ratio at 4.7%, adding +0.495, and asset growth over the past four quarters at -37.7%, adding +0.370.
+The five features that pushed the score up most were the Tier 1 risk-based capital ratio at 3.6% (+2.373), return on equity (profit as a share of equity) at -133.2% (+1.406), and the Texas ratio at 114.1% (+0.569). The other two were the total risk-based capital ratio at 4.7% (+0.495) and asset growth over the past four quarters at -37.7% (+0.370).
 
-Five features pulled the score down the most. These were loans 90 or more days past due or not accruing at 2.2% of loans, contributing -0.414, and interest expense at 1.3% of assets, contributing -0.333. They also included losses on bonds available for sale at -4.9% of equity, contributing -0.327, early-stage past-due loans at 0.4% of assets, contributing -0.293, and commercial real estate loans at 60.6% of loans, contributing -0.275.
+The five features that pulled the score down most were seriously overdue or non-interest-accruing loans at 2.2% of loans (-0.414), interest expense at 1.3% of assets (-0.333), and losses on bonds available for sale at -4.9% of equity (-0.327). The other two were loans in the early stage of being past due at 0.4% of assets (-0.293) and commercial real estate loans at 60.6% of loans (-0.275).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -54,11 +54,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Canary compares each ratio with the bank's own history, usually the prior 12 quarters, or the same quarter in the prior 3 years for year-to-date ratios. Of 30 ratios compared, 11 sat outside their own prior range, and the table shows the 6 furthest outside. At this point the bank ranked number 6 out of 5,983 banks.
+At 2016-12-31 the bank ranked 6 of 5,983 banks, in the 99.9th percentile. Of 30 ratios compared with their own history, 11 were outside their prior range, and 6 of the furthest outside are discussed here. Most ratios are compared with the prior 12 quarters, and year-to-date ratios with the same quarter in the prior 3 years.
 
-Return on equity changed by -37.7 pp over four quarters. Return on equity was -133.2%, below its prior range of -95.5% to 3.4%, and it contributed +1.406 model log-odds units and pushed the score up. The efficiency ratio changed by +28.2 pp over four quarters. The efficiency ratio was 179.2%, above its prior range of 98.9% to 150.9%, yet it contributed only +0.021 and had little effect on the score.
+Return on equity was -133.2%, below its prior range of -95.5% to 3.4%, and it pushed the score up with a contribution of +1.406. The efficiency ratio (operating costs as a share of revenue) was 179.2%, above its prior range of 98.9% to 150.9%, yet it had little effect on the score, contributing +0.021. Interest expense was 1.3% of assets, above its prior range of 0.6% to 0.9%, but it pushed the score down, contributing -0.333.
 
-Interest expense was 1.3% of assets, above its prior range of 0.6% to 0.9%, yet it contributed -0.333 and pushed the score down. Deposit growth was -32.8%, below its prior range of -28.6% to 1.8% after a one-quarter change of -8.0 pp, yet it contributed -0.110 and pushed the score down. Commercial real estate loans were 60.6% of loans, above their prior range of 9.4% to 55.5% after a change of +12.6 pp over four quarters, yet they contributed -0.275 and pushed the score down. The provision for loan losses (money set aside for expected bad loans) was 0.0% of assets, above its prior range of -0.5% to -0.1%, yet it contributed -0.057 and pushed the score down.
+Deposit growth was -32.8%, below its prior range of -28.6% to 1.8%, but it pushed the score down, contributing -0.110. Commercial real estate loans were 60.6% of loans, above their prior range of 9.4% to 55.5% after rising +12.6 pp over four quarters, but this pushed the score down, contributing -0.275. The provision for loan losses (money set aside for expected bad loans) was 0.0% of assets, above its prior range of -0.5% to -0.1%, but it pushed the score down, contributing -0.057.
 
 There is no score from a year earlier to compare with (scores start 2016-03-31, or the bank did not report then).
 
@@ -75,15 +75,57 @@ There is no score from a year earlier to compare with (scores start 2016-03-31, 
 
 This section only describes how the bank's own ratios moved against its own history. The range rule was set by convention and has not been tested as a warning signal, so a ratio outside its range is not a prediction of failure.
 
+## Compared with similar banks
+
+The FDIC's specialty group for this bank at 2016-12-31: Commercial Lending Specialization.
+
+Peers: 346 banks in the same specialty group and size tier (under $100 million).
+
+Return on equity was -133.2%, at the 0.1st percentile nationally, which is unusually low, and at the 0.1st percentile among peers against a peer median of 6.1%, unusually low among its peers too. Return on assets was -4.5%, at the 0.2nd percentile nationally, which is unusually low, and at the 0.7th percentile among peers against a peer median of 0.7%, unusually low among its peers too. The efficiency ratio was 179.2%, at the 99.7th percentile nationally, which is unusually high, and at the 97.8th percentile among peers against a peer median of 79.0%, unusually high among its peers too.
+
+The Tier 1 risk-based capital ratio was 3.6%, at the 0.1st percentile nationally, which is unusually low, and at the 0.4th percentile among peers against a peer median of 15.3%, unusually low among its peers too. The total risk-based capital ratio was 4.7%, at the 0.1st percentile nationally, which is unusually low, and at the 0.4th percentile among peers against a peer median of 16.4%, unusually low among its peers too. Interest expense was 1.3% of assets, at the 99.6th percentile nationally, which is unusually high, and at the 99.6th percentile among peers against a peer median of 0.4%, unusually high among its peers too.
+
+Asset growth was -37.7%, at the 0.1st percentile nationally, which is unusually low, and at the 0.4th percentile among peers against a peer median of 2.6%, unusually low among its peers too. Deposit growth was -32.8%, at the 0.1st percentile nationally, which is unusually low, and at the 0.4th percentile among peers against a peer median of 2.9%, unusually low among its peers too. Overall, 18 of the bank's ratios fell in the national top or bottom 10%, and 17 of those were also unusual among its peers.
+
+| Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
+|---|---|---|---|---|---|
+| return on equity (profit as a share of equity) | -133.2% | 0.1st (unusually low) | 6.1% | 0.1st | unusually low among its peers too |
+| asset growth over the past four quarters | -37.7% | 0.1st (unusually low) | 2.6% | 0.4th | unusually low among its peers too |
+| deposit growth over the past four quarters | -32.8% | 0.1st (unusually low) | 2.9% | 0.4th | unusually low among its peers too |
+| the total risk-based capital ratio | 4.7% | 0.1st (unusually low) | 16.4% | 0.4th | unusually low among its peers too |
+| the Tier 1 risk-based capital ratio | 3.6% | 0.1st (unusually low) | 15.3% | 0.4th | unusually low among its peers too |
+| return on assets (profit as a share of assets) | -4.5% | 0.2nd (unusually low) | 0.7% | 0.7th | unusually low among its peers too |
+| the efficiency ratio (operating costs as a share of revenue) | 179.2% | 99.7th (unusually high) | 79.0% | 97.8th | unusually high among its peers too |
+| annualized interest expense as a share of assets | 1.3% | 99.6th (unusually high) | 0.4% | 99.6th | unusually high among its peers too |
+
+This section only compares the bank with banks the FDIC groups with it; an unusual figure is not a prediction of failure, and the comparison has not been tested as a warning signal.
+
+## Real-estate concentration (2006 regulator thresholds)
+
+This section checks a different, more common way banks have failed than SVB's: heavy lending tied to commercial real estate. It applies the screens the OCC, Federal Reserve and FDIC set in 2006 to flag a bank for closer supervisory review; they are not lending limits.
+
+Capital measure: total risk-based capital, as the 2006 guidance specifies.
+
+| Test | Bank | Line | Meets it? |
+|---|---|---|---|
+| Construction and land loans ÷ capital | 220.0% | 100% or more | yes |
+| Total commercial real estate loans ÷ capital | 395.7% | 300% or more | yes |
+| Growth in commercial real estate loans over the prior 36 months | -13.4% | 50% or more | no |
+
+It crossed the construction line (100% or more of capital).
+Its commercial real estate loans reached 300% of capital, but grew less than 50% over 36 months, so it did not cross the second line.
+
+Total commercial real estate here means construction and land, multifamily, and non-owner-occupied commercial property loans, plus loans to finance commercial real estate not secured by real estate (FDIC call report data).
+
+Crossing a line is a supervisory screen, not a prediction: it has not been tested as a warning signal in Canary.
+
 ## How early Canary caught it
 
-In hindsight, Canary first flagged Proficio Bank in the quarter ending 2016-03-31, and the bank failed on 2017-03-03. That gave a lead time of 4 quarters before the failure.
-
-At that first flag, the main drivers were already capital and earnings: the Tier 1 risk-based capital ratio was 4.2%, adding +2.485, and return on equity was -197.5%, adding +1.496. The Texas ratio was 175.8%, adding +1.038, the total risk-based capital ratio was 5.0%, adding +0.427, and the leverage ratio was 2.4%, adding +0.316.
+In hindsight, Canary first flagged Proficio Bank at 2016-03-31, and the bank failed on 2017-03-03, a lead time of 4 quarters before failure. At that first flag, the biggest drivers pushing the score up were a Tier 1 risk-based capital ratio of 4.2% (+2.485), return on equity of -197.5% (+1.496), and a Texas ratio of 175.8% (+1.038). The total risk-based capital ratio of 5.0% (+0.427) and the leverage ratio of 2.4% (+0.316) also pushed the score up then.
 
 ## What happened next
 
-In hindsight, the quarter ending 2016-12-31 was the last one Proficio Bank reported, so Canary has no later ranks or flags for it. The bank failed on 2017-03-03. Our data alone shows only that reporting stopped, which can mean either a merger or a closure.
+In hindsight, the last quarter Proficio Bank reported was 2016-12-31, the same quarter this memo describes. The bank failed on 2017-03-03, so no later ranks or flags exist for it in our data.
 
 ## Sources
 
@@ -117,14 +159,8 @@ In hindsight, the quarter ending 2016-12-31 was the last one Proficio Bank repor
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2016-12-31 · 4.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2016-12-31 · -4.5% · data/features/fct_bank_features.parquet: return_on_assets
 - F40 · National median: return on assets (profit as a share of assets) · 2016-12-31 · 0.9% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
-- F41 · Bank: return on equity (profit as a share of equity) · 2016-12-31 · -133.2% · data/features/fct_bank_features.parquet: return_on_equity
-- F42 · National median: return on equity (profit as a share of equity) · 2016-12-31 · 8.0% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
-- F45 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2016-12-31 · 179.2% · data/features/fct_bank_features.parquet: efficiency_ratio
-- F46 · National median: the efficiency ratio (operating costs as a share of revenue) · 2016-12-31 · 69.7% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
 - F47 · Bank: annualized interest expense as a share of assets · 2016-12-31 · 1.3% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F48 · National median: annualized interest expense as a share of assets · 2016-12-31 · 0.4% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann (median of all banks)
-- F51 · Bank: uninsured deposits as a share of deposits · 2016-12-31 · 0.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits
-- F52 · National median: uninsured deposits as a share of deposits · 2016-12-31 · 17.3% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F59 · Bank: volatile funding as a share of assets · 2016-12-31 · 15.4% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F60 · National median: volatile funding as a share of assets · 2016-12-31 · 5.2% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F61 · Bank: cash as a share of assets · 2016-12-31 · 11.1% · data/features/fct_bank_features.parquet: cash_to_assets
@@ -133,8 +169,6 @@ In hindsight, the quarter ending 2016-12-31 was the last one Proficio Bank repor
 - F64 · National median: losses on bonds held to maturity, as a share of equity · 2016-12-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2016-12-31 · -4.9% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2016-12-31 · 0.7% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
-- F71 · Bank: asset growth over the past four quarters · 2016-12-31 · -37.7% · data/features/fct_bank_features.parquet: asset_growth_4q
-- F72 · National median: asset growth over the past four quarters · 2016-12-31 · 3.5% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
 - F73 · Bank: deposit growth over the past four quarters · 2016-12-31 · -32.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F74 · National median: deposit growth over the past four quarters · 2016-12-31 · 3.6% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: the Tier 1 risk-based capital ratio, value 3.6%; contribution to the score · 2016-12-31 · +2.373 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
@@ -159,13 +193,11 @@ In hindsight, the quarter ending 2016-12-31 was the last one Proficio Bank repor
 - F99 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2016-12-31 · 179.2% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F100 · Trend: the efficiency ratio (operating costs as a share of revenue), lowest value in the comparison window · n/a · 98.9% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F101 · Trend: the efficiency ratio (operating costs as a share of revenue), highest value in the comparison window · n/a · 150.9% · data/features/fct_bank_features.parquet: efficiency_ratio
-- F102 · Trend: the efficiency ratio (operating costs as a share of revenue), change over four quarters, in percentage points · 2016-12-31 · +28.2 pp · data/features/fct_bank_features.parquet: efficiency_ratio
 - F103 · Trend: the efficiency ratio (operating costs as a share of revenue), contribution to the score (model log-odds units) · 2016-12-31 · +0.021 · data/analyst/scores.parquet: feature efficiency_ratio contribution
 - F104 · Trend: the efficiency ratio (operating costs as a share of revenue), what the model did with it · 2016-12-31 · little effect on the score · data/analyst/scores.parquet: feature efficiency_ratio contribution
 - F105 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2016-12-31 · -133.2% · data/features/fct_bank_features.parquet: return_on_equity
 - F106 · Trend: return on equity (profit as a share of equity), lowest value in the comparison window · n/a · -95.5% · data/features/fct_bank_features.parquet: return_on_equity
 - F107 · Trend: return on equity (profit as a share of equity), highest value in the comparison window · n/a · 3.4% · data/features/fct_bank_features.parquet: return_on_equity
-- F108 · Trend: return on equity (profit as a share of equity), change over four quarters, in percentage points · 2016-12-31 · -37.7 pp · data/features/fct_bank_features.parquet: return_on_equity
 - F109 · Trend: return on equity (profit as a share of equity), contribution to the score (model log-odds units) · 2016-12-31 · +1.406 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F110 · Trend: return on equity (profit as a share of equity), what the model did with it · 2016-12-31 · pushed the score up · data/analyst/scores.parquet: feature return_on_equity contribution
 - F111 · Trend: annualized interest expense as a share of assets, value at the as-of quarter · 2016-12-31 · 1.3% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
@@ -176,7 +208,6 @@ In hindsight, the quarter ending 2016-12-31 was the last one Proficio Bank repor
 - F117 · Trend: deposit growth over the past four quarters, value at the as-of quarter · 2016-12-31 · -32.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F118 · Trend: deposit growth over the past four quarters, lowest value in the comparison window · n/a · -28.6% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F119 · Trend: deposit growth over the past four quarters, highest value in the comparison window · n/a · 1.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
-- F120 · Trend: deposit growth over the past four quarters, change over one quarter, in percentage points · 2016-12-31 · -8.0 pp · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F122 · Trend: deposit growth over the past four quarters, contribution to the score (model log-odds units) · 2016-12-31 · -0.110 · data/analyst/scores.parquet: feature deposit_growth_4q contribution
 - F123 · Trend: deposit growth over the past four quarters, what the model did with it · 2016-12-31 · pushed the score down · data/analyst/scores.parquet: feature deposit_growth_4q contribution
 - F124 · Trend: commercial real estate loans as a share of loans, value at the as-of quarter · 2016-12-31 · 60.6% · data/features/fct_bank_features.parquet: cre_loans_to_loans
@@ -195,3 +226,54 @@ In hindsight, the quarter ending 2016-12-31 was the last one Proficio Bank repor
 - F139 · Trend: ratios compared with their own prior range · 2016-12-31 · 30 · data/features/fct_bank_features.parquet
 - F140 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F141 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
+- F145 · Peers: return on equity (profit as a share of equity), bank value at the as-of quarter · 2016-12-31 · -133.2% · data/features/fct_bank_features.parquet: return_on_equity
+- F146 · Peers: return on equity (profit as a share of equity), national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: return_on_equity
+- F147 · Peers: return on equity (profit as a share of equity), national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: return_on_equity
+- F148 · Peers: return on equity (profit as a share of equity), percentile among its peers (100 = highest value) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: return_on_equity
+- F149 · Peers: return on equity (profit as a share of equity), peer median · 2016-12-31 · 6.1% · data/features/fct_bank_features.parquet: return_on_equity
+- F150 · Peers: return on equity (profit as a share of equity), reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: return_on_equity
+- F151 · Peers: asset growth over the past four quarters, bank value at the as-of quarter · 2016-12-31 · -37.7% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F152 · Peers: asset growth over the past four quarters, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: asset_growth_4q
+- F153 · Peers: asset growth over the past four quarters, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: asset_growth_4q
+- F154 · Peers: asset growth over the past four quarters, percentile among its peers (100 = highest value) · 2016-12-31 · 0.4th · data/features/fct_bank_features.parquet: asset_growth_4q
+- F155 · Peers: asset growth over the past four quarters, peer median · 2016-12-31 · 2.6% · data/features/fct_bank_features.parquet: asset_growth_4q
+- F156 · Peers: asset growth over the past four quarters, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: asset_growth_4q
+- F157 · Peers: deposit growth over the past four quarters, bank value at the as-of quarter · 2016-12-31 · -32.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F158 · Peers: deposit growth over the past four quarters, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F159 · Peers: deposit growth over the past four quarters, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F160 · Peers: deposit growth over the past four quarters, percentile among its peers (100 = highest value) · 2016-12-31 · 0.4th · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F161 · Peers: deposit growth over the past four quarters, peer median · 2016-12-31 · 2.9% · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F162 · Peers: deposit growth over the past four quarters, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: deposit_growth_4q
+- F163 · Peers: the total risk-based capital ratio, bank value at the as-of quarter · 2016-12-31 · 4.7% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F164 · Peers: the total risk-based capital ratio, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F165 · Peers: the total risk-based capital ratio, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F166 · Peers: the total risk-based capital ratio, percentile among its peers (100 = highest value) · 2016-12-31 · 0.4th · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F167 · Peers: the total risk-based capital ratio, peer median · 2016-12-31 · 16.4% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F168 · Peers: the total risk-based capital ratio, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F169 · Peers: the Tier 1 risk-based capital ratio, bank value at the as-of quarter · 2016-12-31 · 3.6% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F170 · Peers: the Tier 1 risk-based capital ratio, national percentile (100 = highest value among all banks) · 2016-12-31 · 0.1st · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F171 · Peers: the Tier 1 risk-based capital ratio, national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F172 · Peers: the Tier 1 risk-based capital ratio, percentile among its peers (100 = highest value) · 2016-12-31 · 0.4th · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F173 · Peers: the Tier 1 risk-based capital ratio, peer median · 2016-12-31 · 15.3% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F174 · Peers: the Tier 1 risk-based capital ratio, reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F175 · Peers: return on assets (profit as a share of assets), bank value at the as-of quarter · 2016-12-31 · -4.5% · data/features/fct_bank_features.parquet: return_on_assets
+- F176 · Peers: return on assets (profit as a share of assets), national percentile (100 = highest value among all banks) · 2016-12-31 · 0.2nd · data/features/fct_bank_features.parquet: return_on_assets
+- F177 · Peers: return on assets (profit as a share of assets), national reading · 2016-12-31 · unusually low · data/features/fct_bank_features.parquet: return_on_assets
+- F178 · Peers: return on assets (profit as a share of assets), percentile among its peers (100 = highest value) · 2016-12-31 · 0.7th · data/features/fct_bank_features.parquet: return_on_assets
+- F179 · Peers: return on assets (profit as a share of assets), peer median · 2016-12-31 · 0.7% · data/features/fct_bank_features.parquet: return_on_assets
+- F180 · Peers: return on assets (profit as a share of assets), reading against its peers · 2016-12-31 · unusually low among its peers too · data/features/fct_bank_features.parquet: return_on_assets
+- F181 · Peers: the efficiency ratio (operating costs as a share of revenue), bank value at the as-of quarter · 2016-12-31 · 179.2% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F182 · Peers: the efficiency ratio (operating costs as a share of revenue), national percentile (100 = highest value among all banks) · 2016-12-31 · 99.7th · data/features/fct_bank_features.parquet: efficiency_ratio
+- F183 · Peers: the efficiency ratio (operating costs as a share of revenue), national reading · 2016-12-31 · unusually high · data/features/fct_bank_features.parquet: efficiency_ratio
+- F184 · Peers: the efficiency ratio (operating costs as a share of revenue), percentile among its peers (100 = highest value) · 2016-12-31 · 97.8th · data/features/fct_bank_features.parquet: efficiency_ratio
+- F185 · Peers: the efficiency ratio (operating costs as a share of revenue), peer median · 2016-12-31 · 79.0% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F186 · Peers: the efficiency ratio (operating costs as a share of revenue), reading against its peers · 2016-12-31 · unusually high among its peers too · data/features/fct_bank_features.parquet: efficiency_ratio
+- F187 · Peers: annualized interest expense as a share of assets, bank value at the as-of quarter · 2016-12-31 · 1.3% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F188 · Peers: annualized interest expense as a share of assets, national percentile (100 = highest value among all banks) · 2016-12-31 · 99.6th · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F189 · Peers: annualized interest expense as a share of assets, national reading · 2016-12-31 · unusually high · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F190 · Peers: annualized interest expense as a share of assets, percentile among its peers (100 = highest value) · 2016-12-31 · 99.6th · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F191 · Peers: annualized interest expense as a share of assets, peer median · 2016-12-31 · 0.4% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F192 · Peers: annualized interest expense as a share of assets, reading against its peers · 2016-12-31 · unusually high among its peers too · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F194 · Peers: ratios in the national top or bottom 10% · 2016-12-31 · 18 · data/features/fct_bank_features.parquet
+- F195 · Peers: those ratios also unusual among peers · 2016-12-31 · 17 · data/features/fct_bank_features.parquet
+- F197 · Peers: cut-off for unusual (top or bottom share of banks) · 2016-12-31 · 10% · data/features/fct_bank_features.parquet
