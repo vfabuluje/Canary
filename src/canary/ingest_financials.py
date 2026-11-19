@@ -4,7 +4,7 @@ import logging
 import time
 from datetime import date, datetime
 from pathlib import Path
-from typing import NamedTuple
+from typing import Callable, NamedTuple
 
 import pandas as pd
 
@@ -41,7 +41,11 @@ def latest_report_date(client: FDICClient) -> date:
 
 
 def quarters_to_pull(
-    quarters: list[date], root: Path, refresh_latest: int = 2, force: bool = False
+    quarters: list[date],
+    root: Path,
+    refresh_latest: int = 2,
+    force: bool = False,
+    path_fn: Callable[[Path, date], Path] = financials_path,
 ) -> list[date]:
     """Missing quarters plus the latest `refresh_latest`; all of them if `force`.
 
@@ -50,7 +54,7 @@ def quarters_to_pull(
     """
     if force:
         return list(quarters)
-    wanted = {q for q in quarters if not financials_path(root, q).exists()}
+    wanted = {q for q in quarters if not path_fn(root, q).exists()}
     if refresh_latest > 0:
         wanted.update(quarters[-refresh_latest:])
     return sorted(wanted)

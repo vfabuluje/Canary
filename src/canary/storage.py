@@ -11,6 +11,10 @@ def financials_path(root: Path, repdte: date) -> Path:
     return root / "financials" / f"repdte={repdte:%Y%m%d}" / "part.parquet"
 
 
+def specialty_path(root: Path, repdte: date) -> Path:
+    return root / "specialty" / f"repdte={repdte:%Y%m%d}" / "part.parquet"
+
+
 def failures_path(root: Path) -> Path:
     return root / "failures" / "failures.parquet"
 
