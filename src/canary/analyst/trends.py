@@ -157,12 +157,42 @@ _FEATURES_SRC = "data/features/fct_bank_features.parquet"
 _SCORES_SRC = "data/analyst/scores.parquet"
 _WINDOW_TEXT = {"pit": "prior 12 quarters", "ytd": "same quarter, prior 3 years"}
 
+def _percent(feature: str, v: float) -> float:
+    return v if UNIT[feature] == "pct" else v * 100
+
+
+def _decimals(r: RatioTrend) -> int:
+    """Decimals for the value and the bound it is beyond: 1, unless they would read the same."""
+    bound = r.hi if r.value > r.hi else r.lo
+    pv, pb = _percent(r.feature, r.value), _percent(r.feature, bound)
+    for d in (1, 2):
+        if f"{pv:.{d}f}" != f"{pb:.{d}f}":
+            return d
+    return 3
+
+
+def _shown_forms(feature: str, v: float, decimals: int = 1) -> list[str]:
+    forms = display_forms(feature, v)
+    if decimals == 1:
+        return forms
+    return list(dict.fromkeys([f"{_percent(feature, v):.{decimals}f}%", *forms]))
+
+
+def _bound_decimals(r: RatioTrend) -> tuple[int, int, int]:
+    """(value, lo, hi) decimals: the nearest bound matches the value, the other stays at 1."""
+    d = _decimals(r)
+    return (d, 1, d) if r.value > r.hi else (d, d, 1)
+
+
 def _range(r: RatioTrend) -> str:
-    return f"{display_forms(r.feature, r.lo)[0]} to {display_forms(r.feature, r.hi)[0]}"
+    _, dl, dh = _bound_decimals(r)
+    return f"{_shown_forms(r.feature, r.lo, dl)[0]} to {_shown_forms(r.feature, r.hi, dh)[0]}"
 
 
 def _pp(d: float | None) -> str:
-    return "n/a" if d is None else f"{d:+.1f} pp"
+    if d is None:
+        return "n/a"
+    return f"{d:+.2f} pp" if f"{d:+.1f}" in ("+0.0", "-0.0") else f"{d:+.1f} pp"
 
 
 def render_trends(sheet) -> list[str]:
@@ -176,7 +206,7 @@ def render_trends(sheet) -> list[str]:
     lines = ["| Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |",
              "|---|---|---|---|---|---|---|---|"]
     for r in shown:
-        lines.append(f"| {PLAIN_NAMES[r.feature]} | {display_forms(r.feature, r.value)[0]} | {_range(r)} | "
+        lines.append(f"| {PLAIN_NAMES[r.feature]} | {_shown_forms(r.feature, r.value, _bound_decimals(r)[0])[0]} | {_range(r)} | "
                      f"{_WINDOW_TEXT[r.window]} | {_pp(r.change_1q_pp)} | {_pp(r.change_4q_pp)} | "
                      f"{r.contribution:+.3f} | {r.direction} |")
     lines.append("")
@@ -226,7 +256,10 @@ def _sanitize(result: TrendResult) -> TrendResult:
 
 def _change_forms(d: float) -> list[str]:
     # No "%" form: a change written as a level ("41.8%") must fail the checker.
-    return [f"{d:+.1f}", f"{abs(d):.1f}", f"{d:+.0f}", f"{abs(d):.0f}"]
+    forms = [f"{d:+.1f}", f"{abs(d):.1f}", f"{d:+.0f}", f"{abs(d):.0f}"]
+    if f"{d:+.1f}" in ("+0.0", "-0.0"):
+        forms = [f"{d:+.2f}", f"{abs(d):.2f}"] + forms
+    return forms
 
 
 def _fact(label, value, display, forms, source, quarter, feature=None, kind=None) -> Fact:
@@ -255,7 +288,8 @@ class TrendSpecialist:
         for r in result.shown:
             name = PLAIN_NAMES[r.feature]
             src = f"{_FEATURES_SRC}: {r.feature}"
-            v, lo, hi = (display_forms(r.feature, x) for x in (r.value, r.lo, r.hi))
+            dv, dl, dh = _bound_decimals(r)
+            v, lo, hi = (_shown_forms(r.feature, x, d) for x, d in ((r.value, dv), (r.lo, dl), (r.hi, dh)))
             out.append(_fact(f"Trend: {name}, value at the as-of quarter", r.value, v[0], v, src, as_of,
                              r.feature, "trend_value"))
             out.append(_fact(f"Trend: {name}, lowest value in the comparison window", r.lo, lo[0], lo, src,
@@ -266,7 +300,7 @@ class TrendSpecialist:
                                   ("trend_change_4q", "four quarters", r.change_4q_pp)):
                 if d is not None:
                     out.append(_fact(f"Trend: {name}, change over {span}, in percentage points", d,
-                                     f"{d:+.1f} pp", _change_forms(d), src, as_of, r.feature, kind))
+                                     _pp(d), _change_forms(d), src, as_of, r.feature, kind))
             c = r.contribution
             out.append(_fact(f"Trend: {name}, contribution to the score (model log-odds units)", c,
                              f"{c:+.3f}", [f"{c:+.3f}", f"{abs(c):.3f}", f"{abs(c):.2f}", f"{c:+.2f}"],

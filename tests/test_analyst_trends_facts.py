@@ -218,3 +218,35 @@ def test_section_definition():
     assert TREND_SECTION.window == "as_of" and TREND_SECTION.ai_written
     assert TREND_SECTION.render is render_trends
     assert "percentage points" in TREND_SECTION.instructions
+
+
+def test_near_bound_values_get_more_decimals(analyst_ctx, tmp_path, monkeypatch):
+    # frac ratio: 0.597% vs bound 0.601% read the same ("0.6%") at one decimal
+    near = _trend("allowance_to_loans", 0.00597, 0.00601, 0.016, c1=-0.04, c4=2.0, contribution=0.0)
+    far = _trend("noncurrent_loans_to_loans", 0.05, 0.01, 0.02)
+    _force(monkeypatch, date(2019, 12, 31), [near, far])
+    sheet = _sheet(analyst_ctx, tmp_path)
+    table = "\n".join(render_trends(sheet))
+    (v,) = _kind(sheet, "trend_value", "allowance_to_loans")
+    (lo,) = _kind(sheet, "trend_lo", "allowance_to_loans")
+    # 0.60% vs 0.60% tie at 2 decimals, so 3 are used; the table matches the fact
+    assert v.forms[0] == v.display and lo.forms[0] == lo.display
+    assert v.display == "0.597%" and lo.display == "0.601%", (v.display, lo.display)
+    assert "0.6%" in v.forms
+    assert f"| {v.display} | {lo.display} to 1.6% |" in table
+    (c,) = _kind(sheet, "trend_change_1q", "allowance_to_loans")
+    assert c.display == "-0.04 pp" and "-0.04" in c.forms and all("%" not in x for x in c.forms)
+    assert "-0.04 pp" in table
+    # ordinary values keep one decimal
+    (ov,) = _kind(sheet, "trend_value", "noncurrent_loans_to_loans")
+    assert ov.display == "5.0%" and "| 5.0% | 1.0% to 2.0% |" in table
+
+
+def test_two_decimals_when_they_differ(analyst_ctx, tmp_path, monkeypatch):
+    near = _trend("allowance_to_loans", 0.0058, 0.0063, 0.016)
+    _force(monkeypatch, date(2019, 12, 31), [near])
+    sheet = _sheet(analyst_ctx, tmp_path)
+    (v,) = _kind(sheet, "trend_value")
+    (lo,) = _kind(sheet, "trend_lo")
+    assert v.display == "0.58%" and lo.display == "0.63%"
+    assert "| 0.58% | 0.63% to 1.6% |" in "\n".join(render_trends(sheet))
