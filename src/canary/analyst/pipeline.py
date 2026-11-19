@@ -76,29 +76,37 @@ def _specialist_message(sheet: FactSheet, sections: list[Section]) -> str:
     return "\n".join(lines)
 
 
-def _sentence_text(sentence: dict) -> str:
-    cites = ", ".join(sentence.get("cites") or [])
-    return f"{sentence['text']} [cites: {cites}]" if cites else sentence["text"]
+_BLOCK_TITLES = {"trend": "Trend agent's section (checked, do not rewrite)",
+                 "peer": "Peer agent's section (checked, do not rewrite)"}
 
 
-def _specialist_block(section: Section, memo: dict) -> list[str]:
-    entry = next((s for s in memo["sections"] if s["key"] == section.key), None)
-    lines = [f"### {section.title} ({section.key})"]
-    for para in (entry or {}).get("paragraphs", []):
-        lines.append(" ".join(_sentence_text(s) for s in para["sentences"]))
+def _specialist_block(agent: str, key: str, memo: dict) -> list[str]:
+    entry = next((s for s in memo.get("sections", []) if s["key"] == key), None)
+    paragraphs = [p for p in (entry or {}).get("paragraphs", []) if p.get("sentences")]
+    if not paragraphs:
+        raise ValueError(f"{agent} memo has no text for section {key!r}")
+    lines = [f"### {_BLOCK_TITLES[agent]}",
+             "(Each sentence is followed by the fact ids it cites. Cites are metadata, not text to copy.)"]
+    for para in paragraphs:
+        for s in para["sentences"]:
+            lines.append(s["text"])
+            if s.get("cites"):
+                lines.append("  cites: " + ", ".join(s["cites"]))
+        lines.append("")
     return lines
 
 
 def _analyst_message(sheet: FactSheet, sections: list[Section], specialist_memos: dict[str, dict]) -> str:
     lines = [_user_message(sheet, sections), "", "Sections written by other agents or code:", ""]
-    all_ai = {s.key: s for s in sections_for(sheet)}
     code_only = []
     for agent, key in AGENT_SECTIONS.items():
-        memo = specialist_memos.get(agent)
-        if key in sheet.code_only or memo is None:
+        if key in sheet.code_only:
             code_only.append(key)
             continue
-        lines += _specialist_block(all_ai[key], memo) + [""]
+        memo = specialist_memos.get(agent)
+        if memo is None:
+            raise ValueError(f"missing {agent} memo for the analyst request")
+        lines += _specialist_block(agent, key, memo)
     conc = sheet.extras.get(CONCENTRATION_KEY)
     if conc is not None:
         lines += ["### Real-estate concentration (code-written)", *render_concentration(conc), ""]
@@ -116,6 +124,8 @@ def build_agent_request(sheet: FactSheet, agent: str, model: str,
     """Keyword arguments for messages.create, same shape as writer.build_request."""
     _check_agent(agent)
     sections = agent_sections(sheet, agent)
+    if agent != "analyst" and not sections:
+        raise ValueError(f"{agent} section is code-only; no request should be built")
     if agent == "analyst":
         user = _analyst_message(sheet, sections, specialist_memos or {})
         system = SYSTEM_PROMPT

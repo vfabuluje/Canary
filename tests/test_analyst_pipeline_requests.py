@@ -1,6 +1,7 @@
 from datetime import date
 
 import pandas as pd
+import pytest
 
 from canary.analyst.checker import check_memo
 from canary.analyst.concentration import CONCENTRATION_KEY, LEAD, ConcentrationResult
@@ -92,7 +93,9 @@ def test_specialist_request_schema_only_its_section():
     assert "T1" in msg and "P1" not in msg and "D1" not in msg
     assert "peers" not in msg.split("Write this section")[1]
     assert build_agent_request(s, "peer", "m")["system"].startswith("You are Canary's peer agent")
-    assert build_agent_request(s, "analyst", "m")["system"] == SYSTEM_PROMPT
+    memos = {"trend": MEMO, "peer": {"sections": [{"key": "peers", "paragraphs": [{"sentences": [
+        {"text": "Peers look typical.", "cites": []}]}]}]}}
+    assert build_agent_request(s, "analyst", "m", specialist_memos=memos)["system"] == SYSTEM_PROMPT
 
 
 def test_specialist_retry_appends_errors():
@@ -111,7 +114,8 @@ def test_analyst_request_contains_specialist_text_and_instruction():
     msg = req["messages"][0]["content"]
     assert ANALYST_INSTRUCTION in msg
     assert "The trend, peer and concentration sections are written by other agents or code" in msg
-    assert "Equity changed by 1.5% over the year." in msg and "T1" in msg.split("Equity changed")[1]
+    assert "Equity changed by 1.5% over the year." in msg and "cites: T1" in msg.split("Equity changed")[1]
+    assert "Trend agent's section (checked, do not rewrite)" in msg and "[cites" not in msg
     assert LEAD in msg
     assert "code-only" in msg and "peers" in msg.split("code-only")[1]
     enum = req["output_config"]["format"]["schema"]["properties"]["sections"]["items"]["properties"]["key"]["enum"]
@@ -137,3 +141,21 @@ def test_analyst_can_cite_specialist_fact():
                              for k in ("summary", "warning_signs", "score", "what_next")]}
     assert check_memo(memo(["T1"]), s, secs) == []
     assert check_memo(memo([]), s, secs) != []
+
+
+def test_analyst_missing_specialist_memo_raises():
+    with pytest.raises(ValueError, match="trend"):
+        build_agent_request(make_sheet(code_only={"peers"}), "analyst", "m", specialist_memos={})
+
+
+def test_analyst_empty_specialist_section_raises():
+    for memo in ({"sections": []}, {"sections": [{"key": "trends", "paragraphs": []}]}):
+        with pytest.raises(ValueError, match="trend"):
+            build_agent_request(make_sheet(code_only={"peers"}), "analyst", "m", specialist_memos={"trend": memo})
+
+
+def test_code_only_specialist_and_unknown_agent_raise():
+    with pytest.raises(ValueError):
+        build_agent_request(make_sheet(code_only={"trends"}), "trend", "m")
+    with pytest.raises(ValueError):
+        build_agent_request(make_sheet(), "bogus", "m")
