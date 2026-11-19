@@ -78,7 +78,7 @@ def test_two_ratio_ranges_without_contribution_allowed():
 
 def test_contribution_without_ratio_figure_rejected():
     errs = run("The contribution was -0.164.", ["H4"])
-    assert any("pairs a contribution" in e for e in errs)
+    assert any("without that ratio's value or range" in e for e in errs)
 
 
 def test_opposite_direction_rejected():
@@ -139,3 +139,17 @@ def test_rank_phrase_same_rejects_both():
 
 def test_rank_phrase_not_cited_not_checked():
     assert run("The model rated it riskier than before.", []) == []
+
+
+def test_one_ratio_error_still_runs_rank_phrase_check():
+    errs = run("Held-to-maturity losses at 48.4% pushed the score up, and the model rated it riskier than "
+               "a year earlier.", ["H1", "H5", "A1", "R1"])
+    assert any("give one ratio per sentence" in e for e in errs)
+    assert any("says 'riskier'" in e for e in errs)
+
+
+def test_contribution_message_wordings():
+    errs = run("The contribution was -0.164.", ["H4"])
+    assert any("cites a contribution without that ratio's value or range" in e for e in errs)
+    errs = run("Losses were 48.4% and the contribution was 0.300.", ["H1", "A4"])
+    assert any("give one ratio per sentence" in e for e in errs)

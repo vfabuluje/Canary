@@ -108,11 +108,10 @@ def _trend_errors(where, text, cited, facts) -> list[str]:
     per_ratio = {f.feature for f in cited if f.feature is not None and f.kind and f.kind.startswith("trend_")}
     if contrib and (len(contrib) > 1 or per_ratio - contrib):
         errors.append(f"{where}: cites more than one ratio with a contribution or direction; {ONE_RATIO_MESSAGE}")
-        return errors + _prediction_errors(where, text)
+        return errors + _rank_errors(where, text, cited) + _prediction_errors(where, text)
     if any(f.kind == "trend_contribution" for f in cited) and not any(
             f.kind in {"trend_value", "trend_lo", "trend_hi"} and f.feature in contrib for f in cited):
-        errors.append(f"{where}: pairs a contribution with a different ratio's figures (no value or range "
-                      f"for the same ratio)")
+        errors.append(f"{where}: cites a contribution without that ratio's value or range")
     labels = []
     for f in cited:
         if f.kind == "trend_direction":
@@ -126,6 +125,11 @@ def _trend_errors(where, text, cited, facts) -> list[str]:
         if pat is not None and (m := pat.search(text)):
             errors.append(f"{where}: says '{m.group(0)}' but the model's direction for that ratio was "
                           f"\"{label}\"")
+    return errors + _rank_errors(where, text, cited) + _prediction_errors(where, text)
+
+
+def _rank_errors(where, text, cited) -> list[str]:
+    errors = []
     for f in cited:
         if f.kind == "trend_rank_phrase":
             phrase = str(f.value)
@@ -135,7 +139,7 @@ def _trend_errors(where, text, cited, facts) -> list[str]:
                 if pat.search(text):
                     errors.append(f"{where}: says '{word}' but the model's rating against a year earlier was "
                                   f"\"{phrase}\"")
-    return errors + _prediction_errors(where, text)
+    return errors
 
 
 def _prediction_errors(where, text) -> list[str]:
