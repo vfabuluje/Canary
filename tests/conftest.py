@@ -206,7 +206,32 @@ def specialty_dir(raw, tmp_path):
 
 
 @pytest.fixture
-def analyst_ctx(raw, trained_model, failures_path, financials_dir, specialty_dir, tmp_path):
+def concentration_dir(raw, tmp_path):
+    """Cert 100 crosses the construction line, 101 has no rows, everyone else crosses neither."""
+    out = tmp_path / "concentration"
+    for q in sorted(raw["report_date"].unique()):
+        part = out / f"repdte={q.strftime('%Y%m%d')}"
+        part.mkdir(parents=True)
+        certs = [int(c) for c in raw.loc[raw["report_date"] == q, "cert"] if c != 101]
+        big = np.array([c == 100 for c in certs])
+        pd.DataFrame(
+            {
+                "CERT": certs,
+                "REPDTE": q.isoformat(),
+                "LNRECONS": np.where(big, 150.0, 10.0),
+                "LNREMULT": 10.0,
+                "LNRENROT": 10.0,
+                "LNCOMRE": 10.0,
+                "RBC": 100.0,
+                "RBCT1J": np.where(big, 100.0, 90.0),
+                "LNATRES": np.where(big, 0.0, 10.0),
+            }
+        ).to_parquet(part / "part.parquet")
+    return out
+
+
+@pytest.fixture
+def analyst_ctx(raw, trained_model, failures_path, financials_dir, specialty_dir, concentration_dir, tmp_path):
     from canary.analyst.context import load_context
 
     features = tmp_path / "features.parquet"
@@ -214,4 +239,5 @@ def analyst_ctx(raw, trained_model, failures_path, financials_dir, specialty_dir
     model_dir = tmp_path / "model"
     model_dir.mkdir()
     trained_model.save_model(model_dir / "model.json")
-    return load_context(features, model_dir, failures_path, financials_dir, tmp_path / "cache", specialty_dir)
+    return load_context(features, model_dir, failures_path, financials_dir, tmp_path / "cache", specialty_dir,
+                        concentration_dir)

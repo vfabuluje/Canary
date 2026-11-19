@@ -10,6 +10,10 @@ from typing import Literal
 
 import pandas as pd
 
+import canary.analyst.peers  # noqa: F401  (registers trends and peers first, so this section follows them)
+from canary.analyst import sections as sections_mod
+from canary.analyst.sections import Section
+
 NEW_MEASURE_FROM = date(2020, 3, 31)
 LINE1_PCT = 100.0
 LINE2_PCT = 300.0
@@ -189,3 +193,33 @@ def render_concentration(result: ConcentrationResult) -> list[str]:
         DEFINITIONS, "",
         CLOSING,
     ]
+
+
+CONCENTRATION_KEY = "concentration"
+CONCENTRATION_TITLE = "Real-estate concentration (2006 regulator thresholds)"
+
+
+def _render_section(sheet) -> list[str]:
+    result = sheet.extras.get(CONCENTRATION_KEY)
+    return [] if result is None else render_concentration(result)
+
+
+CONCENTRATION_SECTION = Section(
+    CONCENTRATION_KEY, CONCENTRATION_TITLE, "as_of",
+    "Code-rendered: the 2006 interagency commercial real estate concentration screens.", False,
+    _render_section,
+)
+
+
+class ConcentrationSpecialist:
+    key = CONCENTRATION_KEY
+    sections = [CONCENTRATION_SECTION]
+
+    def build_facts(self, ctx, sheet) -> list:
+        rows = ctx.concentration[ctx.concentration["cert"] == sheet.cert]
+        sheet.extras[CONCENTRATION_KEY] = compute_concentration(rows, sheet.as_of)
+        sheet.code_only.add(CONCENTRATION_KEY)
+        return []
+
+
+sections_mod.register(ConcentrationSpecialist())

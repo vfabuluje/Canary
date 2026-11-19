@@ -9,6 +9,7 @@ from pathlib import Path
 
 import canary.analyst.trends  # noqa: F401  (registers the trend specialist)
 import canary.analyst.peers  # noqa: F401  (registers the peer specialist, after trends)
+import canary.analyst.concentration  # noqa: F401  (registers the concentration specialist, after peers)
 from canary.analyst.checker import check_memo
 from canary.analyst.facts import POSTHOC_LABEL, FactSheet, build_fact_sheet
 from canary.analyst.render import note_path, render_note

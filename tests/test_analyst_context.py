@@ -41,7 +41,7 @@ def test_banks_table(analyst_ctx):
     assert analyst_ctx.failures["cert"].tolist().count(3) == 1
 
 
-def test_cache_reused_then_invalidated(analyst_ctx, tmp_path, failures_path, financials_dir, specialty_dir, monkeypatch):
+def test_cache_reused_then_invalidated(analyst_ctx, tmp_path, failures_path, financials_dir, specialty_dir, concentration_dir, monkeypatch):
     features, model_dir, cache = tmp_path / "features.parquet", tmp_path / "model", tmp_path / "cache"
     meta = json.loads((cache / "scores.json").read_text())
     assert set(meta) == {"model_run", "features_size", "features_mtime"}
@@ -50,7 +50,7 @@ def test_cache_reused_then_invalidated(analyst_ctx, tmp_path, failures_path, fin
         raise AssertionError("rescored")
 
     monkeypatch.setattr(ctx_mod, "score_rows", boom)
-    again = load_context(features, model_dir, failures_path, financials_dir, cache, specialty_dir)
+    again = load_context(features, model_dir, failures_path, financials_dir, cache, specialty_dir, concentration_dir)
     assert len(again.scored) == len(analyst_ctx.scored)
 
     features.touch()
@@ -58,7 +58,7 @@ def test_cache_reused_then_invalidated(analyst_ctx, tmp_path, failures_path, fin
 
     os.utime(features, (1, 1))
     with pytest.raises(AssertionError, match="rescored"):
-        load_context(features, model_dir, failures_path, financials_dir, cache, specialty_dir)
+        load_context(features, model_dir, failures_path, financials_dir, cache, specialty_dir, concentration_dir)
 
 
 def test_date_convention(analyst_ctx):
@@ -91,6 +91,25 @@ def test_missing_specialty_dir_raises(analyst_ctx, tmp_path, failures_path, fina
         load_context(
             tmp_path / "features.parquet", tmp_path / "model", failures_path, financials_dir, tmp_path / "cache",
             tmp_path / "nope",
+        )
+
+
+def test_concentration_loaded(analyst_ctx, raw):
+    c = analyst_ctx.concentration
+    assert list(c.columns) == ["cert", "report_date", "LNRECONS", "LNREMULT", "LNRENROT", "LNCOMRE",
+                               "RBC", "RBCT1J", "LNATRES"]
+    assert str(c["cert"].dtype) == "int64"
+    assert str(c["report_date"].dtype).startswith("datetime64")
+    assert c["LNRECONS"].dtype == "float64"
+    assert 101 not in set(c["cert"])
+    assert len(c) == len(raw) - (raw["cert"] == 101).sum()
+
+
+def test_missing_concentration_dir_raises(analyst_ctx, tmp_path, failures_path, financials_dir, specialty_dir):
+    with pytest.raises(FileNotFoundError, match="python -m canary.ingest concentration"):
+        load_context(
+            tmp_path / "features.parquet", tmp_path / "model", failures_path, financials_dir, tmp_path / "cache",
+            specialty_dir, tmp_path / "nope",
         )
 
 

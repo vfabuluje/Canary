@@ -36,6 +36,7 @@ class Context:
     model_run: str
     latest_quarter: date
     specialty: pd.DataFrame  # cert, report_date, specgrp, city: the FDIC specialty group per bank-quarter
+    concentration: pd.DataFrame  # cert, report_date and the seven raw dollar fields (real-estate concentration)
 
 
 def score_rows(features: pd.DataFrame, model: xgboost.XGBClassifier) -> pd.DataFrame:
@@ -110,6 +111,22 @@ def _load_specialty(specialty_dir: Path) -> pd.DataFrame:
     return out.reset_index(drop=True)
 
 
+CONCENTRATION_FIELDS = ["LNRECONS", "LNREMULT", "LNRENROT", "LNCOMRE", "RBC", "RBCT1J", "LNATRES"]
+
+
+def _load_concentration(concentration_dir: Path) -> pd.DataFrame:
+    if not concentration_dir.exists():
+        raise FileNotFoundError(
+            f"concentration table not found at {concentration_dir}; "
+            "run `python -m canary.ingest concentration` first"
+        )
+    raw = pd.read_parquet(concentration_dir, columns=["CERT", "REPDTE", *CONCENTRATION_FIELDS])
+    out = pd.DataFrame({"cert": raw["CERT"].astype("int64"), "report_date": pd.to_datetime(raw["REPDTE"])})
+    for f in CONCENTRATION_FIELDS:
+        out[f] = raw[f].astype("float64")
+    return out.reset_index(drop=True)
+
+
 def _last_cities(specialty: pd.DataFrame) -> pd.Series:
     """CITY at each bank's last specialty row, indexed by cert."""
     last = specialty.sort_values("report_date", kind="mergesort").drop_duplicates("cert", keep="last")
@@ -144,8 +161,10 @@ def load_context(
     financials_dir: Path = Path("data/raw/financials"),
     cache_dir: Path = Path("data/analyst"),
     specialty_dir: Path = Path("data/raw/specialty"),
+    concentration_dir: Path = Path("data/raw/concentration"),
 ) -> Context:
     specialty = _load_specialty(specialty_dir)
+    concentration = _load_concentration(concentration_dir)
     frame = load_dataset(features)
     frame["report_date"] = pd.to_datetime(frame["report_date"])
     frame["failure_date"] = pd.to_datetime(frame["failure_date"])
@@ -164,4 +183,5 @@ def load_context(
         model_run=run,
         latest_quarter=frame["report_date"].max().date(),
         specialty=specialty,
+        concentration=concentration,
     )
