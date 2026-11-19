@@ -70,6 +70,16 @@ FINANCIAL_FIELDS: dict[str, Field] = {
     "SCAF": Field("float64", "SECURITIES-AF"),
 }
 
+# Phase 5c: specialty group and city, kept apart from FINANCIAL_FIELDS so the
+# 45-field files are never touched. Order = API `fields=` order.
+SPECIALTY_FIELDS: dict[str, Field] = {
+    "CERT": Field("int64", "FDIC Certificate #"),
+    "REPDTE": Field("date_ymd", "Report Date"),
+    "SPECGRP": Field("Int64", "Asset concentration specialty group"),
+    "CITY": Field("string", "City"),
+}
+
+
 FAILURE_FIELDS: dict[str, Field] = {
     "NAME": Field("string", "Institution Name"),
     "CERT": Field("Int64", "Cert"),

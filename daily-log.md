@@ -1,5 +1,21 @@
 # Daily Log
 
+## 2026-11-19
+**Done**
+- Free fix (PR #9, branch `showcase-first-errors`): the showcase report now records first-attempt checker errors per bank and a per-section tally.
+- **Phase 5c built: "Compared with similar banks"** (spec [[specs/2026-11-18-phase5c-peers-design]], plan [[plans/2026-11-18-phase5c-peers]], decision [[decisions/0020-peer-comparison-descriptive]]). For each ratio in the national top or bottom 10%, the note shows whether it is also unusual among banks in the same FDIC specialty group and size tier (minimum 15 banks, with fallbacks). Answers: is the bank an outlier in its own category, or just a different category? **Descriptive only**, rule fixed before computing any bank's readings.
+- New raw table `data/raw/specialty/` (FDIC `SPECGRP` and `CITY` per bank-quarter, 710,691 rows, 102 quarters, 0 null; the 45-field financials files untouched). City search in `ask` now works for every bank.
+- FDIC label used as published, per quarter: SVB is "All Other Over 1 Billion" (group 9), stated in its note as a finding. Live SVB memo (2022-12-31): among its 23-bank peer group (including itself), HTM bond losses (98.1% of equity, peer median 0.6%) and uninsured deposits (86.4%, peer median 41.1%) are still unusually high; 7 other nationally unusual ratios are typical for its group.
+- Built subagent-driven: 6 tasks with reviews, a whole-branch review (fixes: a "10%" figure no fact supported, paraphrases rejected, an optimistic cost estimate). 525 pytest pass.
+- **Cost:** one live memo, $0.35. Dry-run estimate for re-running the 61 showcase notes with both new sections is now **$12.99** ($5.02 batch + $7.97 retry allowance at the measured 60% retry rate).
+
+**Next**
+- Merge `phase5c-peers` and PR #9 (owner's consent), then Phase 5d (concentration risk).
+- After 5d: one paid showcase re-run with 5b+5c+5d sections, only after a fresh dry run and Victor's approval. Check the new first-attempt error tally (PR #9) to cut the retry rate first.
+
+**Open questions**
+- The retry rate (60%) roughly doubles the showcase cost. Worth one cheap diagnostic (a few memos with first-attempt errors logged) before the big run?
+
 ## 2026-11-18
 **Done**
 - Phase 5a merged (PR #7). Branch `phase5b-trend-agent` from `main`.

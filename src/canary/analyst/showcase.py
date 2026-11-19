@@ -27,12 +27,12 @@ from canary.model.train import CASE_STUDY_CERTS
 
 log = logging.getLogger(__name__)
 
-# Dry-run estimate (derivation in runbooks/analyst.md). Phase 5b live SVB 2022-03-31 memo: 22,571 input /
-# 9,233 output over 2 calls, so about 4,600 output per call (adaptive thinking included). Input is estimated
-# from the real request size; CHARS_PER_TOKEN is calibrated so that request maps to its measured input.
-EST_OUTPUT_TOKENS = 4600  # per call (per bank first try, and per retry)
+# Dry-run estimate (derivation in runbooks/analyst.md). Phase 5c live memo: 11,292 output over 2 calls, so
+# about 5,650 per call, rounded to 5,700 (adaptive thinking included). Input is estimated from the real
+# request size; CHARS_PER_TOKEN is calibrated on the 5b SVB request (22,979 chars, 22,571 measured input).
+EST_OUTPUT_TOKENS = 5700  # per call (per bank first try, and per retry)
 CHARS_PER_TOKEN = 2.4  # calibrated on the SVB 2022-03-31 request (22,979 chars); 3.5 would under-count ~30%
-RETRY_SHARE = 0.30  # share of banks retried (5a: 18 of 61 needed a retry)
+RETRY_SHARE = 0.6  # share of banks retried (5b showcase: 37 of 61 needed a retry)
 RETRY_INPUT_FACTOR = 2.0  # a retry resends the request plus the rejected memo: about 2x the first input
 RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is re-raised
 RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s
