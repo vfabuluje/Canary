@@ -226,3 +226,19 @@ def test_section_definition():
     assert PEER_SENTENCE == ("This section only compares the bank with banks the FDIC groups with it; an unusual "
                              "figure is not a prediction of failure, and the comparison has not been tested "
                              "as a warning signal.")
+
+
+def test_specialty_is_the_as_of_quarters(analyst_ctx):
+    import pandas as pd
+
+    as_of = date(2018, 12, 31)
+    ts = pd.Timestamp(as_of)
+    spec = analyst_ctx.specialty.copy()
+    is_bank = spec["cert"] == CERT
+    spec.loc[is_bank & (spec["report_date"] == ts), "specgrp"] = 6
+    spec.loc[is_bank & (spec["report_date"] > ts), "specgrp"] = 9
+    ctx = replace(analyst_ctx, specialty=spec)
+    rows = peers_mod._quarter_rows(ctx, as_of)
+    assert int(rows.loc[rows["cert"] == CERT, "specgrp"].iloc[0]) == 6
+    result = peers_mod.compute_peers(rows, CERT, as_of)
+    assert result.specgrp == 6
