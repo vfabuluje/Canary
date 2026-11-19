@@ -86,3 +86,26 @@ def test_specialty_covers_financials(fin, specialty):
 def test_specgrp_codes_valid(specialty):
     codes = specialty["SPECGRP"].dropna()
     assert codes.between(1, 9).all(), sorted(codes.unique())
+
+
+@pytest.fixture(scope="module")
+def concentration():
+    if not (ROOT / "concentration").is_dir():
+        pytest.skip("no local concentration data")
+    return pd.read_parquet(ROOT / "concentration")
+
+
+def test_concentration_covers_financials(fin, concentration):
+    missing = fin[["CERT", "REPDTE"]].merge(
+        concentration[["CERT", "REPDTE"]], how="left", on=["CERT", "REPDTE"], indicator=True
+    )
+    assert (missing["_merge"] == "both").all(), int((missing["_merge"] != "both").sum())
+
+
+def test_concentration_dollars_non_negative(concentration):
+    for col in ("LNRECONS", "LNREMULT", "LNRENROT", "LNCOMRE"):
+        assert not (concentration[col] < 0).any(), col
+    for col in ("LNRECONS", "LNREMULT", "LNRENROT", "LNCOMRE", "RBC", "RBCT1J", "LNATRES"):
+        print(f"null {col}: {int(concentration[col].isna().sum())} of {len(concentration)}")
+    for col in ("RBC", "RBCT1J", "LNATRES"):
+        print(f"negative {col}: {int((concentration[col] < 0).sum())}")
