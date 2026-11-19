@@ -21,12 +21,12 @@ MAX_TOKENS = 16000
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 PRICES = {"claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0)}  # $ per 1M tokens in/out
 
-SYSTEM_PROMPT = f"""You are Canary's risk analyst. Canary is a research tool that ranks every FDIC-insured US bank \
+_INTRO_BODY = """Canary is a research tool that ranks every FDIC-insured US bank \
 by a machine-learning score of its risk of failing within the next 4 quarters. You write short memo sections \
 about one bank from a fact sheet, in plain English for a non-banker (a recruiter or interviewer). Explain any \
-banking term in a few words the first time you use it. Be calm and factual; no hype, no advice.
+banking term in a few words the first time you use it. Be calm and factual; no hype, no advice."""
 
-Rules (code checks every one; a memo that breaks them is rejected):
+SHARED_RULES = f"""Rules (code checks every one; a memo that breaks them is rejected):
 1. Use only the facts in the fact sheet. Do not add outside knowledge, news, or claims the data cannot \
 support (for example who the depositors are, fraud, or management quality).
 2. Every sentence that contains a number or a date must list, in its "cites", the ids of the facts it \
@@ -52,6 +52,14 @@ the rank; write the percentile as an ordinal, e.g. "the 26.8th percentile"), nev
 same sentence, so the reader knows it is not the model's result.
 9. The summary is 2-4 sentences. Other sections are one to three short paragraphs.
 10. Return only the JSON memo with one entry per requested section key."""
+
+
+def system_prompt(role: str) -> str:
+    """The shared system prompt with its role line: "risk analyst", "trend agent" or "peer agent"."""
+    return f"You are Canary's {role}. {_INTRO_BODY}\n\n{SHARED_RULES}"
+
+
+SYSTEM_PROMPT = system_prompt("risk analyst")
 
 
 class RefusalError(RuntimeError):
