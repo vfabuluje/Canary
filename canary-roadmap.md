@@ -13,6 +13,7 @@ kanban-plugin: board
 - [ ] Phase 5a: AI risk analyst agent (memo writer, citation checker, ask agent, 61 showcase notes)
 - [ ] Phase 5b: Ratio trends section (descriptive; 61 showcase notes re-run)
 - [ ] Phase 5c: Peer comparison section (FDIC specialty + size tier; descriptive; notes get it at the next showcase re-run)
+- [ ] Phase 5d: Real-estate concentration section (2006 regulator thresholds; code-written, no AI; notes get it at the next showcase re-run)
 
 
 ## In Progress
@@ -21,7 +22,6 @@ kanban-plugin: board
 
 ## Not Started
 
-- [ ] Phase 5d: Concentration-risk agent
 - [ ] Phase 6: Streamlit dashboard
 - [ ] Phase 6: README with metrics and limitations
 - [ ] Phase 6: Demo video
