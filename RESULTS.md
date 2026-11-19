@@ -73,3 +73,6 @@ This does not change the reported 2016-2024 metrics. Four banks is a small sampl
 
 ## Note on the Phase 5b trend section
 The "How its ratios moved" section in the analyst notes is descriptive. It compares a bank's ratios with the bank's own past range and has **no measured result**: no recall, catches, AUC or lead time are reported for it, and it is not part of the results above ([decision 0019](decisions/0019-ratio-trends-descriptive.md)).
+
+## Note on the Phase 5c peer section
+The "Compared with similar banks" section is descriptive. It compares a bank's ratios with banks the FDIC groups with it and has **no measured result**: no recall, catches, AUC or lead time are reported for it, and it is not part of the results above ([decision 0020](decisions/0020-peer-comparison-descriptive.md)).

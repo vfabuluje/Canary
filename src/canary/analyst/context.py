@@ -35,6 +35,7 @@ class Context:
     model: xgboost.XGBClassifier
     model_run: str
     latest_quarter: date
+    specialty: pd.DataFrame  # cert, report_date, specgrp, city: the FDIC specialty group per bank-quarter
 
 
 def score_rows(features: pd.DataFrame, model: xgboost.XGBClassifier) -> pd.DataFrame:
@@ -92,7 +93,32 @@ def _last_states(financials_dir: Path) -> pd.Series:
     return fin.set_index(fin["CERT"].astype("int64"))["STALP"]
 
 
-def _build_banks(features: pd.DataFrame, failures: pd.DataFrame, financials_dir: Path) -> pd.DataFrame:
+def _load_specialty(specialty_dir: Path) -> pd.DataFrame:
+    if not specialty_dir.exists():
+        raise FileNotFoundError(
+            f"specialty table not found at {specialty_dir}; run `python -m canary.ingest specialty` first"
+        )
+    raw = pd.read_parquet(specialty_dir, columns=["CERT", "REPDTE", "SPECGRP", "CITY"])
+    out = pd.DataFrame(
+        {
+            "cert": raw["CERT"].astype("int64"),
+            "report_date": pd.to_datetime(raw["REPDTE"]),
+            "specgrp": raw["SPECGRP"].astype("Int64"),
+            "city": raw["CITY"].astype("string"),
+        }
+    )
+    return out.reset_index(drop=True)
+
+
+def _last_cities(specialty: pd.DataFrame) -> pd.Series:
+    """CITY at each bank's last specialty row, indexed by cert."""
+    last = specialty.sort_values("report_date", kind="mergesort").drop_duplicates("cert", keep="last")
+    return last.set_index("cert")["city"].astype(object)
+
+
+def _build_banks(
+    features: pd.DataFrame, failures: pd.DataFrame, financials_dir: Path, specialty: pd.DataFrame
+) -> pd.DataFrame:
     ordered = features.sort_values("report_date", kind="mergesort")
     g = ordered.groupby("cert")
     banks = pd.DataFrame(
@@ -105,7 +131,7 @@ def _build_banks(features: pd.DataFrame, failures: pd.DataFrame, financials_dir:
     )
     fail = failures.drop_duplicates("cert").set_index("cert")
     banks["name"] = fail["name"].reindex(banks.index).fillna(banks["name"])
-    banks["city"] = fail["city"].reindex(banks.index)
+    banks["city"] = _last_cities(specialty).reindex(banks.index).fillna(fail["city"].reindex(banks.index))
     banks["state"] = _last_states(financials_dir).reindex(banks.index)
     banks = banks.reset_index()
     return banks[["cert", "name", "state", "first_report", "last_report", "failure_date", "city"]]
@@ -117,7 +143,9 @@ def load_context(
     failures: Path,
     financials_dir: Path = Path("data/raw/financials"),
     cache_dir: Path = Path("data/analyst"),
+    specialty_dir: Path = Path("data/raw/specialty"),
 ) -> Context:
+    specialty = _load_specialty(specialty_dir)
     frame = load_dataset(features)
     frame["report_date"] = pd.to_datetime(frame["report_date"])
     frame["failure_date"] = pd.to_datetime(frame["failure_date"])
@@ -131,8 +159,9 @@ def load_context(
         features=frame,
         scored=scored,
         failures=fails,
-        banks=_build_banks(frame, fails, financials_dir),
+        banks=_build_banks(frame, fails, financials_dir, specialty),
         model=model,
         model_run=run,
         latest_quarter=frame["report_date"].max().date(),
+        specialty=specialty,
     )

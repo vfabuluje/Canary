@@ -146,7 +146,7 @@ def test_schema_section_enum():
     secs = all_sections("quiet")
     schema = memo_schema(secs)
     sec_item = schema["properties"]["sections"]["items"]
-    assert sec_item["properties"]["key"]["enum"] == ["summary", "warning_signs", "score", "trends", "what_next"]
+    assert sec_item["properties"]["key"]["enum"] == ["summary", "warning_signs", "score", "trends", "peers", "what_next"]
     assert schema["additionalProperties"] is False and sec_item["additionalProperties"] is False
 
 

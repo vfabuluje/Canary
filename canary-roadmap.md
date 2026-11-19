@@ -12,6 +12,7 @@ kanban-plugin: board
 - [ ] Phase 4: SVB / Signature / First Republic replay; error analysis
 - [ ] Phase 5a: AI risk analyst agent (memo writer, citation checker, ask agent, 61 showcase notes)
 - [ ] Phase 5b: Ratio trends section (descriptive; 61 showcase notes re-run)
+- [ ] Phase 5c: Peer comparison section (FDIC specialty + size tier; descriptive; notes get it at the next showcase re-run)
 
 
 ## In Progress
@@ -20,7 +21,6 @@ kanban-plugin: board
 
 ## Not Started
 
-- [ ] Phase 5c: Peer comparison agent (adds FDIC specialty label)
 - [ ] Phase 5d: Concentration-risk agent
 - [ ] Phase 6: Streamlit dashboard
 - [ ] Phase 6: README with metrics and limitations

@@ -117,8 +117,8 @@ def test_cli_watchlist_top_dry_run(analyst_ctx, tmp_model_dir, tmp_replay_dir, c
 
 def test_estimate_constants_and_calibration():
     from canary.analyst import showcase
-    assert showcase.EST_OUTPUT_TOKENS == 4600 and showcase.CHARS_PER_TOKEN == 2.4
-    assert showcase.RETRY_SHARE == 0.30 and showcase.RETRY_INPUT_FACTOR == 2.0
+    assert showcase.EST_OUTPUT_TOKENS == 5700 and showcase.CHARS_PER_TOKEN == 2.4
+    assert showcase.RETRY_SHARE == 0.6 and showcase.RETRY_INPUT_FACTOR == 2.0
     assert not hasattr(showcase, "EST_INPUT_TOKENS")
     # the SVB request (22,979 chars) maps to about 9,570 input tokens
     assert showcase.request_tokens({"x": "a" * (22979 - 8)}) == round(22979 / 2.4)
@@ -129,8 +129,8 @@ def test_estimate_run_uses_built_requests(analyst_ctx, tmp_replay_dir):
     from canary.analyst.writer import cost_usd
     banks = [(3, date(2019, 9, 30), "x")] * 2
     est = showcase.estimate_run(analyst_ctx, banks, "claude-opus-5-5", tmp_replay_dir.path)
-    assert est["input"] > 0 and est["output"] == 2 * 4600
-    assert est["retries"] == 1 and est["retry_output"] == 4600
+    assert est["input"] > 0 and est["output"] == 2 * 5700
+    assert est["retries"] == 1 and est["retry_output"] == 5700
     assert est["retry_input"] == round(2 * est["input"] / 2)
     assert est["cost"] == pytest.approx(cost_usd("claude-opus-5-5", est["input"], est["output"]) / 2)
     assert est["retry_cost"] == pytest.approx(

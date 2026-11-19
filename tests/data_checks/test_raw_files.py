@@ -66,3 +66,23 @@ def test_failures_cert_present_since_2001(failures):
     recent = failures[failures["FAILYR"] >= 2001]
     assert len(recent) > 0
     assert recent["CERT"].notna().all()
+
+
+@pytest.fixture(scope="module")
+def specialty():
+    if not (ROOT / "specialty").is_dir():
+        pytest.skip("no local specialty data")
+    return pd.read_parquet(ROOT / "specialty", columns=["CERT", "REPDTE", "SPECGRP"])
+
+
+def test_specialty_covers_financials(fin, specialty):
+    missing = fin[["CERT", "REPDTE"]].merge(
+        specialty[["CERT", "REPDTE"]], how="left", on=["CERT", "REPDTE"], indicator=True
+    )
+    assert (missing["_merge"] == "both").all(), int((missing["_merge"] != "both").sum())
+    print(f"null SPECGRP rows: {int(specialty['SPECGRP'].isna().sum())} of {len(specialty)}")
+
+
+def test_specgrp_codes_valid(specialty):
+    codes = specialty["SPECGRP"].dropna()
+    assert codes.between(1, 9).all(), sorted(codes.unique())

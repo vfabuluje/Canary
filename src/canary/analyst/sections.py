@@ -14,6 +14,8 @@ class Section:
     ai_written: bool
     # Code-rendered lines appended after the section's AI paragraphs; takes the FactSheet.
     render: Callable[[Any], list[str]] | None = None
+    # Code-rendered lines placed right after the heading, before the AI paragraphs.
+    render_before: Callable[[Any], list[str]] | None = None
 
 
 ANALYST_SECTIONS: list[Section] = [

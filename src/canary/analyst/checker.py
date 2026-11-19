@@ -15,6 +15,13 @@ direction fact must cite one ratio only (every per-ratio trend fact it cites is 
 contribution needs that ratio's value/low/high; (2) the text must not say the opposite of the direction label (the cited direction
 fact, or the sheet's direction fact for the cited contribution's ratio); a cited rank-phrase fact rules
 out the opposite of "safer"/"riskier"; (3) no prediction language.
+
+Peer section only (key "peers", Phase 5c spec 4/7.4, rulings R2): (1) a sentence citing a peer reading or
+peer percentile cites one ratio only; (2) the text must not say the opposite of a cited reading
+(a "typical" reading rules out only contiguous "unusual(ly high/low) among its peers"; a high/low
+reading rules out the other side and "typical for its peer group"; a national direction rules out the
+opposite national word unless it is part of "... among its peers"); (3) prediction language and
+"risky"/"riskier".
 """
 
 import re
@@ -22,6 +29,9 @@ from dataclasses import dataclass
 
 from canary.analyst.facts import POSTHOC_LABEL, SPELLED_WORDS, FactSheet, date_forms, spelled_norm
 from canary.analyst.labels import PLAIN_NAMES
+from canary.analyst.peers import (
+    PEER_KEY, READING_HIGH, READING_HIGH_TOO, READING_LOW, READING_LOW_TOO, READING_TYPICAL,
+)
 from canary.analyst.sections import Section
 from canary.analyst.trends import TREND_KEY
 
@@ -147,6 +157,48 @@ def _prediction_errors(where, text) -> list[str]:
     return [f"{where}: uses prediction language ('{m.group(0)}')"] if m else []
 
 
+PEER_ONE_RATIO_MESSAGE = "give one ratio per sentence when stating its peer reading"
+_PEER_READING_KINDS = {"peer_reading", "peer_pct"}
+_UNUSUAL_PEERS = re.compile(r"\bunusual(?:ly\s+(?:high|low))?\s+among its peers\b", re.IGNORECASE)
+_HIGH_PEERS = re.compile(r"\bunusually high among its peers\b", re.IGNORECASE)
+_LOW_PEERS = re.compile(r"\bunusually low among its peers\b", re.IGNORECASE)
+_TYPICAL_PEERS = re.compile(r"\btypical for its peer group\b", re.IGNORECASE)
+_NAT_LOW = re.compile(r"\bunusually low\b(?!\s+among (?:its )?peers)", re.IGNORECASE)
+_NAT_HIGH = re.compile(r"\bunusually high\b(?!\s+among (?:its )?peers)", re.IGNORECASE)
+_RISKY = re.compile(r"\brisk(?:y|ier)\b", re.IGNORECASE)
+
+
+def _peer_errors(where, text, cited) -> list[str]:
+    errors = []
+    reading_feats = {f.feature for f in cited if f.kind in _PEER_READING_KINDS}
+    per_ratio = {f.feature for f in cited if f.feature is not None and f.kind and f.kind.startswith("peer_")}
+    if reading_feats and (len(reading_feats) > 1 or per_ratio - reading_feats):
+        errors.append(f"{where}: cites more than one ratio with a peer reading or percentile; "
+                      f"{PEER_ONE_RATIO_MESSAGE}")
+    bad: list[tuple[str, re.Pattern]] = []
+    for f in cited:
+        if f.kind == "peer_reading":
+            v = str(f.value)
+            if v == READING_TYPICAL:
+                bad.append((v, _UNUSUAL_PEERS))
+            elif v in (READING_HIGH, READING_HIGH_TOO):
+                bad += [(v, _LOW_PEERS), (v, _TYPICAL_PEERS)]
+            elif v in (READING_LOW, READING_LOW_TOO):
+                bad += [(v, _HIGH_PEERS), (v, _TYPICAL_PEERS)]
+        elif f.kind == "peer_nat_dir":
+            v = str(f.value)
+            if v == "unusually high":
+                bad.append((v, _NAT_LOW))
+            elif v == "unusually low":
+                bad.append((v, _NAT_HIGH))
+    for label, pat in bad:
+        if m := pat.search(text):
+            errors.append(f"{where}: says '{m.group(0)}' but the cited peer fact says \"{label}\"")
+    if m := _RISKY.search(text):
+        errors.append(f"{where}: uses prediction language ('{m.group(0)}')")
+    return errors + _prediction_errors(where, text)
+
+
 @dataclass
 class _Tok:
     raw: str
@@ -253,6 +305,8 @@ def _check_sentence(key, spec, sent, facts) -> list[str]:
             errors.append(f"{where}: '{m.group(0)}' in an as-of section (says or hints at what happened later)")
     if key == TREND_KEY:
         errors.extend(_trend_errors(where, text, cited, facts))
+    if key == PEER_KEY:
+        errors.extend(_peer_errors(where, text, cited))
     if any(POSTHOC_LABEL in f.label for f in cited) and POSTHOC_LABEL not in text:
         errors.append(f"{where}: cites a post-hoc fact but does not include the label \"{POSTHOC_LABEL}\"")
     if tokens and not cites:

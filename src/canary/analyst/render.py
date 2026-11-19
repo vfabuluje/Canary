@@ -132,6 +132,8 @@ def render_note(sheet: FactSheet, memo: dict, sections: list[Section], meta: dic
                 out.append(f"- {f.id} · {f.label} · {q} · {f.display} · {f.source}")
             out.append("")
             continue
+        if sec.render_before is not None:
+            out += sec.render_before(sheet) + [""]
         if sec.key in by_key:
             for p in _paragraphs(by_key[sec.key]):
                 out += [p, ""]
