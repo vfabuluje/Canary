@@ -26,6 +26,7 @@ One row per bank (11,243 rows).
 | `latest_flagged` | True if it was on the 2% watchlist at that quarter |
 | `after_test_period` | True if the latest scored quarter is after the 2016-2024 test window (so no tested result exists for it) |
 | `has_report` | True if the bank has a written, checked report (`reports/<cert>.json`) |
+| `website` | The bank's web domain from FDIC institutions `WEBADDR`, cleaned to a plain domain (`wellsfargo.com`); null when there is none (most closed banks) or it isn't a plain domain. Used only for the website icon. Source: `data/raw/websites/websites.parquet` (`python -m canary.ingest websites`) |
 
 ## `scores_history.parquet`
 

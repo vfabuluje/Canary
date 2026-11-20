@@ -55,7 +55,8 @@ def _latest_scores(scored: pd.DataFrame) -> pd.DataFrame:
     return last.set_index("cert")
 
 
-def export_banks(ctx: Context, showcase_certs: set[int]) -> pd.DataFrame:
+def export_banks(ctx: Context, showcase_certs: set[int], websites: pd.DataFrame | None = None) -> pd.DataFrame:
+    """One row per bank. `websites` (cert, website) adds the bank's domain for its icon; missing -> null."""
     b = ctx.banks.copy()
     latest = _latest_scores(ctx.scored).reindex(b["cert"])
     out = pd.DataFrame({
@@ -75,6 +76,8 @@ def export_banks(ctx: Context, showcase_certs: set[int]) -> pd.DataFrame:
     out["latest_flagged"] = latest["flagged"].astype("boolean").to_numpy()
     out["after_test_period"] = (out["latest_report_date"] > TEST_END).fillna(False).astype(bool)
     out["has_report"] = out["cert"].isin(showcase_certs)
+    site = websites.set_index("cert")["website"] if websites is not None else pd.Series(dtype="string")
+    out["website"] = site.reindex(out["cert"]).astype("string").to_numpy()
     return out.reset_index(drop=True)
 
 
@@ -124,10 +127,11 @@ def threshold_table(scores_test: pd.DataFrame) -> list[dict]:
     return table
 
 
-def write_tables(ctx: Context, model_dir: Path, out: Path, showcase_certs: set[int]) -> None:
+def write_tables(ctx: Context, model_dir: Path, out: Path, showcase_certs: set[int],
+                 websites: pd.DataFrame | None = None) -> None:
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
-    export_banks(ctx, showcase_certs).to_parquet(out / "banks.parquet", index=False)
+    export_banks(ctx, showcase_certs, websites).to_parquet(out / "banks.parquet", index=False)
     export_scores_history(ctx).to_parquet(out / "scores_history.parquet", index=False)
     export_concentration(ctx).to_parquet(out / "concentration.parquet", index=False)
     metrics = json.loads((Path(model_dir) / "metrics.json").read_text())

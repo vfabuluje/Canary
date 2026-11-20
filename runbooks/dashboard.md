@@ -8,7 +8,7 @@ The dashboard never calls AWS. Its only paid part is Ask Canary, which calls Ant
 `pip install -e '.[dev,model,analyst,dashboard]'` (Streamlit 1.67 or newer).
 
 ## 1. Re-run the export
-Run this whenever the model, the scores or the written notes change. It needs the Phase 3 files in `data/` and the notes in `banks/`, and makes no Claude calls.
+Run this whenever the model, the scores or the written notes change. It needs the Phase 3 files in `data/` and the notes in `banks/`, and makes no Claude calls. For the website icons it also reads `data/raw/websites/websites.parquet`; refresh that now and then with `python -m canary.ingest websites` (free FDIC API, one call). Without it the export still works and every bank shows the pixel bank.
 ```
 python -m canary.dashboard export --out dashboard/data
 ```

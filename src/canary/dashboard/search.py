@@ -107,5 +107,6 @@ def search(query: str, banks: pd.DataFrame, limit: int = 8) -> SearchResult:
                    for o in rows)
         label = f"{row['name']} — {row['city']}, cert {row['cert']}" if twin else row["name"]
         suggestions.append({"cert": int(row["cert"]), "name": row["name"], "state": row["state"],
-                            "status": _status(row, latest_quarter), "label": label})
+                            "status": _status(row, latest_quarter), "label": label,
+                            "website": row["website"] if "website" in row.index and pd.notna(row["website"]) else None})
     return SearchResult(direct, suggestions, close)

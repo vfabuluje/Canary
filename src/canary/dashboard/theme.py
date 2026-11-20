@@ -10,6 +10,8 @@ import re
 
 import streamlit as st
 
+from canary.dashboard import icons
+
 THEMES = ("standard", "detective", "basketball")
 THEME_LABELS = {"standard": "Standard", "detective": "🔍 Detectives", "basketball": "🏀 Basketball"}
 FOOTER = "Research tool, not financial advice. Built from public FDIC data."
@@ -133,6 +135,10 @@ header[data-testid="stHeader"] { background:var(--nav); border-bottom:4px solid 
 [class*="st-key-pick-"] button [data-testid="stMarkdownContainer"] { justify-content:flex-start !important; text-align:left !important; width:100%; }
 [class*="st-key-pick-"] button p { font-family:inherit !important; font-size:16px !important; line-height:1.35; text-align:left !important; margin:0; }
 [class*="st-key-pick-"] button p:last-child { font-size:13px !important; color:var(--muted); }
+[class*="st-key-pick-"] button::before, .bank-icon { content:""; flex:0 0 auto; display:inline-block; width:32px; height:32px;
+  margin-right:14px; border:2px solid var(--navy); background:#fff center/18px no-repeat; image-rendering:pixelated;
+  background-image:url("{PLACEHOLDER}"); }
+.bank-icon { vertical-align:middle; margin-bottom:4px; }
 [data-testid="stTextInputRootElement"] { border:3px solid var(--navy) !important; border-radius:0; box-shadow:3px 3px 0 var(--navy); background:#fff; }
 [data-testid="stTextInputRootElement"] input { font-size:17px; color:var(--navy); background:#fff; }
 [data-testid="stForm"] { border:0; padding:0; }
@@ -225,6 +231,8 @@ h2.how-strip-title { margin-top:26px; }
 @media (max-width:860px){ .steps { grid-template-columns:repeat(2,minmax(0,1fr)); } .step:nth-child(2)::after { content:none; } }
 @media (max-width:520px){ .steps { grid-template-columns:1fr; gap:22px; } .step:not(:last-child)::after { content:"▼"; right:auto; left:50%; top:auto; bottom:-21px; margin:0 0 0 -8px; } }
 """
+
+BASE_CSS = BASE_CSS.replace("{PLACEHOLDER}", icons.PLACEHOLDER)  # the pixel bank for banks without a website
 
 STANDARD_CSS = ""
 

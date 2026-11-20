@@ -5,7 +5,7 @@ import re
 import pandas as pd
 import streamlit as st
 
-from canary.dashboard import bankpage, data, search, theme
+from canary.dashboard import bankpage, data, icons, search, theme
 from canary.dashboard.copy import (FIND_BACK, FIND_BAD_CERT, FIND_DID_YOU_MEAN, FIND_HINT, FIND_LABEL, FIND_LEDE,
                                    FIND_NONE, FIND_NOT_CLOSE, FIND_PLACEHOLDER, FIND_TITLE)
 
@@ -56,6 +56,8 @@ if result.direct is not None:
     st.rerun()
 elif result.suggestions:
     theme.on_background(FIND_DID_YOU_MEAN if result.close else FIND_NOT_CLOSE, bold=True)
+    if css := icons.results_css(result.suggestions):
+        theme.html_block(css)
     for s in result.suggestions:
         where = " · ".join(_plain(p) for p in (s["state"], s["status"]) if pd.notna(p) and p)
         st.button(f'**{_plain(s["label"])}**\n\n:small[{where}]', key=f'pick-{s["cert"]}', on_click=_open,

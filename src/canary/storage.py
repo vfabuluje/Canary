@@ -19,6 +19,10 @@ def concentration_path(root: Path, repdte: date) -> Path:
     return root / "concentration" / f"repdte={repdte:%Y%m%d}" / "part.parquet"
 
 
+def websites_path(root: Path) -> Path:
+    return root / "websites" / "websites.parquet"
+
+
 def failures_path(root: Path) -> Path:
     return root / "failures" / "failures.parquet"
 
