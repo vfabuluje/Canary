@@ -168,6 +168,22 @@ def test_flagship_numbers_in_note():
             assert not missing, (cert, text, missing)
 
 
+REAL_EXPORT = Path(__file__).resolve().parents[1] / "dashboard" / "data"
+
+
+def test_flagship_watchlist_share_matches_published_size():
+    """A hand-typed watchlist size in the flagship copy ("the watchlist, which covers the top 2%") must be the
+    size Canary publishes. test_flagship_numbers_in_note can't catch a wrong one: any "2%" in the note passes."""
+    from canary.dashboard.watch import published_share
+    metrics = json.loads((REAL_EXPORT / "metrics.json").read_text())
+    table = json.loads((REAL_EXPORT / "threshold.json").read_text())
+    published = f"{published_share(metrics, table) * 100:g}%"
+    shares = [m.group(1) for cert, copy in FLAGSHIP_CARDS.items() for text in _strings(copy)
+              if "watchlist" in text for m in re.finditer(r"\btop (\d[\d.]*%)", text)]
+    assert shares, "expected the flagship copy to state the watchlist size"
+    assert set(shares) == {published}, (shares, published)
+
+
 def test_flagship_shape():
     for cert, copy in FLAGSHIP_CARDS.items():
         assert set(copy["cards"]) == {"trend", "peer", "rule", "summary"}, cert

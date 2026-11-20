@@ -48,7 +48,7 @@ HOME_WHAT = (
 HONEST_MISS = (
     "In 2023, three large US banks collapsed within two months. **Canary did not flag any of them in time.** "
     "It learned from the 2008 crisis, when banks failed from bad loans. These banks failed differently: their "
-    "bond investments lost value when interest rates rose, and nervous customers pulled their money out fast."
+    "investments and loans lost value when interest rates rose, and nervous customers pulled their money out fast."
 )
 
 # Home headline cards: label and note. Notes may hold {metric} placeholders (format_map over metrics.json);
