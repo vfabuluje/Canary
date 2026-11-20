@@ -10,10 +10,19 @@ import streamlit as st
 DATA_ENV = "CANARY_DASHBOARD_DATA"
 
 
+def default_dir(module_file: Path, cwd: Path) -> Path:
+    """<repo>/dashboard/data next to the source tree (an editable install); when the package was copied into
+    site-packages (a plain `pip install .`, as on Streamlit Community Cloud) that path doesn't exist, so the
+    folder under the working directory (the repo root `streamlit run` starts in) is used instead."""
+    beside_source = Path(module_file).resolve().parents[3] / "dashboard" / "data"
+    return beside_source if beside_source.is_dir() else Path(cwd) / "dashboard" / "data"
+
+
 def data_dir() -> Path:
-    """The exported folder: env CANARY_DASHBOARD_DATA if set (tests), else <repo>/dashboard/data."""
+    """The exported folder: env CANARY_DASHBOARD_DATA if set (tests; dashboard/app.py sets it to the folder
+    beside itself), else `default_dir`."""
     override = os.environ.get(DATA_ENV)
-    return Path(override) if override else Path(__file__).resolve().parents[3] / "dashboard" / "data"
+    return Path(override) if override else default_dir(Path(__file__), Path.cwd())
 
 
 # The cached readers take the file's path and modification time, so a different folder or a re-export

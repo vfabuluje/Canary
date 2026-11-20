@@ -193,6 +193,30 @@ def test_data_dir_default(monkeypatch):
     assert data.data_dir() == REPO / "dashboard" / "data"
 
 
+def test_data_dir_from_a_site_packages_copy(tmp_path, monkeypatch):
+    """A plain `pip install .` (Streamlit Community Cloud) copies the package away from the repo: the folder
+    beside the source doesn't exist, so the one under the working directory (the repo root) is used."""
+    copied = tmp_path / "venv" / "lib" / "python3.12" / "site-packages" / "canary" / "dashboard" / "data.py"
+    copied.parent.mkdir(parents=True)
+    copied.write_text("")
+    repo = tmp_path / "repo"
+    (repo / "dashboard" / "data").mkdir(parents=True)
+    assert data.default_dir(copied, repo) == repo / "dashboard" / "data"
+    monkeypatch.delenv("CANARY_DASHBOARD_DATA", raising=False)
+    monkeypatch.setattr(data, "__file__", str(copied))
+    monkeypatch.chdir(repo)
+    assert data.data_dir() == repo / "dashboard" / "data"
+
+
+def test_app_pins_the_data_folder_beside_itself(monkeypatch, tmp_path):
+    """Run from anywhere with no env var set, app.py points the loaders at dashboard/data beside itself."""
+    monkeypatch.setenv("CANARY_DASHBOARD_DATA", "placeholder")  # recorded, so teardown restores the original
+    monkeypatch.delenv("CANARY_DASHBOARD_DATA")
+    monkeypatch.chdir(tmp_path)  # no dashboard/data under the working directory
+    _run()
+    assert data.data_dir() == REPO / "dashboard" / "data"
+
+
 EXPORT_ONLY = {f"src/canary/dashboard/{name}" for name in ("__main__.py", "tables.py", "cases.py", "reports.py")}
 
 
