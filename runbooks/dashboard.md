@@ -51,7 +51,7 @@ Each question writes one line to the app's log (share.streamlit.io, Manage app, 
 ```
 Ask Canary: outcome=answered calls=1 cost=$0.00110; today 12/300 questions, $0.0152 spent
 ```
-`outcome` is `answered`, `checker_failed` (both tries broke a rule), `refusal`, `truncated` (the reply ran out of tokens), `no_text`, `bad_json` or `api_error:<type>` (for example `api_error:RateLimitError`; a low balance shows as an API error). The day's spend is counted in memory, so it also restarts at zero after a reboot; the Anthropic console has the real total.
+`outcome` is `answered`, `checker_failed` (both tries broke a rule), `refusal`, `truncated` (the reply ran out of tokens), `no_text`, `bad_json`, `bad_json:<type>` (a reply that broke in some other way, for example `bad_json:KeyError`) or `api_error:<type>` (for example `api_error:RateLimitError`; a low balance shows as an API error). The day's spend is counted in memory, so it also restarts at zero after a reboot; the Anthropic console has the real total.
 
 ## Expanding the showcase
 The paid step that writes more reports is in [[runbooks/analyst]], "Expanding the showcase". Never run it without the owner's yes on a fresh dry-run estimate.

@@ -192,3 +192,9 @@
 - Waiting on Victor: approve SVB/Signature/First Republic card wording (+ "building-loan rule" → "real-estate rule"?); decide the 39-bank run (dry run $9.02 worst case vs $8.06 balance); merge order (PR #14 first).
 - Before Ask Canary is switched on: narrower forecast/advice wording rule (parked), one paid smoke test with Victor's OK.
 - Not deployed yet (Streamlit Community Cloud steps in runbooks/dashboard.md).
+
+## 2026-11-20 (evening) — Phase 6 merged
+- Victor approved the SVB/Signature/First Republic card wording as-is (no tweaks). PR #15 merged.
+- Doc polish: roadmap Phase 6 line, runbook `bad_json:<type>` outcome, decision 0023 "that quarter's watchlist", mockup honest-miss wording.
+- Next, in order: (1) narrower Ask forecast/advice rule (free); (2) after a top-up, Ask smoke test (a few cents) then the 39-bank run (dry run $9.02 worst case), each with Victor's OK, then re-export dashboard/data; (3) deploy to Streamlit Community Cloud.
+- The Ask rule, from the final re-review: ban "predict/forecast" verbs but allow "not a prediction"; drop bare "warn" (notes say "warning signs"); add "will/could/likely to fail" and "<bank> is safe"; require a subject before advice words (buy/sell/withdraw/move your money); reword prompt rule 10 to match; tests for each, including the note caveats that must pass.
