@@ -1,0 +1,17 @@
+[client]
+toolbarMode = "minimal"
+showSidebarNavigation = false
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#1e2240"
+backgroundColor = "#d5d7db"
+secondaryBackgroundColor = "#f1f3f5"
+textColor = "#1e2240"
+headingFont = "'Press Start 2P':https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"

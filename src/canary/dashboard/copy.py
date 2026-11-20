@@ -51,6 +51,7 @@ HONEST_MISS = (
     "bond investments lost value when interest rates rose, and nervous customers pulled their money out fast."
 )
 
+# Why Canary. Bodies may hold {metric} placeholders, filled from metrics.json at display time.
 WHY_SECTIONS: list[tuple[str, str]] = [
     ("THE NAME",
      "Coal miners used to carry canaries underground. A canary reacts to toxic gas before people do, so if the "
@@ -68,8 +69,8 @@ WHY_SECTIONS: list[tuple[str, str]] = [
      "2015, then was tested on 2016–2024 without peeking. AI helpers write plain-English reports, and every number "
      "they use is checked against the data."),
     ("THE HONEST ANSWER",
-     "It caught 21 of the 29 banks that failed in 2016–2024, usually about a year ahead. It did **not** catch SVB, "
-     "Signature or First Republic. Showing why is part of the point."),
+     "It caught {banks_caught} of the {eligible_banks} banks that failed in 2016–2024, usually about a year ahead. "
+     "It did **not** catch SVB, Signature or First Republic. Showing why is part of the point."),
 ]
 
 # Plain-English meaning of each ratio, shown when a highlighted number is hovered or tapped. Keyed by
