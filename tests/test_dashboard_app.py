@@ -28,7 +28,7 @@ def _run(page: str = "home", theme: str | None = None) -> AppTest:
         at.session_state["theme"] = theme
     at.run()
     if page != "home":
-        at.switch_page(f"pages/{page}.py").run()
+        at.switch_page(f"views/{page}.py").run()
     assert not at.exception, at.exception
     return at
 
@@ -108,9 +108,20 @@ def test_theme_picker_switches_theme(fixture_data):
     at = _run()
     at.button(key="theme-pick-basketball").click().run()
     assert at.session_state["theme"] == "basketball"
-    # AppTest reruns a multipage app with a pages/ folder straight into the page script, so the shell's
-    # CSS is not in this rerun's tree (the browser keeps it); check the CSS the new theme produces instead.
-    assert "#b97a45" in _css(_run(theme=at.session_state["theme"]))
+    css = _css(at)
+    assert "#b97a45" in css and "#b4875a" not in css
+
+
+@pytest.mark.parametrize("page", PAGES)
+def test_shell_stays_after_page_switch(fixture_data, page):
+    """The app shell (theme CSS, 🎨 picker) runs before every page, also on reruns and page switches."""
+    at = _run(page, theme="detective")
+    assert "#b4875a" in _css(at)
+    assert at.button(key="theme-pick-basketball")
+    at.button(key="theme-pick-basketball").click().run()
+    assert not at.exception
+    assert "#b97a45" in _css(at)
+    assert any("Research tool, not financial advice." in t for t in _texts(at))
 
 
 @pytest.mark.parametrize("page", PAGES)

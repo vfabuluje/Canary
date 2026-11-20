@@ -17,7 +17,7 @@ theme.html_block(
 with st.form("home-search", border=False), st.container(key="home-search", horizontal=True, vertical_alignment="bottom"):
     query = st.text_input("Find a bank", key="home-q", placeholder="Find a bank, e.g. SVB", label_visibility="collapsed")
     if st.form_submit_button("SEARCH", type="primary") and query.strip():
-        st.switch_page("pages/find.py", query_params={"q": query.strip()})
+        st.switch_page("views/find.py", query_params={"q": query.strip()})
 
 with st.container(key="home-themes", horizontal=True, vertical_alignment="center"):
     theme.html_block('<span class="theme-label">Theme:</span>')
@@ -49,13 +49,13 @@ with st.container(key="box-miss"):
         f'<div class="miss">{theme.bird_svg(78, sad=True)}'
         f'<div><h2 class="pix">THE BIG TEST IT FAILED</h2><p>{theme.bold(HONEST_MISS)}</p></div></div>'
     )
-    st.page_link("pages/cases.py", label="SEE WHAT IT MISSED ▶")
+    st.page_link("views/cases.py", label="SEE WHAT IT MISSED ▶")
 
 CARDS = [
-    ("find", "pages/find.py", "🔎 FIND A BANK",
+    ("find", "views/find.py", "🔎 FIND A BANK",
      f"Look up any bank's risk rank and history. {len(data.report_certs())} banks have a full written report."),
-    ("how", "pages/how.py", "▶ HOW IT WORKS", "Watch the team of AI helpers and fact-checkers build one, step by step."),
-    ("watch", "pages/watchlist.py", "🎚 WATCHLIST SIZE",
+    ("how", "views/how.py", "▶ HOW IT WORKS", "Watch the team of AI helpers and fact-checkers build one, step by step."),
+    ("watch", "views/watchlist.py", "🎚 WATCHLIST SIZE",
      "Flag more banks, catch more failures, raise more false alarms. Try it."),
 ]
 for column, (key, target, title, text) in zip(st.columns(3, gap="medium"), CARDS):

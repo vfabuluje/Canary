@@ -14,6 +14,6 @@ for i, (title, body) in enumerate(WHY_SECTIONS):
     with st.container(key="box-why-answer" if last else f"box-why-{i}"):
         theme.html_block(f'<h2 class="pix">{title}</h2><p>{theme.bold(body.format_map(metrics))}</p>')
         if last:
-            st.page_link("pages/cases.py", label="SEE THE 2023 COLLAPSES ▶")
+            st.page_link("views/cases.py", label="SEE THE 2023 COLLAPSES ▶")
 
 theme.footer()
