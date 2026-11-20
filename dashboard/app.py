@@ -1,16 +1,25 @@
 """Canary dashboard: the app shell. Run with `streamlit run dashboard/app.py` from the repo root."""
 
 import os
+import sys
 from pathlib import Path
 
 import streamlit as st
 
-from canary.dashboard import theme
-from canary.dashboard.data import DATA_ENV
+# Run the repo's current `canary` code, not the copy Streamlit Cloud installed at first deploy (repo_source.py).
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+from repo_source import use_repo_source  # noqa: E402
+
+use_repo_source(HERE.parent / "src")
+
+from canary.dashboard import theme  # noqa: E402
+from canary.dashboard.data import DATA_ENV  # noqa: E402
 
 # The exported data sits beside this file. Pinning it here means the app finds it however the package was
 # installed (requirements.txt installs a copy into site-packages, away from the repo). Tests set it first.
-os.environ.setdefault(DATA_ENV, str(Path(__file__).resolve().parent / "data"))
+os.environ.setdefault(DATA_ENV, str(HERE / "data"))
 
 st.set_page_config(page_title="Canary: bank failure early warning", page_icon="🐤", layout="wide")
 st.logo(theme.bird_svg(26), link=None)
