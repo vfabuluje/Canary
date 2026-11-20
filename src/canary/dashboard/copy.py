@@ -480,6 +480,20 @@ BANK_UNSCORED = ("Canary only scores banks from 2016 on; this bank stopped repor
 BANK_FULL_REPORT = "Read the full report"
 BANK_FAILED = "Failed {date}"
 
+# Ask Canary (the box on each written-report page). Limits are filled in from canary.dashboard.ask.
+ASK_TITLE = "Ask Canary about this bank"
+ASK_LABEL = "Your question"
+ASK_PLACEHOLDER = "e.g. How much of its deposits were uninsured?"
+ASK_BUTTON = "ASK"
+ASK_THINKING = "Reading this bank's facts and checking the answer..."
+ASK_NOTE = "Answers are written by AI from this bank's public data, fact-checked, and not financial advice."
+ASK_RESTING = "Ask Canary is resting for today."
+ASK_CANT_CHECK = "I couldn't answer that with checked facts."
+ASK_EMPTY = "Type a question first."
+ASK_TOO_LONG = "That question is {count:,} characters long. Please keep it to {limit:,} characters or fewer."
+ASK_LEFT = "Questions left this visit: {left} of {limit}."
+ASK_SESSION_DONE = "You've asked all {limit} questions for this visit. Thanks for trying Ask Canary!"
+
 HOW_TITLE = "HOW IT WORKS"
 HOW_LEDE = ("Watch Canary's AI team build a real report, one step at a time. Then see how the whole system fits "
             "together, from public data to checked numbers.")

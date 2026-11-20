@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 
 from canary.dashboard import charts, data, theme
+from canary.dashboard.askbox import render_askbox
 from canary.dashboard.copy import (BANK_AFTER_TEST, BANK_CONCENTRATION_NONE, BANK_CONCENTRATION_REASON,
                                    BANK_CONCENTRATION_TITLE, BANK_FAILED, BANK_FLAGGED, BANK_FULL_REPORT,
                                    BANK_HISTORY_TITLE, BANK_LATEST, BANK_NO_REPORT, BANK_NO_REPORT_NOTE,
@@ -38,6 +39,7 @@ def _render_report(bank: pd.Series) -> None:
             render_replay(report, theme.current_theme())
         with st.expander(BANK_FULL_REPORT):
             st.markdown(report["note_md"])
+        render_askbox(report)
 
 
 def _render_scored(bank: pd.Series) -> None:
@@ -75,7 +77,7 @@ def _render_unscored(bank: pd.Series) -> None:
 
 
 def render_bank(cert: int) -> None:
-    """Draw the page for `cert`. Task 10 adds the Ask box."""
+    """Draw the page for `cert`; a written-report page also gets the Ask Canary box."""
     banks = data.banks()
     match = banks[banks["cert"] == int(cert)]
     if match.empty:
