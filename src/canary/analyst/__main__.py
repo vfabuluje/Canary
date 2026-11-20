@@ -1,5 +1,5 @@
 """Risk analyst: python -m canary.analyst ask "question" [--model M], memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks],
-showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] [--max-cost USD] (notes for the showcase set in two batch rounds), and
+showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] [--skip-done] [--max-cost USD] (notes for the showcase set in two batch rounds), and
 compare [--models A,B] (case-study notes with several models, pass rate and cost per model).
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
@@ -82,6 +82,10 @@ def build_parser() -> argparse.ArgumentParser:
                       help="only the N best-ranked banks of the latest-quarter watchlist (default: all); "
                            "used by --dry-run and the real run, ignored with --resume (the bank list comes "
                            "from the state file)")
+    show.add_argument("--skip-done", action="store_true",
+                      help="drop banks that already have a passing trace (data/analyst/traces/<cert>_<as_of>.json "
+                           "with ok: true) before the estimate and before any batch; ignored with --resume")
+    show.add_argument("--trace-dir", default="data/analyst/traces", help="where --skip-done looks for traces")
     cmp_ = sub.add_parser("compare", parents=[shared], help="write the case-study notes with several models and compare")
     cmp_.add_argument("--models", default="claude-opus-5-5,claude-sonnet-5-5", help="comma-separated writer models")
     cmp_.add_argument("--out", default="data/analyst/compare", help="comparison folder (one subfolder per model)")
@@ -152,6 +156,12 @@ def _showcase(args) -> int:
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
     banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir), watchlist_top=args.watchlist_top)
+    if args.skip_done and args.resume is None:
+        from canary.analyst.showcase import drop_done
+
+        before = len(banks)
+        banks = drop_done(banks, Path(args.trace_dir))
+        print(f"--skip-done: {before - len(banks)} banks already done, {len(banks)} left")
     if args.dry_run:
         counts: dict[str, int] = {}
         for cert, as_of, group in banks:
