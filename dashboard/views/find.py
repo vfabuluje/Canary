@@ -7,7 +7,7 @@ import streamlit as st
 
 from canary.dashboard import bankpage, data, search, theme
 from canary.dashboard.copy import (FIND_BACK, FIND_BAD_CERT, FIND_DID_YOU_MEAN, FIND_HINT, FIND_LABEL, FIND_LEDE,
-                                   FIND_NONE, FIND_PLACEHOLDER, FIND_TITLE)
+                                   FIND_NONE, FIND_NOT_CLOSE, FIND_PLACEHOLDER, FIND_TITLE)
 
 theme.page_title(FIND_TITLE, FIND_LEDE)
 banks = data.banks()
@@ -55,14 +55,14 @@ if result.direct is not None:
     _open(result.direct)
     st.rerun()
 elif result.suggestions:
-    st.markdown(f"**{FIND_DID_YOU_MEAN}**")
+    theme.on_background(FIND_DID_YOU_MEAN if result.close else FIND_NOT_CLOSE, bold=True)
     for s in result.suggestions:
         where = " · ".join(_plain(p) for p in (s["state"], s["status"]) if pd.notna(p) and p)
         st.button(f'**{_plain(s["label"])}**\n\n:small[{where}]', key=f'pick-{s["cert"]}', on_click=_open,
                   args=(s["cert"],), width="stretch")
 else:
     if typed:
-        st.markdown(FIND_NONE)
-    st.markdown(FIND_HINT)
+        theme.on_background(FIND_NONE)
+    theme.on_background(FIND_HINT)
 
 theme.footer()

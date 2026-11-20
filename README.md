@@ -237,7 +237,7 @@ Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, t
 ## Dashboard
 A Streamlit web app, in `dashboard/`, to look up any bank's risk rank over time, read the 2023 stories, see how a bigger or smaller watchlist trades failures caught against false alarms, and, for banks with a written report, watch the three AI agents build it and read it. It is read-only, reads a small folder of exported files (`dashboard/data/`) and not the warehouse, and offers three themes. **Ask Canary**, a question box on each written-report page, uses Claude Haiku 5.5 with hard spending caps (5 questions per visitor, 300 a day) and is off unless switched on. **Research tool, not financial advice.**
 
-**Live app:** <!-- LIVE_APP_URL --> (not deployed yet).
+**Live app:** [canarybank.streamlit.app](https://canarybank.streamlit.app)
 
 Run it locally with `streamlit run dashboard/app.py` after `pip install -e ".[dashboard,model,analyst]"`. Refresh the data, deploy and manage Ask Canary: [runbooks/dashboard.md](runbooks/dashboard.md). Why it is built this way: [decisions/0023-dashboard.md](decisions/0023-dashboard.md). Exported files: [data-dictionary/dashboard-exports.md](data-dictionary/dashboard-exports.md).
 

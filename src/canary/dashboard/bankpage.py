@@ -32,8 +32,8 @@ def note_markdown(note_md: str) -> str:
 def _header(bank: pd.Series, title: str | None = None) -> None:
     place = ", ".join(str(p) for p in (bank["city"], bank["state"]) if pd.notna(p) and p)
     failed = f' · {BANK_FAILED.format(date=bank["failure_date"].strftime("%B %d, %Y").replace(" 0", " "))}' if pd.notna(bank["failure_date"]) else ""
-    theme.html_block(f'<h2 class="pix">{html.escape(str(bank["name"]).upper())}</h2>'
-                     f'<div class="note">{html.escape(place)}{html.escape(failed)} · cert {int(bank["cert"])}</div>')
+    theme.html_block(f'<div class="bank-head"><h2 class="pix">{html.escape(str(bank["name"]).upper())}</h2>'
+                     f'<div class="note">{html.escape(place)}{html.escape(failed)} · cert {int(bank["cert"])}</div></div>')
     if title:
         theme.html_block(f'<h3>{html.escape(title)}</h3>')
 

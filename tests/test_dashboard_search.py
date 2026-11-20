@@ -124,3 +124,63 @@ def test_alias_certs_exist_with_expected_names():
               24735: "silicon valley", 57053: "signature", 59017: "first republic"}
     for cert, frag in expect.items():
         assert frag in banks.loc[cert, "name"].lower(), cert
+
+
+@pytest.mark.parametrize("q, cert", [("wells", 3511), ("Goldman", 33124), ("silicon valley", 24735),
+                                     ("bank of ny mellon", 639), ("jpmorgan chase", 628)])
+def test_short_names_of_big_banks(q, cert):
+    assert search(q, BANKS).direct == cert
+
+
+def test_active_banks_with_reports_rank_first():
+    banks = _frame([
+        (778, "Wells Fargo Bank Ohio Na", "OH", "A", "2003-06-30", None),
+        (2210, "Wells Fargo Bank Wyoming Na", "WY", "B", "2003-06-30", None),
+        (2252, "Wells Fargo Bank Nm Na", "NM", "C", "2003-06-30", None),
+        (3511, "Wells Fargo Bank Na", "SD", "D", "2026-06-30", None),
+    ])
+    banks["has_report"] = banks["cert"] == 3511
+    assert search("wells farg", banks).suggestions[0]["cert"] == 3511
+
+
+def test_active_bank_ranks_above_closed_one_without_report_column():
+    banks = _frame([
+        (1, "Harbor Savings Bank", "MA", "A", "2004-03-31", None),
+        (2, "Harbor Savings Bank Na", "MA", "B", "2026-06-30", None),
+    ])
+    assert search("harbor saving", banks).suggestions[0]["cert"] == 2
+
+
+def test_typo_does_not_open_a_different_bank():
+    banks = _frame([(25016, "First Nb Of Sachse", "TX", "SACHSE", "2005-03-31", None),
+                    (597, "Chemung Canal Trust Co", "NY", "ELMIRA", "2026-06-30", None)])
+    r = search("chse", banks)
+    assert r.direct is None and 25016 in [s["cert"] for s in r.suggestions]
+
+
+def test_no_close_match_is_flagged():
+    r = search("navy federal", BANKS)
+    assert r.direct is None and r.close is False
+    assert search("First National Bank", BANKS).close is True
+    assert search("SVB", BANKS).close is True
+
+
+def test_nonsense_gives_no_suggestions():
+    assert search("qqqqxx", BANKS).suggestions == []
+
+
+@pytest.mark.data
+@pytest.mark.skipif(not Path("dashboard/data/banks.parquet").exists(), reason="banks.parquet not exported")
+def test_real_banks_typo_and_ranking():
+    banks = pd.read_parquet("dashboard/data/banks.parquet")
+    assert search("chse", banks).direct is None
+    assert search("wells farg", banks).suggestions[0]["cert"] == 3511
+    assert search("navy federal", banks).close is False
+
+
+def test_typo_of_a_nickname_suggests_that_bank_first():
+    banks = _frame([(25016, "First Nb Of Sachse", "TX", "SACHSE", "2005-03-31", None),
+                    (628, "Jpmorgan Chase Bank Na", "OH", "COLUMBUS", "2026-06-30", None)])
+    r = search("chse", banks)
+    assert r.direct is None and r.suggestions[0]["cert"] == 628
+    assert 628 not in [s["cert"] for s in search("goldmn sachs", banks).suggestions]

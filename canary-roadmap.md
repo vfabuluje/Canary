@@ -20,7 +20,7 @@ kanban-plugin: board
 
 ## In Progress
 
-- [ ] Phase 6: Streamlit dashboard: merged (PR #15; decision 0023, data dictionary, runbook written). Ask Canary is built but ready to switch on (narrower forecast/advice rule in, paid smoke test passed 2026-11-20, $0.02); 39-bank expansion done (100 written reports, $5.93); deployment to Streamlit Community Cloud still to do
+- [ ] Phase 6: Streamlit dashboard: merged (PR #15; decision 0023, data dictionary, runbook written). Ask Canary is built and ready to switch on (narrower forecast/advice rule in, paid smoke test passed 2026-11-20, $0.02); 39-bank expansion done (100 written reports, $5.93); live on Streamlit Community Cloud at https://canarybank.streamlit.app (2026-11-20)
 
 
 ## Not Started
