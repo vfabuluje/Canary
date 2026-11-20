@@ -336,8 +336,9 @@ FLAGSHIP_CARDS: dict[int, dict] = {
                     {"text": "11.4%", "fact": "Trend: volatile funding as a share of assets, highest value in "
                                               "the comparison window",
                      "explain": "The highest share in those quarters, before this one."}]},
-                {"text": "Canary's model took both changes as reasons to raise its score: a year earlier the "
-                         "bank sat at the 28.0th percentile, and by this report at the 83.0th.", "numbers": [
+                {"text": "Canary's model took both changes as reasons to raise its score.", "numbers": []},
+                {"text": "A year earlier the bank sat at the 28.0th percentile; by this report it was at the "
+                         "83.0th.", "numbers": [
                     {"text": "28.0th", "fact": "Percentile a year earlier (100 = highest risk)",
                      "explain": "Where Canary's score put First Republic a year earlier, on a scale of 0 to "
                                 "100 where higher means riskier."},
