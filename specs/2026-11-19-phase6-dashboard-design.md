@@ -22,12 +22,13 @@ It must be easy to follow for someone with no finance or tech background (Victor
 a non-technical viewer; the v6 two-screen design came from her feedback).
 
 ## 2. Goals
-- G1. **Read-only and free to run:** no Claude call per visitor, ever. Everything is served from
-  small, committed, pre-computed data files.
+- G1. **Read-only and free to run**, with one exception: everything is served from small,
+  committed, pre-computed data files, and the only per-visitor AI is the capped **Ask Canary**
+  box (§5.6, Claude Haiku 5.5), which spends from Victor's prepaid balance and can be switched off.
 - G2. **Hosting:** Streamlit Community Cloud from the public repo (Victor).
 - G3. **Data export:** `python -m canary.dashboard export` writes the read-only files under
   `dashboard/data/` (committed); the app reads only those (never `data/`).
-- G4. **Five features** (§5): home page with the honest miss, bank search, case-study replay, watchlist-size
+- G4. **Six features** (§5), Ask Canary last: home page with the honest miss, bank search, case-study replay, watchlist-size
   slider, and the report replay + report page.
 - G5. **v6 style everywhere** (§4), with the detective / basketball theme switch.
 - G6. Tests (export, data integrity, app pages via Streamlit's `AppTest`), no network.
@@ -35,10 +36,11 @@ a non-technical viewer; the v6 two-screen design came from her feedback).
   deploy), README link to the live app.
 
 ## 3. Non-goals and anti-goals
-- **Non-goals:** new model or memo work; live AI features (no `ask` box); AWS hosting; user
+- **Non-goals:** new model or memo work; new written reports (the 61 stay as they are); AWS hosting; user
   accounts; scheduled re-runs; a separate modern-style theme (the "modern draft" was rejected).
 - **Anti-goals:**
-  - any per-visitor cost or live API call (the app must not import `anthropic`);
+  - any per-visitor cost or live API call outside the Ask Canary module (only that module imports
+    `anthropic`, and the app runs fully with it switched off or with no API key);
   - any number on screen that isn't from the exported data (no hand-typed figures in the app,
     except the fixed honest-miss and case-study copy, which is checked against the data in a test);
   - a dual-axis chart (two y-scales);
@@ -51,7 +53,14 @@ a non-technical viewer; the v6 two-screen design came from her feedback).
   yellow (`#ffe066`) highlights, "Press Start 2P" for headings and buttons, a clean sans-serif for
   body text (16-17px, plain English).
 - Pixel-art characters drawn from sprite grids (the v6 engine), never images.
-- **Two themes**, switchable anywhere the characters appear, remembered for the visit:
+- **Three themes (Victor)**, switched by a "Theme" control in the top bar on every page (and on
+  the home page), remembered for the visit. The theme changes the **page background** everywhere
+  and the characters in the report replay:
+  - **Standard:** the grey page (`#d5d7db`); the replay uses the detective cast (Claude's call).
+  - **Detectives:** a cork-board background with a red pixel pin on each card, dark top bar.
+  - **Basketball:** a hardwood-court background with white court lines (center circle behind the
+    title), blue top bar.
+  Cards stay white with navy borders in every theme so text stays readable. The casts:
   - **Detectives:** Trend Detective (deerstalker, magnifier), Peer Detective (striped beanie,
     folder), Lead Detective (fedora, notepad), the Fact Checker (glasses), the Rule Stamp (a
     stamp object).
@@ -170,6 +179,23 @@ errors, the section texts, the concentration result) — not the full prompts.
   that appear in their notes, approved by Victor before it ships. A test checks that every number
   in that copy appears in the bank's note.
 
+### 5.6 Ask Canary (Victor: Claude Haiku 5.5)
+- A question box on each of the 61 written-report pages ("Ask Canary about this bank"). Banks
+  without a written report don't get it (their fact sheets aren't in the exported data).
+- One Claude Haiku 5.5 call per question, sent that bank's fact sheet and note (about 15,000
+  tokens) with instructions to answer in plain English, cite facts, and say "I can't tell from
+  this bank's data" rather than guess. About $0.002 per question.
+- The answer goes through the existing citation checker; numbers that don't match a cited fact
+  mean one retry, then "I couldn't answer that with checked facts." Checked answers only.
+- **Spending guards:** 5 questions per visitor session; a daily cap in the app (Claude's proposal:
+  300 questions/day, about $0.60); questions capped at 300 characters; the API key lives only in
+  Streamlit's secrets, never in the repo; an on/off switch in secrets; auto-reload stays off on the
+  Anthropic account, so spend can never exceed the prepaid balance. When the cap or the balance is
+  hit, the box says "Ask Canary is resting for today" and the rest of the app is unaffected.
+- No questions or answers are stored. A one-line note under the box: answers are AI-written from
+  this bank's public data, fact-checked, and not financial advice.
+- Testing uses a fake client; one paid smoke test (a few cents) only with Victor's go-ahead.
+
 ## 6. Data export (`dashboard/data/`)
 - `banks.parquet`: every bank's cert, name, state, city, first/last report, failure date, latest
   rank/percentile, and whether it has a showcase note.
@@ -192,7 +218,8 @@ errors, the section texts, the concentration result) — not the full prompts.
 - Modern professional style (rejected by Victor after a full draft).
 
 ## 8. Decided by Victor
-- Read-only, no per-visitor AI; Streamlit Community Cloud.
+- Read-only apart from Ask Canary on Claude Haiku 5.5; Streamlit Community Cloud.
+- Three themes (Standard grey, Detectives, Basketball) that change the page background.
 - v6 style and both themes; the specific player looks; striped referee distinct from Replay Review;
   ~5.5 s per scene; big bold bank name; loading screen then a separate report page; the "Who's on
   now" side panel; the hoop shot before the button.
@@ -208,7 +235,9 @@ errors, the section texts, the concentration result) — not the full prompts.
 - The rules for picking card sentences and the outcome headline templates.
 - Slim traces, not full prompts, are committed.
 - Charts in Altair (bundled with Streamlit) styled to v6; no extra chart library.
-- Theme choice remembered per visit (session state), not stored anywhere.
+- Theme choice remembered per visit (session state), not stored anywhere; Standard uses the
+  detective cast in the replay.
+- Ask Canary guards: 5 per visitor, 300/day, 300-character questions, only on the 61 report pages.
 - Never-scored banks (pre-2016) stay searchable with a short "not scored" page; latest scores from
   `scores.parquet`, with post-2024 quarters labeled; the watchlist page uses `scores_test.parquet`.
 - Case-study phases and their copy (§5.3); Peer sitting out when a bank has no peer section.
