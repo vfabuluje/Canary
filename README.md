@@ -238,7 +238,7 @@ A Streamlit web app, in `dashboard/`, to look up any bank's risk rank over time,
 
 **Live app:** <!-- LIVE_APP_URL --> (not deployed yet; the dashboard is built on branch `phase6-dashboard`).
 
-Run it locally with `streamlit run dashboard/app.py` after `pip install -e ".[dashboard,model,analyst]"`. Refresh the data, deploy and manage Ask Canary: [docs/runbook-dashboard.md](docs/runbook-dashboard.md). Why it is built this way: [decisions/0023-dashboard.md](decisions/0023-dashboard.md). Exported files: [data-dictionary/dashboard-exports.md](data-dictionary/dashboard-exports.md).
+Run it locally with `streamlit run dashboard/app.py` after `pip install -e ".[dashboard,model,analyst]"`. Refresh the data, deploy and manage Ask Canary: [runbooks/dashboard.md](runbooks/dashboard.md). Why it is built this way: [decisions/0023-dashboard.md](decisions/0023-dashboard.md). Exported files: [data-dictionary/dashboard-exports.md](data-dictionary/dashboard-exports.md).
 
 ## Status and roadmap
 1. **(done) FDIC data pull.** Pulls quarterly financials for every FDIC-insured bank and the FDIC failed bank list to local Parquet files.

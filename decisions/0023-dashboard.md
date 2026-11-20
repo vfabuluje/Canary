@@ -13,7 +13,7 @@ Canary gets a public web dashboard, built with **Streamlit** and hosted free on 
 - **Look and feel.** The pixel-art "v6" style, with three themes the visitor can switch between: Standard (grey), Detectives, and Basketball. The themes change the page and the cast of characters, not the numbers.
 - **Showcase plan.** The report replay and report page exist for the 61 banks that already have written notes. A separate, paid step (about $6.24, capped at $7.00, only with the owner's yes) writes 39 more with the existing three-agent pipeline, as of 2026-06-30: the 20 largest banks people will search, plus 19 more from today's watchlist, for **100 banks**. The dashboard works with 61 or 100. Every other bank still gets a page, with its score history and real-estate concentration check, but no written report and no Ask box.
 
-Code: `dashboard/app.py`, `dashboard/views/`, `src/canary/dashboard/`. Run and deploy: [[docs/runbook-dashboard]]. Design: [[specs/2026-11-19-phase6-dashboard-design]].
+Code: `dashboard/app.py`, `dashboard/views/`, `src/canary/dashboard/`. Run and deploy: [[runbooks/dashboard]]. Design: [[specs/2026-11-19-phase6-dashboard-design]].
 
 ## Why
 - **Free and simple to host.** Streamlit Community Cloud serves a public GitHub repo for nothing and keeps secrets out of the code. Search and data handling are simpler in Python than in a hand-built static site, which the owner rejected for that reason.

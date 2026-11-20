@@ -1,6 +1,6 @@
 # dashboard-exports (Phase 6 files)
 
-The files `python -m canary.dashboard export --out dashboard/data` writes. They are what the Streamlit app reads: the app never touches `data/`, the warehouse or the model. Unlike the Phase 3 to 5 outputs these **are committed** (the whole folder is well under the 50 MB limit the export enforces). Decision: [[decisions/0023-dashboard]]. Runbook: [[docs/runbook-dashboard]]. Spec: [[specs/2026-11-19-phase6-dashboard-design]].
+The files `python -m canary.dashboard export --out dashboard/data` writes. They are what the Streamlit app reads: the app never touches `data/`, the warehouse or the model. Unlike the Phase 3 to 5 outputs these **are committed** (the whole folder is well under the 50 MB limit the export enforces). Decision: [[decisions/0023-dashboard]]. Runbook: [[runbooks/dashboard]]. Spec: [[specs/2026-11-19-phase6-dashboard-design]].
 
 | | |
 |---|---|

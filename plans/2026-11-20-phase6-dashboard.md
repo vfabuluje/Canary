@@ -224,7 +224,7 @@
 
 ### Task 9: Docs and deploy files
 
-**Files:** Create `requirements.txt` (`.[dashboard,model,analyst]`), `decisions/0023-dashboard.md`, `data-dictionary/dashboard-exports.md`, `docs/runbook-dashboard.md` (export, run locally, deploy on Streamlit Community Cloud, set secrets, turn Ask on/off); Modify `README.md` (dashboard section, live-app link placeholder `<!-- LIVE_APP_URL -->`), `canary-roadmap.md`.
+**Files:** Create `requirements.txt` (`.[dashboard,model,analyst]`), `decisions/0023-dashboard.md`, `data-dictionary/dashboard-exports.md`, `runbooks/dashboard.md` (export, run locally, deploy on Streamlit Community Cloud, set secrets, turn Ask on/off); Modify `README.md` (dashboard section, live-app link placeholder `<!-- LIVE_APP_URL -->`), `canary-roadmap.md`.
 
 - [ ] **Step 1:** Add `test_data_dictionary_covers_exports` to `tests/test_dashboard_tables.py`: every file and column written by the export appears in `data-dictionary/dashboard-exports.md`.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Write the docs.** **Step 4: Run** → PASS.
