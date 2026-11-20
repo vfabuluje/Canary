@@ -10,7 +10,7 @@ outcome: "false_alarm"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:50"
+written_at: "2026-11-19T21:16:43"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2022-12-31, Glen Burnie Mutual Sb, a bank in MD, ranked 36 out of 4,773 banks nationally on Canary's risk score, placing it in the 99.3rd percentile, where higher means riskier. That put it on Canary's watchlist, the top 2% of banks by score, which held 96 banks that quarter. The data showed thin capital against total assets, very low profits and interest costs far above the national median. Its funding, by contrast, came almost entirely from stable everyday deposits, with very few uninsured deposits.
+As of 2022-12-31, Glen Burnie Mutual Sb ranked 36 out of 4,773 banks on Canary's risk score, placing it in the 99.3rd percentile and on the watchlist, the short list of highest-scoring banks. Its weak points were thin earnings and thin capital against its assets: its net interest margin (the spread earned on lending and investing) was 1.0% against a national median of 3.4%, and its leverage ratio (core capital as a share of average assets) was 7.6% against 10.3%. Its funding looked steady, with uninsured deposits (balances above the government insurance limit) at 5.5% of deposits against a national median of 25.5%. Its risk-based capital ratios, which weigh assets by how risky they are, were above the national medians, so the capital picture points two ways.
 
 ## Warning signs in the data
 
-Capital, the owners' cushion that absorbs losses, was thin against total assets: equity was 7.6% of assets against a national median of 9.0%, and the leverage ratio (core capital as a share of average assets) was 7.6% against a median of 10.3%. Measured against risk-weighted assets, though, capital looked stronger than typical, with a Tier 1 risk-based capital ratio of 16.1% against a median of 14.2% and a total risk-based capital ratio of 16.8% against 15.3%.
+Capital: equity was 7.6% of assets against a national median of 9.0%, and the leverage ratio (core capital as a share of average assets) was 7.6% against 10.3%. The risk-based measures point the other way: the Tier 1 risk-based capital ratio was 16.1% against a median of 14.2%, and the total risk-based capital ratio was 16.8% against 15.3%. Earnings were weak, with return on assets (profit as a share of assets) at 0.1% against a median of 1.0%, interest expense at 2.2% of assets against 0.3%, and an efficiency ratio (operating costs as a share of revenue) of 88.5% against 65.1%.
 
-On credit quality, loans 90 or more days past due or not accruing interest were 0.7% of loans, above the national median of 0.2%, and nonaccrual assets plus foreclosed property were 0.5% of assets against a median of 0.1%. Loan-loss reserves, money set aside for expected bad loans, were 0.4% of loans, well below the median of 1.2%, and the Texas ratio (troubled assets against capital plus reserves) was 7.2% against a median of 1.8%, though still a low level in absolute terms. Profitability was weak: return on assets was 0.1% against a median of 1.0%, net interest margin (the spread earned on lending and investing) was 1.0% against 3.4%, and interest expense was 2.2% of assets against a median of 0.3%. The efficiency ratio, operating costs as a share of revenue, was 88.5%, well above the median of 65.1%.
+Credit quality: loans 90 or more days past due or not accruing interest were 0.7% of loans against a national median of 0.2%, and nonaccrual assets plus foreclosed property were 0.5% of assets against 0.1%. The Texas ratio (troubled assets against capital plus reserves) was 7.2% against a median of 1.8%, while loan-loss reserves (money set aside for bad loans) were 0.4% of loans against 1.2%. The separate real-estate concentration check found the bank did not cross either supervisory line.
 
-Funding looked steady: uninsured deposits, those above the insurance limit, were only 5.5% of deposits against a median of 25.5%, and core deposits made up 91.7% of assets against a median of 81.6%. Cash was 9.9% of assets, above the median of 5.2%, while loans equaled 86.2% of deposits against a median of 72.5%. Unrealized bond losses were small, because securities were just 1.4% of assets against a median of 22.3%; losses on bonds held to maturity were 0.8% of equity against a median of 0.0%, and losses on bonds available for sale were 0.0% against a median of 18.6%.
+Liquidity and funding looked sound: core deposits (stable, everyday deposits) were 91.7% of assets against a median of 81.6%, and cash was 9.9% of assets against 5.2%, although the trend section notes cash had fallen below its own usual range. Loans were 86.2% of deposits against a median of 72.5%. Bond losses were small: securities were only 1.4% of assets against a median of 22.3%, losses on bonds held to maturity were 0.8% of equity against 0.0%, and losses on bonds available for sale were 0.0% against 18.6%.
 
 ## Understanding the score
 
-At 2022-12-31 the bank ranked 36 out of 4,773 banks, in the 99.3rd percentile on a scale from 0 to 100 where higher means riskier. That placed it on the watchlist, which covers the top 2% of banks and included 96 banks that quarter.
+As of 2022-12-31, the bank ranked 36 out of 4,773 banks, in the 99.3rd percentile on a scale of 0 to 100 where higher means riskier, and its model score was 0.0930. It was flagged for the watchlist, which covers the top 2% of banks, or 96 banks that quarter.
 
-Five features pushed the score up the most. The largest was a very small securities holding, at 1.4% of assets, contributing +0.520. Next came core deposits at 91.7% of assets, contributing +0.430, and commercial real estate loans at 0.1% of loans, contributing +0.359. Interest expense at 2.2% of assets added +0.281, and the leverage ratio at 7.6% added +0.136.
+The five features that pushed the score up most were: low securities holdings at 1.4% of assets (+0.520), a high share of core deposits at 91.7% of assets (+0.430), very little commercial real estate lending at 0.1% of loans (+0.359), high interest expense at 2.2% of assets (+0.281), and a leverage ratio of 7.6% (+0.136). Some of these, such as plentiful core deposits, look reassuring on their own; the model reacts to how they combine with the bank's other figures, not to each one alone.
 
-Five features pulled the score down the most. The Tier 1 risk-based capital ratio at 16.1% contributed -1.006, and the Texas ratio at 7.2% contributed -0.818. Loans 90 or more days past due or not accruing interest at 0.7% of loans contributed -0.401, return on equity at 1.1% contributed -0.365, and the total risk-based capital ratio at 16.8% contributed -0.321.
+The five features that pulled the score down most were: a Tier 1 risk-based capital ratio of 16.1% (-1.006), a Texas ratio of 7.2% (-0.818), loans 90 or more days past due or not accruing interest at 0.7% of loans (-0.401), return on equity (profit as a share of the owners' stake) of 1.1% (-0.365), and a total risk-based capital ratio of 16.8% (-0.321). The model learned from 539 bank failures in its training period, 96% of which were credit-loss failures.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own prior range over the prior 12 quarters, or the same quarter in the prior 3 years for year-to-date ratios. At 2022-12-31, 10 of the 30 ratios checked sat outside their own prior range, and the 6 furthest outside are discussed here. The bank ranked 36 nationally, in the 99.3rd percentile, against the 99.9th percentile at 2021-12-31, so the model rated it about the same as a year earlier.
+As of 2022-12-31, Glen Burnie Mutual Sb ranked 36 out of 4,773 banks nationally, placing it in the 99.3rd percentile, where higher means riskier. A year earlier, on 2021-12-31, it sat in the 99.9th percentile, and the model rated it about the same as a year earlier. Each ratio is compared with its own range over the prior 12 quarters, and 10 of the 30 ratios checked were outside that range.
 
-The efficiency ratio rose to 88.5%, above its prior range of 71.7% to 80.5%, yet with a contribution of -0.115 it pushed the score down. Return on equity fell to 1.1%, below its prior range of 2.4% to 4.2%, but with a contribution of -0.365 it also pushed the score down. Cash as a share of assets dropped to 9.9%, below its prior range of 15.6% to 22.7%, and with a contribution of +0.082 it pushed the score up. Cash fell by -10.4 pp over one quarter and by -9.1 pp over four quarters.
+Cash as a share of assets fell to 9.9%, below its prior range of 15.6% to 22.7%, and it added +0.082 model log-odds units (the model's internal scoring units), so it pushed the score up. The efficiency ratio, meaning operating costs as a share of revenue, rose to 88.5%, above its prior range of 71.7% to 80.5%, yet its contribution of -0.115 pushed the score down. Return on equity, meaning profit as a share of the owners' stake, dropped to 1.1%, below its prior range of 2.4% to 4.2%, but its contribution of -0.365 also pushed the score down.
 
-Asset growth slowed to 1.6%, below its prior range of 2.2% to 4.6%, yet with a contribution of -0.051 it pushed the score down. Deposit growth slowed to 1.6%, below its prior range of 2.1% to 4.7%, and with a contribution of -0.167 it pushed the score down. Construction loans rose to 4.0% of loans, above their prior range of 2.0% to 3.7%, but with a contribution of -0.229 they pushed the score down.
+Deposit growth slowed to 1.6%, below its prior range of 2.1% to 4.7%, and its contribution of -0.167 pushed the score down. Construction loans rose to 4.0% of all loans, above their prior range of 2.0% to 3.7%, while their contribution of -0.229 pushed the score down. In several of these cases the ratio moved outside its usual range, but the model still treated it as lowering the score rather than raising it.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,9 +83,9 @@ The FDIC's specialty group for this bank at 2022-12-31: Mortgage Lending Special
 
 Peers: 179 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-Interest expense was 2.2% of assets, at the 100.0th national percentile and unusually high, and at the 99.7th percentile among peers against a peer median of 0.3%, unusually high among its peers too. Net interest margin was 1.0%, at the 1.0th national percentile and unusually low, and at the 0.8th percentile among peers against a peer median of 3.0%, unusually low among its peers too. Return on assets was 0.1%, at the 4.8th national percentile and unusually low, and at the 8.7th percentile among peers against a peer median of 0.5%, unusually low among its peers too. The leverage ratio was 7.6%, at the 3.4th national percentile and unusually low, and at the 4.7th percentile among peers against a peer median of 12.2%, unusually low among its peers too.
+Interest expense, what the bank pays on its deposits and borrowings, was 2.2% of assets, the 100.0th percentile nationally and unusually high; at the 99.7th percentile among its peers, against a peer median of 0.3%, it was unusually high among its peers too. Net interest margin, the spread earned on lending and investing, was 1.0%, the 1.0th percentile nationally and unusually low; at the 0.8th percentile among its peers, against a peer median of 3.0%, it was unusually low among its peers too. Return on assets, profit as a share of assets, was 0.1%, the 4.8th percentile nationally and unusually low; at the 8.7th percentile among its peers, against a peer median of 0.5%, it was unusually low among its peers too. The leverage ratio, core capital as a share of average assets, was 7.6%, the 3.4th percentile nationally and unusually low; at the 4.7th percentile among its peers, against a peer median of 12.2%, it was unusually low among its peers too.
 
-Volatile funding, money that can leave quickly, was 0.0% of assets, at the 1.8th national percentile and unusually low, and at the 0.6th percentile among peers against a peer median of 6.6%, unusually low among its peers too. Uninsured deposits were 5.5% of deposits, at the 2.3rd national percentile and unusually low, and at the 8.7th percentile among peers against a peer median of 14.3%, unusually low among its peers too. Commercial real estate loans were 0.1% of loans, at the 2.4th national percentile and unusually low, and at the 9.4th percentile among peers against a peer median of 8.9%, unusually low among its peers too. Loan-loss reserves were 0.4% of loans, at the 2.8th national percentile and unusually low, but at the 13.4th percentile among peers against a peer median of 0.9%, typical for its peer group.
+Volatile funding, money that can leave the bank quickly, was 0.0% of assets, the 1.8th percentile nationally and unusually low; at the 0.6th percentile among its peers, against a peer median of 6.6%, it was unusually low among its peers too. Uninsured deposits, balances above the government insurance limit, were 5.5% of deposits, the 2.3rd percentile nationally and unusually low; at the 8.7th percentile among its peers, against a peer median of 14.3%, they were unusually low among its peers too. Commercial real estate loans, loans backed by business property, were 0.1% of loans, the 2.4th percentile nationally and unusually low; at the 9.4th percentile among its peers, against a peer median of 8.9%, they were unusually low among its peers too. Loan-loss reserves, money set aside to cover loans that may go bad, were 0.4% of loans, the 2.8th percentile nationally and unusually low; at the 13.4th percentile among its peers, against a peer median of 0.9%, they were typical for its peer group.
 
 Overall, 13 of the bank's ratios fell in the national top or bottom 10%, and 9 of those were also unusual among its peers.
 
@@ -122,11 +122,13 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it was flagged, and what happened
 
-With hindsight, this flag turned out to be a false alarm. In the very next quarter, Q1 2023, the bank ranked 101 and was no longer flagged. It kept reporting and stayed off the watchlist in every later quarter in our data, through 2026-06-30, when it ranked 209. The flag rested largely on thin capital against assets, weak profits and high interest costs, which did not lead to a failure in the period our data covers.
+With hindsight, this flag was a false alarm: the bank kept reporting and was not flagged again in any later quarter in our data, through 2026-06-30. Its rank eased to 101 by 2023-03-31 and to 273 by 2023-12-31, both outside the watchlist. The flag reflected an unusual profile of thin earnings and thin capital against assets rather than signs of heavy loan losses, and the later quarters show that profile did not lead to the outcome the model screens for.
 
 ## What happened next
 
-In hindsight, the bank continued to report in every quarter after the as-of date and was not flagged in any of them. Its rank moved to 101 in Q1 2023, 108 in Q2 2023, 199 in Q3 2023 and 273 in Q4 2023. In 2024 it ranked 289 in Q1, 541 in Q2, 189 in Q3 and 426 in Q4. In 2025 it ranked 253 in Q1, 141 in Q2, 322 in Q3 and 255 in Q4. In 2026 it ranked 266 in Q1 and 209 in Q2, still reporting and still not flagged.
+In hindsight, the bank stayed off the watchlist in every later quarter we have, ranking 101 on 2023-03-31, 108 on 2023-06-30, 199 on 2023-09-30 and 273 on 2023-12-31. In 2024 it ranked 289 on 2024-03-31, 541 on 2024-06-30, 189 on 2024-09-30 and 426 on 2024-12-31. In 2025 it ranked 253 on 2025-03-31, 141 on 2025-06-30, 322 on 2025-09-30 and 255 on 2025-12-31.
+
+It was still reporting in the latest quarters in our data, ranking 266 on 2026-03-31 and 209 on 2026-06-30, neither flagged.
 
 | Quarter | Rank | Of | Watchlist |
 |---|---|---|---|
@@ -149,7 +151,7 @@ In hindsight, the bank continued to report in every quarter after the as-of date
 
 - F1 · Bank name · n/a · Glen Burnie Mutual Sb · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2022-12-31 · 2022-12-31 · data/features/fct_bank_features.parquet: report_date
-- F4 · State · n/a · MD · data/raw/financials: STALP
+- F5 · Model score · 2022-12-31 · 0.0930 · data/analyst/scores.parquet: score
 - F6 · National rank (1 = highest score) · 2022-12-31 · 36 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2022-12-31 · 4,773 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2022-12-31 · 99.3% · data/analyst/scores.parquet: percentile
@@ -219,6 +221,8 @@ In hindsight, the bank continued to report in every quarter after the as-of date
 - F96 · Rank in a later quarter (2025-12-31), not flagged · 2025-12-31 · 255 (not flagged) · data/analyst/scores.parquet: rank, flagged
 - F97 · Rank in a later quarter (2026-03-31), not flagged · 2026-03-31 · 266 (not flagged) · data/analyst/scores.parquet: rank, flagged
 - F98 · Rank in a later quarter (2026-06-30), not flagged · 2026-06-30 · 209 (not flagged) · data/analyst/scores.parquet: rank, flagged
+- F99 · Training failures that were credit-loss failures (share) · n/a · 96% · data/replay/posthoc_metrics.json: failure_mix.training
+- F100 · Failed banks in the training period · n/a · 539 · data/replay/posthoc_metrics.json: failure_mix.training
 - F103 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2022-12-31 · 88.5% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F104 · Trend: the efficiency ratio (operating costs as a share of revenue), lowest value in the comparison window · n/a · 71.7% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F105 · Trend: the efficiency ratio (operating costs as a share of revenue), highest value in the comparison window · n/a · 80.5% · data/features/fct_bank_features.parquet: efficiency_ratio
@@ -227,8 +231,6 @@ In hindsight, the bank continued to report in every quarter after the as-of date
 - F109 · Trend: cash as a share of assets, value at the as-of quarter · 2022-12-31 · 9.9% · data/features/fct_bank_features.parquet: cash_to_assets
 - F110 · Trend: cash as a share of assets, lowest value in the comparison window · n/a · 15.6% · data/features/fct_bank_features.parquet: cash_to_assets
 - F111 · Trend: cash as a share of assets, highest value in the comparison window · n/a · 22.7% · data/features/fct_bank_features.parquet: cash_to_assets
-- F112 · Trend: cash as a share of assets, change over one quarter, in percentage points · 2022-12-31 · -10.4 pp · data/features/fct_bank_features.parquet: cash_to_assets
-- F113 · Trend: cash as a share of assets, change over four quarters, in percentage points · 2022-12-31 · -9.1 pp · data/features/fct_bank_features.parquet: cash_to_assets
 - F114 · Trend: cash as a share of assets, contribution to the score (model log-odds units) · 2022-12-31 · +0.082 · data/analyst/scores.parquet: feature cash_to_assets contribution
 - F115 · Trend: cash as a share of assets, what the model did with it · 2022-12-31 · pushed the score up · data/analyst/scores.parquet: feature cash_to_assets contribution
 - F116 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2022-12-31 · 1.1% · data/features/fct_bank_features.parquet: return_on_equity
@@ -236,11 +238,6 @@ In hindsight, the bank continued to report in every quarter after the as-of date
 - F118 · Trend: return on equity (profit as a share of equity), highest value in the comparison window · n/a · 4.2% · data/features/fct_bank_features.parquet: return_on_equity
 - F120 · Trend: return on equity (profit as a share of equity), contribution to the score (model log-odds units) · 2022-12-31 · -0.365 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F121 · Trend: return on equity (profit as a share of equity), what the model did with it · 2022-12-31 · pushed the score down · data/analyst/scores.parquet: feature return_on_equity contribution
-- F122 · Trend: asset growth over the past four quarters, value at the as-of quarter · 2022-12-31 · 1.6% · data/features/fct_bank_features.parquet: asset_growth_4q
-- F123 · Trend: asset growth over the past four quarters, lowest value in the comparison window · n/a · 2.2% · data/features/fct_bank_features.parquet: asset_growth_4q
-- F124 · Trend: asset growth over the past four quarters, highest value in the comparison window · n/a · 4.6% · data/features/fct_bank_features.parquet: asset_growth_4q
-- F127 · Trend: asset growth over the past four quarters, contribution to the score (model log-odds units) · 2022-12-31 · -0.051 · data/analyst/scores.parquet: feature asset_growth_4q contribution
-- F128 · Trend: asset growth over the past four quarters, what the model did with it · 2022-12-31 · pushed the score down · data/analyst/scores.parquet: feature asset_growth_4q contribution
 - F129 · Trend: deposit growth over the past four quarters, value at the as-of quarter · 2022-12-31 · 1.6% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F130 · Trend: deposit growth over the past four quarters, lowest value in the comparison window · n/a · 2.1% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F131 · Trend: deposit growth over the past four quarters, highest value in the comparison window · n/a · 4.7% · data/features/fct_bank_features.parquet: deposit_growth_4q
@@ -252,10 +249,8 @@ In hindsight, the bank continued to report in every quarter after the as-of date
 - F141 · Trend: construction loans as a share of loans, contribution to the score (model log-odds units) · 2022-12-31 · -0.229 · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
 - F142 · Trend: construction loans as a share of loans, what the model did with it · 2022-12-31 · pushed the score down · data/analyst/scores.parquet: feature construction_loans_to_loans contribution
 - F143 · Trend: ratios outside their own prior range · 2022-12-31 · 10 · data/features/fct_bank_features.parquet
-- F144 · Trend: ratios shown in the table (the furthest outside their prior range) · 2022-12-31 · 6 · data/features/fct_bank_features.parquet
 - F145 · Trend: ratios compared with their own prior range · 2022-12-31 · 30 · data/features/fct_bank_features.parquet
 - F146 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F147 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F148 · Percentile a year earlier (100 = highest risk) · 2021-12-31 · 99.9% · data/analyst/scores.parquet: percentile
 - F149 · Trend: how the model's rating compares with a year earlier · 2022-12-31 · about the same as a year earlier · data/analyst/scores.parquet: percentile
 - F153 · Peers: annualized interest expense as a share of assets, bank value at the as-of quarter · 2022-12-31 · 2.2% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann

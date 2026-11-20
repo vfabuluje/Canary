@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2024-10-18
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:04:45"
+written_at: "2026-11-19T21:13:39"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2024-09-30, First Nb Of Lindsay, a bank in OK, ranked 9 out of 4,589 FDIC-insured banks on Canary's risk score, placing it in the 99.8th percentile. It was flagged on Canary's watchlist, which covers the riskiest 2% of banks, or 92 banks that quarter. The standout issue was troubled loans: its Texas ratio (troubled assets measured against capital plus reserves) was 133.7% against a national median of 2.2%, and 10.6% of its loans were 90 or more days past due or not accruing interest, against a national median of 0.4%.
+As of 2024-09-30, First Nb Of Lindsay, a $114.3 million bank in OK, ranked 9 out of 4,589 banks nationally on Canary's risk score, placing it in the 99.8th percentile, where higher means riskier. That put it on Canary's watchlist, which covers the riskiest 2% of banks. The main concerns were troubled loans: its Texas ratio (troubled assets weighed against capital plus reserves) was 133.7% and loans 90+ days past due or not accruing interest were 10.6% of loans, both far above the national medians. By contrast, its funding looked steady, with cash at 21.4% of assets and almost no reliance on borrowed or brokered money.
 
 ## Warning signs in the data
 
-Capital, the cushion that absorbs losses, looked roughly normal: equity was 11.1% of assets against a national median of 10.0%, and the leverage ratio (core capital as a share of average assets) was 10.0% against a median of 10.7%. Credit quality was far weaker than at a typical bank. Loans 90 or more days past due or not accruing interest were 10.6% of loans versus a national median of 0.4%. Loans that were recently past due, late but not yet seriously so, were 10.4% of assets versus a national median of 0.2%. Net loan write-offs (loans written off as lost, less recoveries) ran at an annualized 20.6% of loans against a median of 0.0%, and loan-loss reserves, money set aside for expected bad loans, showed an unusual negative reading of -11.2% of loans against a median of 1.2%. Together these pushed the Texas ratio to 133.7%, far above the national median of 2.2%.
+Capital (the owners' cushion against losses) looked roughly normal on simple measures: equity was 11.1% of assets against a national median of 10.0%, and the leverage ratio (core capital as a share of average assets) was 10.0% against a median of 10.7%. The problem was the size of troubled loans relative to that cushion: the Texas ratio was 133.7%, compared with a national median of 2.2%.
 
-Earnings were also weak: return on assets was -0.7% against a median of 0.9%, and the efficiency ratio (operating costs as a share of revenue) was 126.6% against a median of 67.8%, meaning costs exceeded revenue. Funding and liquidity looked steadier: core deposits, the stable everyday deposit base, were 83.6% of assets versus a median of 75.0%, cash was 21.4% of assets versus 6.2%, and brokered deposits were 0.0% of deposits. Uninsured deposits, those above the federal insurance limit, showed a reported value of -1.6% of deposits against a national median of 23.6%. Unrealized losses on bonds were small: losses on bonds available for sale were 0.1% of equity, well below the national median of 8.5%, and losses on bonds held to maturity were 0.0%.
+Credit quality was the clearest weak spot. Loans 90+ days past due or not accruing interest were 10.6% of loans versus a national median of 0.4%, and loans 30-89 days past due were 10.4% of assets versus a median of 0.2%. Net loan write-offs (loans recorded as losses, minus recoveries) ran at an annualized 20.6% of loans, against a median of 0.0%. Loan-loss reserves (money set aside for bad loans) were reported at an unusual negative -11.2% of loans, compared with a median of 1.2%. Earnings had turned negative, with return on assets of -0.7% against a median of 0.9%, and the efficiency ratio (operating costs as a share of revenue) was 126.6% against a median of 67.8%.
+
+Liquidity, funding and bond losses point the other way and looked sound: cash was 21.4% of assets against a median of 6.2%, core deposits (stable customer deposits) were 83.6% of assets against 75.0%, and brokered deposits and Federal Home Loan Bank borrowings were both 0.0% of the relevant base. Unrealized losses on bonds available for sale were only 0.1% of equity, well below the national median of 8.5%. Commercial real estate loans were 14.4% of loans, below the median of 23.1%, and the real-estate concentration section found the bank did not cross either supervisory line, so the risk here sits in loan repayment rather than funding or property concentration.
 
 ## Understanding the score
 
-First Nb Of Lindsay ranked 9 out of 4,589 banks as of 2024-09-30, which places it in the 99.8th percentile on a scale where higher means riskier. Its raw model score was 0.4977, and it was flagged on the watchlist, which holds the top 2% of banks, 92 banks that quarter.
+As of 2024-09-30, the bank ranked 9 out of 4,589 banks, which is the 99.8th percentile on a scale where higher means riskier. It was flagged on the watchlist, one of 92 banks that quarter, the group making up the riskiest 2% of banks.
 
-Five factors pushed the score up most. The largest was the Texas ratio at 133.7%, adding +1.563, followed by loans 90 or more days past due or not accruing interest at 10.6% of loans, adding +1.261. Next came recently past-due loans at 10.4% of assets, adding +0.296; losses on bonds available for sale at 0.1% of equity, adding +0.104; and deposit growth over the past four quarters of 17.8%, adding +0.097.
+Five features pushed the score up most. The largest were the Texas ratio at 133.7%, contributing +1.563, and loans 90+ days past due or not accruing interest at 10.6% of loans, contributing +1.261. Smaller upward pushes came from loans 30-89 days past due at 10.4% of assets (+0.296), losses on bonds available for sale at 0.1% of equity (+0.104), and deposit growth over the past four quarters of 17.8% (+0.097).
 
-Five factors pulled the score down most. The Tier 1 risk-based capital ratio, a measure of core capital against risk-weighted assets whose value is not listed here, contributed -0.670, and return on equity of -6.9% contributed -0.526. Construction loans at 3.9% of loans contributed -0.461, nonaccrual assets and foreclosed property at 0.9% of assets contributed -0.254, and loan-loss reserves at -11.2% of loans contributed -0.251.
+Five features pulled the score down most. These were the Tier 1 risk-based capital ratio, a measure of core capital against riskier assets (-0.670), return on equity at -6.9% (-0.526), and construction loans at 3.9% of loans (-0.461). Nonaccrual assets and foreclosed property at 0.9% of assets (-0.254) and loan-loss reserves at -11.2% of loans (-0.251) completed the list, even though both readings look weak on their own.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years, and 17 of the 28 ratios checked sat outside that range at 2024-09-30. The Texas ratio reached 133.7%, far above its prior range of 10.3% to 14.9% after a one-quarter jump of +120.9 pp, and contributed +1.563 model log-odds units, which pushed the score up. Loans 90 or more days past due or not accruing interest rose to 10.6% of loans, above a prior range of 1.7% to 2.8% after a one-quarter rise of +8.6 pp, and contributed +1.261, which pushed the score up.
+As of 2024-09-30, the bank ranked 9 out of 4,589 banks nationally, placing it in the 99.8th percentile, where higher means riskier. A year earlier, on 2023-09-30, it sat in the 51.0th percentile, so the model rated it riskier than a year earlier. Each ratio is compared with the bank's own range over the prior 12 quarters, and 17 of the 28 ratios checked were outside that range.
 
-Several other ratios moved far outside their range yet did not raise the score. Net loan write-offs reached 20.6% of loans against a prior range of 0.0% to 0.1%, yet contributed only -0.005, little effect on the score. Loan-loss reserves fell to -11.2% of loans, below a prior range of 2.8% to 3.6% after a one-quarter drop of -14.8 pp, yet contributed -0.251, which pushed the score down. The efficiency ratio climbed to 126.6%, well above its prior range of 42.3% to 50.5%, yet contributed -0.062, which pushed the score down. Return on equity fell to -6.9%, below its prior range of 14.6% to 18.0%, yet contributed -0.526, which pushed the score down.
+The Texas ratio (troubled assets against capital plus reserves) was 133.7%, far above its prior range of 10.3% to 14.9%, and it pushed the score up, contributing +1.563 model log-odds units. Loans 90+ days past due or not accruing interest made up 10.6% of loans, well above the prior range of 1.7% to 2.8%, and this also pushed the score up, contributing +1.261.
 
-Overall, the model rated it riskier than a year earlier: the bank stood in the 51.0th percentile at 2023-09-30 and in the 99.8th percentile at 2024-09-30.
+Several other ratios moved outside their ranges but did not raise the score. Net loan write-offs (loans recorded as losses, minus recoveries, on a yearly basis) reached 20.6% of loans, far outside the prior range of 0.0% to 0.1%, yet the model gave this little effect on the score, at -0.005. Loan-loss reserves (money set aside to cover bad loans) stood at -11.2% of loans, below the prior range of 2.8% to 3.6%, but this pushed the score down, at -0.251. The efficiency ratio (operating costs as a share of revenue) was 126.6%, above its prior range of 42.3% to 50.5%, yet it pushed the score down, at -0.062. Return on equity (profit as a share of equity) was -6.9%, below its prior range of 14.6% to 18.0%, yet it also pushed the score down, at -0.526.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -81,11 +83,11 @@ The FDIC's specialty group for this bank at 2024-09-30: Commercial Lending Speci
 
 Peers: 1533 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-The Texas ratio of 133.7% sat at the 100.0th percentile nationally, unusually high, and at the 100.0th percentile among peers against a peer median of 2.1%, unusually high among its peers too. Loans 90 or more days past due or not accruing interest at 10.6% of loans sat at the 99.7th percentile nationally, unusually high, and at the 99.9th percentile among peers against a peer median of 0.3%, unusually high among its peers too. Recently past-due loans at 10.4% of assets sat at the 100.0th percentile nationally, unusually high, and at the 100.0th percentile among peers against a peer median of 0.2%, unusually high among its peers too. Net loan write-offs at 20.6% of loans sat at the 100.0th percentile nationally, unusually high, and at the 100.0th percentile among peers against a peer median of 0.0%, unusually high among its peers too.
+As of 2024-09-30, First Nb Of Lindsay ranked 9 out of 4,589 banks nationally on Canary's score, putting it near the very top of the list. Its Texas ratio, which weighs troubled assets against capital plus reserves, was 133.7%, at the 100.0th percentile nationally, which is unusually high, and at the 100.0th percentile among its peers, where the median is 2.1%, which is unusually high among its peers too. Loans 30-89 days past due, meaning payments that are late but not yet severely so, came to 10.4% of assets, at the 100.0th percentile nationally (unusually high) and the 100.0th percentile among its peers, where the median is 0.2%, which is unusually high among its peers too. Loans 90+ days past due or not accruing interest, meaning loans that have stopped paying as expected, were 10.6% of loans, at the 99.7th percentile nationally (unusually high) and the 99.9th percentile among its peers, where the median is 0.3%, which is unusually high among its peers too.
 
-Loan-loss reserves at -11.2% of loans sat at the 0.0th percentile nationally, unusually low, and at the 0.0th percentile among peers against a peer median of 1.2%, unusually low among its peers too. The efficiency ratio of 126.6% sat at the 98.1st percentile nationally, unusually high, and at the 99.0th percentile among peers against a peer median of 69.0%, unusually high among its peers too. Return on equity of -6.9% sat at the 2.2nd percentile nationally, unusually low, and at the 1.3rd percentile among peers against a peer median of 10.0%, unusually low among its peers too. Uninsured deposits at a reported -1.6% of deposits sat at the 0.0th percentile nationally, unusually low, and at the 0.0th percentile among peers against a peer median of 24.7%, unusually low among its peers too.
+Annualized loan write-offs, meaning loans recorded as losses net of any money later recovered, were 20.6% of loans, at the 100.0th percentile nationally (unusually high) and the 100.0th percentile among its peers, where the median is 0.0%, which is unusually high among its peers too. Loan-loss reserves, money set aside to cover expected bad loans, stood at -11.2% of loans, at the 0.0th percentile nationally (unusually low) and the 0.0th percentile among its peers, where the median is 1.2%, which is unusually low among its peers too. The efficiency ratio, operating costs as a share of revenue, was 126.6%, at the 98.1st percentile nationally (unusually high) and the 99.0th percentile among its peers, where the median is 69.0%, which is unusually high among its peers too. Return on equity, profit as a share of the owners' stake in the bank, was -6.9%, at the 2.2nd percentile nationally (unusually low) and the 1.3rd percentile among its peers, where the median is 10.0%, which is unusually low among its peers too. Uninsured deposits, balances not covered by deposit insurance, were reported at -1.6% of deposits, at the 0.0th percentile nationally (unusually low) and the 0.0th percentile among its peers, where the median is 24.7%, which is unusually low among its peers too.
 
-Overall, 12 of the bank's ratios fell in the national top or bottom 10%, and 11 of those were also unusual among its peers.
+Overall, 12 of the bank's ratios fall in the national top or bottom 10%, and 11 of those are also unusual among its peers, so its departures from the norm show up against similar banks as well as nationally.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -120,22 +122,20 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, Canary first flagged First Nb Of Lindsay at 2024-09-30, which was also the last quarter the bank reported. The bank failed on 2024-10-18, giving a lead time of 1 quarter between the first flag and the failure. The flag came late but before the failure, so this counts as a case the model caught, with little time to spare.
+In hindsight, the bank failed on 2024-10-18. Canary first flagged it in the 2024-09-30 quarter, giving a lead time of 1 quarter before the failure. A year earlier, on 2023-09-30, the bank sat only in the 51.0th percentile, so the warning came late and rested on a sharp jump in troubled loans in the final quarter of data. The case counts as caught, but with a short window between the flag and the failure.
 
 ## What happened next
 
-In hindsight, the bank failed on 2024-10-18, shortly after the as-of quarter. Its last report was for 2024-09-30, so there are no later ranks or flags to show.
+In hindsight, 2024-09-30 was the last quarter the bank reported, so there are no later ranks or watchlist flags. The bank failed on 2024-10-18, shortly after that final report.
 
 ## Sources
 
 - F1 · Bank name · n/a · First Nb Of Lindsay · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2024-09-30 · 2024-09-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · OK · data/raw/financials: STALP
-- F5 · Model score · 2024-09-30 · 0.4977 · data/analyst/scores.parquet: score
 - F6 · National rank (1 = highest score) · 2024-09-30 · 9 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2024-09-30 · 4,589 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2024-09-30 · 99.8% · data/analyst/scores.parquet: percentile
-- F9 · Percentile scale (0 to 100; higher means riskier) · n/a · 0 to 100 · canary.analyst.facts: percentile scale (fixed)
 - F10 · On the watchlist · 2024-09-30 · flagged · data/analyst/scores.parquet: flagged
 - F11 · Watchlist share of banks · n/a · 2% · canary.model.metrics.WATCHLIST_SHARE
 - F12 · Banks on the watchlist that quarter · 2024-09-30 · 92 · data/analyst/scores.parquet: flagged
@@ -151,22 +151,23 @@ In hindsight, the bank failed on 2024-10-18, shortly after the as-of quarter. It
 - F24 · National median: loan-loss reserves as a share of loans · 2024-09-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F25 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2024-09-30 · 20.6% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F26 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2024-09-30 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
+- F31 · Bank: commercial real estate loans as a share of loans · 2024-09-30 · 14.4% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F32 · National median: commercial real estate loans as a share of loans · 2024-09-30 · 23.1% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F33 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2024-09-30 · 133.7% · data/features/fct_bank_features.parquet: texas_ratio
 - F34 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2024-09-30 · 2.2% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F35 · Bank: return on assets (profit as a share of assets) · 2024-09-30 · -0.7% · data/features/fct_bank_features.parquet: return_on_assets
 - F36 · National median: return on assets (profit as a share of assets) · 2024-09-30 · 0.9% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F41 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2024-09-30 · 126.6% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F42 · National median: the efficiency ratio (operating costs as a share of revenue) · 2024-09-30 · 67.8% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
-- F47 · Bank: uninsured deposits as a share of deposits · 2024-09-30 · -1.6% · data/features/fct_bank_features.parquet: uninsured_to_deposits
-- F48 · National median: uninsured deposits as a share of deposits · 2024-09-30 · 23.6% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F49 · Bank: brokered deposits as a share of deposits · 2024-09-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F51 · Bank: core deposits as a share of assets · 2024-09-30 · 83.6% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F52 · National median: core deposits as a share of assets · 2024-09-30 · 75.0% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
+- F53 · Bank: Federal Home Loan Bank borrowings as a share of assets · 2024-09-30 · 0.0% · data/features/fct_bank_features.parquet: fhlb_to_assets
 - F57 · Bank: cash as a share of assets · 2024-09-30 · 21.4% · data/features/fct_bank_features.parquet: cash_to_assets
 - F58 · National median: cash as a share of assets · 2024-09-30 · 6.2% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
-- F59 · Bank: losses on bonds held to maturity, as a share of equity · 2024-09-30 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
 - F61 · Bank: losses on bonds available for sale, as a share of equity · 2024-09-30 · 0.1% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F62 · National median: losses on bonds available for sale, as a share of equity · 2024-09-30 · 8.5% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
+- F65 · Bank: total assets · 2024-09-30 · $114.3 million · data/features/fct_bank_features.parquet: log_total_assets
 - F71 · Driver up #1: the Texas ratio (troubled assets against capital plus reserves), value 133.7%; contribution to the score · 2024-09-30 · +1.563 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F72 · Driver up #2: loans 90+ days past due or not accruing interest, as a share of loans, value 10.6%; contribution to the score · 2024-09-30 · +1.261 · data/analyst/scores.parquet: feature noncurrent_loans_to_loans contribution
 - F73 · Driver up #3: loans 30-89 days past due, as a share of assets, value 10.4%; contribution to the score · 2024-09-30 · +0.296 · data/analyst/scores.parquet: feature past_due_30_89_to_assets contribution
@@ -184,7 +185,6 @@ In hindsight, the bank failed on 2024-10-18, shortly after the as-of quarter. It
 - F85 · Trend: the Texas ratio (troubled assets against capital plus reserves), value at the as-of quarter · 2024-09-30 · 133.7% · data/features/fct_bank_features.parquet: texas_ratio
 - F86 · Trend: the Texas ratio (troubled assets against capital plus reserves), lowest value in the comparison window · n/a · 10.3% · data/features/fct_bank_features.parquet: texas_ratio
 - F87 · Trend: the Texas ratio (troubled assets against capital plus reserves), highest value in the comparison window · n/a · 14.9% · data/features/fct_bank_features.parquet: texas_ratio
-- F88 · Trend: the Texas ratio (troubled assets against capital plus reserves), change over one quarter, in percentage points · 2024-09-30 · +120.9 pp · data/features/fct_bank_features.parquet: texas_ratio
 - F90 · Trend: the Texas ratio (troubled assets against capital plus reserves), contribution to the score (model log-odds units) · 2024-09-30 · +1.563 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F91 · Trend: the Texas ratio (troubled assets against capital plus reserves), what the model did with it · 2024-09-30 · pushed the score up · data/analyst/scores.parquet: feature texas_ratio contribution
 - F92 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, value at the as-of quarter · 2024-09-30 · 20.6% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
@@ -195,7 +195,6 @@ In hindsight, the bank failed on 2024-10-18, shortly after the as-of quarter. It
 - F98 · Trend: loan-loss reserves as a share of loans, value at the as-of quarter · 2024-09-30 · -11.2% · data/features/fct_bank_features.parquet: allowance_to_loans
 - F99 · Trend: loan-loss reserves as a share of loans, lowest value in the comparison window · n/a · 2.8% · data/features/fct_bank_features.parquet: allowance_to_loans
 - F100 · Trend: loan-loss reserves as a share of loans, highest value in the comparison window · n/a · 3.6% · data/features/fct_bank_features.parquet: allowance_to_loans
-- F101 · Trend: loan-loss reserves as a share of loans, change over one quarter, in percentage points · 2024-09-30 · -14.8 pp · data/features/fct_bank_features.parquet: allowance_to_loans
 - F103 · Trend: loan-loss reserves as a share of loans, contribution to the score (model log-odds units) · 2024-09-30 · -0.251 · data/analyst/scores.parquet: feature allowance_to_loans contribution
 - F104 · Trend: loan-loss reserves as a share of loans, what the model did with it · 2024-09-30 · pushed the score down · data/analyst/scores.parquet: feature allowance_to_loans contribution
 - F105 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2024-09-30 · 126.6% · data/features/fct_bank_features.parquet: efficiency_ratio
@@ -206,7 +205,6 @@ In hindsight, the bank failed on 2024-10-18, shortly after the as-of quarter. It
 - F111 · Trend: loans 90+ days past due or not accruing interest, as a share of loans, value at the as-of quarter · 2024-09-30 · 10.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F112 · Trend: loans 90+ days past due or not accruing interest, as a share of loans, lowest value in the comparison window · n/a · 1.7% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F113 · Trend: loans 90+ days past due or not accruing interest, as a share of loans, highest value in the comparison window · n/a · 2.8% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
-- F114 · Trend: loans 90+ days past due or not accruing interest, as a share of loans, change over one quarter, in percentage points · 2024-09-30 · +8.6 pp · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F116 · Trend: loans 90+ days past due or not accruing interest, as a share of loans, contribution to the score (model log-odds units) · 2024-09-30 · +1.261 · data/analyst/scores.parquet: feature noncurrent_loans_to_loans contribution
 - F117 · Trend: loans 90+ days past due or not accruing interest, as a share of loans, what the model did with it · 2024-09-30 · pushed the score up · data/analyst/scores.parquet: feature noncurrent_loans_to_loans contribution
 - F118 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2024-09-30 · -6.9% · data/features/fct_bank_features.parquet: return_on_equity
@@ -217,7 +215,6 @@ In hindsight, the bank failed on 2024-10-18, shortly after the as-of quarter. It
 - F124 · Trend: ratios outside their own prior range · 2024-09-30 · 17 · data/features/fct_bank_features.parquet
 - F126 · Trend: ratios compared with their own prior range · 2024-09-30 · 28 · data/features/fct_bank_features.parquet
 - F127 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F128 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F129 · Percentile a year earlier (100 = highest risk) · 2023-09-30 · 51.0% · data/analyst/scores.parquet: percentile
 - F130 · Trend: how the model's rating compares with a year earlier · 2024-09-30 · the model rated it riskier than a year earlier · data/analyst/scores.parquet: percentile
 - F134 · Peers: the Texas ratio (troubled assets against capital plus reserves), bank value at the as-of quarter · 2024-09-30 · 133.7% · data/features/fct_bank_features.parquet: texas_ratio

@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:49"
+written_at: "2026-11-19T21:16:24"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-Bank Of Vici, a small bank in OK, ranked 19 out of 4,313 FDIC-insured banks on Canary's risk score as of 2026-06-30, placing it in the 99.6th percentile, where higher means riskier. That rank puts it on Canary's watchlist, which covers the top 2% of banks by score. The main reasons are large paper losses on its bond holdings, a high share of loans that are seriously behind on payments, and a high Texas ratio (troubled assets measured against the cushion of capital and reserves).
+As of 2026-06-30, Bank Of Vici, a small Oklahoma bank, ranked 19 out of 4,313 banks nationally on Canary's score, placing it in the 99.6th percentile, where 100 marks the highest risk. That placed it on Canary's watchlist, the top 2% of banks by score. The biggest pushes on its score came from large paper losses on its bond holdings, a high share of seriously overdue loans, and a high Texas ratio (troubled assets measured against capital plus reserves). Its percentile a year earlier was 99.8%, so the model rated it about the same as a year earlier.
 
 ## Warning signs in the data
 
-On capital, the bank's equity (the owners' cushion against losses) was 7.1% of assets, below the national median of 10.6%. Its leverage ratio (core capital as a share of average assets) was 10.2%, a little below the national median of 11.0%. Unrealized losses on bonds available for sale (bonds the bank could sell, now worth less than it paid) equaled 56.7% of equity, far above the national median of 5.6%.
+Capital, the owners' cushion against losses, was thinner than at most banks: equity was 7.1% of assets against a national median of 10.6%. The leverage ratio (core capital as a share of average assets) was 10.2%, a little below the national median of 11.0%. Losses on bonds available for sale (bonds the bank could sell, now worth less than it paid) equaled 56.7% of equity, far above the national median of 5.6%.
 
-On credit quality, loans 90 or more days past due or no longer earning interest were 12.3% of loans, far above the national median of 0.5%. The Texas ratio stood at 69.0%, against a national median of 2.9%. The bank was losing money, with a return on assets (profit as a share of assets) of -0.9% versus a national median of 1.2%, and an efficiency ratio (operating costs as a share of revenue) of 118.5% versus 62.1%.
+Credit quality was weak: loans 90+ days past due or no longer earning interest were 12.3% of loans, against a national median of 0.5%. The Texas ratio was 69.0%, far above the national median of 2.9%, while loan-loss reserves (money set aside for bad loans) were 3.2% of loans against a median of 1.2%. The bank was losing money, with return on assets (profit as a share of assets) of -0.9% against a national median of 1.2%.
 
-On funding, deposits shrank by -13.5% over the past four quarters, while the national median grew by 4.2%. Volatile funding (money that can leave quickly) was 15.7% of assets, above the national median of 9.0%, though the bank used no brokered deposits, at 0.0%.
+On funding, deposits changed by -13.5% over the past four quarters, while the national median grew 4.2%, and volatile funding (money that can leave quickly) was 15.7% of assets against a median of 9.0%. Some figures point the other way: uninsured deposits were 15.7% of deposits, below the national median of 24.8%, and the real-estate concentration section found it did not cross either regulatory screening line.
 
 ## Understanding the score
 
-Bank Of Vici ranked 19 of 4,313 banks as of 2026-06-30, the 99.6th percentile on a 0 to 100 scale where higher means riskier. It is flagged on the watchlist, which holds the top 2% of banks, or 87 banks that quarter.
+Bank Of Vici ranked 19 out of 4,313 banks on 2026-06-30, the 99.6th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which covers the top 2% of banks, or 87 banks that quarter.
 
-Five features pushed the score up most. Losses on bonds available for sale, at 56.7% of equity, added +0.920. Loans 90 or more days past due or not earning interest, at 12.3% of loans, added +0.917. The Texas ratio, at 69.0%, added +0.830. Asset growth over the past four quarters, at -11.7%, added +0.125, and loans as a share of deposits, at 50.3%, added +0.122.
+The five features that pushed the score up most were losses on bonds available for sale at 56.7% of equity, contributing +0.920, and loans 90+ days past due or not earning interest at 12.3% of loans, contributing +0.917. Next came the Texas ratio at 69.0%, contributing +0.830, asset growth over the past four quarters of -11.7%, contributing +0.125, and loans as a share of deposits at 50.3%, contributing +0.122.
 
-Five features pulled the score down most. The Tier 1 risk-based capital ratio (core capital measured against risk-weighted assets) contributed -0.744. Nonaccrual assets and foreclosed property, at 0.9% of assets, contributed -0.385, and the efficiency ratio, at 118.5%, contributed -0.282. The leverage ratio, at 10.2%, contributed -0.272, and return on equity, at -13.2%, contributed -0.237.
+The five features that pulled the score down most were the Tier 1 risk-based capital ratio (core capital against risk-weighted assets), contributing -0.744, and nonaccrual assets and foreclosed property at 0.9% of assets, contributing -0.385. The efficiency ratio of 118.5% contributed -0.282, the leverage ratio of 10.2% contributed -0.272, and return on equity of -13.2% contributed -0.237, so the model treated these figures as easing the score in this case.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, or the same quarter in the prior 3 years for year-to-date ratios. Of 28 ratios checked, 6 sat outside their prior range as of 2026-06-30. The model rated the bank about the same as a year earlier, when it stood at the 99.8th percentile, compared with the 99.6th percentile and rank 19 now.
+As of 2026-06-30, Bank Of Vici ranked 19 out of 4,313 banks nationally, placing it in the 99.6th percentile, where 100 marks the highest risk score. A year earlier it sat in the 99.8th percentile, and the model rated it about the same as a year earlier. Each ratio is compared with its own prior range, usually over the prior 12 quarters, and 6 of the 28 ratios checked fell outside that range; the table shows those 6.
 
-The Texas ratio reached 69.0%, above its prior range of 15.2% to 64.5%, after a +53.5 pp jump in one quarter. The Texas ratio, at 69.0%, pushed the score up, contributing +0.830 model log-odds units. Loan-loss reserves (money set aside for expected bad loans) were 3.2% of loans, just above their prior range of 0.1% to 3.1%, and pushed the score up by +0.058. Commercial real estate loans fell to 9.7% of loans, below their prior range of 13.4% to 23.2%, and pushed the score up by +0.102.
+The Texas ratio (troubled loans and assets measured against capital plus reserves) stood at 69.0%, above its prior range of 15.2% to 64.5%, and it pushed the score up with a contribution of +0.830 model log-odds units, where a positive number raises the score. That ratio rose +53.5 pp in one quarter. Loan-loss reserves (money set aside to cover expected loan losses) were 3.2% of loans, just above their prior range of 0.1% to 3.1%, and they pushed the score up with a contribution of +0.058. Commercial real estate loans were 9.7% of loans, below their prior range of 13.4% to 23.2%, yet this ratio still pushed the score up with a contribution of +0.102.
 
-Loans in the early stage of being past due dropped to 0.6% of assets, below their prior range of 1.4% to 5.5%, and in contrast to being out of range, this pushed the score down by -0.192. Construction loans fell to 0.0% of loans, below their prior range of 1.0% to 3.3%, yet this pushed the score down by -0.176. Net loan write-offs (loans written off as lost, minus recoveries) were 0.3% of loans, well below their prior range of 3.1% to 4.0%, yet this had little effect on the score, at +0.007.
+Loans 30-89 days past due were 0.6% of assets, below their prior range of 1.4% to 5.5%, and in contrast to being outside their range they pushed the score down with a contribution of -0.192. Construction loans were 0.0% of loans, below their prior range of 1.0% to 3.3%, and this ratio also pushed the score down with a contribution of -0.176. Net loan write-offs (loans recorded as losses, minus amounts later recovered) were 0.3% of loans on an annualized basis, well below their prior range of 3.1% to 4.0%, yet despite falling outside that range they had little effect on the score, with a contribution of +0.007. That write-off ratio fell -3.7 pp over four quarters.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -81,11 +81,11 @@ The FDIC's specialty group for this bank at 2026-06-30: Commercial Lending Speci
 
 Peers: 95 banks in the same specialty group and size tier (under $100 million).
 
-Loans 90 or more days past due or not earning interest were 12.3% of loans, at the 99.7th percentile nationally, which is unusually high. Against its peers that figure sits at the 98.4th percentile, versus a peer median of 0.5%, unusually high among its peers too. The Texas ratio of 69.0% is at the 99.7th percentile nationally, unusually high, and at the 97.4th percentile among peers with a peer median of 3.0%, unusually high among its peers too. Loan-loss reserves of 3.2% of loans are at the 98.0th percentile nationally, unusually high, and at the 95.3rd percentile among peers with a peer median of 1.3%, unusually high among its peers too.
+Bank Of Vici ranks 19 out of 4,313 banks nationally on Canary's score, where a lower rank means a higher score. Its share of loans that are seriously overdue or no longer earning interest is 12.3%, at the 99.7th percentile nationally, which is unusually high, and at the 98.4th percentile among its peers against a peer median of 0.5%, so it is unusually high among its peers too. The Texas ratio, which compares troubled assets with capital plus reserves, is 69.0%, at the 99.7th percentile nationally, which is unusually high, and at the 97.4th percentile among its peers against a peer median of 3.0%, so it is unusually high among its peers too. Loan-loss reserves, money set aside to cover loans that may not be repaid, equal 3.2% of loans, at the 98.0th percentile nationally, which is unusually high, and at the 95.3rd percentile among its peers against a peer median of 1.3%, so they are unusually high among its peers too.
 
-Return on equity of -13.2% is at the 1.2nd percentile nationally, unusually low, and at the 8.9th percentile among peers with a peer median of 7.0%, unusually low among its peers too. Deposit growth of -13.5% is at the 1.2nd percentile nationally, unusually low, and at the 4.7th percentile among peers with a peer median of 4.2%, unusually low among its peers too. Asset growth of -11.7% is at the 1.3rd percentile nationally, unusually low, and at the 4.7th percentile among peers with a peer median of 3.4%, unusually low among its peers too.
+Return on equity, profit as a share of the owners' stake, is -13.2%, at the 1.2nd percentile nationally, which is unusually low, and at the 8.9th percentile among its peers against a peer median of 7.0%, so it is unusually low among its peers too. Return on assets, profit as a share of everything the bank owns, is -0.9%, at the 2.0th percentile nationally, which is unusually low, while at the 15.3rd percentile among its peers against a peer median of 0.8% it is typical for its peer group. The efficiency ratio, operating costs as a share of revenue, is 118.5%, at the 98.2nd percentile nationally, which is unusually high, while at the 83.7th percentile among its peers against a peer median of 75.6% it is typical for its peer group. Deposits changed by -13.5% over the past four quarters, at the 1.2nd percentile nationally, which is unusually low, and at the 4.7th percentile among its peers against a peer median of 4.2%, so this is unusually low among its peers too. Total assets changed by -11.7% over the past four quarters, at the 1.3rd percentile nationally, which is unusually low, and at the 4.7th percentile among its peers against a peer median of 3.4%, so this is unusually low among its peers too.
 
-The efficiency ratio of 118.5% is at the 98.2nd percentile nationally, unusually high, but at the 83.7th percentile among peers with a peer median of 75.6%, it is typical for its peer group. Return on assets of -0.9% is at the 2.0th percentile nationally, unusually low, but at the 15.3rd percentile among peers with a peer median of 0.8%, it is typical for its peer group. Overall, 12 of the bank's ratios fall in the national top or bottom 10%, and 8 of those are also unusual among its peers.
+Overall, 12 of the bank's ratios fall in the national top or bottom 10%, and 8 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -120,15 +120,14 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it's on the watchlist
 
-Hindsight view: this bank is an open watchlist case, meaning it was flagged and our fact sheet contains no later data showing what followed. Because no hindsight facts are available, we cannot say whether the flag was borne out, and the reasons for the flag rest only on the figures described in the sections above.
+In hindsight: this bank is a watchlist case that, in our data, had not reached a resolution. The fact sheet holds no data from after the as-of quarter, so there is no later evidence to explain how its situation developed. Its place on the watchlist rests on the as-of figures described above, not on any later outcome.
 
 ## What happened next
 
-Hindsight view: the fact sheet holds no data after the as-of quarter, so we have no later ranks, flags or reporting status to show for this bank. If later filings become available, they would show whether the bank still reports and how its rank moved; a bank that stops reporting may have merged or closed, which our data does not distinguish.
+In hindsight: the fact sheet contains no later ranks, watchlist flags or reporting status for this bank. We therefore cannot say from our data whether its rank changed, whether it stayed on the watchlist, or whether it kept filing reports.
 
 ## Sources
 
-- F1 · Bank name · n/a · Bank Of Vici · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · OK · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2026-06-30 · 19 · data/analyst/scores.parquet: rank
@@ -144,13 +143,14 @@ Hindsight view: the fact sheet holds no data after the as-of quarter, so we have
 - F16 · National median: the leverage ratio (core capital as a share of average assets) · 2026-06-30 · 11.0% · data/features/fct_bank_features.parquet: leverage_ratio (median of all banks)
 - F17 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 12.3% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F18 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
+- F23 · Bank: loan-loss reserves as a share of loans · 2026-06-30 · 3.2% · data/features/fct_bank_features.parquet: allowance_to_loans
+- F24 · National median: loan-loss reserves as a share of loans · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F33 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 69.0% · data/features/fct_bank_features.parquet: texas_ratio
 - F34 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 2.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F35 · Bank: return on assets (profit as a share of assets) · 2026-06-30 · -0.9% · data/features/fct_bank_features.parquet: return_on_assets
 - F36 · National median: return on assets (profit as a share of assets) · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
-- F41 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2026-06-30 · 118.5% · data/features/fct_bank_features.parquet: efficiency_ratio
-- F42 · National median: the efficiency ratio (operating costs as a share of revenue) · 2026-06-30 · 62.1% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
-- F49 · Bank: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits
+- F47 · Bank: uninsured deposits as a share of deposits · 2026-06-30 · 15.7% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F48 · National median: uninsured deposits as a share of deposits · 2026-06-30 · 24.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F55 · Bank: volatile funding as a share of assets · 2026-06-30 · 15.7% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F56 · National median: volatile funding as a share of assets · 2026-06-30 · 9.0% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F61 · Bank: losses on bonds available for sale, as a share of equity · 2026-06-30 · 56.7% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
@@ -170,6 +170,7 @@ Hindsight view: the fact sheet holds no data after the as-of quarter, so we have
 - F81 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, value at the as-of quarter · 2026-06-30 · 0.3% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F82 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, lowest value in the comparison window · n/a · 3.1% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F83 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, highest value in the comparison window · n/a · 4.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
+- F84 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, change over four quarters, in percentage points · 2026-06-30 · -3.7 pp · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F85 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, contribution to the score (model log-odds units) · 2026-06-30 · +0.007 · data/analyst/scores.parquet: feature net_charge_offs_to_loans_ann contribution
 - F86 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, what the model did with it · 2026-06-30 · little effect on the score · data/analyst/scores.parquet: feature net_charge_offs_to_loans_ann contribution
 - F87 · Trend: construction loans as a share of loans, value at the as-of quarter · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: construction_loans_to_loans
@@ -199,9 +200,9 @@ Hindsight view: the fact sheet holds no data after the as-of quarter, so we have
 - F120 · Trend: loan-loss reserves as a share of loans, contribution to the score (model log-odds units) · 2026-06-30 · +0.058 · data/analyst/scores.parquet: feature allowance_to_loans contribution
 - F121 · Trend: loan-loss reserves as a share of loans, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature allowance_to_loans contribution
 - F122 · Trend: ratios outside their own prior range · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
+- F123 · Trend: ratios shown in the table (the furthest outside their prior range) · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
 - F124 · Trend: ratios compared with their own prior range · 2026-06-30 · 28 · data/features/fct_bank_features.parquet
 - F125 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F126 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F127 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 99.8% · data/analyst/scores.parquet: percentile
 - F128 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · about the same as a year earlier · data/analyst/scores.parquet: percentile
 - F132 · Peers: loans 90+ days past due or not accruing interest, as a share of loans, bank value at the as-of quarter · 2026-06-30 · 12.3% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans

@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2024-04-26
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:05:47"
+written_at: "2026-11-19T21:14:22"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,21 @@ checked: true
 
 ## Summary
 
-As of 2023-12-31, Republic Bank in PA ranked 135 out of 4,658 FDIC-insured banks on Canary's risk score, which places it in the 97.1st percentile, where higher means riskier. Its capital cushion was thin: equity (the owners' stake that absorbs losses) was 1.8% of assets, against a national median of 9.5%. It was losing money, with a return on equity of -36.6%, and paper losses on its bonds available for sale equal to 155.9% of its equity. Despite the high rank, it was not on Canary's watchlist that quarter.
+As of 2023-12-31, Republic Bank, based in PA, ranked 135 out of 4,658 banks nationally on Canary's risk score, placing it in the 97.1st percentile, where higher means riskier. Its capital cushion, the owners' money that absorbs losses, was very thin: equity was 1.8% of assets against a national median of 9.5%, and paper losses on its bonds were large compared with that equity. Losses and weak capital pushed the score up, while its relatively modest loan problems held the score down. The model rated it safer than a year earlier, and it was not on the watchlist, which covers 2% of banks.
 
 ## Warning signs in the data
 
-Capital, the buffer that absorbs losses, was well below typical levels at 2023-12-31: equity was 1.8% of assets versus a national median of 9.5%. The leverage ratio (core capital as a share of average assets) was 4.4% against a median of 10.6%, and the total risk-based capital ratio (capital measured against riskier assets) was 9.6% against 15.3%. Profits had turned negative, with a return on assets of -0.7% compared with a national median of 1.0%, and a net interest margin (the spread earned on lending and investing) of 1.2% against 3.4%.
+Capital was far below typical levels. Equity was 1.8% of assets versus a national median of 9.5%, and the leverage ratio (core capital as a share of average assets) was 4.4% against a median of 10.6%. The total risk-based capital ratio (capital measured against assets weighted by their risk) was 9.6% versus a median of 15.3%, and the Tier 1 risk-based capital ratio, which counts only core capital, was 8.8% versus 14.1%. Paper losses on bonds were very large: losses on bonds held to maturity (bonds the bank plans to keep until they mature) equaled 250.7% of equity against a national median of 0.0%, and losses on bonds available for sale equaled 155.9% of equity versus a median of 12.9%. Securities made up 40.5% of assets, well above the national median of 20.1%.
 
-The largest strain sat in its bond portfolio: unrealized losses on bonds held to maturity equaled 250.7% of equity, where the national median was 0.0%. Losses on bonds available for sale were 155.9% of equity, against a median of 12.9%, and securities made up 40.5% of assets versus 20.1% nationally. On funding, uninsured deposits (balances above the government insurance limit) were 51.5% of deposits against a median of 23.9%, and deposits shrank by -12.8% over the past four quarters while the median grew 0.9%. Borrowings from the Federal Home Loan Bank, a lender to banks, were 11.9% of assets against a median of 1.0%.
+Earnings were under strain: return on equity (profit as a share of the owners' stake) was -36.6% against a median of 10.8%, and net interest margin (the spread earned on lending and investing) was 1.2% versus 3.4%. Annualized interest expense was 2.6% of assets, well above the median of 1.2%. On funding, uninsured deposits (balances above the government insurance limit) were 51.5% of deposits versus a median of 23.9%, and deposit growth over the past four quarters was -12.8% against a median of 0.9%. Federal Home Loan Bank borrowings (secured loans banks take from the Federal Home Loan Banks) were 11.9% of assets versus a median of 1.0%, while cash was 3.5% of assets against a median of 5.6%.
 
-Credit quality was weaker than the median but still modest: loans 90+ days past due or not accruing interest were 0.7% of loans versus 0.3% nationally. Commercial real estate loans were 42.7% of loans, well above the national median of 23.2%.
+Credit quality points a different way: problem loans were above the median but small in absolute terms, with loans 90+ days past due or not accruing interest at 0.7% of loans versus 0.3%, and the Texas ratio (troubled assets against capital plus reserves) at 16.4% versus 1.8%. The model treated these modest loan problems as lowering the score, even though they sit above the national medians. Commercial real estate loans were 42.7% of loans, well above the national median of 23.2%, though the separate real-estate concentration check found the bank did not cross either supervisory line.
 
 ## Understanding the score
 
-At 2023-12-31, Republic Bank ranked 135 of 4,658 banks, the 97.1st percentile on a scale from 0 to 100 where higher means riskier. Canary's watchlist holds the top 2% of banks, which was 94 banks that quarter, and Republic Bank was not flagged.
+Republic Bank ranked 135 out of 4,658 banks at 2023-12-31, the 97.1st percentile on a scale of 0 to 100 where higher means riskier. The watchlist holds the top 2% of banks, 94 banks that quarter, and Republic Bank was not flagged.
 
-The five factors that pushed the score up most were return on equity at -36.6% (contribution +1.198), losses on bonds available for sale at 155.9% of equity (+0.912), and equity at 1.8% of assets (+0.367). The other two were the total risk-based capital ratio at 9.6% (+0.089) and loans as a share of deposits at 69.0% (+0.087).
-
-The five factors that pulled the score down most were nonaccrual assets and foreclosed property (loans no longer paying plus repossessed property) at 0.4% of assets (-1.161), and loans 90+ days past due or not accruing interest at 0.7% of loans (-1.006). Next came the Texas ratio (troubled assets against capital plus reserves) at 16.4% (-0.830), loans 30-89 days past due at 0.2% of assets (-0.359), and construction loans at 4.8% of loans (-0.260).
+The five factors that pushed the score up most were return on equity at -36.6%, losses on bonds available for sale at 155.9% of equity, equity at 1.8% of assets, the total risk-based capital ratio at 9.6%, and loans at 69.0% of deposits. The five that pushed it down most were nonaccrual assets and foreclosed property at 0.4% of assets, loans 90+ days past due or not accruing interest at 0.7% of loans, the Texas ratio at 16.4%, loans 30-89 days past due at 0.2% of assets, and construction loans at 4.8% of loans. In short, losses and thin capital raised the score, while relatively clean loan books lowered it.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +56,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Canary compares each ratio with its own history over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 30 ratios checked, 13 were outside their own prior range at 2023-12-31. Return on equity fell to -36.6%, below its prior range of 2.8% to 9.1%, a change of -41.6 pp, and it pushed the score up with a contribution of +1.198. Annualized interest expense rose to 2.6% of assets, above its prior range of 0.3% to 0.5%, and it pushed the score up with a contribution of +0.064.
+As of 2023-12-31, Republic Bank ranked 135 out of 4,658 banks nationally, placing it in the 97.1st percentile, where higher means riskier. At 2022-12-31 it sat in the 99.4th percentile, so the model rated it safer than a year earlier. Each ratio is compared with its own past: most against the prior 12 quarters, and year-to-date ratios against the same quarter in the prior 3 years. Of 30 ratios compared this way, 13 were outside their own prior range, and the table shows the 6 furthest outside.
 
-The efficiency ratio (operating costs as a share of revenue) jumped to 145.3%, well above its prior range of 73.7% to 87.3%, yet it pushed the score down with a contribution of -0.198. Return on assets dropped to -0.7%, below its prior range of 0.2% to 0.5%, but it also pushed the score down, with a contribution of -0.068. Net interest margin fell to 1.2%, below its prior range of 2.4% to 2.7%, but had little effect on the score, contributing +0.032. Uninsured deposits fell to 51.5% of deposits, below their prior range of 56.7% to 64.7%, and had little effect on the score, contributing -0.012.
+Return on equity (profit as a share of the owners' stake) fell to -36.6%, well below its prior range of 2.8% to 9.1%, a change of -41.6 pp over four quarters. The model's contribution for return on equity at -36.6% was +1.198 in model log-odds units (the model's internal scale, where positive means higher risk), which pushed the score up. The efficiency ratio (operating costs as a share of revenue) rose to 145.3%, far above its prior range of 73.7% to 87.3%, yet its contribution of -0.198 pushed the score down. Annualized interest expense as a share of assets climbed to 2.6%, above its prior range of 0.3% to 0.5%, and its contribution of +0.064 pushed the score up.
 
-Overall, the model rated it safer than a year earlier: it sat in the 99.4th percentile at 2022-12-31 and in the 97.1st percentile at 2023-12-31, ranked 135 of 4,658.
+Net interest margin (the spread earned on lending and investing) dropped to 1.2%, below its prior range of 2.4% to 2.7%, but its contribution of +0.032 had little effect on the score. Return on assets (profit as a share of assets) was -0.7%, below its prior range of 0.2% to 0.5%, yet its contribution of -0.068 pushed the score down. Uninsured deposits (balances above the government insurance limit) were 51.5% of deposits, below their prior range of 56.7% to 64.7%, and their contribution of -0.012 had little effect on the score.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,9 +81,11 @@ The FDIC's specialty group for this bank at 2023-12-31: Commercial Lending Speci
 
 Peers: 700 banks in the same specialty group and size tier ($1 billion to $10 billion).
 
-Losses on bonds held to maturity were 250.7% of equity, the 100.0th percentile nationally, which is unusually high. Among its peers that ratio sat at the 99.9th percentile against a peer median of 0.0%, unusually high among its peers too. The total risk-based capital ratio was 9.6%, the 0.2nd percentile nationally (unusually low), and the 0.1st percentile among peers with a peer median of 13.7%, unusually low among its peers too. The Tier 1 risk-based capital ratio was 8.8%, the 0.2nd percentile nationally (unusually low), and the 0.1st percentile among peers with a peer median of 12.6%, unusually low among its peers too. The leverage ratio was 4.4%, the 0.4th percentile nationally (unusually low), and the 0.8th percentile among peers with a peer median of 10.0%, unusually low among its peers too.
+Losses on bonds held to maturity (paper losses on bonds the bank plans to keep until they mature), as a share of equity, stood at 250.7%, the 100.0th percentile nationally, which is unusually high. Among its peers that same figure sits at the 99.9th percentile against a peer median of 0.0%, so it is unusually high among its peers too. The total risk-based capital ratio (the bank's capital cushion measured against its risk-weighted assets) was 9.6%, the 0.2nd percentile nationally and unusually low, and at the 0.1st percentile among peers with a peer median of 13.7%, it is unusually low among its peers too. The Tier 1 risk-based capital ratio (the same measure using only core capital) was 8.8%, the 0.2nd percentile nationally and unusually low, and at the 0.1st percentile among peers with a peer median of 12.6%, it is unusually low among its peers too. The leverage ratio (core capital as a share of average assets) was 4.4%, the 0.4th percentile nationally and unusually low, and at the 0.8th percentile among peers with a peer median of 10.0%, it is unusually low among its peers too.
 
-Equity was 1.8% of assets, the 0.9th percentile nationally (unusually low), and the 0.9th percentile among peers with a peer median of 9.5%, unusually low among its peers too. Return on equity was -36.6%, the 0.4th percentile nationally (unusually low), and the 0.2nd percentile among peers with a peer median of 10.7%, unusually low among its peers too. Net interest margin was 1.2%, the 1.0th percentile nationally (unusually low), and the 1.2nd percentile among peers with a peer median of 3.3%, unusually low among its peers too. The efficiency ratio was 145.3%, the 98.9th percentile nationally (unusually high), and the 99.8th percentile among peers with a peer median of 63.4%, unusually high among its peers too. In all, 16 of the bank's ratios were in the national top or bottom 10%, and 16 of those were also unusual among its peers.
+Return on equity (profit as a share of equity) was -36.6%, the 0.4th percentile nationally and unusually low, and at the 0.2nd percentile among peers with a peer median of 10.7%, it is unusually low among its peers too. Equity as a share of assets was 1.8%, the 0.9th percentile nationally and unusually low, and at the 0.9th percentile among peers with a peer median of 9.5%, it is unusually low among its peers too. Net interest margin (the spread earned on lending and investing) was 1.2%, the 1.0th percentile nationally and unusually low, and at the 1.2nd percentile among peers with a peer median of 3.3%, it is unusually low among its peers too. The efficiency ratio (operating costs as a share of revenue, where higher means costlier) was 145.3%, the 98.9th percentile nationally and unusually high, and at the 99.8th percentile among peers with a peer median of 63.4%, it is unusually high among its peers too.
+
+Overall, 16 of the bank's ratios fall in the national top or bottom 10%, and all 16 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -121,16 +121,17 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, Republic Bank failed on 2024-04-26. Under Canary's lead-time rule, the bank was first flagged in the quarter ending 2023-06-30, a lead time of 4 quarters before the failure.
+With hindsight, Republic Bank failed on 2024-04-26. Canary first flagged it in the quarter ending 2023-06-30 under its lead-time rule, a lead time of 4 quarters before the failure. At that first flag, the top factors raising the score were losses on bonds available for sale at 134.7% of equity, return on equity at -30.3%, and equity at 2.1% of assets.
 
-At that first flag on 2023-06-30, the top factors pushing the score up were losses on bonds available for sale at 134.7% of equity (+1.306) and return on equity at -30.3% (+1.044). Thin equity at 2.1% of assets (+0.233) and a total risk-based capital ratio of 9.9% (+0.129) added to the score as well. As in later quarters, low problem-loan levels pulled the score down, led by nonaccrual assets and foreclosed property at 0.4% of assets (-0.715).
+The same themes of bond losses, losses on the income statement and thin capital still led the drivers at 2023-12-31, when the bank was not on the watchlist despite the earlier flag.
 
 ## What happened next
 
-In hindsight, the last quarter Republic Bank reported its financial data was 2023-12-31, the same as this memo's as-of quarter. It then stopped reporting; our data does not by itself distinguish a merger from a closure, but the fact sheet records a failure date of 2024-04-26. Because it stopped reporting, there are no later ranks or flags after the as-of quarter.
+In hindsight, the last quarter the bank reported was 2023-12-31, so there are no later ranks or flags. The bank failed on 2024-04-26.
 
 ## Sources
 
+- F1 · Bank name · n/a · Republic Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2023-12-31 · 2023-12-31 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · PA · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2023-12-31 · 135 · data/analyst/scores.parquet: rank
@@ -144,21 +145,28 @@ In hindsight, the last quarter Republic Bank reported its financial data was 202
 - F14 · National median: equity as a share of assets · 2023-12-31 · 9.5% · data/features/fct_bank_features.parquet: equity_to_assets (median of all banks)
 - F15 · Bank: the leverage ratio (core capital as a share of average assets) · 2023-12-31 · 4.4% · data/features/fct_bank_features.parquet: leverage_ratio
 - F16 · National median: the leverage ratio (core capital as a share of average assets) · 2023-12-31 · 10.6% · data/features/fct_bank_features.parquet: leverage_ratio (median of all banks)
+- F17 · Bank: the Tier 1 risk-based capital ratio · 2023-12-31 · 8.8% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F18 · National median: the Tier 1 risk-based capital ratio · 2023-12-31 · 14.1% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio (median of all banks)
 - F19 · Bank: the total risk-based capital ratio · 2023-12-31 · 9.6% · data/features/fct_bank_features.parquet: total_risk_based_ratio
 - F20 · National median: the total risk-based capital ratio · 2023-12-31 · 15.3% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2023-12-31 · 0.7% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2023-12-31 · 0.3% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F35 · Bank: commercial real estate loans as a share of loans · 2023-12-31 · 42.7% · data/features/fct_bank_features.parquet: cre_loans_to_loans
 - F36 · National median: commercial real estate loans as a share of loans · 2023-12-31 · 23.2% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
-- F39 · Bank: return on assets (profit as a share of assets) · 2023-12-31 · -0.7% · data/features/fct_bank_features.parquet: return_on_assets
-- F40 · National median: return on assets (profit as a share of assets) · 2023-12-31 · 1.0% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
+- F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2023-12-31 · 16.4% · data/features/fct_bank_features.parquet: texas_ratio
+- F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2023-12-31 · 1.8% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2023-12-31 · -36.6% · data/features/fct_bank_features.parquet: return_on_equity
+- F42 · National median: return on equity (profit as a share of equity) · 2023-12-31 · 10.8% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
 - F43 · Bank: net interest margin (the spread earned on lending and investing) · 2023-12-31 · 1.2% · data/features/fct_bank_features.parquet: net_interest_margin
 - F44 · National median: net interest margin (the spread earned on lending and investing) · 2023-12-31 · 3.4% · data/features/fct_bank_features.parquet: net_interest_margin (median of all banks)
+- F47 · Bank: annualized interest expense as a share of assets · 2023-12-31 · 2.6% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F48 · National median: annualized interest expense as a share of assets · 2023-12-31 · 1.2% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2023-12-31 · 51.5% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2023-12-31 · 23.9% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F57 · Bank: Federal Home Loan Bank borrowings as a share of assets · 2023-12-31 · 11.9% · data/features/fct_bank_features.parquet: fhlb_to_assets
 - F58 · National median: Federal Home Loan Bank borrowings as a share of assets · 2023-12-31 · 1.0% · data/features/fct_bank_features.parquet: fhlb_to_assets (median of all banks)
+- F61 · Bank: cash as a share of assets · 2023-12-31 · 3.5% · data/features/fct_bank_features.parquet: cash_to_assets
+- F62 · National median: cash as a share of assets · 2023-12-31 · 5.6% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F63 · Bank: losses on bonds held to maturity, as a share of equity · 2023-12-31 · 250.7% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
 - F64 · National median: losses on bonds held to maturity, as a share of equity · 2023-12-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2023-12-31 · 155.9% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
@@ -183,8 +191,6 @@ In hindsight, the last quarter Republic Bank reported its financial data was 202
 - F88 · Driver up #1 at 2023-06-30: losses on bonds available for sale, as a share of equity, value 134.7%; contribution to the score · 2023-06-30 · +1.306 · data/analyst/scores.parquet: feature afs_unrealized_loss_to_equity contribution
 - F89 · Driver up #2 at 2023-06-30: return on equity (profit as a share of equity), value -30.3%; contribution to the score · 2023-06-30 · +1.044 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F90 · Driver up #3 at 2023-06-30: equity as a share of assets, value 2.1%; contribution to the score · 2023-06-30 · +0.233 · data/analyst/scores.parquet: feature equity_to_assets contribution
-- F91 · Driver up #4 at 2023-06-30: the total risk-based capital ratio, value 9.9%; contribution to the score · 2023-06-30 · +0.129 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
-- F93 · Driver down #1 at 2023-06-30: nonaccrual assets and foreclosed property, as a share of assets, value 0.4%; contribution to the score · 2023-06-30 · -0.715 · data/analyst/scores.parquet: feature nonaccrual_ore_to_assets contribution
 - F98 · Last quarter the bank reported · 2023-12-31 · 2023-12-31 · data/features/fct_bank_features.parquet: report_date
 - F103 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2023-12-31 · -36.6% · data/features/fct_bank_features.parquet: return_on_equity
 - F104 · Trend: return on equity (profit as a share of equity), lowest value in the comparison window · n/a · 2.8% · data/features/fct_bank_features.parquet: return_on_equity
@@ -218,6 +224,7 @@ In hindsight, the last quarter Republic Bank reported its financial data was 202
 - F138 · Trend: uninsured deposits as a share of deposits, contribution to the score (model log-odds units) · 2023-12-31 · -0.012 · data/analyst/scores.parquet: feature uninsured_to_deposits contribution
 - F139 · Trend: uninsured deposits as a share of deposits, what the model did with it · 2023-12-31 · little effect on the score · data/analyst/scores.parquet: feature uninsured_to_deposits contribution
 - F140 · Trend: ratios outside their own prior range · 2023-12-31 · 13 · data/features/fct_bank_features.parquet
+- F141 · Trend: ratios shown in the table (the furthest outside their prior range) · 2023-12-31 · 6 · data/features/fct_bank_features.parquet
 - F142 · Trend: ratios compared with their own prior range · 2023-12-31 · 30 · data/features/fct_bank_features.parquet
 - F143 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F144 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)

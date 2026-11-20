@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: true
 failure_date: 2026-07-10
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:07:49"
+written_at: "2026-11-19T21:15:20"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -22,23 +22,21 @@ checked: true
 
 ## Summary
 
-Kentland Fs&La, a small bank in IN with total assets of $3.7 million, ranked 1 out of 4,353 banks nationally on Canary's risk score as of 2026-03-31, which puts it in the 100.0th percentile. That places it on Canary's watchlist, which covers the riskiest 2% of banks, or 88 banks that quarter. Its capital cushion is very thin, with equity (the owners' stake) at 1.8% of assets against a national median of 10.4%. It is also losing money, with a return on assets (profit as a share of assets) of -4.8% against a national median of 1.2%.
+Kentland Fs&La, a bank in IN with total assets of $3.7 million, ranked 1 out of 4,353 banks on Canary's risk score as of 2026-03-31, placing it in the 100.0th percentile, where 100 means the highest risk. It is on the watchlist, which covers the top 2% of banks, and its capital cushion is far thinner than at most banks, with equity at 1.8% of assets against a national median of 10.4%. It also carries a heavy load of troubled loans and is losing money, with return on equity (profit as a share of the owners' stake) of -201.1% against a national median of 11.2%.
 
 ## Warning signs in the data
 
-Capital, the money that absorbs losses before depositors are hurt, is far below normal levels. Equity was 1.8% of assets against a national median of 10.4%, and the leverage ratio (core capital as a share of average assets) was 1.7% against a median of 10.9%. The Tier 1 risk-based capital ratio (core capital measured against riskier assets) was 2.9% against a median of 14.5%, and the total risk-based capital ratio was 4.2% against a median of 15.7%.
+Capital, the owners' cushion that absorbs losses, is the clearest weak spot: equity was 1.8% of assets against a national median of 10.4%, and the leverage ratio (core capital as a share of average assets) was 1.7% against 10.9%. The risk-based capital ratios, which weigh assets by how likely they are to lose value, were also far below normal, with Tier 1 at 2.9% against a median of 14.5% and total capital at 4.2% against 15.7%. Earnings were deeply negative, with return on assets (profit as a share of assets) at -4.8% against a median of 1.2%, and the efficiency ratio (operating costs as a share of revenue) at 305.0% against 63.1%.
 
-Credit quality, meaning how well borrowers are repaying, is weak. Seriously overdue loans or loans no longer earning interest were 6.3% of loans against a national median of 0.5%. Loans in the early stages of being overdue were 2.5% of assets against a median of 0.3%. Nonaccrual assets and foreclosed property were 5.9% of assets against a median of 0.3%, and the Texas ratio (troubled assets against capital plus reserves) was 217.8% against a median of 2.9%. Loan-loss reserves, money set aside for expected bad loans, were 1.0% of loans, slightly below the median of 1.2%. Earnings are deeply negative, with return on equity at -201.1% against a median of 11.2% and the efficiency ratio (operating costs as a share of revenue) at 305.0% against a median of 63.1%.
+Credit quality was poor: seriously overdue loans or loans no longer paying interest were 6.3% of loans against a national median of 0.5%, and loans in earlier stages of lateness were 2.5% of assets against 0.3%. Nonaccrual assets and foreclosed property were 5.9% of assets against a median of 0.3%, and the Texas ratio (troubled assets measured against capital plus loss reserves) was 217.8% against 2.9%. Loan-loss reserves, money set aside for bad loans, were 1.0% of loans, slightly below the median of 1.2%.
 
-Funding looks more stable than the rest of the picture: uninsured deposits were only 2.8% of deposits against a national median of 24.4%, and core deposits (steady, everyday deposits) were 88.7% of assets against a median of 75.8%. Cash was 5.5% of assets, somewhat below the median of 6.9%, and loans were 94.6% of deposits against a median of 79.1%. The bank showed no unrealized losses on its bonds, at 0.0% of equity for bonds available for sale against a median of 5.8%.
+Funding points the other way and looks fairly steady: uninsured deposits were only 2.8% of deposits against a median of 24.4%, core deposits (stable everyday deposits) were 88.7% of assets against 75.8%, and brokered deposits were 0.0%, matching the median. The bank did lend out more of its deposits than most, at 94.6% against a median of 79.1%, and held slightly less cash, at 5.5% of assets against 6.9%. Bond losses were not a concern, with losses on bonds available for sale at 0.0% of equity against a national median of 5.8%.
 
 ## Understanding the score
 
-As of 2026-03-31, the bank ranked 1 out of 4,353 banks, the 100.0th percentile on a scale from 0 to 100 where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks by score, 88 banks that quarter.
+Kentland Fs&La ranked 1 out of 4,353 banks as of 2026-03-31, the 100.0th percentile, with a raw model score of 0.9985. It was flagged as one of 88 banks on the watchlist that quarter, a list that holds the top 2% of banks by score.
 
-Five factors pushed the score up the most. The largest were the Tier 1 risk-based capital ratio at 2.9%, contributing +1.457, and return on equity at -201.1%, contributing +1.409. Next came the Texas ratio at 217.8%, contributing +0.921, the leverage ratio at 1.7%, contributing +0.562, and the total risk-based capital ratio at 4.2%, contributing +0.460.
-
-Five factors pulled the score down, all by small amounts. These were loan-loss reserves at 1.0% of loans, contributing -0.143, cash at 5.5% of assets, contributing -0.063, and brokered deposits (deposits placed through middlemen) at 0.0% of deposits, contributing -0.056. Net loan write-offs at 0.0% of loans contributed -0.049, and construction loans at 0.0% of loans contributed -0.032.
+The five factors pushing the score up most were the Tier 1 risk-based capital ratio at 2.9% (contribution +1.457), return on equity at -201.1% (+1.409), the Texas ratio at 217.8% (+0.921), the leverage ratio at 1.7% (+0.562), and the total risk-based capital ratio at 4.2% (+0.460). The five factors pulling it down were small by comparison: loan-loss reserves at 1.0% of loans (-0.143), cash at 5.5% of assets (-0.063), brokered deposits at 0.0% of deposits (-0.056), net loan write-offs at 0.0% of loans (-0.049), and construction loans at 0.0% of loans (-0.032).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -59,11 +57,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-The bank ranked 1 out of 4,353 at 2026-03-31, and its percentile a year earlier was already 100.0%, so the model rated it about the same as a year earlier. Of 27 ratios compared with their own prior range, mostly the prior 12 quarters, 7 sat outside that range.
+Kentland Fs&La ranked 1 out of 4,353 banks on the model's score, placing it in the 100.0th percentile, where 100 means the highest risk. A year earlier it was also at the 100.0% percentile, and the model rates it about the same as a year earlier. Each ratio is compared with its own history, mostly the prior 12 quarters, and 7 of the 27 ratios checked sat outside that prior range, with the 6 furthest outside covered here.
 
-Return on equity was -201.1%, far below its prior range of -82.3% to -8.0%, and it pushed the score up with a contribution of +1.409. The Texas ratio was 217.8%, above its prior range of 0.0% to 154.9% after rising +62.9 pp in one quarter, and it pushed the score up by +0.921. The leverage ratio was 1.7%, below its prior range of 3.0% to 12.9%, and it pushed the score up by +0.562. Equity as a share of assets was 1.8%, below its prior range of 2.9% to 12.9%, and it pushed the score up by +0.251.
+Return on equity (profit as a share of the owners' stake) was -201.1%, far below its prior range of -82.3% to -8.0%, and it contributed +1.409 model log-odds units (the model's internal scoring scale), which pushed the score up. The Texas ratio (troubled assets measured against capital plus loss reserves) reached 217.8%, above its prior range of 0.0% to 154.9%, and contributed +0.921, which pushed the score up. The leverage ratio (core capital as a share of average assets) fell to 1.7%, below its prior range of 3.0% to 12.9%, and contributed +0.562, which pushed the score up. Equity as a share of assets dropped to 1.8%, below its prior range of 2.9% to 12.9%, and contributed +0.251, which pushed the score up.
 
-Cash as a share of assets was 5.5%, below its prior range of 6.0% to 12.9%, yet it pushed the score down, with a contribution of -0.063. Provision for loan losses was 0.4% of assets, above its prior range of 0.0% to 0.0%, but it had little effect on the score, with a contribution of -0.018.
+Two ratios outside their ranges did not add to the score. The provision for loan losses (money set aside for expected bad loans) was 0.4% of assets, above its prior range of 0.0% to 0.0%, yet its contribution of -0.018 had little effect on the score. Cash as a share of assets was 5.5%, below its prior range of 6.0% to 12.9%, but its contribution of -0.063 pushed the score down.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -84,11 +82,11 @@ The FDIC's specialty group for this bank at 2026-03-31: Mortgage Lending Special
 
 Peers: 75 banks in the same specialty group and size tier (under $100 million).
 
-The Tier 1 risk-based capital ratio was 2.9%, in the 0.1st percentile nationally, which is unusually low, and in the 1.4th percentile among peers against a peer median of 22.5%, unusually low among its peers too. The total risk-based capital ratio was 4.2%, in the 0.1st percentile nationally, unusually low, and in the 1.4th percentile among peers against a peer median of 23.4%, unusually low among its peers too. The leverage ratio was 1.7%, in the 0.4th percentile nationally, unusually low, and in the 0.7th percentile among peers against a peer median of 14.2%, unusually low among its peers too. Equity as a share of assets was 1.8%, in the 0.6th percentile nationally, unusually low, and in the 0.7th percentile among peers against a peer median of 14.0%, unusually low among its peers too.
+Its return on equity (profit as a share of the owners' stake) was -201.1%, at the 0.0th percentile nationally, which is unusually low; against a peer median of 1.7%, it sits at the 0.7th percentile among peers, unusually low among its peers too. Its efficiency ratio (operating costs as a share of revenue) was 305.0%, at the 99.7th percentile nationally, which is unusually high; against a peer median of 87.6%, it sits at the 99.3rd percentile among peers, unusually high among its peers too.
 
-Return on equity was -201.1%, in the 0.0th percentile nationally, unusually low, and in the 0.7th percentile among peers against a peer median of 1.7%, unusually low among its peers too. The Texas ratio was 217.8%, in the 99.9th percentile nationally, unusually high, and in the 99.3rd percentile among peers against a peer median of 1.7%, unusually high among its peers too. Nonaccrual assets and foreclosed property were 5.9% of assets, in the 99.5th percentile nationally, unusually high, and in the 99.3rd percentile among peers against a peer median of 0.2%, unusually high among its peers too. The efficiency ratio was 305.0%, in the 99.7th percentile nationally, unusually high, and in the 99.3rd percentile among peers against a peer median of 87.6%, unusually high among its peers too.
+Its total risk-based capital ratio (capital measured against assets weighted by how likely they are to lose value) was 4.2%, at the 0.1st percentile nationally, which is unusually low; against a peer median of 23.4%, it sits at the 1.4th percentile among peers, unusually low among its peers too. Its Tier 1 risk-based capital ratio (the same measure using only core capital, the highest-quality cushion) was 2.9%, at the 0.1st percentile nationally, which is unusually low; against a peer median of 22.5%, it sits at the 1.4th percentile among peers, unusually low among its peers too. Its leverage ratio (core capital as a share of average assets) was 1.7%, at the 0.4th percentile nationally, which is unusually low; against a peer median of 14.2%, it sits at the 0.7th percentile among peers, unusually low among its peers too. Its equity as a share of assets was 1.8%, at the 0.6th percentile nationally, which is unusually low; against a peer median of 14.0%, it sits at the 0.7th percentile among peers, unusually low among its peers too.
 
-Overall, 19 of the bank's ratios fell in the national top or bottom 10%, and 14 of those were also unusual among its peers.
+Its nonaccrual assets and foreclosed property (loans that have stopped paying interest plus repossessed property) were 5.9% of assets, at the 99.5th percentile nationally, which is unusually high; against a peer median of 0.2%, it sits at the 99.3rd percentile among peers, unusually high among its peers too. Its Texas ratio (troubled assets against capital plus reserves set aside for loan losses) was 217.8%, at the 99.9th percentile nationally, which is unusually high; against a peer median of 1.7%, it sits at the 99.3rd percentile among peers, unusually high among its peers too. Overall, 19 of its ratios fall in the national top or bottom 10%, and 14 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -123,23 +121,25 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, Canary first flagged this bank at 2025-09-30, and the bank failed on 2026-07-10, a lead time of 4 quarters. At that first flag, the main factors pushing the score up were return on equity at -154.3%, contributing +1.328, and the Texas ratio at 130.8%, contributing +0.806. Also pushing the score up then were the Tier 1 risk-based capital ratio at 7.5%, contributing +0.573, seriously overdue or non-interest-earning loans at 7.6% of loans, contributing +0.396, and interest expense at 3.6% of assets, contributing +0.358.
+In hindsight, Canary first flagged the bank in the quarter ending 2025-09-30, and the bank failed on 2026-07-10, giving a lead time of 4 quarters. This counts as a catch, though the failure came after the model's test window.
+
+At that first flag, the main drivers were return on equity at -154.3% (+1.328), the Texas ratio at 130.8% (+0.806), and the Tier 1 risk-based capital ratio at 7.5% (+0.573). Seriously overdue or non-interest-paying loans at 7.6% of loans (+0.396) and interest expense at 3.6% of assets (+0.358) also pushed the score up.
 
 *After the test window: not part of the reported 2016-2024 results.*
 
 ## What happened next
 
-In hindsight, the bank's last reported quarter was 2026-03-31, the same quarter this memo describes. The bank failed on 2026-07-10, so no later ranks are available.
+In hindsight, the last quarter the bank reported was 2026-03-31, the same quarter as this memo. The bank failed on 2026-07-10, so no later ranks or flags exist for it.
 
 ## Sources
 
 - F1 · Bank name · n/a · Kentland Fs&La · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2026-03-31 · 2026-03-31 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · IN · data/raw/financials: STALP
+- F5 · Model score · 2026-03-31 · 0.9985 · data/analyst/scores.parquet: score
 - F6 · National rank (1 = highest score) · 2026-03-31 · 1 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2026-03-31 · 4,353 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2026-03-31 · 100.0% · data/analyst/scores.parquet: percentile
-- F9 · Percentile scale (0 to 100; higher means riskier) · n/a · 0 to 100 · canary.analyst.facts: percentile scale (fixed)
 - F10 · On the watchlist · 2026-03-31 · flagged · data/analyst/scores.parquet: flagged
 - F11 · Watchlist share of banks · n/a · 2% · canary.model.metrics.WATCHLIST_SHARE
 - F12 · Banks on the watchlist that quarter · 2026-03-31 · 88 · data/analyst/scores.parquet: flagged
@@ -171,6 +171,8 @@ In hindsight, the bank's last reported quarter was 2026-03-31, the same quarter 
 - F50 · National median: loans as a share of deposits · 2026-03-31 · 79.1% · data/features/fct_bank_features.parquet: loans_to_deposits (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2026-03-31 · 2.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2026-03-31 · 24.4% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
+- F53 · Bank: brokered deposits as a share of deposits · 2026-03-31 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits
+- F54 · National median: brokered deposits as a share of deposits · 2026-03-31 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F55 · Bank: core deposits as a share of assets · 2026-03-31 · 88.7% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F56 · National median: core deposits as a share of assets · 2026-03-31 · 75.8% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
 - F61 · Bank: cash as a share of assets · 2026-03-31 · 5.5% · data/features/fct_bank_features.parquet: cash_to_assets
@@ -210,7 +212,6 @@ In hindsight, the bank's last reported quarter was 2026-03-31, the same quarter 
 - F111 · Trend: the Texas ratio (troubled assets against capital plus reserves), value at the as-of quarter · 2026-03-31 · 217.8% · data/features/fct_bank_features.parquet: texas_ratio
 - F112 · Trend: the Texas ratio (troubled assets against capital plus reserves), lowest value in the comparison window · n/a · 0.0% · data/features/fct_bank_features.parquet: texas_ratio
 - F113 · Trend: the Texas ratio (troubled assets against capital plus reserves), highest value in the comparison window · n/a · 154.9% · data/features/fct_bank_features.parquet: texas_ratio
-- F114 · Trend: the Texas ratio (troubled assets against capital plus reserves), change over one quarter, in percentage points · 2026-03-31 · +62.9 pp · data/features/fct_bank_features.parquet: texas_ratio
 - F116 · Trend: the Texas ratio (troubled assets against capital plus reserves), contribution to the score (model log-odds units) · 2026-03-31 · +0.921 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F117 · Trend: the Texas ratio (troubled assets against capital plus reserves), what the model did with it · 2026-03-31 · pushed the score up · data/analyst/scores.parquet: feature texas_ratio contribution
 - F118 · Trend: the leverage ratio (core capital as a share of average assets), value at the as-of quarter · 2026-03-31 · 1.7% · data/features/fct_bank_features.parquet: leverage_ratio
@@ -229,6 +230,7 @@ In hindsight, the bank's last reported quarter was 2026-03-31, the same quarter 
 - F137 · Trend: cash as a share of assets, contribution to the score (model log-odds units) · 2026-03-31 · -0.063 · data/analyst/scores.parquet: feature cash_to_assets contribution
 - F138 · Trend: cash as a share of assets, what the model did with it · 2026-03-31 · pushed the score down · data/analyst/scores.parquet: feature cash_to_assets contribution
 - F139 · Trend: ratios outside their own prior range · 2026-03-31 · 7 · data/features/fct_bank_features.parquet
+- F140 · Trend: ratios shown in the table (the furthest outside their prior range) · 2026-03-31 · 6 · data/features/fct_bank_features.parquet
 - F141 · Trend: ratios compared with their own prior range · 2026-03-31 · 27 · data/features/fct_bank_features.parquet
 - F142 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F144 · Percentile a year earlier (100 = highest risk) · 2025-03-31 · 100.0% · data/analyst/scores.parquet: percentile

@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:07:50"
+written_at: "2026-11-19T21:16:01"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-Nano Banc, a California bank with FDIC certificate 58590, ranked 3 out of 4,313 banks on Canary's score as of 2026-06-30, which puts it in the 100.0th percentile, where higher means riskier. That places it on Canary's watchlist, which covers about 2% of banks. The largest pressures on the score are troubled loans and a thin capital cushion. Its Texas ratio, which compares troubled assets with capital plus reserves, is 209.8% against a national median of 2.9%, and its Tier 1 risk-based capital ratio, a core-capital buffer measured against risk-weighted assets, is 7.8% against a national median of 14.6%.
+As of 2026-06-30, Canary's model ranked Nano Banc, a California bank, 3 out of 4,313 FDIC-insured banks, placing it in the 100.0th percentile, where higher means riskier. That puts it on Canary's watchlist, which covers the riskiest 2% of banks. The biggest reasons are a Texas ratio (troubled assets measured against capital plus loss reserves) of 209.8% and loans 90+ days past due or not accruing interest equal to 25.7% of loans, both far above the national median. Its capital cushion is also thin, with a Tier 1 risk-based capital ratio of 7.8% against a national median of 14.6%.
 
 ## Warning signs in the data
 
-Capital is the money owners have at stake to absorb losses, and Nano Banc has much less of it than most banks. Its equity is 5.3% of assets, against a national median of 10.6%. Its leverage ratio (core capital as a share of average assets) is 5.0%, against a median of 11.0%. Its Tier 1 risk-based capital ratio is 7.8%, against a median of 14.6%. Its total risk-based capital ratio is 9.1%, against a median of 15.8%.
+Capital, the bank's own money that absorbs losses, is well below typical levels: equity was 5.3% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 5.0% against 11.0%. Its Tier 1 risk-based capital ratio was 7.8% and its total risk-based capital ratio was 9.1%, against national medians of 14.6% and 15.8%.
 
-Credit quality, meaning how well borrowers are repaying, stands far outside the norm. Loans 90+ days past due or no longer accruing interest make up 25.7% of loans, against a national median of 0.5%. Nonaccrual assets and foreclosed property make up 16.7% of assets, against a median of 0.3%. Loans 30-89 days past due equal 5.6% of assets, against a median of 0.2%. The Texas ratio is 209.8%, against a median of 2.9%. Loan write-offs run at 3.3% of loans, against a median of 0.0%, and the provision (money set aside for expected loan losses) is 3.9% of assets, against a median of 0.1%. The bank is also losing money: return on assets is -0.5%, against a median of 1.2%, and return on equity is -10.9%, against a median of 11.6%.
+Credit quality is the sharpest problem: loans 90+ days past due or not accruing interest were 25.7% of loans against a national median of 0.5%, and nonaccrual assets plus foreclosed property were 16.7% of assets against 0.3%. Loans 30-89 days past due, an early sign of trouble, were 5.6% of assets against a median of 0.2%, and the Texas ratio was 209.8% against 2.9%. The bank is recognizing these losses: net loan write-offs ran at an annualized 3.3% of loans against a median of 0.0%, provisions for loan losses at 3.9% of assets against 0.1%, and reserves for bad loans stood at 4.2% of loans against 1.2%. It was losing money, with return on assets of -0.5% against a median of 1.2% and return on equity of -10.9% against 11.6%, and its net interest margin (the spread earned on lending and investing) was 2.2% against 3.9%.
 
-On funding, uninsured deposits (balances above the deposit-insurance limit) make up 56.9% of deposits, against a national median of 24.8%. Brokered deposits, which are placed through middlemen, make up 22.8% of deposits, against a median of 0.0%. Deposits shrank by -14.8% over the past four quarters, against a median of 4.2%, and assets shrank by -20.9%, against a median of 4.5%. On the cushion side, cash is 27.3% of assets, against a median of 6.2%. Unrealized losses on bonds available for sale equal 2.4% of equity, below the median of 5.6%, and losses on bonds held to maturity are 0.0%, in line with the median of 0.0%.
+On funding, uninsured deposits (balances above the FDIC insurance limit) were 56.9% of deposits against a national median of 24.8%, brokered deposits (money placed through middlemen) were 22.8% against 0.0%, and deposits shrank -14.8% over the past four quarters against median growth of 4.2%. Pointing the other way, cash was 27.3% of assets against a median of 6.2%, and volatile funding was 4.3% of assets against 9.0%, which gives the bank more ready liquidity than most. Unrealized losses on bonds were not a concern: 2.4% of equity on bonds available for sale against a median of 5.6%, and 0.0% on bonds held to maturity, matching the median of 0.0%. The separate real-estate concentration check found that the bank did not cross either of the regulators' screening lines, so the stress here comes mainly from troubled loans and thin capital rather than a flagged real estate concentration.
 
 ## Understanding the score
 
-As of 2026-06-30, Nano Banc ranked 3 of 4,313 banks nationally, in the 100.0th percentile on a 0 to 100 scale where higher means riskier. It is flagged on the watchlist, which held 87 banks that quarter, about 2% of the total.
+Nano Banc ranked 3 out of 4,313 banks at 2026-06-30, in the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks and numbered 87 banks that quarter.
 
-Five features pushed the score up most. The Texas ratio, at 209.8%, added +1.216. Loans 90+ days past due or not accruing interest, at 25.7% of loans, added +0.867. The Tier 1 risk-based capital ratio, at 7.8%, added +0.575. Loans 30-89 days past due, at 5.6% of assets, added +0.378. Brokered deposits, at 22.8% of deposits, added +0.360.
+The five features that pushed the score up most were the Texas ratio at 209.8% with a contribution of +1.216, loans 90+ days past due or not accruing at 25.7% with +0.867, and the Tier 1 risk-based capital ratio at 7.8% with +0.575. Next came loans 30-89 days past due at 5.6% of assets with +0.378, and brokered deposits at 22.8% of deposits with +0.360.
 
-Five features pulled the score down most. Return on equity, at -10.9%, contributed -0.340, and construction loans, at 9.8% of loans, contributed -0.328. Deposit growth of -14.8% contributed -0.169, total assets of $736.2 million contributed -0.155, and volatile funding at 4.3% of assets contributed -0.077.
+The five features that pulled the score down most were return on equity at -10.9% with a contribution of -0.340, construction loans at 9.8% of loans with -0.328, and deposit growth over the past four quarters at -14.8% with -0.169. The last two were total assets of $736.2 million with -0.155, and volatile funding at 4.3% of assets with -0.077. Some of these downward pushes, such as negative profits and shrinking deposits, look counterintuitive, and they were small next to the upward pushes from bad loans and thin capital.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters; year-to-date ratios are compared with the same quarter in the prior 3 years. Of 30 ratios checked, 8 sat outside their own prior range, and the 6 furthest outside are discussed here. The bank now ranks 3 nationally, in the 100.0th percentile, up from the 97.3% percentile reading a year earlier, so the model rated it riskier than a year earlier.
+As of 2026-06-30, the model ranked Nano Banc 3 out of 4,313 banks nationally, placing it in the 100.0th percentile, where higher means riskier. A year earlier, on 2025-06-30, it sat in the 97.3rd percentile, so the model rated it riskier than a year earlier. Each ratio is compared with its own prior range, which for most ratios covers the prior 12 quarters. Of the 30 ratios compared this way, 8 sat outside their own prior range at 2026-06-30. Each ratio's contribution is shown in model log-odds units, where a positive number pushes the score up and a negative one pushes it down.
 
-The provision for loan losses reached 3.9% of assets, above its prior range of -0.1% to 1.4%, up +2.5 pp over four quarters, and its +0.167 contribution pushed the score up. Interest expense rose to 2.5% of assets, above its prior range of 1.3% to 1.7%, and its +0.262 contribution pushed the score up. The efficiency ratio (operating costs as a share of revenue) fell to -5.6%, far below its prior range of 71.5% to 178.0%, a change of -183.6 pp, and its +0.162 contribution pushed the score up. Asset growth over the past four quarters dropped to -20.9%, below its prior range of -13.8% to 11.1%, and its +0.061 contribution pushed the score up.
+The provision for loan losses (money set aside to cover expected bad loans) was an annualized 3.9% of assets, above its prior range of -0.1% to 1.4% and up +2.5 pp over four quarters, and it pushed the score up with a contribution of +0.167. Interest expense (what the bank pays to borrow money, including on deposits) was an annualized 2.5% of assets, above its prior range of 1.3% to 1.7% and up +0.9 pp over four quarters, and it pushed the score up with a contribution of +0.262. The efficiency ratio (operating costs as a share of revenue) read -5.6%, far below its prior range of 71.5% to 178.0% after a change of -183.6 pp over four quarters, and it pushed the score up with a contribution of +0.162. Asset growth over the past four quarters was -20.9%, below its prior range of -13.8% to 11.1%, and it pushed the score up with a contribution of +0.061.
 
-Net interest margin (the spread earned on lending and investing) fell to 2.2%, below its prior range of 3.7% to 5.0%, yet its +0.045 contribution had little effect on the score. Construction loans rose to 9.8% of loans, above their prior range of 4.2% to 8.4%, yet this ratio pushed the score down, with a contribution of -0.328.
+Net interest margin (the spread earned on lending and investing) fell to 2.2%, below its prior range of 3.7% to 5.0%, yet the model gave it little effect on the score, with a contribution of +0.045. Construction loans made up 9.8% of all loans, above their prior range of 4.2% to 8.4%, yet this ratio pushed the score down, with a contribution of -0.328.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,11 +83,11 @@ The FDIC's specialty group for this bank at 2026-06-30: Commercial Lending Speci
 
 Peers: 1444 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-Nano Banc's Texas ratio of 209.8% sits at the 99.9th percentile nationally, which is unusually high, and at the 100.0th percentile among its peers against a peer median of 3.0%, unusually high among its peers too. Its loans 90+ days past due or not accruing interest, at 25.7% of loans, sit at the 99.9th percentile nationally, unusually high, and at the 100.0th percentile among peers against a peer median of 0.4%, unusually high among its peers too. Its nonaccrual assets and foreclosed property, at 16.7% of assets, sit at the 100.0th percentile nationally, unusually high, and at the 100.0th percentile among peers against a peer median of 0.3%, unusually high among its peers too. Its loans 30-89 days past due, at 5.6% of assets, sit at the 99.9th percentile nationally, unusually high, and at the 99.8th percentile among peers against a peer median of 0.2%, unusually high among its peers too.
+Nano Banc's nonaccrual assets and foreclosed property (loans no longer collecting interest plus repossessed property) equal 16.7% of assets, at the 100.0th percentile nationally, which is unusually high, and at the 100.0th percentile among its peers against a peer median of 0.3%, which is unusually high among its peers too. Its Texas ratio (troubled assets measured against capital plus loss reserves) is 209.8%, at the 99.9th percentile nationally, which is unusually high, and at the 100.0th percentile among its peers against a peer median of 3.0%, which is unusually high among its peers too. Loans 90+ days past due or not accruing interest make up 25.7% of loans, at the 99.9th percentile nationally, which is unusually high, and at the 100.0th percentile among its peers against a peer median of 0.4%, which is unusually high among its peers too. Loans 30-89 days past due equal 5.6% of assets, at the 99.9th percentile nationally, which is unusually high, and at the 99.8th percentile among its peers against a peer median of 0.2%, which is unusually high among its peers too.
 
-Its total risk-based capital ratio of 9.1% sits at the 0.2nd percentile nationally, unusually low, and at the 0.1st percentile among peers against a peer median of 15.4%, unusually low among its peers too. Its Tier 1 risk-based capital ratio of 7.8% sits at the 0.2nd percentile nationally, unusually low, and at the 0.1st percentile among peers against a peer median of 14.3%, unusually low among its peers too. Its asset growth of -20.9% sits at the 0.4th percentile nationally, unusually low, and at the 0.1st percentile among peers against a peer median of 4.8%, unusually low among its peers too. Its efficiency ratio of -5.6% sits at the 0.0th percentile nationally, unusually low, and at the 0.0th percentile among peers against a peer median of 63.7%, unusually low among its peers too.
+The total risk-based capital ratio (the bank's capital cushion measured against its loans and other assets weighted by risk) is 9.1%, at the 0.2nd percentile nationally, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 15.4%, which is unusually low among its peers too. The Tier 1 risk-based capital ratio (the same measure using only the strongest form of capital) is 7.8%, at the 0.2nd percentile nationally, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 14.3%, which is unusually low among its peers too. Asset growth over the past four quarters is -20.9%, at the 0.4th percentile nationally, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 4.8%, which is unusually low among its peers too. The efficiency ratio (operating costs as a share of revenue) is -5.6%, at the 0.0th percentile nationally, which is unusually low, and at the 0.0th percentile among its peers against a peer median of 63.7%, which is unusually low among its peers too.
 
-Overall, 21 of the bank's ratios fall in the national top or bottom 10%, and all 21 of those are also unusual among its peers.
+Overall, 21 of the bank's ratios sit in the national top or bottom 10%, and all 21 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -123,16 +123,14 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it's on the watchlist
 
-With hindsight, this bank falls in the open-watchlist group: the model flagged it, and our data records no failure for it. The fact sheet holds no data from after the as-of quarter, so this memo cannot add any later evidence on why it remained flagged. The reasons for the flag are the ones described above for the as-of quarter: thin capital, very weak loan repayment and losses.
+Hindsight: this bank's outcome case is that it remains open and on the watchlist. The fact sheet contains no data from after the as-of quarter, so there is no later information here to explain or confirm the model's reading. The reasons it sits on the watchlist are therefore the ones described in the earlier sections: heavy troubled loans, thin capital and losses.
 
 ## What happened next
 
-In hindsight, the fact sheet includes no ranks, flags or reporting status from after the as-of quarter, so this memo cannot say how the bank's position changed. The score history table added alongside this memo shows whatever later quarters are available in our data.
+Hindsight: the fact sheet holds no later ranks, watchlist flags or reporting status for this bank after the as-of quarter. Whether it keeps reporting, and how its rank moves, will only be known once newer quarterly data is added.
 
 ## Sources
 
-- F1 · Bank name · n/a · Nano Banc · data/features/fct_bank_features.parquet: institution_name
-- F2 · Certificate number · n/a · 58590 · data/features/fct_bank_features.parquet: cert
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · CA · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2026-06-30 · 3 · data/analyst/scores.parquet: rank
@@ -156,6 +154,8 @@ In hindsight, the fact sheet includes no ranks, flags or reporting status from a
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 0.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
 - F25 · Bank: loans 30-89 days past due, as a share of assets · 2026-06-30 · 5.6% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
 - F26 · National median: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
+- F27 · Bank: loan-loss reserves as a share of loans · 2026-06-30 · 4.2% · data/features/fct_bank_features.parquet: allowance_to_loans
+- F28 · National median: loan-loss reserves as a share of loans · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F29 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2026-06-30 · 3.3% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F30 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
 - F31 · Bank: annualized provision for loan losses as a share of assets · 2026-06-30 · 3.9% · data/features/fct_bank_features.parquet: provision_to_assets_ann
@@ -166,18 +166,20 @@ In hindsight, the fact sheet includes no ranks, flags or reporting status from a
 - F40 · National median: return on assets (profit as a share of assets) · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2026-06-30 · -10.9% · data/features/fct_bank_features.parquet: return_on_equity
 - F42 · National median: return on equity (profit as a share of equity) · 2026-06-30 · 11.6% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
+- F43 · Bank: net interest margin (the spread earned on lending and investing) · 2026-06-30 · 2.2% · data/features/fct_bank_features.parquet: net_interest_margin
+- F44 · National median: net interest margin (the spread earned on lending and investing) · 2026-06-30 · 3.9% · data/features/fct_bank_features.parquet: net_interest_margin (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2026-06-30 · 56.9% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2026-06-30 · 24.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F53 · Bank: brokered deposits as a share of deposits · 2026-06-30 · 22.8% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F54 · National median: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
+- F59 · Bank: volatile funding as a share of assets · 2026-06-30 · 4.3% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
+- F60 · National median: volatile funding as a share of assets · 2026-06-30 · 9.0% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F61 · Bank: cash as a share of assets · 2026-06-30 · 27.3% · data/features/fct_bank_features.parquet: cash_to_assets
 - F62 · National median: cash as a share of assets · 2026-06-30 · 6.2% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F63 · Bank: losses on bonds held to maturity, as a share of equity · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
 - F64 · National median: losses on bonds held to maturity, as a share of equity · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2026-06-30 · 2.4% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2026-06-30 · 5.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
-- F71 · Bank: asset growth over the past four quarters · 2026-06-30 · -20.9% · data/features/fct_bank_features.parquet: asset_growth_4q
-- F72 · National median: asset growth over the past four quarters · 2026-06-30 · 4.5% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
 - F73 · Bank: deposit growth over the past four quarters · 2026-06-30 · -14.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F74 · National median: deposit growth over the past four quarters · 2026-06-30 · 4.2% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: the Texas ratio (troubled assets against capital plus reserves), value 209.8%; contribution to the score · 2026-06-30 · +1.216 · data/analyst/scores.parquet: feature texas_ratio contribution
@@ -204,6 +206,7 @@ In hindsight, the fact sheet includes no ranks, flags or reporting status from a
 - F97 · Trend: annualized interest expense as a share of assets, value at the as-of quarter · 2026-06-30 · 2.5% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F98 · Trend: annualized interest expense as a share of assets, lowest value in the comparison window · n/a · 1.3% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F99 · Trend: annualized interest expense as a share of assets, highest value in the comparison window · n/a · 1.7% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F100 · Trend: annualized interest expense as a share of assets, change over four quarters, in percentage points · 2026-06-30 · +0.9 pp · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F101 · Trend: annualized interest expense as a share of assets, contribution to the score (model log-odds units) · 2026-06-30 · +0.262 · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
 - F102 · Trend: annualized interest expense as a share of assets, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
 - F103 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2026-06-30 · -5.6% · data/features/fct_bank_features.parquet: efficiency_ratio
@@ -223,10 +226,8 @@ In hindsight, the fact sheet includes no ranks, flags or reporting status from a
 - F121 · Trend: asset growth over the past four quarters, contribution to the score (model log-odds units) · 2026-06-30 · +0.061 · data/analyst/scores.parquet: feature asset_growth_4q contribution
 - F122 · Trend: asset growth over the past four quarters, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature asset_growth_4q contribution
 - F123 · Trend: ratios outside their own prior range · 2026-06-30 · 8 · data/features/fct_bank_features.parquet
-- F124 · Trend: ratios shown in the table (the furthest outside their prior range) · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
 - F125 · Trend: ratios compared with their own prior range · 2026-06-30 · 30 · data/features/fct_bank_features.parquet
 - F126 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F127 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F128 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 97.3% · data/analyst/scores.parquet: percentile
 - F129 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · the model rated it riskier than a year earlier · data/analyst/scores.parquet: percentile
 - F133 · Peers: the efficiency ratio (operating costs as a share of revenue), bank value at the as-of quarter · 2026-06-30 · -5.6% · data/features/fct_bank_features.parquet: efficiency_ratio

@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2023-11-03
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:05:14"
+written_at: "2026-11-19T21:14:01"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2023-09-30, Citizens Bank, a small bank in Iowa (IA), ranked 1 out of 4,686 FDIC-insured banks on Canary's risk score, placing it in the 100.0th percentile. It was on Canary's watchlist, which covers the top 2% of banks by score. Its equity, the owners' cushion against losses, stood at -4.5% of assets against a national median of 9.1%, and its Tier 1 risk-based capital ratio, a core regulatory capital measure, was 0.0%. The bank was also losing money heavily, with a return on assets of -10.0% versus a national median of 1.0%.
+As of September 30, 2023, Canary's model ranked Citizens Bank, a $65.6 million bank in Iowa, 1 out of 4,686 FDIC-insured banks, the 100.0th percentile, where higher means riskier. Its capital, the owners' cushion that absorbs losses, had all but disappeared: equity was -4.5% of assets and its Tier 1 risk-based capital ratio (the highest-quality capital measured against risk-weighted assets) was 0.0%, against national medians of 9.1% and 14.2%. At the same time, bad loans were piling up, with net write-offs running at an annualized 15.1% of loans against a national median of 0.0%. It was on Canary's watchlist, which holds the riskiest 2% of banks.
 
 ## Warning signs in the data
 
-Capital, the money a bank's owners have at stake to absorb losses, was almost gone. Equity was -4.5% of assets, compared with a national median of 9.1%. The leverage ratio (core capital as a share of average assets) was 0.0% against a median of 10.6%, and the Tier 1 risk-based capital ratio was 0.0% against a median of 14.2%. The total risk-based capital ratio, a broader capital measure, was 1.3%, far below the national median of 15.4%.
+Capital was the clearest problem as of 2023-09-30. Equity (what would be left for the owners if all debts were paid) was -4.5% of assets, against a national median of 9.1%. The leverage ratio (core capital as a share of average assets) was 0.0% against a median of 10.6%, and the total risk-based capital ratio was 1.3% against a median of 15.4%. The Texas ratio (troubled assets against capital plus reserves) read -261.2% against a median of 2.0%; with capital below zero, this normally useful ratio stops being meaningful, so its low value is not a sign of strength.
 
-Credit quality, meaning how well borrowers were repaying, was poor. Loans 90 or more days past due or no longer earning interest made up 9.6% of loans, versus a national median of 0.3%. Annualized write-offs, loans the bank gave up on net of recoveries, were 15.1% of loans against a median of 0.0%, and the provision for loan losses, money set aside for expected bad loans, was 9.8% of assets against a median of 0.0%. Return on assets was -10.0%, well below the national median of 1.0%.
+Credit quality, meaning how well borrowers were repaying, was also far weaker than typical. Loans 90+ days past due or no longer earning interest were 9.6% of loans against a national median of 0.3%, and nonaccrual assets plus foreclosed property were 5.9% of assets against a median of 0.1%. Loans 30-89 days past due, an earlier stage of trouble, were 1.5% of assets against a median of 0.2%. The bank was setting aside an annualized 9.8% of assets for expected loan losses against a median of 0.0%, and return on assets (profit as a share of everything it holds) was -10.0% against a median of 1.0%.
 
-On funding, uninsured deposits (balances above the government insurance limit) were 34.5% of deposits versus a median of 23.6%, and volatile funding, money that can leave quickly, was 20.9% of assets versus 8.3%. Cash was 2.6% of assets, below the median of 5.4%, and deposits shrank by -9.2% over the past four quarters while the median bank's fell by -0.6%. Losses on bonds available for sale equaled -105.6% of equity against a national median of 19.9%, a figure that is hard to read on its own because the bank's equity was below zero.
+Funding showed some strain: uninsured deposits (balances above the government guarantee) were 34.5% of deposits against a median of 23.6%, volatile funding was 20.9% of assets against a median of 8.3%, and deposits shrank by -9.2% over the past four quarters against a median of -0.6%. Cash was 2.6% of assets, below the median of 5.4%, though core deposits, a steadier funding source, were 83.5% of assets, above the median of 77.3%. Securities made up 38.2% of assets against a median of 20.2%, and losses on bonds available for sale (bonds the bank can sell before maturity) read -105.6% of equity against a median of 19.9%, a figure that is hard to interpret when equity itself is negative. By contrast, the real-estate concentration check points the other way: commercial real estate loans were only 0.1% of loans against a median of 23.3%, and the bank did not cross either supervisory line, so its troubles lay elsewhere.
 
 ## Understanding the score
 
-As of 2023-09-30, Citizens Bank ranked 1 of 4,686 banks, in the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks and contained 94 banks that quarter.
+As of 2023-09-30, Citizens Bank ranked 1 out of 4,686 banks nationally, the 100.0th percentile on a 0 to 100 scale where higher means riskier. It was on the watchlist, one of 94 banks flagged that quarter, the riskiest 2% of the country.
 
-The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at 0.0% (+2.465), return on equity, profit as a share of equity, at -596.8% (+2.131), the total risk-based capital ratio at 1.3% (+0.728), the leverage ratio at 0.0% (+0.618), and equity as a share of assets at -4.5% (+0.390).
+Five features pushed the score up most. The strongest was the Tier 1 risk-based capital ratio at 0.0%, contributing +2.465, followed by return on equity (profit as a share of the owners' stake) at -596.8%, contributing +2.131. Next came the total risk-based capital ratio at 1.3%, contributing +0.728, the leverage ratio at 0.0%, contributing +0.618, and equity as a share of assets at -4.5%, contributing +0.390.
 
-The five factors that pulled the score down most were the Texas ratio, troubled assets measured against capital plus reserves, at -261.2% (-0.910), securities as a share of assets at 38.2% (-0.312), losses on bonds available for sale as a share of equity at -105.6% (-0.293), interest expense as a share of assets at 1.1% (-0.236), and deposit growth at -9.2% (-0.132). Several of these downward factors show negative values because the bank's equity was below zero, which flips the sign of ratios built on capital.
+Five features pulled the score down. The largest was the Texas ratio at -261.2%, contributing -0.910, then securities as a share of assets at 38.2%, contributing -0.312, and losses on bonds available for sale at -105.6% of equity, contributing -0.293. Interest expense at 1.1% of assets contributed -0.236, and deposit growth of -9.2% contributed -0.132. Several of these downward pushes come from ratios that turn negative only because capital is below zero, so they say little about real strength, and the upward drivers far outweighed them.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own prior range over the previous 12 quarters, or the same quarter in the prior 3 years for year-to-date ratios. Of 30 ratios compared, 17 were outside their own prior range at 2023-09-30. The bank ranked 1 of 4,686 at the 100.0th percentile, up from the 94.6th percentile at 2022-09-30, so the model rated it riskier than a year earlier.
+As of September 30, 2023, the model ranked Citizens Bank 1 out of 4,686 banks nationally, placing it in the 100.0th percentile, where higher means riskier. The model rated it riskier than a year earlier, when it sat in the 94.6th percentile. Of the 30 ratios compared with their own prior range, usually the prior 12 quarters, 17 were outside that range.
 
-Return on equity was -596.8%, far below its prior range of 11.9% to 23.8%, and at +2.131 model log-odds units it pushed the score up. That was a change of -620.6 pp over four quarters. Return on assets was -10.0% against a prior range of 1.0% to 1.4%, and at +0.116 it pushed the score up. The leverage ratio was 0.0% against a prior range of 7.5% to 8.8%, and at +0.618 it pushed the score up. Most of that drop came in one quarter, -8.3 pp, out of -8.2 pp over four quarters. The provision for loan losses was 9.8% of assets against a prior range of 0.0% to 0.5%, and at +0.200 it pushed the score up.
+Return on equity (profit as a share of the owners' stake) was -596.8%, far below its prior range of 11.9% to 23.8%, and its contribution of +2.131 model log-odds units pushed the score up. The leverage ratio (core capital as a share of average assets, a cushion against losses) stood at 0.0%, below its prior range of 7.5% to 8.8%, and its contribution of +0.618 pushed the score up. That leverage ratio fell by -8.3 pp over one quarter. Provisions for loan losses (money set aside for expected bad loans) ran at an annualized 9.8% of assets, above the prior range of 0.0% to 0.5%, and their contribution of +0.200 pushed the score up. Return on assets (profit as a share of everything the bank holds) was -10.0%, below its prior range of 1.0% to 1.4%, and its contribution of +0.116 pushed the score up.
 
-Some ratios far outside their range did not raise the score. The efficiency ratio, operating costs as a share of revenue, was 88.3% against a prior range of 61.9% to 62.6%, yet at -0.120 it pushed the score down. Net loan write-offs were 15.1% of loans against a prior range of 0.3% to 2.2%, yet at -0.026 they had little effect on the score.
+The efficiency ratio (operating costs as a share of revenue) was 88.3%, above its prior range of 61.9% to 62.6%, yet its contribution of -0.120 model log-odds units pushed the score down. Net loan write-offs (loans recorded as lost, minus recoveries) reached an annualized 15.1% of loans, well above the prior range of 0.3% to 2.2%, but with a contribution of -0.026 they had little effect on the score.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,11 +83,11 @@ The FDIC's specialty group for this bank at 2023-09-30: Agricultural Specializat
 
 Peers: 309 banks in the same specialty group and size tier (under $100 million).
 
-Citizens Bank ranked 1 of 4,686 banks nationally and is compared here with a peer group of 309 banks. Its return on equity was -596.8%, in the 0.0th percentile nationally, which is unusually low, and in the 0.2nd percentile among peers against a peer median of 10.6%, unusually low among its peers too. Its total risk-based capital ratio was 1.3%, in the 0.0th percentile nationally, which is unusually low, and in the 0.3rd percentile among peers against a peer median of 18.9%, unusually low among its peers too. Its Tier 1 risk-based capital ratio was 0.0%, in the 0.0th percentile nationally, which is unusually low, and in the 0.3rd percentile among peers against a peer median of 17.8%, unusually low among its peers too. Its equity as a share of assets was -4.5%, in the 0.2nd percentile nationally, which is unusually low, and in the 0.2nd percentile among peers against a peer median of 9.9%, unusually low among its peers too.
+As of 2023-09-30, Citizens Bank ranked 1 out of 4,686 banks nationally, the 100.0th percentile, where a higher percentile means a higher model score. Its return on equity (profit as a share of the owners' stake) was -596.8%, at the 0.0th percentile nationally, which is unusually low, and at the 0.2nd percentile among its peers against a peer median of 10.6%, which is unusually low among its peers too. Its total risk-based capital ratio (the owners' cushion against losses, measured against risk-weighted assets) was 1.3%, at the 0.0th percentile nationally, which is unusually low, and at the 0.3rd percentile among its peers against a peer median of 18.9%, which is unusually low among its peers too. Its Tier 1 risk-based capital ratio (the same cushion counting only the highest-quality capital) was 0.0%, at the 0.0th percentile nationally, which is unusually low, and at the 0.3rd percentile among its peers against a peer median of 17.8%, which is unusually low among its peers too. Its equity as a share of assets was -4.5%, at the 0.2nd percentile nationally, which is unusually low, and at the 0.2nd percentile among its peers against a peer median of 9.9%, which is unusually low among its peers too.
 
-Its provision for loan losses was 9.8% of assets, in the 100.0th percentile nationally, which is unusually high, and in the 99.8th percentile among peers against a peer median of 0.0%, unusually high among its peers too. Its net loan write-offs were 15.1% of loans, in the 99.9th percentile nationally, which is unusually high, and in the 99.8th percentile among peers against a peer median of 0.0%, unusually high among its peers too. Its nonaccrual assets and foreclosed property were 5.9% of assets, in the 99.8th percentile nationally, which is unusually high, and in the 99.8th percentile among peers against a peer median of 0.0%, unusually high among its peers too. Its Texas ratio was -261.2%, in the 0.1st percentile nationally, which is unusually low, and in the 0.2nd percentile among peers against a peer median of 0.9%, unusually low among its peers too.
+Its annualized provision for loan losses (money set aside for expected bad loans) was 9.8% of assets, at the 100.0th percentile nationally, which is unusually high, and at the 99.8th percentile among its peers against a peer median of 0.0%, which is unusually high among its peers too. Its annualized loan write-offs, net of recoveries (loans given up as uncollectible), were 15.1% of loans, at the 99.9th percentile nationally, which is unusually high, and at the 99.8th percentile among its peers against a peer median of 0.0%, which is unusually high among its peers too. Its nonaccrual assets and foreclosed property (loans no longer paying interest plus repossessed property) were 5.9% of assets, at the 99.8th percentile nationally, which is unusually high, and at the 99.8th percentile among its peers against a peer median of 0.0%, which is unusually high among its peers too. Its Texas ratio (troubled assets against capital plus reserves) was -261.2%, at the 0.1st percentile nationally, which is unusually low, and at the 0.2nd percentile among its peers against a peer median of 0.9%, which is unusually low among its peers too.
 
-Overall, 18 of the bank's ratios fell in the national top or bottom 10%, and 16 of those were also unusual among its peers.
+Overall, 18 of the bank's ratios fell in the national top or bottom 10%, and 16 of those were also unusual among its 309 peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -122,13 +122,13 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, Citizens Bank failed on 2023-11-03. Canary first flagged it in the quarter ending 2023-06-30, a lead time of 2 quarters before the failure.
+In hindsight, Citizens Bank failed on 2023-11-03, and Canary had first flagged it in the quarter ending 2023-06-30, a lead time of 2 quarters. At that first flag, the bank's capital still looked healthy on paper, with a Tier 1 risk-based capital ratio of 10.4% and return on equity of 16.9%, both of which actually pulled the score down.
 
-At 2023-06-30 the main factors raising the score were losses on bonds available for sale at 119.8% of equity (+1.104), the Texas ratio at 143.5% (+1.045), and loans 90+ days past due or not accruing interest at 9.7% of loans (+0.295). At that point capital still looked reasonable, with a Tier 1 risk-based capital ratio of 10.4% (-0.829) and return on equity of 16.9% (-0.685) pulling the score down.
+What raised the alarm in Q2 2023 were other signals: losses on bonds available for sale at 119.8% of equity, contributing +1.104, and a Texas ratio of 143.5%, contributing +1.045. Loans 90+ days past due or not accruing interest were already 9.7% of loans, contributing +0.295. In other words, looking back, the model spotted the bond losses and bad loans before they showed up as a collapse in capital.
 
 ## What happened next
 
-In hindsight, the last quarter Citizens Bank reported was 2023-09-30, the same quarter this memo describes. The bank failed on 2023-11-03, so no later ranks or flags exist for it.
+In hindsight, the bank failed on November 3, 2023. Its last reported quarter in our data is 2023-09-30, the same quarter this memo describes, so there are no later ranks or flags to show.
 
 ## Sources
 
@@ -152,20 +152,33 @@ In hindsight, the last quarter Citizens Bank reported was 2023-09-30, the same q
 - F20 · National median: the total risk-based capital ratio · 2023-09-30 · 15.4% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2023-09-30 · 9.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2023-09-30 · 0.3% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
+- F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2023-09-30 · 5.9% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2023-09-30 · 0.1% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
+- F25 · Bank: loans 30-89 days past due, as a share of assets · 2023-09-30 · 1.5% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
+- F26 · National median: loans 30-89 days past due, as a share of assets · 2023-09-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F29 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2023-09-30 · 15.1% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F30 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2023-09-30 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
 - F31 · Bank: annualized provision for loan losses as a share of assets · 2023-09-30 · 9.8% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F32 · National median: annualized provision for loan losses as a share of assets · 2023-09-30 · 0.0% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
+- F35 · Bank: commercial real estate loans as a share of loans · 2023-09-30 · 0.1% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F36 · National median: commercial real estate loans as a share of loans · 2023-09-30 · 23.3% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
+- F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2023-09-30 · -261.2% · data/features/fct_bank_features.parquet: texas_ratio
+- F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2023-09-30 · 2.0% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2023-09-30 · -10.0% · data/features/fct_bank_features.parquet: return_on_assets
 - F40 · National median: return on assets (profit as a share of assets) · 2023-09-30 · 1.0% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2023-09-30 · 34.5% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2023-09-30 · 23.6% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
+- F55 · Bank: core deposits as a share of assets · 2023-09-30 · 83.5% · data/features/fct_bank_features.parquet: core_deposits_to_assets
+- F56 · National median: core deposits as a share of assets · 2023-09-30 · 77.3% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
 - F59 · Bank: volatile funding as a share of assets · 2023-09-30 · 20.9% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F60 · National median: volatile funding as a share of assets · 2023-09-30 · 8.3% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F61 · Bank: cash as a share of assets · 2023-09-30 · 2.6% · data/features/fct_bank_features.parquet: cash_to_assets
 - F62 · National median: cash as a share of assets · 2023-09-30 · 5.4% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2023-09-30 · -105.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2023-09-30 · 19.9% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
+- F67 · Bank: securities as a share of assets · 2023-09-30 · 38.2% · data/features/fct_bank_features.parquet: securities_to_assets
+- F68 · National median: securities as a share of assets · 2023-09-30 · 20.2% · data/features/fct_bank_features.parquet: securities_to_assets (median of all banks)
+- F69 · Bank: total assets · 2023-09-30 · $65.6 million · data/features/fct_bank_features.parquet: log_total_assets
 - F73 · Bank: deposit growth over the past four quarters · 2023-09-30 · -9.2% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F74 · National median: deposit growth over the past four quarters · 2023-09-30 · -0.6% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: the Tier 1 risk-based capital ratio, value 0.0%; contribution to the score · 2023-09-30 · +2.465 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
@@ -190,7 +203,6 @@ In hindsight, the last quarter Citizens Bank reported was 2023-09-30, the same q
 - F99 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2023-09-30 · -596.8% · data/features/fct_bank_features.parquet: return_on_equity
 - F100 · Trend: return on equity (profit as a share of equity), lowest value in the comparison window · n/a · 11.9% · data/features/fct_bank_features.parquet: return_on_equity
 - F101 · Trend: return on equity (profit as a share of equity), highest value in the comparison window · n/a · 23.8% · data/features/fct_bank_features.parquet: return_on_equity
-- F102 · Trend: return on equity (profit as a share of equity), change over four quarters, in percentage points · 2023-09-30 · -620.6 pp · data/features/fct_bank_features.parquet: return_on_equity
 - F103 · Trend: return on equity (profit as a share of equity), contribution to the score (model log-odds units) · 2023-09-30 · +2.131 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F104 · Trend: return on equity (profit as a share of equity), what the model did with it · 2023-09-30 · pushed the score up · data/analyst/scores.parquet: feature return_on_equity contribution
 - F105 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2023-09-30 · 88.3% · data/features/fct_bank_features.parquet: efficiency_ratio
@@ -217,13 +229,11 @@ In hindsight, the last quarter Citizens Bank reported was 2023-09-30, the same q
 - F130 · Trend: the leverage ratio (core capital as a share of average assets), lowest value in the comparison window · n/a · 7.5% · data/features/fct_bank_features.parquet: leverage_ratio
 - F131 · Trend: the leverage ratio (core capital as a share of average assets), highest value in the comparison window · n/a · 8.8% · data/features/fct_bank_features.parquet: leverage_ratio
 - F132 · Trend: the leverage ratio (core capital as a share of average assets), change over one quarter, in percentage points · 2023-09-30 · -8.3 pp · data/features/fct_bank_features.parquet: leverage_ratio
-- F133 · Trend: the leverage ratio (core capital as a share of average assets), change over four quarters, in percentage points · 2023-09-30 · -8.2 pp · data/features/fct_bank_features.parquet: leverage_ratio
 - F134 · Trend: the leverage ratio (core capital as a share of average assets), contribution to the score (model log-odds units) · 2023-09-30 · +0.618 · data/analyst/scores.parquet: feature leverage_ratio contribution
 - F135 · Trend: the leverage ratio (core capital as a share of average assets), what the model did with it · 2023-09-30 · pushed the score up · data/analyst/scores.parquet: feature leverage_ratio contribution
 - F136 · Trend: ratios outside their own prior range · 2023-09-30 · 17 · data/features/fct_bank_features.parquet
 - F138 · Trend: ratios compared with their own prior range · 2023-09-30 · 30 · data/features/fct_bank_features.parquet
 - F139 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F140 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F141 · Percentile a year earlier (100 = highest risk) · 2022-09-30 · 94.6% · data/analyst/scores.parquet: percentile
 - F142 · Trend: how the model's rating compares with a year earlier · 2023-09-30 · the model rated it riskier than a year earlier · data/analyst/scores.parquet: percentile
 - F146 · Peers: return on equity (profit as a share of equity), bank value at the as-of quarter · 2023-09-30 · -596.8% · data/features/fct_bank_features.parquet: return_on_equity

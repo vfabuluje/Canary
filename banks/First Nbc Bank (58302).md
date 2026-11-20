@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2017-04-28
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:06:48"
+written_at: "2026-11-19T21:15:01"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,21 @@ checked: true
 
 ## Summary
 
-As of March 31, 2017, First Nbc Bank, based in Louisiana, ranked number 2 of 5,925 FDIC-insured banks on Canary's risk score, which puts it in the 100.0th percentile, the riskiest end of the scale. It was one of 119 banks on Canary's watchlist, which covers the top 2% of banks by score. Its equity, the owners' cushion that absorbs losses, was -3.4% of assets against a national median of 10.7%. Loans that were seriously late or no longer paying interest made up 22.0% of its loans, compared with a national median of 0.6%.
+As of 2017-03-31, First Nbc Bank of LA ranked 2 out of 5,925 FDIC-insured banks on Canary's risk score, placing it in the 100.0th percentile, and it was on the watchlist. Its capital, the owners' cushion against losses, was negative, with equity at -3.4% of assets against a national median of 10.7%, and 22.0% of its loans were 90+ days past due or no longer earning interest, against a national median of 0.6%. One measure points the other way: return on assets, profit as a share of assets, was 3.1%, well above the national median of 0.9%, and this pulled the score down even as the bank's assets shrank by -31.5% over the past four quarters.
 
 ## Warning signs in the data
 
-Capital, the money owners have at stake to absorb losses, was below zero on every measure: equity was -3.4% of assets versus a national median of 10.7%. The leverage ratio (core capital as a share of average assets) was -2.0% against a median of 10.5%. The Tier 1 risk-based capital ratio, which weighs assets by how risky they are, was -3.1% against a median of 15.1%, and the total risk-based capital ratio was -1.7% against 16.2%.
+Capital was the clearest problem: equity was -3.4% of assets against a national median of 10.7%, and the leverage ratio, core capital as a share of average assets, was -2.0% against a median of 10.5%. The risk-based measures, which weigh assets by how likely they are to lose value, were also negative, with the Tier 1 ratio at -3.1% against a median of 15.1% and the total ratio at -1.7% against a median of 16.2%. Because capital was negative, the real-estate concentration screens elsewhere in this note could not be checked at all.
 
-Credit quality, meaning how well borrowers were repaying, was very weak: loans 90+ days past due or not accruing interest were 22.0% of loans versus a national median of 0.6%. Nonaccrual assets and foreclosed property were 17.3% of assets against a median of 0.5%, and the Texas ratio (troubled assets against capital plus reserves) was 225.4% against 4.8%. Loan-loss reserves, money set aside for expected bad loans, were 14.3% of loans versus a median of 1.2%.
+Credit quality was very weak: loans 90+ days past due or not accruing interest were 22.0% of loans against a national median of 0.6%, and nonaccrual assets plus foreclosed property were 17.3% of assets against a median of 0.5%. The Texas ratio, troubled assets compared with capital plus reserves, was 225.4% against a national median of 4.8%, and loan-loss reserves, money set aside for expected bad loans, were 14.3% of loans against a median of 1.2%. Loans 30-89 days past due, an early sign of trouble, were 1.2% of assets against a median of 0.3%.
 
-On funding, uninsured deposits (balances above the government guarantee limit) were 45.5% of deposits versus a median of 17.3%, and volatile funding was 19.3% of assets versus 5.1%. Federal Home Loan Bank borrowings were 8.0% of assets against a median of 0.5%, and interest expense was 2.1% of assets against 0.4%. Assets shrank -31.5% and deposits -23.4% over the past four quarters, while the national medians grew 3.9% and 4.3%; cash was 18.6% of assets versus 6.9%, and losses on bonds available for sale were small at -1.6% of equity versus a median of 0.3%.
+On funding, uninsured deposits, balances above the FDIC insurance limit, were 45.5% of deposits against a national median of 17.3%, and volatile funding, money that can leave quickly, was 19.3% of assets against a median of 5.1%. Federal Home Loan Bank borrowings were 8.0% of assets against a median of 0.5%, and interest expense was 2.1% of assets against a median of 0.4%, while cash stood at 18.6% of assets against a median of 6.9%. Assets shrank -31.5% and deposits -23.4% over the past four quarters, against national medians of 3.9% and 4.3%; losses on bonds held to maturity were 0.0% of equity, in line with the median of 0.0%, and losses on bonds available for sale were -1.6% against a median of 0.3%, so bond losses were not a source of strain.
 
 ## Understanding the score
 
-First Nbc Bank ranked number 2 of 5,925 banks as of March 31, 2017, which is the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, one of 119 banks in the top 2% that quarter.
+As of 2017-03-31, First Nbc Bank ranked 2 out of 5,925 banks, in the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which covers the riskiest 2% of banks, or 119 banks that quarter.
 
-The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at -3.1% (+2.032), the Texas ratio at 225.4% (+1.227), return on equity, meaning profit as a share of the owners' stake (+1.175), seriously late or non-paying loans at 22.0% of loans (+0.792), and the total risk-based capital ratio at -1.7% (+0.683). The five factors that pulled it down most were return on assets at 3.1% (-0.596), losses on bonds available for sale at -1.6% of equity (-0.198), loans 30-89 days past due at 1.2% of assets (-0.135), construction loans at 13.5% of loans (-0.127), and brokered deposits, money placed through middlemen, at 3.8% of deposits (-0.091).
+The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at -3.1% (+2.032), the Texas ratio at 225.4% (+1.227), return on equity, profit as a share of equity, whose value is not shown here (+1.175), loans 90+ days past due or not accruing interest at 22.0% of loans (+0.792), and the total risk-based capital ratio at -1.7% (+0.683). The five factors that pulled it down most were return on assets at 3.1% (-0.596), losses on bonds available for sale at -1.6% of equity (-0.198), loans 30-89 days past due at 1.2% of assets (-0.135), construction loans at 13.5% of loans (-0.127), and brokered deposits, money placed through middlemen, at 3.8% of deposits (-0.091). The upward pushes were far larger than the downward ones.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -53,11 +53,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 29 ratios checked, 21 sat outside their own prior range, and the table shows the 6 furthest outside.
+As of 2017-03-31, the model ranked First Nbc Bank 2 out of 5,925 banks nationally, placing it in the 100.0th percentile, where higher means riskier. A year earlier, on 2016-03-31, it sat in the 96.9th percentile, so the model rated it riskier than a year earlier. Each ratio is compared with its own history, mostly the prior 12 quarters, and 21 of the 29 ratios checked were outside their own prior range.
 
-Volatile funding rose to 19.3% of assets, above its prior range of 9.8% to 12.9%, and it pushed the score up by +0.053 model log-odds units. Cash jumped to 18.6% of assets, well above its prior range of 1.1% to 7.6%, yet it had little effect on the score at -0.019. Loans as a share of deposits fell to 72.8%, below its prior range of 88.1% to 101.0%, but this had little effect on the score at -0.043. Return on assets rose to 3.1%, above its prior range of 1.1% to 2.0%, and it pushed the score down by -0.596. The efficiency ratio (operating costs as a share of revenue) dropped to 50.7%, below its prior range of 76.9% to 103.0%, with little effect on the score at +0.050. Interest expense climbed to 2.1% of assets, above its prior range of 1.1% to 1.2%, with little effect on the score at +0.036.
+Volatile funding, meaning money that can leave the bank quickly, was 19.3% of assets, well above its prior range of 9.8% to 12.9%, and its contribution of +0.053 model log-odds units pushed the score up. That share rose +6.3 pp over one quarter and +9.3 pp over four quarters. Annualized interest expense, the cost of the bank's funding, was 2.1% of assets against a prior range of 1.1% to 1.2%, yet its contribution of +0.036 had little effect on the score. Cash was 18.6% of assets, far above its prior range of 1.1% to 7.6%, but its contribution of -0.019 had little effect on the score.
 
-The bank stood at the 96.9th percentile a year earlier and at the 100.0th percentile as of March 31, 2017, so the model rated it riskier than a year earlier.
+Return on assets, profit as a share of assets, was 3.1%, above its prior range of 1.1% to 2.0%, and despite being outside that range its contribution of -0.596 pushed the score down. Loans as a share of deposits fell to 72.8%, below its prior range of 88.1% to 101.0%, but its contribution of -0.043 had little effect on the score. The efficiency ratio, operating costs as a share of revenue, was 50.7%, below its prior range of 76.9% to 103.0%, and its contribution of +0.050 also had little effect on the score.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -78,11 +78,11 @@ The FDIC's specialty group for this bank at 2017-03-31: Commercial Lending Speci
 
 Peers: 519 banks in the same specialty group and size tier ($1 billion to $10 billion).
 
-Equity was -3.4% of assets, at the 0.0th national percentile (unusually low) and the 0.1st percentile among peers against a peer median of 10.6%, unusually low among its peers too. The leverage ratio was -2.0%, at the 0.0th national percentile (unusually low) and the 0.1st peer percentile against a peer median of 9.9%, unusually low among its peers too. The total risk-based capital ratio was -1.7%, at the 0.0th national percentile (unusually low) and the 0.1st peer percentile against a peer median of 13.3%, unusually low among its peers too. The Tier 1 risk-based capital ratio was -3.1%, at the 0.0th national percentile (unusually low) and the 0.1st peer percentile against a peer median of 12.3%, unusually low among its peers too.
+As of 2017-03-31, First Nbc Bank ranked 2 out of 5,925 banks nationally on Canary's score. Its equity as a share of assets, the owners' own cushion against losses, was -3.4%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its 519 peers against a peer median of 10.6%, unusually low among its peers too. Its leverage ratio, core capital as a share of average assets, was -2.0%, at the 0.0th national percentile, which is unusually low, and at the 0.1st peer percentile against a peer median of 9.9%, unusually low among its peers too. Its total risk-based capital ratio, capital measured against assets weighted by how likely they are to lose value, was -1.7%, at the 0.0th national percentile, which is unusually low, and at the 0.1st peer percentile against a peer median of 13.3%, unusually low among its peers too. Its Tier 1 risk-based capital ratio, the same measure using only the highest-quality capital, was -3.1%, at the 0.0th national percentile, which is unusually low, and at the 0.1st peer percentile against a peer median of 12.3%, unusually low among its peers too.
 
-Loans 90+ days past due or not accruing interest were 22.0% of loans, at the 100.0th national percentile (unusually high) and the 99.9th peer percentile against a peer median of 0.6%, unusually high among its peers too. Interest expense was 2.1% of assets, at the 100.0th national percentile (unusually high) and the 99.9th peer percentile against a peer median of 0.4%, unusually high among its peers too. Loan-loss reserves were 14.3% of loans, at the 100.0th national percentile (unusually high) and the 99.9th peer percentile against a peer median of 1.1%, unusually high among its peers too. Asset growth over the past four quarters was -31.5%, at the 0.1st national percentile (unusually low) and the 0.1st peer percentile against a peer median of 7.8%, unusually low among its peers too.
+Loans 90+ days past due or no longer accruing interest, meaning borrowers had largely stopped paying, made up 22.0% of loans, at the 100.0th national percentile, which is unusually high, and at the 99.9th peer percentile against a peer median of 0.6%, unusually high among its peers too. Loan-loss reserves, money set aside to cover expected bad loans, were 14.3% of loans, at the 100.0th national percentile, which is unusually high, and at the 99.9th peer percentile against a peer median of 1.1%, unusually high among its peers too. Annualized interest expense, what the bank pays on deposits and borrowings, was 2.1% of assets, at the 100.0th national percentile, which is unusually high, and at the 99.9th peer percentile against a peer median of 0.4%, unusually high among its peers too. Asset growth over the past four quarters was -31.5%, a shrinking balance sheet, at the 0.1st national percentile, which is unusually low, and at the 0.1st peer percentile against a peer median of 7.8%, unusually low among its peers too.
 
-Overall, 20 of the bank's ratios fell in the national top or bottom 10%, and 17 of those were also unusual among its 519 peers.
+Overall, 20 of the bank's ratios fell in the national top or bottom 10%, and 17 of those were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -118,13 +118,11 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, First Nbc Bank failed on April 28, 2017, and Canary had first flagged it in the quarter ending December 31, 2016. That gave a lead time of 2 quarters before the failure under Canary's lead-time rule, so this is a case the model caught.
-
-At that first flag on 2016-12-31, the biggest factors pushing the score up were the Tier 1 risk-based capital ratio at -2.8% (+2.123), return on equity at -169.3% (+1.396) and the Texas ratio at 259.1% (+1.242). Seriously late or non-paying loans at 14.6% of loans (+0.844) and the total risk-based capital ratio at -1.5% (+0.646) also pushed it up.
+In hindsight, Canary caught this bank: it was first flagged in the quarter ending 2016-12-31, and the bank failed on 2017-04-28, a lead time of 2 quarters. At that first flag, the main drivers were already capital and credit: the Tier 1 risk-based capital ratio at -2.8% (+2.123), return on equity at -169.3% (+1.396), and the Texas ratio at 259.1% (+1.242). Loans 90+ days past due or not accruing interest were 14.6% of loans (+0.844), and the total risk-based capital ratio was -1.5% (+0.646).
 
 ## What happened next
 
-In hindsight, the bank failed on 2017-04-28, less than a month after the as-of quarter. Its last regulatory report was for the quarter ending March 31, 2017, so it does not appear in any later rankings.
+In hindsight, the bank's last report was for the quarter ending 2017-03-31, and it failed on 2017-04-28. Because it stopped reporting after that, there are no later ranks or flags for it in our data.
 
 ## Sources
 
@@ -150,10 +148,14 @@ In hindsight, the bank failed on 2017-04-28, less than a month after the as-of q
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2017-03-31 · 0.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2017-03-31 · 17.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2017-03-31 · 0.5% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
+- F25 · Bank: loans 30-89 days past due, as a share of assets · 2017-03-31 · 1.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
+- F26 · National median: loans 30-89 days past due, as a share of assets · 2017-03-31 · 0.3% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F27 · Bank: loan-loss reserves as a share of loans · 2017-03-31 · 14.3% · data/features/fct_bank_features.parquet: allowance_to_loans
 - F28 · National median: loan-loss reserves as a share of loans · 2017-03-31 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2017-03-31 · 225.4% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2017-03-31 · 4.8% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
+- F39 · Bank: return on assets (profit as a share of assets) · 2017-03-31 · 3.1% · data/features/fct_bank_features.parquet: return_on_assets
+- F40 · National median: return on assets (profit as a share of assets) · 2017-03-31 · 0.9% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F45 · Bank: annualized interest expense as a share of assets · 2017-03-31 · 2.1% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F46 · National median: annualized interest expense as a share of assets · 2017-03-31 · 0.4% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann (median of all banks)
 - F49 · Bank: uninsured deposits as a share of deposits · 2017-03-31 · 45.5% · data/features/fct_bank_features.parquet: uninsured_to_deposits
@@ -164,6 +166,8 @@ In hindsight, the bank failed on 2017-04-28, less than a month after the as-of q
 - F58 · National median: volatile funding as a share of assets · 2017-03-31 · 5.1% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F59 · Bank: cash as a share of assets · 2017-03-31 · 18.6% · data/features/fct_bank_features.parquet: cash_to_assets
 - F60 · National median: cash as a share of assets · 2017-03-31 · 6.9% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
+- F61 · Bank: losses on bonds held to maturity, as a share of equity · 2017-03-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
+- F62 · National median: losses on bonds held to maturity, as a share of equity · 2017-03-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F63 · Bank: losses on bonds available for sale, as a share of equity · 2017-03-31 · -1.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F64 · National median: losses on bonds available for sale, as a share of equity · 2017-03-31 · 0.3% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
 - F69 · Bank: asset growth over the past four quarters · 2017-03-31 · -31.5% · data/features/fct_bank_features.parquet: asset_growth_4q
@@ -192,6 +196,8 @@ In hindsight, the bank failed on 2017-04-28, less than a month after the as-of q
 - F97 · Trend: volatile funding as a share of assets, value at the as-of quarter · 2017-03-31 · 19.3% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F98 · Trend: volatile funding as a share of assets, lowest value in the comparison window · n/a · 9.8% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F99 · Trend: volatile funding as a share of assets, highest value in the comparison window · n/a · 12.9% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
+- F100 · Trend: volatile funding as a share of assets, change over one quarter, in percentage points · 2017-03-31 · +6.3 pp · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
+- F101 · Trend: volatile funding as a share of assets, change over four quarters, in percentage points · 2017-03-31 · +9.3 pp · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F102 · Trend: volatile funding as a share of assets, contribution to the score (model log-odds units) · 2017-03-31 · +0.053 · data/analyst/scores.parquet: feature volatile_liabilities_to_assets contribution
 - F103 · Trend: volatile funding as a share of assets, what the model did with it · 2017-03-31 · pushed the score up · data/analyst/scores.parquet: feature volatile_liabilities_to_assets contribution
 - F104 · Trend: cash as a share of assets, value at the as-of quarter · 2017-03-31 · 18.6% · data/features/fct_bank_features.parquet: cash_to_assets
@@ -220,10 +226,8 @@ In hindsight, the bank failed on 2017-04-28, less than a month after the as-of q
 - F134 · Trend: annualized interest expense as a share of assets, contribution to the score (model log-odds units) · 2017-03-31 · +0.036 · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
 - F135 · Trend: annualized interest expense as a share of assets, what the model did with it · 2017-03-31 · little effect on the score · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
 - F136 · Trend: ratios outside their own prior range · 2017-03-31 · 21 · data/features/fct_bank_features.parquet
-- F137 · Trend: ratios shown in the table (the furthest outside their prior range) · 2017-03-31 · 6 · data/features/fct_bank_features.parquet
 - F138 · Trend: ratios compared with their own prior range · 2017-03-31 · 29 · data/features/fct_bank_features.parquet
 - F139 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F140 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F141 · Percentile a year earlier (100 = highest risk) · 2016-03-31 · 96.9% · data/analyst/scores.parquet: percentile
 - F142 · Trend: how the model's rating compares with a year earlier · 2017-03-31 · the model rated it riskier than a year earlier · data/analyst/scores.parquet: percentile
 - F146 · Peers: equity as a share of assets, bank value at the as-of quarter · 2017-03-31 · -3.4% · data/features/fct_bank_features.parquet: equity_to_assets
