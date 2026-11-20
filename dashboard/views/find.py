@@ -57,7 +57,9 @@ def _search_again() -> None:
     st.query_params.pop("q", None)  # otherwise the same query would reopen the same bank
 
 
-typed = st.text_input(FIND_LABEL, value=params.get("q", ""), placeholder=FIND_PLACEHOLDER, label_visibility="collapsed").strip()
+with st.container(key="find-search"):  # styled as the big search box (theme.py)
+    typed = st.text_input(FIND_LABEL, value=params.get("q", ""), placeholder=FIND_PLACEHOLDER,
+                          label_visibility="collapsed").strip()
 if typed != params.get("q", ""):  # a new search replaces any open bank
     st.query_params["q"] = typed
     st.query_params.pop("cert", None)
