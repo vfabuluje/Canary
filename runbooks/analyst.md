@@ -82,6 +82,20 @@ The old single-call figures (about 9-10 cents per memo in 5a, $0.27-0.35 with th
 ## When a memo fails the checker
 The command prints the errors and writes no note. Each error names the section, the sentence and the reason (an unsupported number, a hindsight word in an as-of section, a missing post-hoc label). For `showcase`, the errors are in `data/analyst/showcase_report.json` under that bank's `errors`. Re-run `memo --cert N`: the model is not deterministic, so a second run often passes. If one bank fails repeatedly, read its errors; a recurring one may be a checker false rejection, which is a code fix, not a prompt change.
 
+## Expanding the showcase (paid; the owner's yes first)
+Adds written reports for banks that don't have one yet (the dashboard's 61 -> 100 plan, [[decisions/0023-dashboard]]). Existing notes are never paid for again.
+
+1. **Free dry run**, with exactly the flags the paid run will use:
+   ```
+   python -m canary.analyst showcase --dry-run --watchlist-top 40 --skip-done \
+       --report data/analyst/showcase_report_expansion.json --max-cost LIMIT
+   ```
+   It lists the banks (expect 39: `big_bank` 20, `latest_watchlist` 19; `--watchlist-top 40` because one former false-alarm bank now falls in the watchlist group, so 39 would give 38) and prints the estimate and whether it is within `LIMIT`. `--skip-done` drops every bank with a passing trace in `--trace-dir` (default `data/analyst/traces`); it refuses if that folder is missing.
+2. **Get the owner's approval** for the estimate and the limit. The 2026-11-20 dry run: $5.49 first tries + $3.53 retry allowance = **$9.02 worst case**, against a prepaid balance of $8.06; with `--max-cost 7.00` the run refuses to start. The owner chooses the limit (a few percent above the dry-run total), a top-up or a smaller set.
+3. **Paid run**: the same command without `--dry-run`. Use a **new `--report` path**: a fresh run refuses to overwrite an earlier run's report or state file, and refuses (without `--skip-done`) to pay again for banks that already have a passing trace. Traces are written to `--trace-dir`, the same folder `--skip-done` reads, so keep the default.
+4. If it stops (spending limit, error): `showcase --resume BATCH_ID --report data/analyst/showcase_report_expansion.json` (see below).
+5. **Re-export the dashboard** and commit the new notes in `banks/` and the changed files in `dashboard/data/`: `python -m canary.dashboard export --out dashboard/data` ([[runbooks/dashboard]]).
+
 ## If a showcase run stops
 Do not start a new one: it refuses while `data/analyst/showcase_report.state.json` is incomplete (and would pay for new batches). Run `showcase --resume BATCH_ID` (round 1's or round 2's id). Finished banks and paid rounds are not redone.
 

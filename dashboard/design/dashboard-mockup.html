@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canary — mockup (v6 style)</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#d5d7db; --navy:#1e2240; --yellow:#ffe066; --paper:#ffffff; --soft:#f1f3f5; --muted:#5c6178; --red:#c92a2a; --green:#2f9e44; --orange:#e8590c; --blue:#1c7ed6; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--navy); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:16px; line-height:1.5; }
+  .pix { font-family:"Press Start 2P",ui-monospace,monospace; }
+  .box { background:var(--paper); border:3px solid var(--navy); box-shadow:5px 5px 0 var(--navy); }
+  .btn { font-family:"Press Start 2P",monospace; font-size:11px; padding:12px 14px; border:3px solid var(--navy); background:#fff; cursor:pointer; box-shadow:3px 3px 0 var(--navy); color:var(--navy); text-decoration:none; display:inline-block; line-height:1.4; }
+  .btn:hover { background:var(--yellow); } .btn.on, .btn.go { background:var(--navy); color:#fff; } .btn.go:hover { background:#2d3363; }
+  .btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--navy); }
+
+  nav { background:var(--navy); color:#fff; border-bottom:4px solid #000; position:sticky; top:0; z-index:10; }
+  .nav-in { max-width:1120px; margin:0 auto; padding:10px 16px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .brand { display:flex; align-items:center; gap:10px; font-size:13px; cursor:pointer; }
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; }
+  .tab { font-family:"Press Start 2P",monospace; font-size:9px; padding:9px 10px; border:2px solid #fff; background:transparent; color:#fff; cursor:pointer; }
+  .tab:hover { background:#2d3363; } .tab.on { background:var(--yellow); color:var(--navy); border-color:var(--yellow); }
+  main { max-width:1120px; margin:0 auto; padding:26px 16px 60px; }
+  .view { display:none; } .view.on { display:block; }
+  h1.pix { font-size:20px; line-height:1.5; margin:0 0 10px; }
+  h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; }
+  .lede { font-size:17px; max-width:760px; margin:0 0 20px; }
+  .note { font-size:14px; color:var(--muted); }
+
+  /* HOME */
+  .hero { text-align:center; padding:40px 16px 34px; }
+  .hero canvas { image-rendering:pixelated; display:block; margin:0 auto 18px; }
+  .hero .title { font-family:"Press Start 2P",monospace; font-size:clamp(44px, 10vw, 88px); line-height:1.1; margin:0; color:var(--navy); text-shadow:6px 6px 0 var(--yellow); letter-spacing:4px; }
+  .hero .tag { font-family:"Press Start 2P",monospace; font-size:clamp(10px, 2vw, 14px); margin:22px 0 26px; line-height:1.8; }
+  .searchbar { display:flex; gap:10px; max-width:560px; margin:0 auto; }
+  .searchbar input { flex:1; font-size:17px; padding:12px 14px; border:3px solid var(--navy); box-shadow:3px 3px 0 var(--navy); font-family:inherit; min-width:0; }
+  .theme { margin-top:18px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; align-items:center; }
+  .what { padding:22px; margin:6px 0 22px; font-size:18px; }
+  .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:24px; }
+  @media (max-width:860px){ .stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  .stat { padding:16px; }
+  .stat .big { font-family:"Press Start 2P",monospace; font-size:24px; margin:10px 0 8px; line-height:1.2; }
+  .stat .big small { font-size:11px; }
+  .stat .lab { font-family:"Press Start 2P",monospace; font-size:9px; line-height:1.6; }
+  .miss { padding:22px; background:#fff8db; display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:center; margin-bottom:24px; }
+  .miss canvas { image-rendering:pixelated; }
+  @media (max-width:700px){ .miss { grid-template-columns:1fr; } }
+  .cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  @media (max-width:860px){ .cards { grid-template-columns:1fr; } }
+  .card { padding:18px; cursor:pointer; text-align:left; font:inherit; color:inherit; }
+  .card:hover { background:var(--yellow); }
+  .card p { margin:8px 0 0; font-size:15px; }
+  .foot { text-align:center; margin-top:30px; font-size:13px; color:var(--muted); }
+
+  /* CASES */
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .cs { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:18px; }
+  @media (max-width:940px){ .cs { grid-template-columns:1fr; } }
+  .chartbox { padding:14px 16px 6px; border-bottom:3px dashed #ced4da; }
+  .chartbox:last-of-type { border-bottom:0; }
+  .ct { font-weight:800; font-size:15px; } .cst { font-size:13px; color:var(--muted); }
+  svg text { font-family:-apple-system,"Segoe UI",sans-serif; }
+  .slider { display:flex; gap:14px; align-items:center; padding:14px 16px; border-top:3px solid var(--navy); background:var(--soft); }
+  input[type=range] { flex:1; accent-color:var(--navy); height:28px; }
+  .side { padding:18px; }
+  .side .rank { font-family:"Press Start 2P",monospace; font-size:22px; margin:8px 0 4px; }
+  .row { display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:2px dotted #ced4da; font-size:15px; }
+  .bar { font-size:14px; margin-top:8px; } .track { height:10px; background:var(--soft); border:2px solid var(--navy); margin-top:4px; } .fill { height:100%; background:var(--orange); }
+  .say { margin-top:14px; padding:12px; background:#fff8db; border:3px solid var(--navy); font-size:15px; }
+  .status { font-family:"Press Start 2P",monospace; font-size:9px; padding:7px 9px; border:2px solid var(--navy); display:inline-block; }
+  .status.failed { background:#ffc9c9; } .status.near { background:var(--yellow); }
+
+  /* WATCHLIST */
+  .seg { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .seg .btn { font-size:10px; padding:10px; }
+  .seg .pub { display:block; font-size:7px; margin-top:5px; }
+  .three { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-bottom:18px; }
+  @media (max-width:760px){ .three { grid-template-columns:1fr; } }
+
+  /* SEARCH */
+  .sug { display:flex; justify-content:space-between; gap:12px; align-items:center; padding:12px 14px; margin-bottom:10px; cursor:pointer; }
+  .sug:hover { background:var(--yellow); }
+  .badge { font-family:"Press Start 2P",monospace; font-size:8px; padding:5px 7px; border:2px solid var(--navy); white-space:nowrap; }
+  .badge.full { background:var(--navy); color:#fff; } .badge.nore { background:#fff; } .badge.none { background:var(--soft); }
+  .result { padding:20px; margin-top:16px; }
+
+  .tip { position:fixed; pointer-events:none; z-index:40; background:var(--navy); color:#fff; font-size:13px; padding:8px 10px; border:2px solid var(--yellow); display:none; line-height:1.45; max-width:280px; }
+  /* THEMES: page background follows the theme */
+  body.theme-detective { background-color:#b4875a;
+    background-image:radial-gradient(#9a6d43 1.4px, transparent 1.8px), radial-gradient(#c99b6c 1.1px, transparent 1.6px), radial-gradient(#8f6440 1px, transparent 1.4px);
+    background-size:13px 13px, 21px 21px, 34px 34px; background-position:0 0, 6px 9px, 15px 3px; }
+  body.theme-detective .box { position:relative; }
+  body.theme-detective .box::before { content:""; position:absolute; top:-10px; left:50%; margin-left:-7px; width:14px; height:14px; background:#e03131; border:3px solid var(--navy); box-shadow:2px 2px 0 rgba(0,0,0,.35); }
+  body.theme-detective .sug::before { display:none; }
+  body.theme-detective nav { background:#1a1a1a; }
+  body.theme-basketball { background-color:#b97a45;
+    background-image:
+      radial-gradient(circle at 50% 300px, transparent 168px, rgba(255,255,255,.9) 168px 174px, transparent 174px),
+      linear-gradient(to bottom, transparent 297px, rgba(255,255,255,.9) 297px 303px, transparent 303px),
+      repeating-linear-gradient(90deg, rgba(70,35,8,.16) 0 3px, transparent 3px 58px),
+      repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,225,180,.14) 29px 31px, transparent 31px 58px);
+    background-repeat:no-repeat, no-repeat, repeat, repeat; }
+  body.theme-basketball nav { background:#1c4e80; border-bottom-color:#74c0fc; }
+  body.theme-basketball h1.pix, body.theme-basketball .lede { color:#fff; text-shadow:2px 2px 0 var(--navy); }
+  body.theme-detective .lede, body:not(.theme-standard) .foot, body:not(.theme-standard) .theme .note { color:var(--navy); font-weight:600; }
+  body.theme-basketball .foot, body.theme-basketball .theme .note, body.theme-basketball .hero .tag { color:#fff; text-shadow:2px 2px 0 var(--navy); }
+  .nav-theme { position:relative; }
+  .themepop { display:none; position:absolute; right:0; top:40px; background:var(--navy); border:3px solid #000; padding:8px; gap:6px; flex-direction:column; min-width:170px; z-index:30; }
+  .themepop.open { display:flex; } .themepop .tab { text-align:left; }
+  .nav-in { gap:18px; } .tabs { gap:4px; margin-left:auto; } .tab { padding:9px 9px; }
+  .nav-theme span { font-family:"Press Start 2P",monospace; font-size:8px; margin-right:4px; }
+  .mock { background:var(--yellow); border:3px solid var(--navy); padding:8px 12px; font-size:13px; margin-bottom:18px; }
+  iframe { width:100%; height:820px; border:3px solid var(--navy); background:var(--bg); box-shadow:5px 5px 0 var(--navy); }
+</style>
+</head>
+<body class="theme-standard">
+<nav><div class="nav-in">
+  <div class="brand pix" data-go="home"><canvas id="logo" width="13" height="11" style="width:26px;height:22px;image-rendering:pixelated"></canvas>CANARY</div>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-go="home">Home</button>
+    <button class="tab" data-go="search">Find a bank</button>
+    <button class="tab" data-go="cases">2023</button>
+    <button class="tab" data-go="watch">Watchlist</button>
+    <button class="tab" data-go="how">How it works</button>
+    <button class="tab" data-go="why">Why Canary</button>
+  </div>
+  <div class="nav-theme"><button class="tab" id="themebtn" aria-haspopup="true" title="Change theme">🎨 ▾</button>
+    <div class="themepop" id="themepop"><button class="tab on" data-theme="standard">Standard</button><button class="tab" data-theme="detective">🔍 Detectives</button><button class="tab" data-theme="basketball">🏀 Basketball</button></div></div>
+</div></nav>
+
+<main>
+<div class="mock"><b>Mockup.</b> Real numbers from Canary; search only knows a few banks here. The real app is Streamlit with this look.</div>
+
+<!-- HOME -->
+<section class="view on" id="v-home">
+  <div class="hero">
+    <canvas id="bird" width="13" height="11" style="width:104px;height:88px"></canvas>
+    <h1 class="title">CANARY</h1>
+    <div class="tag">Bank Failure Early-Warning System</div>
+    <div class="searchbar"><input id="homeq" placeholder="Find a bank, e.g. SVB"><button class="btn go" onclick="homeSearch()">SEARCH</button></div>
+    <div class="theme"><span class="note pix" style="font-size:10px">Theme:</span><button class="btn on" data-theme="standard">Standard</button><button class="btn" data-theme="detective">🔍 Detectives</button><button class="btn" data-theme="basketball">🏀 Basketball</button></div>
+  </div>
+
+  <div class="box what">Every three months, US banks publish their numbers. <b>Canary reads them for every bank in the country and ranks which ones look most likely to fail within a year</b>, so trouble can be spotted early. Like a canary in a coal mine.</div>
+
+  <div class="stats">
+    <div class="box stat"><div class="lab">FAILURES CAUGHT EARLY</div><div class="big">21 <small>of 29</small></div><div class="note">Banks that failed 2016–2024 that Canary flagged up to a year before.</div></div>
+    <div class="box stat"><div class="lab">TYPICAL HEADS-UP</div><div class="big">4 <small>quarters</small></div><div class="note">About a year of warning, for the typical bank it caught.</div></div>
+    <div class="box stat"><div class="lab">RANKING SCORE</div><div class="big">0.90</div><div class="note">How well it sorts risky from safe (1.00 is perfect). The classic rule of thumb scores 0.80.</div></div>
+    <div class="box stat"><div class="lab">FALSE ALARMS</div><div class="big">98%</div><div class="note">Most flagged banks don't fail. Failures are rare, so a watchlist is mostly "keep an eye on it".</div></div>
+  </div>
+
+  <div class="box miss">
+    <canvas id="sadbird" width="13" height="11" style="width:78px;height:66px"></canvas>
+    <div><h2 class="pix">THE BIG TEST IT FAILED</h2>
+      <p style="margin:0 0 12px">In 2023, three large US banks collapsed within two months. <b>Canary did not flag any of them in time.</b> It learned from the 2008 crisis, when banks failed from bad loans. These banks failed differently: their bond investments lost value when interest rates rose, and nervous customers pulled their money out fast.</p>
+      <button class="btn go" data-go="cases">SEE WHAT IT MISSED ▶</button></div>
+  </div>
+
+  <div class="cards">
+    <button class="box card" data-go="search"><h2 class="pix">🔎 FIND A BANK</h2><p>Look up any bank's risk rank and history. 61 banks have a full written report.</p></button>
+    <button class="box card" data-go="how"><h2 class="pix">▶ HOW IT WORKS</h2><p>Watch the team of AI helpers and fact-checkers build one, step by step.</p></button>
+    <button class="box card" data-go="watch"><h2 class="pix">🎚 WATCHLIST SIZE</h2><p>Flag more banks, catch more failures, raise more false alarms. Try it.</p></button>
+  </div>
+  <p class="foot">Research tool, not financial advice. Built from public FDIC data.</p>
+</section>
+
+<!-- SEARCH -->
+<section class="view" id="v-search">
+  <h1 class="pix">FIND A BANK</h1>
+  <p class="lede">Type part of a name, or a nickname like “SVB”.</p>
+  <div class="searchbar" style="margin:0 0 16px"><input id="q" placeholder="Search every US bank…" autocomplete="off"></div>
+  <div id="sugs"></div><div id="res"></div>
+</section>
+
+<!-- CASES -->
+<section class="view" id="v-cases">
+  <h1 class="pix">THE 2023 COLLAPSES</h1>
+  <p class="lede">Each bank, quarter by quarter, in the two years before it failed. <b>Top:</b> how risky Canary thought it was. <b>Bottom:</b> the bank's real weak spot. Drag the slider or tap a point.</p>
+  <div class="chips" id="chips"></div>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px"><div><h2 class="pix" id="cs-name" style="font-size:18px;text-shadow:3px 3px 0 var(--yellow)"></h2><div class="note" id="cs-sub"></div></div><span class="status" id="cs-status"></span></div>
+  <div class="cs">
+    <div class="box">
+      <div class="chartbox"><div class="ct">Canary's risk rating <span class="cst">(higher = riskier)</span></div><div class="cst">Dashed line: the watchlist. Above it, Canary would have flagged the bank.</div><div id="ch1"></div></div>
+      <div class="chartbox"><div class="ct" id="r-title"></div><div class="cst" id="r-sub"></div><div id="ch2"></div></div>
+      <div class="slider"><b class="pix" style="font-size:10px;min-width:84px" id="qlab"></b><input type="range" id="qs" min="0" max="7" value="7" aria-label="Quarter"></div>
+    </div>
+    <div class="box side">
+      <div class="pix" style="font-size:9px" id="d-q"></div>
+      <div class="rank" id="d-rank"></div><div class="note" id="d-of"></div>
+      <div class="row"><span>Risk rating</span><b id="d-pct"></b></div>
+      <div class="row"><span id="d-rl"></span><b id="d-rv"></b></div>
+      <div class="row"><span>On the watchlist?</span><b id="d-fl"></b></div>
+      <div class="pix" style="font-size:8px;margin-top:16px;line-height:1.6">WHAT PUSHED THE RATING UP MOST</div>
+      <div id="d-bars"></div>
+      <div class="say" id="d-say"></div>
+    </div>
+  </div>
+</section>
+
+<!-- WATCHLIST -->
+<section class="view" id="v-watch">
+  <h1 class="pix">HOW BIG SHOULD THE WATCHLIST BE?</h1>
+  <p class="lede">Each quarter Canary flags its riskiest slice of banks. Flag more, and you catch more failures, but you also flag more banks that turn out fine. Pick a size. The numbers are recalculated from the real 2016–2024 test.</p>
+  <div class="seg" id="seg"></div>
+  <div class="three">
+    <div class="box stat"><div class="lab">FAILURES CAUGHT EARLY</div><div class="big" id="w1"></div><div class="note">Out of 29 banks that failed 2016–2024.</div></div>
+    <div class="box stat"><div class="lab">FALSE ALARMS</div><div class="big" id="w2"></div><div class="note">Share of flags where the bank did not fail within a year.</div></div>
+    <div class="box stat"><div class="lab">FLAGS RAISED</div><div class="big" id="w3"></div><div class="note">Bank-quarters flagged across 9 years.</div></div>
+  </div>
+  <div class="box" style="padding:14px 16px 6px"><div class="ct">Failures caught, by watchlist size</div><div class="cst">Highlighted: the size you picked.</div><div id="ch3"></div></div>
+  <div class="say" id="w-say" style="box-shadow:5px 5px 0 var(--navy)"></div>
+</section>
+
+<!-- WHY -->
+<section class="view" id="v-why">
+  <div class="hero" style="padding-top:20px"><canvas id="cage" width="17" height="17" style="width:136px;height:136px"></canvas>
+    <h1 class="pix" style="font-size:24px">WHY "CANARY"?</h1></div>
+  <div class="box what"><h2 class="pix">THE NAME</h2>Coal miners used to carry canaries underground. A canary reacts to toxic gas before people do, so if the canary got sick, the miners knew to get out. <b>Canary is meant to be that early warning, for banks.</b></div>
+  <div class="box what"><h2 class="pix">THE STORY BEHIND IT</h2>In 2020 and 2021, Silicon Valley Bank took in billions in deposits from tech startups and put much of it into long-term government bonds while interest rates were low. In 2022 rates rose fast, and those bonds lost value. Most of SVB's deposits were above the $250,000 the government insures, so customers had a reason to run. In March 2023 they pulled about $42 billion in a single day, and regulators closed the bank on March 10. Signature Bank failed two days later; First Republic in May. <b>The warning signs were in SVB's public filings months earlier.</b></div>
+  <div class="box what"><h2 class="pix">THE GOAL</h2>Could a system built only on public data have raised the alarm in time? Canary reads every US bank's public numbers each quarter and ranks which look most likely to fail within a year. It learned from failures up to 2015, then was tested on 2016–2024 without peeking. AI helpers write plain-English reports, and every number they use is checked against the data.</div>
+  <div class="box what" style="background:#fff8db"><h2 class="pix">THE HONEST ANSWER</h2>It caught 21 of the 29 banks that failed in 2016–2024, usually about a year ahead. It did <b>not</b> catch SVB, Signature or First Republic. Showing why is part of the point. <button class="btn go" data-go="cases" style="margin-top:12px">SEE THE 2023 COLLAPSES ▶</button></div>
+  <p class="foot">Research tool, not financial advice.</p>
+</section>
+
+<!-- HOW -->
+<section class="view" id="v-how">
+  <h1 class="pix">HOW IT WORKS</h1>
+  <p class="lede">The real run that wrote Silicon Valley Bank's report, replayed. About 30 seconds, then the report.</p>
+  <iframe id="replay" title="Report replay" loading="lazy"></iframe>
+</section>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+/* pixel canary */
+const BIRD = [".......YYY...","......YYYYY..","......YYKYYO.","......YYYYY..",".....YYYYYY..","...YYYWWWYY..","YYYYYYWWWWY..","..YYYYYWWYY..",".....YYYYY...","......O.O....","...BBBBBBBBB."];
+function drawBird(id, sad){ const c=document.getElementById(id), x=c.getContext('2d'); const P={Y:'#ffd43b',W:'#f59f00',K:'#1e2240',O:'#e8590c',B:'#8a5a2b'};
+  BIRD.forEach((r,j)=>[...r].forEach((ch,i)=>{ if(P[ch]){ x.fillStyle=P[ch]; x.fillRect(i,j,1,1);} }));
+  if(sad){ x.fillStyle='#74c0fc'; x.fillRect(8,3,1,2); } }
+drawBird('logo'); drawBird('bird'); drawBird('sadbird', true);
+(function(){ const c=document.getElementById('cage'), x=c.getContext('2d'); x.fillStyle='#1e2240';
+  x.fillRect(7,0,3,1); x.fillRect(8,1,1,1); x.fillRect(4,2,9,1); x.fillRect(2,3,13,1);
+  for(let i=2;i<=14;i+=3) x.fillRect(i,3,1,12); x.fillRect(1,15,15,2);
+  const B=[".YYY.","YYKYO","YYYY.","YYWYY",".YYY.",".O.O."], P={Y:'#ffd43b',W:'#f59f00',K:'#1e2240',O:'#e8590c'};
+  B.forEach((r,j)=>[...r].forEach((ch,i)=>{ if(P[ch]){ x.fillStyle=P[ch]; x.fillRect(6+i,8+j,1,1);} })); })();
+
+const CASE = {"24735": [{"q": "2021-03-31", "pct": 75.0, "rank": 1263, "n": 5044, "sig": [["deposit growth over the past four quarters", 0.327], ["commercial real estate loans as a share of loans", 0.229], ["the efficiency ratio (operating costs as a share of revenue)", 0.133]]}, {"q": "2021-06-30", "pct": 79.7, "rank": 1018, "n": 5015, "sig": [["deposit growth over the past four quarters", 0.364], ["commercial real estate loans as a share of loans", 0.196], ["the efficiency ratio (operating costs as a share of revenue)", 0.1]]}, {"q": "2021-09-30", "pct": 77.1, "rank": 1142, "n": 4979, "sig": [["deposit growth over the past four quarters", 0.35], ["commercial real estate loans as a share of loans", 0.23], ["the leverage ratio (core capital as a share of average assets)", 0.081]]}, {"q": "2021-12-31", "pct": 56.0, "rank": 2160, "n": 4904, "sig": [["deposit growth over the past four quarters", 0.333], ["commercial real estate loans as a share of loans", 0.163], ["the efficiency ratio (operating costs as a share of revenue)", 0.107]]}, {"q": "2022-03-31", "pct": 25.2, "rank": 3638, "n": 4861, "sig": [["deposit growth over the past four quarters", 0.281], ["commercial real estate loans as a share of loans", 0.18], ["losses on bonds available for sale, as a share of equity", 0.169]]}, {"q": "2022-06-30", "pct": 7.2, "rank": 4489, "n": 4838, "sig": [["the efficiency ratio (operating costs as a share of revenue)", 0.19], ["commercial real estate loans as a share of loans", 0.163], ["losses on bonds available for sale, as a share of equity", 0.156]]}, {"q": "2022-09-30", "pct": 24.4, "rank": 3640, "n": 4813, "sig": [["losses on bonds available for sale, as a share of equity", 0.798], ["the efficiency ratio (operating costs as a share of revenue)", 0.167], ["commercial real estate loans as a share of loans", 0.123]]}, {"q": "2022-12-31", "pct": 26.8, "rank": 3494, "n": 4773, "sig": [["losses on bonds available for sale, as a share of equity", 0.804], ["the efficiency ratio (operating costs as a share of revenue)", 0.159], ["commercial real estate loans as a share of loans", 0.118]]}], "57053": [{"q": "2021-03-31", "pct": 79.8, "rank": 1022, "n": 5044, "sig": [["deposit growth over the past four quarters", 0.325], ["the efficiency ratio (operating costs as a share of revenue)", 0.291], ["loans as a share of deposits", 0.149]]}, {"q": "2021-06-30", "pct": 83.4, "rank": 831, "n": 5015, "sig": [["deposit growth over the past four quarters", 0.308], ["the efficiency ratio (operating costs as a share of revenue)", 0.256], ["loans as a share of deposits", 0.155]]}, {"q": "2021-09-30", "pct": 81.7, "rank": 913, "n": 4979, "sig": [["deposit growth over the past four quarters", 0.299], ["the efficiency ratio (operating costs as a share of revenue)", 0.214], ["loans as a share of deposits", 0.155]]}, {"q": "2021-12-31", "pct": 79.9, "rank": 986, "n": 4904, "sig": [["deposit growth over the past four quarters", 0.294], ["the efficiency ratio (operating costs as a share of revenue)", 0.215], ["loans as a share of deposits", 0.158]]}, {"q": "2022-03-31", "pct": 49.5, "rank": 2456, "n": 4861, "sig": [["the efficiency ratio (operating costs as a share of revenue)", 0.333], ["losses on bonds available for sale, as a share of equity", 0.29], ["deposit growth over the past four quarters", 0.19]]}, {"q": "2022-06-30", "pct": 55.3, "rank": 2162, "n": 4838, "sig": [["losses on bonds available for sale, as a share of equity", 0.848], ["the efficiency ratio (operating costs as a share of revenue)", 0.333], ["loans as a share of deposits", 0.146]]}, {"q": "2022-09-30", "pct": 91.3, "rank": 420, "n": 4813, "sig": [["losses on bonds available for sale, as a share of equity", 1.999], ["the efficiency ratio (operating costs as a share of revenue)", 0.268], ["core deposits as a share of assets", 0.042]]}, {"q": "2022-12-31", "pct": 94.9, "rank": 246, "n": 4773, "sig": [["losses on bonds available for sale, as a share of equity", 2.063], ["the efficiency ratio (operating costs as a share of revenue)", 0.186], ["asset growth over the past four quarters", 0.101]]}], "59017": [{"q": "2021-03-31", "pct": 80.3, "rank": 995, "n": 5044, "sig": [["commercial real estate loans as a share of loans", 0.274], ["deposit growth over the past four quarters", 0.227], ["loans 30-89 days past due, as a share of assets", 0.074]]}, {"q": "2021-06-30", "pct": 73.6, "rank": 1327, "n": 5015, "sig": [["commercial real estate loans as a share of loans", 0.302], ["deposit growth over the past four quarters", 0.22], ["the leverage ratio (core capital as a share of average assets)", 0.061]]}, {"q": "2021-09-30", "pct": 88.7, "rank": 566, "n": 4979, "sig": [["commercial real estate loans as a share of loans", 0.328], ["deposit growth over the past four quarters", 0.25], ["loans 30-89 days past due, as a share of assets", 0.083]]}, {"q": "2021-12-31", "pct": 80.7, "rank": 948, "n": 4904, "sig": [["commercial real estate loans as a share of loans", 0.35], ["deposit growth over the past four quarters", 0.236], ["losses on bonds available for sale, as a share of equity", 0.056]]}, {"q": "2022-03-31", "pct": 28.0, "rank": 3502, "n": 4861, "sig": [["commercial real estate loans as a share of loans", 0.242], ["deposit growth over the past four quarters", 0.05], ["losses on bonds available for sale, as a share of equity", 0.049]]}, {"q": "2022-06-30", "pct": 32.6, "rank": 3262, "n": 4838, "sig": [["commercial real estate loans as a share of loans", 0.317], ["losses on bonds available for sale, as a share of equity", 0.055], ["deposit growth over the past four quarters", 0.049]]}, {"q": "2022-09-30", "pct": 35.7, "rank": 3095, "n": 4813, "sig": [["commercial real estate loans as a share of loans", 0.308], ["loans 30-89 days past due, as a share of assets", 0.074], ["losses on bonds available for sale, as a share of equity", 0.051]]}, {"q": "2022-12-31", "pct": 29.7, "rank": 3355, "n": 4773, "sig": [["commercial real estate loans as a share of loans", 0.308], ["losses on bonds available for sale, as a share of equity", 0.051], ["equity as a share of assets", 0.043]]}, {"q": "2023-03-31", "pct": 83.0, "rank": 809, "n": 4740, "sig": [["volatile funding as a share of assets", 0.357], ["commercial real estate loans as a share of loans", 0.306], ["core deposits as a share of assets", 0.09]]}]}; const TH = [{"share": 0.005, "caught": 20, "eligible": 29, "false_alarm": 0.9365, "rows": 960}, {"share": 0.01, "caught": 21, "eligible": 29, "false_alarm": 0.9663, "rows": 1901}, {"share": 0.02, "caught": 21, "eligible": 29, "false_alarm": 0.9828, "rows": 3783}, {"share": 0.03, "caught": 21, "eligible": 29, "false_alarm": 0.988, "rows": 5667}, {"share": 0.05, "caught": 22, "eligible": 29, "false_alarm": 0.9927, "rows": 9429}, {"share": 0.075, "caught": 24, "eligible": 29, "false_alarm": 0.9948, "rows": 14135}, {"share": 0.1, "caught": 25, "eligible": 29, "false_alarm": 0.9959, "rows": 18840}];
+const BANKS = {
+  24735:{name:'Silicon Valley Bank', short:'SVB', st:'CA', failed:'March 10, 2023', status:['failed','FAILED · NOT FLAGGED'],
+    r:{t:"Losses on bonds it planned to hold, as a share of the bank's cushion (equity)", s:'The weak spot: the model gave these losses almost no weight.', v:[-0.2,-1.0,2.8,6.6,48.4,73.0,105.3,98.1]},
+    say:["Rates were near zero. SVB's bond losses were tiny and Canary ranked it around the middle of the pack. Nothing stood out.","As rates rose, losses on the bonds SVB planned to hold grew fast. Canary's score went the other way and rated SVB safer.","SVB's last report before it failed: bond losses close to its entire equity, and Canary still rated it safer than most banks. The model learned from 2008-era failures, which looked nothing like this."]},
+  57053:{name:'Signature Bank', short:'Signature', st:'NY', failed:'March 12, 2023', status:['near','FAILED · NEAR MISS'],
+    r:{t:"Losses on bonds it could sell, as a share of the bank's cushion (equity)", s:'Here the model did react.', v:[1.4,1.0,1.7,3.0,13.3,20.7,32.7,30.6]},
+    say:["Signature grew fast in 2021. Canary put it in the riskier part of the pack, but well short of the watchlist.","Losses on its bonds for sale grew, and this time the model reacted: the score climbed.","Its last report put it near the top of the list, just short of the watchlist. A bigger watchlist would have flagged it."]},
+  59017:{name:'First Republic Bank', short:'First Republic', st:'CA', failed:'May 1, 2023', status:['failed','FAILED · NOT FLAGGED'],
+    r:{t:'Deposits above the FDIC insurance limit, as a share of all deposits', s:"High but steady. Its real losses were on home loans, which FDIC data can't value.", v:[71.6,72.6,73.9,74.7,73.6,72.3,69.1,67.7,48.7]},
+    say:["Much of First Republic's money came from uninsured deposits: balances above the FDIC limit, which can leave quickly. Canary put it in the riskier part of the pack.","Its real problem was home loans made at low rates, which lost value as rates rose. FDIC data reports what those loans cost, not what they are worth now, so the model could not see it.","This report came after SVB failed. The uninsured share dropped because depositors had already pulled their money out: the run had started. First Republic failed weeks later."]},
+};
+const qn = d=>{ const [y,m]=d.split('-'); return 'Q'+Math.ceil(+m/3)+' '+y; };
+const tip = document.getElementById('tip');
+
+function chart(el, pts, o){
+  const W=el.clientWidth||640, H=o.h||180, m={l:44,r:34,t:14,b:28};
+  const X=i=>m.l+i*(W-m.l-m.r)/Math.max(1,pts.length-1), Y=v=>m.t+(1-(v-o.min)/(o.max-o.min))*(H-m.t-m.b);
+  let s=`<svg width="${W}" height="${H}" role="img" aria-label="${o.label}">`;
+  o.ticks.forEach(t=>s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="#e9ecef" stroke-width="2"/><text x="${m.l-8}" y="${Y(t)+4}" font-size="11" fill="#5c6178" text-anchor="end">${o.fmt(t)}</text>`);
+  pts.forEach((p,i)=>s+=`<text x="${X(i)}" y="${H-8}" font-size="11" fill="#5c6178" text-anchor="middle">${p.x}</text>`);
+  if(o.ref!=null) s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(o.ref)}" y2="${Y(o.ref)}" stroke="#1e2240" stroke-width="2" stroke-dasharray="6 5"/><text x="${W-m.r}" y="${Y(o.ref)-6}" font-size="11" font-weight="700" fill="#1e2240" text-anchor="end">WATCHLIST</text>`;
+  if(o.sel!=null) s+=`<rect x="${X(o.sel)-15}" y="${m.t}" width="30" height="${H-m.t-m.b}" fill="#fff3bf"/>`;
+  s+=`<path d="${pts.map((p,i)=>(i?'L':'M')+X(i)+','+Y(p.y)).join(' ')}" fill="none" stroke="${o.color}" stroke-width="3" stroke-linejoin="miter"/>`;
+  pts.forEach((p,i)=>{ const on=i===o.sel; s+=`<rect x="${X(i)-(on?6:4)}" y="${Y(p.y)-(on?6:4)}" width="${on?12:8}" height="${on?12:8}" fill="${on?o.color:'#fff'}" stroke="${o.color}" stroke-width="2"/>`; });
+  if(o.sel!=null) s+=`<text x="${X(o.sel)}" y="${Y(pts[o.sel].y)-12}" font-size="12" font-weight="800" fill="#1e2240" text-anchor="middle">${o.fmt(pts[o.sel].y)}</text>`;
+  s+=`<rect class="hit" x="${m.l-16}" y="0" width="${W-m.l-m.r+32}" height="${H}" fill="transparent" style="cursor:pointer"/></svg>`;
+  el.innerHTML=s; const svg=el.querySelector('svg'), hit=svg.querySelector('.hit');
+  const near=e=>{ const r=svg.getBoundingClientRect(); return Math.max(0,Math.min(pts.length-1,Math.round((e.clientX-r.left-m.l)/((W-m.l-m.r)/Math.max(1,pts.length-1))))); };
+  hit.addEventListener('mousemove',e=>{ const i=near(e); tip.innerHTML=`<b>${pts[i].x}</b><br>${o.tipLabel}: ${o.fmt(pts[i].y)}${o.extra?o.extra(i):''}`; tip.style.display='block'; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px'; });
+  hit.addEventListener('mouseleave',()=>tip.style.display='none');
+  hit.addEventListener('click',e=>o.pick&&o.pick(near(e)));
+}
+
+/* navigation */
+let theme='standard';
+function go(v){ document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v)); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.go===v)); window.scrollTo({top:0});
+  if(v==='cases') cases(); if(v==='watch') watch(); if(v==='search') search();
+  if(v==='how'){ const f=document.getElementById('replay'); if(!f.src) f.src='report-replay-v6.html'; } }
+document.getElementById('themebtn').addEventListener('click',e=>{ e.stopPropagation(); document.getElementById('themepop').classList.toggle('open'); });
+document.addEventListener('click',e=>{ if(!e.target.closest('#themepop')) document.getElementById('themepop').classList.remove('open'); });
+document.addEventListener('click',e=>{ const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); return; } const t=e.target.closest('[data-theme]'); if(t) applyTheme(t.dataset.theme); });
+const PAGE_BG={standard:'#d5d7db', detective:'#b4875a', basketball:'#b97a45'};
+function applyTheme(v){ theme=v; document.body.className='theme-'+v; document.querySelectorAll('[data-theme]').forEach(b=>b.classList.toggle('on',b.dataset.theme===v)); syncFrame(); }
+function syncFrame(){ const f=document.getElementById('replay'); try{ const w=f.contentWindow; if(!w||!w.setTheme) return; w.document.body.style.background=PAGE_BG[theme]; w.setTheme(theme==='basketball'?'basketball':'detective'); }catch(e){} }
+document.getElementById('replay').addEventListener('load', syncFrame);
+function homeSearch(){ document.getElementById('q').value=document.getElementById('homeq').value; go('search'); }
+document.getElementById('homeq').addEventListener('keydown',e=>{ if(e.key==='Enter') homeSearch(); });
+
+/* cases */
+let bank=24735, q=7;
+function phase(n,i){ return i===n-1 ? 2 : (CASE[bank][i].q < '2022' ? 0 : 1); }
+function cases(){
+  const B=BANKS[bank], rows=CASE[bank], n=rows.length;
+  document.getElementById('chips').innerHTML=Object.entries(BANKS).map(([c,b])=>`<button class="btn ${+c===bank?'on':''}" data-c="${c}">${b.short}</button>`).join('');
+  document.getElementById('cs-name').textContent=B.name.toUpperCase(); document.getElementById('cs-sub').textContent=`${B.st} · failed ${B.failed}`;
+  const st=document.getElementById('cs-status'); st.className='status '+B.status[0]; st.textContent=B.status[1];
+  const sl=document.getElementById('qs'); sl.max=n-1; if(q>n-1) q=n-1; sl.value=q;
+  const pts=rows.map(r=>({x:qn(r.q),y:r.pct}));
+  chart(document.getElementById('ch1'),pts,{label:'Risk rating',min:0,max:100,ticks:[0,50,100],fmt:v=>Math.round(v)+'',color:'#1c7ed6',ref:98,sel:q,tipLabel:'Risk rating',extra:i=>`<br>Rank ${rows[i].rank.toLocaleString()} of ${rows[i].n.toLocaleString()}`,pick:i=>{q=i;cases();}});
+  document.getElementById('r-title').textContent=B.r.t; document.getElementById('r-sub').textContent=B.r.s;
+  const rp=B.r.v.slice(0,n).map((v,i)=>({x:pts[i].x,y:v})); const mx=Math.max(...rp.map(p=>p.y)); const step=mx>100?50:25, top=Math.ceil(mx/step)*step; const tk=[]; for(let v=0;v<=top;v+=step) tk.push(v);
+  chart(document.getElementById('ch2'),rp,{label:B.r.t,min:Math.min(0,...rp.map(p=>p.y)),max:top,ticks:tk,fmt:v=>(Math.abs(v)<10&&v%1?v.toFixed(1):Math.round(v))+'%',color:'#e8590c',sel:q,tipLabel:'Value',pick:i=>{q=i;cases();}});
+  const r=rows[q];
+  document.getElementById('qlab').textContent=qn(r.q); document.getElementById('d-q').textContent=qn(r.q).toUpperCase()+' REPORT';
+  document.getElementById('d-rank').textContent='#'+r.rank.toLocaleString(); document.getElementById('d-of').textContent=`riskiest of ${r.n.toLocaleString()} banks (#1 = riskiest)`;
+  document.getElementById('d-pct').textContent=r.pct.toFixed(1)+' / 100';
+  document.getElementById('d-rl').textContent=bank===59017?'Uninsured deposits':'Bond losses vs. equity'; document.getElementById('d-rv').textContent=B.r.v[q].toFixed(1)+'%';
+  document.getElementById('d-fl').innerHTML=r.pct>=98?'YES':'No';
+  const m=Math.max(...r.sig.map(s=>s[1]));
+  document.getElementById('d-bars').innerHTML=r.sig.map(s=>`<div class="bar">${s[0].replace(/^the /,'').replace(/^./,c=>c.toUpperCase())}<div class="track"><div class="fill" style="width:${(s[1]/m*100).toFixed(0)}%"></div></div></div>`).join('');
+  document.getElementById('d-say').textContent=B.say[phase(n,q)];
+}
+document.getElementById('chips').addEventListener('click',e=>{ const c=e.target.closest('[data-c]'); if(c){ bank=+c.dataset.c; q=CASE[bank].length-1; cases(); } });
+document.getElementById('qs').addEventListener('input',e=>{ q=+e.target.value; cases(); });
+
+/* watchlist */
+let w=2;
+function watch(){
+  document.getElementById('seg').innerHTML=TH.map((t,i)=>`<button class="btn ${i===w?'on':''}" data-w="${i}">TOP ${+(t.share*100).toFixed(1)}%${t.share===0.02?'<span class="pub">★ CANARY USES THIS</span>':''}</button>`).join('');
+  const t=TH[w];
+  document.getElementById('w1').innerHTML=`${t.caught} <small>of ${t.eligible}</small>`; document.getElementById('w2').textContent=(t.false_alarm*100).toFixed(1)+'%'; document.getElementById('w3').textContent=t.rows.toLocaleString();
+  chart(document.getElementById('ch3'),TH.map(x=>({x:'Top '+(+(x.share*100).toFixed(1))+'%',y:x.caught})),{label:'Failures caught by watchlist size',min:15,max:30,ticks:[15,20,25,30],fmt:v=>Math.round(v)+'',color:'#1e2240',sel:w,tipLabel:'Caught',extra:i=>`<br>False alarms: ${(TH[i].false_alarm*100).toFixed(1)}%`,pick:i=>{w=i;watch();},h:220});
+  document.getElementById('w-say').innerHTML=`Flagging the <b>top ${+(t.share*100).toFixed(1)}%</b> each quarter catches <b>${t.caught} of ${t.eligible}</b> failures early. ${t.share>=0.1?'At this size <b>Signature Bank would have been caught</b>. SVB and First Republic still would not.':'None of the three 2023 collapses is caught at this size.'}`;
+}
+document.getElementById('seg').addEventListener('click',e=>{ const b=e.target.closest('[data-w]'); if(b){ w=+b.dataset.w; watch(); } });
+
+/* search (mock directory) */
+const DIR=[
+  {name:'Silicon Valley Bank',st:'CA',status:'Failed Mar 10, 2023',kind:'full',al:['svb']},
+  {name:'Signature Bank',st:'NY',status:'Failed Mar 12, 2023',kind:'full',al:['signature']},
+  {name:'First Republic Bank',st:'CA',status:'Failed May 1, 2023',kind:'full',al:['first republic','frb']},
+  {name:'Silvergate Bank',st:'CA',status:'Closed 2023 (wound down)',kind:'nore',al:[]},
+  {name:'IndyMac Bank, F.S.B.',st:'CA',status:'Failed Jul 11, 2008',kind:'none',al:['indymac']},
+];
+const KIND={full:['FULL REPORT','full'],nore:['SCORE ONLY','nore'],none:['NOT SCORED','none']};
+function search(){
+  const v=document.getElementById('q').value.trim().toLowerCase(), box=document.getElementById('sugs');
+  if(!v){ box.innerHTML='<p class="note">Try “SVB”, “Signature”, “Silvergate” or “IndyMac”.</p>'; document.getElementById('res').innerHTML=''; return; }
+  const hits=DIR.filter(b=>b.name.toLowerCase().includes(v)||b.al.some(a=>a.startsWith(v))||(v.length>=2&&b.name.toLowerCase().split(' ').some(wd=>wd.startsWith(v))));
+  box.innerHTML=hits.length?'<div class="pix" style="font-size:10px;margin-bottom:10px">DID YOU MEAN</div>'+hits.map(b=>`<div class="box sug" data-i="${DIR.indexOf(b)}"><div><b>${b.name}</b><div class="note">${b.st} · ${b.status}</div></div><span class="badge ${KIND[b.kind][1]}">${KIND[b.kind][0]}</span></div>`).join(''):'<p class="note">No match in this mockup. The real app searches all 11,000+ banks.</p>';
+}
+function open(i){ const b=DIR[i], el=document.getElementById('res');
+  if(b.kind==='full') el.innerHTML=`<div class="box result"><h2 class="pix" style="font-size:16px">${b.name.toUpperCase()}</h2><p>${b.st} · ${b.status}</p><p>This bank has a full written report. You'll first watch the team build it (about 30 seconds, or skip), then read it.</p><button class="btn go" data-go="how">WATCH IT BEING BUILT ▶</button></div>`;
+  else if(b.kind==='nore') el.innerHTML=`<div class="box result"><h2 class="pix" style="font-size:16px">${b.name.toUpperCase()}</h2><p>${b.st} · ${b.status}</p><p class="say">No written report for this bank. Here's what code alone can show:</p><div class="row"><span>Latest risk rank</span><b>(from the data)</b></div><div class="row"><span>Rank history since 2016</span><b>chart</b></div><div class="row"><span>Real-estate loan rule check</span><b>(from the data)</b></div></div>`;
+  else el.innerHTML=`<div class="box result"><h2 class="pix" style="font-size:16px">${b.name.toUpperCase()}</h2><p>${b.st} · ${b.status}</p><p class="say">Canary only scores banks from 2016 on. This bank stopped reporting in 2008, before that. Earlier years were used to teach the model, so scoring them would not be a fair test.</p></div>`;
+}
+document.getElementById('q').addEventListener('input',search);
+document.getElementById('sugs').addEventListener('click',e=>{ const s=e.target.closest('.sug'); if(s) open(+s.dataset.i); });
+window.addEventListener('resize',()=>{ if(document.getElementById('v-cases').classList.contains('on')) cases(); if(document.getElementById('v-watch').classList.contains('on')) watch(); });
+</script>
+</body>
+</html>

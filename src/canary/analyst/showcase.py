@@ -47,6 +47,11 @@ RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is
 RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s
 
 
+# The 20 largest banks by total assets at 2026-06-30, one charter per brand (spec 5.8).
+BIG_BANK_CERTS: tuple[int, ...] = (628, 3510, 7213, 3511, 33124, 6548, 4297, 6384, 9846, 639, 32992, 14, 18409,
+                                   6672, 6560, 16571, 57450, 11063, 57957, 588)
+
+
 def _as_dt(d: date) -> pd.Timestamp:
     return pd.Timestamp(d)
 
@@ -54,7 +59,7 @@ def _as_dt(d: date) -> pd.Timestamp:
 def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path,
                    watchlist_top: int | None = None) -> list[tuple[int, date, str]]:
     """(cert, as_of, group). First group wins: case study, test miss, test catch, after window,
-    latest watchlist, false alarm. With `watchlist_top`, the latest watchlist group takes only the
+    big bank (BIG_BANK_CERTS, as of the latest quarter), latest watchlist, false alarm. With `watchlist_top`, the latest watchlist group takes only the
     best-ranked N flagged banks (banks claimed by an earlier group do not count toward N)."""
     scored = ctx.scored
     banks = ctx.banks
@@ -88,6 +93,9 @@ def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path,
         if not rows.empty:
             add(cert, last_report(cert), "after_window")
 
+    for cert in BIG_BANK_CERTS:
+        add(cert, latest, "big_bank")
+
     now = scored[(scored["report_date"] == _as_dt(latest)) & scored["flagged"].astype(bool)]
     ordered = now.sort_values("rank")["cert"].astype(int).tolist() if watchlist_top is not None \
         else sorted(now["cert"].astype(int))
@@ -110,6 +118,27 @@ def showcase_banks(ctx: Context, model_dir: Path, replay_dir: Path,
         elif not flagged.empty:
             add(cert, flagged["report_date"].max().date(), "false_alarm")
     return picks
+
+
+def done_banks(trace_dir: Path) -> set[tuple[int, date]]:
+    """(cert, as_of) of every finished bank: a trace `<cert>_<as_of>.json` with `"ok": true` (the same rule
+    as canary.dashboard.tables.showcase_certs). Unreadable or failed traces do not count."""
+    done: set[tuple[int, date]] = set()
+    for path in Path(trace_dir).glob("*.json"):
+        cert, _, as_of = path.stem.partition("_")
+        try:
+            key = (int(cert), date.fromisoformat(as_of))
+            if json.loads(path.read_text(encoding="utf-8")).get("ok") is True:
+                done.add(key)
+        except (ValueError, OSError):
+            continue
+    return done
+
+
+def drop_done(banks: list[tuple[int, date, str]], trace_dir: Path) -> list[tuple[int, date, str]]:
+    """The banks without a finished trace for their (cert, as_of)."""
+    done = done_banks(trace_dir)
+    return [b for b in banks if (b[0], b[1]) not in done]
 
 
 def request_tokens(request: dict) -> int:

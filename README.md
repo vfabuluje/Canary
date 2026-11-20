@@ -43,10 +43,10 @@ The training data shows how unusual that was. SVB's held-to-maturity bond loss w
 3. **Train and test the model (done).** Turn each report into about 30 health measures (capital, bad loans, profits, funding, bond losses), train the model on 2001-2014, and test it once on 2016-2024. The results are above.
 4. **Replay the 2023 failures (done).** Work out why SVB, Signature and First Republic were missed, and test whether a simple, explainable check (bond losses combined with uninsured deposits) would have flagged them, and at what cost in false alarms. It is reported separately from the clean test, because it was designed after seeing the 2023 failures. The results are above.
 5. **Add AI analyst agents and sections (5a-5e done).** Phase 5 is **three AI agents (trend, peer and risk analyst) plus one code-only check (concentration)**. Each memo is written by the three agents in turn and each is checked by code, which rejects any number it cannot trace to the bank's facts (details under "How a memo is written" below). The risk analyst, an AI agent (Claude), writes a short memo for a bank citing the exact quarter and numbers it relies on. 61 notes are written. The memo has since grown sections: 5b and 5c are AI-written sections (written by the trend and peer agents, checked by the same code checker), and 5d is a code-written section. The trend section (5b) is built and in all of them: every new memo shows which of the bank's ratios left their own prior range, descriptive only, with no measured result. The peer section (5c) is built: each new memo compares the bank with banks the FDIC puts in the same specialty group and size tier, descriptive only, with no measured result. The concentration section (5d) is built: each new memo checks whether the bank crossed the two 2006 regulator lines for commercial real estate lending (supervisory screens, not predictions, with no measured result). It is written by code, not by an AI agent, and adds no Claude API cost. The 61 committed notes were re-written by the three-agent pipeline on 2026-11-19 (see the showcase line below).
-6. **Build a dashboard.** An interactive web page to look up any bank's risk over time, plus a short demo video.
+6. **Build a dashboard (built, not yet deployed).** An interactive web page to look up any bank's risk over time (see "Dashboard" below), plus a short demo video.
 
 ## Built with
-Python and pandas for the data pipeline; AWS (S3, Athena, Glue) as the data warehouse; dbt for tested data models; XGBoost for the model. Claude (via the Claude API) as the AI risk analyst that writes cited risk memos per bank; a Streamlit dashboard is planned. All data is public, from the FDIC.
+Python and pandas for the data pipeline; AWS (S3, Athena, Glue) as the data warehouse; dbt for tested data models; XGBoost for the model. Claude (via the Claude API) as the AI risk analyst that writes cited risk memos per bank; a Streamlit dashboard to explore the results. All data is public, from the FDIC.
 
 ---
 
@@ -233,13 +233,20 @@ One-time AWS setup (bucket, Athena, budget, limited IAM user): [runbooks/aws-set
 
 Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, then `dbt build --no-partial-parse` from `warehouse/`. Details and what to do if a step fails: [runbooks/warehouse-refresh.md](runbooks/warehouse-refresh.md). Features, training and the one-time test: [runbooks/model-training.md](runbooks/model-training.md). To re-run only the dbt tests (read-only): `dbt test --no-partial-parse --profiles-dir .` from `warehouse/`.
 
+## Dashboard
+A Streamlit web app, in `dashboard/`, to look up any bank's risk rank over time, read the 2023 stories, see how a bigger or smaller watchlist trades failures caught against false alarms, and, for banks with a written report, watch the three AI agents build it and read it. It is read-only, reads a small folder of exported files (`dashboard/data/`) and not the warehouse, and offers three themes. **Ask Canary**, a question box on each written-report page, uses Claude Haiku 5.5 with hard spending caps (5 questions per visitor, 300 a day) and is off unless switched on. **Research tool, not financial advice.**
+
+**Live app:** <!-- LIVE_APP_URL --> (not deployed yet).
+
+Run it locally with `streamlit run dashboard/app.py` after `pip install -e ".[dashboard,model,analyst]"`. Refresh the data, deploy and manage Ask Canary: [runbooks/dashboard.md](runbooks/dashboard.md). Why it is built this way: [decisions/0023-dashboard.md](decisions/0023-dashboard.md). Exported files: [data-dictionary/dashboard-exports.md](data-dictionary/dashboard-exports.md).
+
 ## Status and roadmap
 1. **(done) FDIC data pull.** Pulls quarterly financials for every FDIC-insured bank and the FDIC failed bank list to local Parquet files.
 2. **(done) Warehouse.** The raw files are copied to S3, exposed as Athena tables, and cleaned into dbt models with data tests.
 3. **(done) Features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024 (time-based only). Results are above.
 4. **(done) SVB / Signature / First Republic replay; error analysis.** The training-era failure mix, a what-if test of the model, a post-hoc run-risk check and a corrected baseline. See the post-hoc section above and [analysis/phase4-replay.md](analysis/phase4-replay.md).
 5. **(5a-5d done)** AI risk analyst agent that writes cited risk memos per bank (see below), now with descriptive ratio-trends and peer-comparison sections and a code-written real-estate concentration section (5d).
-6. Streamlit dashboard; metrics and limitations; demo video.
+6. **(dashboard built, not yet deployed)** Streamlit dashboard; then metrics and limitations; demo video.
 
 ## Reference
 - [RESULTS.md](RESULTS.md): full case-study tables with the signals behind each score, and the full analysis of the misses.

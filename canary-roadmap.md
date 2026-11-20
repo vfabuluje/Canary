@@ -20,11 +20,11 @@ kanban-plugin: board
 
 ## In Progress
 
+- [ ] Phase 6: Streamlit dashboard: built on branch `phase6-dashboard` (decision 0023, data dictionary, runbook written); not yet deployed to Streamlit Community Cloud, Ask Canary and the 100-bank showcase still to do
 
 
 ## Not Started
 
-- [ ] Phase 6: Streamlit dashboard
 - [ ] Phase 6: README with metrics and limitations
 - [ ] Phase 6: Demo video
 - [ ] Phase 6: LinkedIn post

@@ -1,5 +1,5 @@
 """Risk analyst: python -m canary.analyst ask "question" [--model M], memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks],
-showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] [--max-cost USD] (notes for the showcase set in two batch rounds), and
+showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] [--skip-done] [--max-cost USD] (notes for the showcase set in two batch rounds), and
 compare [--models A,B] (case-study notes with several models, pass rate and cost per model).
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
@@ -82,6 +82,12 @@ def build_parser() -> argparse.ArgumentParser:
                       help="only the N best-ranked banks of the latest-quarter watchlist (default: all); "
                            "used by --dry-run and the real run, ignored with --resume (the bank list comes "
                            "from the state file)")
+    show.add_argument("--skip-done", action="store_true",
+                      help="drop banks that already have a passing trace (data/analyst/traces/<cert>_<as_of>.json "
+                           "with ok: true) before the estimate and before any batch; ignored with --resume")
+    show.add_argument("--trace-dir", default="data/analyst/traces",
+                      help="where every memo's trace is written, where --skip-done looks for passing traces, "
+                           "and what a fresh run checks so done banks are not paid for again")
     cmp_ = sub.add_parser("compare", parents=[shared], help="write the case-study notes with several models and compare")
     cmp_.add_argument("--models", default="claude-opus-5-5,claude-sonnet-5-5", help="comma-separated writer models")
     cmp_.add_argument("--out", default="data/analyst/compare", help="comparison folder (one subfolder per model)")
@@ -152,6 +158,17 @@ def _showcase(args) -> int:
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
     banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir), watchlist_top=args.watchlist_top)
+    trace_dir = Path(args.trace_dir)
+    if args.skip_done and args.resume is None:
+        from canary.analyst.showcase import drop_done
+
+        if not trace_dir.is_dir():
+            print(f"error: --skip-done: trace folder {trace_dir} does not exist (a wrong path would mean "
+                  "'nothing done'); nothing changed", file=sys.stderr)
+            return 1
+        before = len(banks)
+        banks = drop_done(banks, trace_dir)
+        print(f"--skip-done: {before - len(banks)} banks already done, {len(banks)} left")
     if args.dry_run:
         counts: dict[str, int] = {}
         for cert, as_of, group in banks:
@@ -170,12 +187,28 @@ def _showcase(args) -> int:
               f"rerun with --resume {state['batch_id']} (or delete that file to start a new batch)",
               file=sys.stderr)
         return 1
+    if args.resume is None:
+        from canary.analyst.showcase import done_banks
+
+        done = done_banks(trace_dir) if trace_dir.is_dir() else set()
+        n_done = sum((c, d) in done for c, d, _ in banks)
+        if n_done and not args.skip_done:
+            print(f"error: {n_done} of the {len(banks)} selected banks already have a passing trace in "
+                  f"{trace_dir} and would be paid for again; pass --skip-done to leave them out; nothing "
+                  "was started", file=sys.stderr)
+            return 1
+        existing = [p for p in (Path(args.report), state_path(Path(args.report))) if p.exists()]
+        if existing:
+            print("error: a fresh run would replace the records of an earlier run ("
+                  + ", ".join(str(p) for p in existing) + "); use a new --report path or move the old "
+                  "files deliberately; nothing was started", file=sys.stderr)
+            return 1
     from canary.analyst.showcase import ResumeError
 
     try:
         report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
                               banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume,
-                              max_cost=args.max_cost)
+                              trace_dir=trace_dir, max_cost=args.max_cost)
     except RunStopped as exc:
         st = read_state(Path(args.report))
         if st is None:

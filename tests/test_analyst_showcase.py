@@ -9,9 +9,26 @@ from analyst_fakes import FakeClient, fake_agent_memo, fake_message
 from canary.analyst import __main__ as cli
 from canary.analyst.facts import build_fact_sheet
 from canary.analyst.sections import all_sections
+from canary.analyst import showcase as showcase_mod
 from canary.analyst.showcase import run_showcase, showcase_banks
 from canary.analyst.writer import PRICES, RefusalError, TruncatedError, cost_usd
 
+
+
+@pytest.fixture(autouse=True)
+def _empty_default_trace_dir(tmp_path, monkeypatch):
+    """The CLI's default --trace-dir is data/analyst/traces (real finished banks); tests use an empty one."""
+    parser = cli.build_parser
+
+    def build():
+        p = parser()
+        p.set_defaults(trace_dir=str(tmp_path / "default_traces"))
+        for action in p._subparsers._group_actions[0].choices["showcase"]._actions:
+            if action.dest == "trace_dir":
+                action.default = str(tmp_path / "default_traces")
+        return p
+
+    monkeypatch.setattr(cli, "build_parser", build)
 
 
 @pytest.fixture
@@ -112,6 +129,92 @@ def test_cli_watchlist_top_dry_run(analyst_ctx, tmp_model_dir, tmp_replay_dir, c
                    "--replay-dir", str(tmp_replay_dir.path)])
     out = capsys.readouterr().out
     assert rc == 0 and out.count("\tlatest_watchlist") == 2
+
+
+def _big(monkeypatch, certs):
+    monkeypatch.setattr(showcase_mod, "BIG_BANK_CERTS", tuple(certs))
+
+
+def _free_ranked(ctx, model_dir, replay_dir):
+    """Flagged latest-quarter certs, best rank first, not claimed by an earlier group."""
+    ranked = _watchlist_ranked(ctx)
+    full = showcase_banks(ctx, model_dir, replay_dir)
+    claimed = {c for c, _, g in full if g not in ("latest_watchlist", "false_alarm")}
+    return [c for c in ranked if c not in claimed]
+
+
+def test_big_bank_constant_has_the_20_certs():
+    assert showcase_mod.BIG_BANK_CERTS == (628, 3510, 7213, 3511, 33124, 6548, 4297, 6384, 9846, 639, 32992,
+                                           14, 18409, 6672, 6560, 16571, 57450, 11063, 57957, 588)
+
+
+def test_big_bank_group_order(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch):
+    _mark_after_window(analyst_ctx)
+    _flag_latest(analyst_ctx)
+    free = _free_ranked(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    _big(monkeypatch, [free[0], 101, 3, 24735])  # flagged, after_window, test_catch, case_study: earlier groups win
+    out = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    groups = {c: g for c, _, g in out}
+    assert groups[free[0]] == "big_bank"
+    assert (groups[101], groups[3], groups[24735]) == ("after_window", "test_catch", "case_study")
+    order = [g for _, _, g in out]
+    first = {g: order.index(g) for g in set(order)}
+    assert first["after_window"] < first["big_bank"] < first["latest_watchlist"]
+    assert {d for c, d, g in out if g == "big_bank"} == {analyst_ctx.latest_quarter}
+
+
+def test_big_bank_claims_before_watchlist(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch):
+    _flag_latest(analyst_ctx)
+    free = _free_ranked(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    assert len(free) > 3
+    _big(monkeypatch, [free[0]])  # the best-ranked flagged bank is also a big bank
+    out = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path, watchlist_top=2)
+    certs = [c for c, _, _ in out]
+    assert len(certs) == len(set(certs))
+    assert [c for c, _, g in out if g == "big_bank"] == [free[0]]
+    assert [c for c, _, g in out if g == "latest_watchlist"] == free[1:3]  # still 2 others
+
+
+def _write_trace(trace_dir, cert, as_of, ok):
+    trace_dir.mkdir(exist_ok=True)
+    (trace_dir / f"{cert}_{as_of}.json").write_text(json.dumps({"ok": ok}))
+
+
+def test_skip_done_drops_finished(analyst_ctx, tmp_model_dir, tmp_replay_dir, capsys, monkeypatch, tmp_path):
+    monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    banks = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    (c_ok, d_ok, _), (c_bad, d_bad, _), (c_old, _, _) = banks[0], banks[1], banks[2]
+    traces = tmp_path / "traces"
+    _write_trace(traces, c_ok, d_ok, True)
+    _write_trace(traces, c_bad, d_bad, False)  # failed trace: not done
+    _write_trace(traces, c_old, "1999-01-01", True)  # other as_of: not done
+    (traces / f"{banks[3][0]}_{banks[3][1]}.json").write_text("{not json")  # unreadable: not done
+    argv = ["showcase", "--dry-run", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+            "--trace-dir", str(traces)]
+    assert cli.main(argv) == 0
+    assert capsys.readouterr().out.count("\t") >= len(banks) * 2  # without the flag every bank is listed
+    assert cli.main([*argv, "--skip-done"]) == 0
+    out = capsys.readouterr().out
+    assert f"{c_ok}\t{d_ok}\t" not in out
+    assert f"{c_bad}\t{d_bad}\t" in out and f"{c_old}\t" in out
+    assert f"{len(banks) - 1} banks:" in out
+
+
+def test_skip_done_estimate_only_new(analyst_ctx, tmp_model_dir, tmp_replay_dir, capsys, monkeypatch, tmp_path):
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    banks = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    traces = tmp_path / "traces"
+    for c, d, _ in banks[:-2]:
+        _write_trace(traces, c, d, True)
+    argv = ["showcase", "--dry-run", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+            "--trace-dir", str(traces), "--skip-done"]
+    assert cli.main(argv) == 0
+    out = capsys.readouterr().out
+    assert "2 banks:" in out
+    est = showcase_mod.estimate_run(analyst_ctx, banks[-2:], cli.DEFAULT_MODEL, tmp_replay_dir.path)
+    assert f"estimated total with retries: ${est['total']:.2f}" in out
+    assert f"round 2 (analyst, batch): {est['rounds'][2]['requests']} requests" in out
 
 
 def test_estimate_constants_and_calibration():
@@ -1360,3 +1463,64 @@ def test_cli_round1_stop_says_rerun_not_resume(analyst_ctx, tmp_model_dir, tmp_r
                    "--report", str(tmp_path / "rep.json"), "--max-cost", "1"])
     err = capsys.readouterr().err
     assert rc == 1 and "nothing was paid" in err and "RE-RUN" in err and "--resume BATCH_ID" not in err
+
+
+# -- guards on a real (non-dry) run: no repaying, no overwriting, one trace folder -----------------------
+def _real_args(model_dir, replay_dir, tmp_path, *extra):
+    return ["showcase", "--model-dir", str(model_dir), "--replay-dir", str(replay_dir),
+            "--report", str(tmp_path / "new_report.json"), "--out", str(tmp_path / "banks"),
+            "--trace-dir", str(tmp_path / "traces"), *extra]
+
+
+def _no_client_cli(analyst_ctx, monkeypatch):
+    monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", lambda *a, **k: pytest.fail("run started"))
+
+
+def test_real_run_refuses_done_banks_without_skip_done(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path,
+                                                       monkeypatch, capsys):
+    _no_client_cli(analyst_ctx, monkeypatch)
+    banks = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    _write_trace(tmp_path / "traces", banks[0][0], banks[0][1], True)
+    rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path))
+    err = capsys.readouterr().err
+    assert rc == 1 and "1 of the" in err and "--skip-done" in err
+
+
+def test_real_run_refuses_existing_report_or_state(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path,
+                                                   monkeypatch, capsys):
+    _no_client_cli(analyst_ctx, monkeypatch)
+    for name, content in (("new_report.json", "{}"), ("new_report.state.json", '{"complete": true}')):
+        for f in tmp_path.glob("new_report*"):
+            f.unlink()
+        (tmp_path / name).write_text(content)
+        rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path))
+        err = capsys.readouterr().err
+        assert rc == 1 and "new --report path" in err and name in err
+        assert (tmp_path / name).read_text() == content
+
+
+@pytest.mark.parametrize("dry", [True, False])
+def test_skip_done_missing_trace_dir_is_an_error(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path,
+                                                 monkeypatch, capsys, dry):
+    _no_client_cli(analyst_ctx, monkeypatch)
+    rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path, "--skip-done",
+                             *(["--dry-run"] if dry else [])))
+    err = capsys.readouterr().err
+    assert rc == 1 and "does not exist" in err
+
+
+def test_trace_dir_flag_reaches_run_showcase(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path, monkeypatch):
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    seen = {}
+
+    def fake_run(*a, **k):
+        seen.update(k)
+        return {"written": 0, "failed": 0, "banks_total": 0, "cost_usd": 0.0, "banks": []}
+
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", fake_run)
+    (tmp_path / "traces").mkdir()
+    rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path, "--skip-done"))
+    assert rc == 0 and seen["trace_dir"] == tmp_path / "traces"

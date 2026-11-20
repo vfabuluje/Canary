@@ -19,7 +19,7 @@ DEFAULT_MODEL = "claude-opus-5-5"
 EFFORT = "medium"
 MAX_TOKENS = 16000
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
-PRICES = {"claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0)}  # $ per 1M tokens in/out
+PRICES = {"claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0), "claude-haiku-5-5": (0.10, 0.50)}  # $ per 1M tokens in/out
 
 _INTRO_BODY = """Canary is a research tool that ranks every FDIC-insured US bank \
 by a machine-learning score of its risk of failing within the next 4 quarters. You write short memo sections \
