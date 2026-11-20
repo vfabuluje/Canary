@@ -39,7 +39,7 @@ ASK_ENABLED = "false"
 A placeholder copy is `.streamlit/secrets.toml.example`. `.streamlit/secrets.toml` is git-ignored. Never paste a real key into a file in the repo, a commit, an issue or a chat.
 
 ## Ask Canary: turn it on and off
-Ask Canary (built in Phase 6 Task 10) answers questions on the report pages with Claude Haiku 5.5, about $0.002 a question. Its guards: 5 questions per visitor, 300 a day for the whole app, questions up to 300 characters, answers fact-checked by the same citation checker (plus a check for prediction and advice wording), nothing stored. It is **off by default**.
+Ask Canary (built in Phase 6 Task 10) answers questions on the report pages with Claude Haiku 5.5, about $0.002 a question. Its guards: 5 questions per visitor, 300 a day for the whole app, questions up to 300 characters, answers fact-checked by the same citation checker (plus a check that rejects forecasts and advice but allows the reports' own caveats, such as "not a prediction" and "warning signs"), nothing stored. It is **off by default**.
 - **On:** set `ASK_ENABLED = "true"` in Secrets and save. The app restarts.
 - **Off:** set `ASK_ENABLED = "false"` (or delete the line). The box disappears and the rest of the app is unaffected.
 - **Cost per question:** one call, or two when the first answer fails the check and is retried, so the worst case is about twice the daily estimate (about $1.20 for 300 questions instead of $0.60).
