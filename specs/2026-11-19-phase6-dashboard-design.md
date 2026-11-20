@@ -58,8 +58,8 @@ a non-technical viewer; the v6 two-screen design came from her feedback).
   and the characters in the report replay:
   - **Standard:** the grey page (`#d5d7db`); the replay uses the detective cast (Claude's call).
   - **Detectives:** a cork-board background with a red pixel pin on each card, dark top bar.
-  - **Basketball:** a hardwood-court background with white court lines (center circle behind the
-    title), blue top bar.
+  - **Basketball:** a darker hardwood-court background with white court lines (center circle
+    behind the title), blue top bar; headings on the court are white with a navy shadow.
   Cards stay white with navy borders in every theme so text stays readable. The casts:
   - **Detectives:** Trend Detective (deerstalker, magnifier), Peer Detective (striped beanie,
     folder), Lead Detective (fedora, notepad), the Fact Checker (glasses), the Rule Stamp (a
@@ -178,6 +178,17 @@ errors, the section texts, the concentration result) — not the full prompts.
 - **SVB, Signature and First Republic:** v6-quality wording written by Claude, using only numbers
   that appear in their notes, approved by Victor before it ships. A test checks that every number
   in that copy appears in the bank's note.
+
+### 5.7 Why "Canary" (Victor)
+- A tab giving the background in plain words: the name (the canary in the coal mine), the story
+  behind it (SVB, Signature, First Republic in 2023, as in the project's CLAUDE.md), the goal
+  (could public data have raised the alarm in time?), and the honest answer with a link to the
+  2023 tab. A pixel canary in a cage. No numbers beyond ones already shown elsewhere in the app.
+
+### Navigation
+- Top bar: the Canary logo on the left; tabs **Home · Find a bank · 2023 · Watchlist · How it works ·
+  Why Canary**; a single 🎨 theme button on the right that opens the three theme choices (the
+  home page also shows them). Labels kept short so the bar isn't crowded (Victor).
 
 ### 5.6 Ask Canary (Victor: Claude Haiku 5.5)
 - A question box on each of the 61 written-report pages ("Ask Canary about this bank"). Banks
