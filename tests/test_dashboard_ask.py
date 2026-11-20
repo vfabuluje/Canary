@@ -15,7 +15,7 @@ from streamlit.testing.v1 import AppTest
 
 from canary.dashboard import ask, askbox
 from canary.dashboard.ask import (ANSWER_SECTION, ASK_MODEL, CANT_CHECK, DAILY_LIMIT, MAX_CHARS, RESTING,
-                                  SESSION_LIMIT, DailyCounter, answer, build_request)
+                                  SESSION_LIMIT, SYSTEM_PROMPT, DailyCounter, answer, build_request)
 from tests.analyst_fakes import FakeClient, api_status_error, fake_message
 from tests.dashboard_fixtures import write_fixture_data
 
@@ -155,12 +155,24 @@ def test_answer_html_cannot_escape_into_markdown():
 
 @pytest.mark.parametrize("text", [
     "Canary predicted this bank's trouble.",
+    "The model forecasts trouble for this bank.",
     "Its filings showed signs of failure.",
-    "This was an early warning.",
+    "Its filings showed warning signs of failure.",
+    "The report shows warning signs of impending failure.",
+    "The data warned of trouble ahead.",
     "The bank will fail within a year.",
     "It is going to fail.",
+    "It is likely to fail.",
+    "This bank could fail soon.",
+    "The bank might collapse.",
+    "The bank is safe.",
+    "This bank is perfectly safe.",
+    "It is not safe.",
+    "Your deposits are safe here.",
+    "It is a safe bank.",
     "You should withdraw your money now.",
     "Depositors should move their savings elsewhere.",
+    "Withdraw your money while you can.",
     "It is safe to deposit here.",
     "I would recommend another bank.",
 ])
@@ -184,9 +196,36 @@ def test_advice_then_plain_retry_passes(svb):
     "The bank failed on its own; regulators closed it.",
     "Uninsured deposits can leave quickly, because they are above the FDIC's insurance limit.",
     "I can't tell from this bank's data whether it is safe.",
+    "Canary's score is not a prediction; it ranks banks by risk.",
+    "Canary is not a forecast of what will happen.",
+    "The model cannot predict a run on deposits.",
+    "The report lists several warning signs in the bank's filings.",
+    "Canary is a bank failure early-warning system.",
+    "That money is not protected if the bank fails, so it can leave quickly.",
+    "Banks should keep enough capital to absorb losses.",
+    "It will help to know that the FDIC insures deposits up to its limit.",
 ])
 def test_plain_wording_is_not_mistaken_for_advice(svb, text):
     assert answer(svb, "Q?", FakeClient([_memo((text, []))])).ok
+
+
+def test_report_caveat_citing_a_trend_fact_passes(svb):
+    """The written reports ban 'warning' in trend sentences; Ask answers may repeat the reports' caveats."""
+    f = _fact(svb, "Trend: annualized interest expense as a share of assets, val")
+    text = f"One of the warning signs was interest expense at {f['display']} of assets in Q4 2022."
+    assert answer(svb, "Q?", FakeClient([_memo((text, [f["id"]]))])).ok
+
+
+def test_forecast_citing_a_trend_fact_is_still_rejected(svb):
+    f = _fact(svb, "Trend: annualized interest expense as a share of assets, val")
+    memo = _memo((f"Interest expense at {f['display']} of assets in Q4 2022 predicts trouble.", [f["id"]]))
+    assert answer(svb, "Q?", FakeClient([memo, memo])).outcome == "checker_failed"
+
+
+def test_prompt_rule_10_matches_the_check():
+    rule = SYSTEM_PROMPT.split("10. ", 1)[1].split("11. ", 1)[0]
+    assert "not a prediction" in rule and "warning signs" in rule
+    assert "safe" in rule and "fail" in rule
 
 
 # ------------------------------------------------------------------------------------------- outcome categories
