@@ -91,3 +91,18 @@ def threshold_chart(table: list[dict], selected: int) -> alt.LayerChart:
     tooltip = [alt.Tooltip("quarter:O", title="Watchlist size"), alt.Tooltip("caught:Q", title="Caught"),
                alt.Tooltip("false_text:N", title="False alarms")]
     return _line(frame, selected, "caught", LINE_COLOR, y, tooltip).properties(height=220).configure(background="#ffffff").configure_view(stroke=None)
+
+
+def history_chart(history: pd.DataFrame) -> alt.LayerChart:
+    """One bank's risk rating (percentile, 0-100, higher = riskier) by quarter: one axis, square markers."""
+    frame = pd.DataFrame({"quarter": [quarter_label(str(d.date())) for d in history["report_date"]],
+                          "pct": history["percentile"].astype(float).to_numpy(),
+                          "rank_text": [f"{int(r):,} of {int(n):,}" for r, n in zip(history["rank"], history["n_banks"])]})
+    base = alt.Chart(frame).encode(x=_x(frame, title=None, axis=alt.Axis(labelAngle=-45, labelFontSize=11)),
+                                   y=alt.Y("pct:Q", title=None, scale=alt.Scale(domain=[0, 100]),
+                                           axis=alt.Axis(values=[0, 50, 100])))
+    tooltip = [alt.Tooltip("quarter:O", title="Quarter"), alt.Tooltip("pct:Q", title="Risk rating", format=".1f"),
+               alt.Tooltip("rank_text:N", title="Rank")]
+    line = base.mark_line(color=SCORE_COLOR, strokeWidth=3)
+    points = base.mark_point(shape="square", filled=True, color=SCORE_COLOR, opacity=1, size=70).encode(tooltip=tooltip)
+    return (line + points).properties(height=HEIGHT).configure(background="#ffffff").configure_view(stroke=None)
