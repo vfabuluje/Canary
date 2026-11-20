@@ -9,7 +9,7 @@ from streamlit.testing.v1 import AppTest
 from tests.dashboard_fixtures import write_fixture_data
 
 APP = str(Path(__file__).resolve().parents[1] / "dashboard" / "app.py")
-UNSCORED, AFTER_TEST, NO_REPORT = 9, 14, 46
+UNSCORED, AFTER_TEST, NO_REPORT = 9, 35, 46
 
 
 @pytest.fixture(autouse=True)
