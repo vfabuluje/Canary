@@ -167,8 +167,10 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .st-key-home-q [data-testid="stTextInputRootElement"], .st-key-find-search [data-testid="stTextInputRootElement"] { height:58px; }
 .st-key-home-q input, .st-key-find-search input { font-size:20px !important; padding:0 18px !important; height:100%; }
 .st-key-home-search [data-testid="stFormSubmitButton"] button { height:58px; padding:0 26px; }
-.hero { padding-top:clamp(24px, 9vh, 96px); }
-.what.home-below { margin-top:clamp(56px, 22vh, 220px); }
+/* Home's first screen: the bird, CANARY, the tagline and the search box (about 334px together) sit in the
+   middle of the window below the top bar; the next box starts just past the bottom edge. */
+.hero { padding-top:max(24px, calc(50vh - 241px)); }
+.what.home-below { margin-top:max(48px, calc(50vh - 250px)); }
 .what { padding:22px; margin:6px 0 22px; font-size:18px; }
 .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:8px; }
 @media (max-width:860px){ .stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
