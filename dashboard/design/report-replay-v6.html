@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Canary report — mockup v6</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#1e2240; --bg:#d5d7db; --card:#fffdf5; --green:#2f9e44; --yellow:#ffe066; --red:#c92a2a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--navy); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .pix { font-family:"Press Start 2P",ui-monospace,monospace; }
+  .wrap { max-width:980px; margin:0 auto; padding:18px 16px 40px; }
+  .btn { font-family:"Press Start 2P",monospace; font-size:11px; padding:12px 14px; border:3px solid var(--navy); background:#fff; cursor:pointer; box-shadow:3px 3px 0 var(--navy); color:var(--navy); }
+  .btn.big { font-size:13px; padding:16px 20px; background:var(--yellow); }
+  .btn.on { background:var(--navy); color:#fff; }
+  .btn:active { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--navy); }
+  .building { font-size:12px; line-height:1.6; margin-top:4px; }
+  .bankname { font-family:"Press Start 2P",monospace; font-size:28px; line-height:1.35; font-weight:900; margin:10px 0 14px; color:var(--navy);
+              text-shadow:3px 3px 0 #ffe066; letter-spacing:.02em; }
+  @media (max-width:600px) { .bankname { font-size:20px; } }
+  .themes { display:flex; gap:10px; justify-content:center; margin:6px 0 16px; }
+
+  /* ---------- screen 1: loading ---------- */
+  #loading { text-align:center; }
+  #loading h1 { font-size:14px; line-height:1.7; margin:6px 0 14px; }
+  .scene { position:relative; height:300px; max-width:640px; margin:0 auto; border:4px solid var(--navy); overflow:hidden; }
+  .scene.detective { background:linear-gradient(#5b4636 0 64%, #3d2f24 64% 100%); }
+  .scene.basketball { background:repeating-linear-gradient(90deg,#d9a066 0 38px,#cf955b 38px 76px); }
+  .actor { position:absolute; bottom:22px; transition:opacity .5s, transform .5s; }
+  .actor canvas { image-rendering:pixelated; }
+  .actor.hide { opacity:0; transform:translateY(20px); }
+  .actor.go canvas { animation:bob .45s steps(2) infinite; }
+  @keyframes bob { 0% {transform:translateY(0);} 100% {transform:translateY(-8px);} }
+  .prop { position:absolute; image-rendering:pixelated; }
+  .actor.go .tool { animation:tool .5s steps(2) infinite; }
+  @keyframes tool { 0% {transform:rotate(-15deg) translateX(-3px);} 100% {transform:rotate(15deg) translateX(3px);} }
+  .ball { position:absolute; }
+  .ball canvas { width:32px; height:32px; image-rendering:pixelated; }
+  .ball.dribble canvas { animation:dribble .5s ease-in infinite alternate; }
+  @keyframes dribble { 0% {transform:translateY(0);} 100% {transform:translateY(44px);} }
+  .bigstamp { position:absolute; left:50%; top:46px; margin-left:-150px; width:300px; padding:12px; border:6px solid var(--green); color:var(--green); background:rgba(255,255,255,.92);
+              font-family:"Press Start 2P",monospace; font-size:13px; line-height:1.6; transform:rotate(-8deg) scale(3); opacity:0; transition:transform .25s cubic-bezier(.2,1.8,.4,1), opacity .15s; }
+  .bigstamp.show { transform:rotate(-8deg) scale(1); opacity:1; }
+  .papers { position:absolute; left:50%; top:30px; margin-left:-120px; width:240px; font-family:"Press Start 2P",monospace; font-size:11px; color:#fff; line-height:2; }
+  .papers span { display:inline-block; background:#fff; color:var(--navy); padding:2px 6px; margin:3px; border:2px solid var(--navy); opacity:0; animation:drop .4s forwards; }
+  @keyframes drop { from { opacity:0; transform:translateY(-30px);} to { opacity:1; transform:translateY(0);} }
+  .checks { position:absolute; left:50%; top:40px; margin-left:-150px; width:300px; font-size:16px; text-align:left; background:#fff; border:3px solid var(--navy); padding:10px 12px; line-height:1.9; }
+  .checks div { opacity:0; animation:drop .3s forwards; }
+  .checks b { color:var(--green); }
+  .now { font-size:21px; line-height:1.45; margin:16px auto 4px; max-width:640px; min-height:62px; font-weight:700; }
+  .who { font-size:15px; opacity:.85; margin-bottom:14px; min-height:22px; }
+  .bar { display:flex; gap:6px; max-width:640px; margin:0 auto 14px; }
+  .bar div { flex:1; height:14px; border:3px solid var(--navy); background:#fff; }
+  .bar div.done { background:var(--green); } .bar div.on { background:var(--yellow); }
+  .skip { font-size:13px; background:none; border:none; text-decoration:underline; cursor:pointer; color:var(--navy); margin-top:6px; }
+
+  .stagewrap { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:14px; align-items:start; text-align:left; }
+  @media (max-width:860px) { .stagewrap { grid-template-columns:1fr; } }
+  .stagewrap .scene { max-width:none; }
+  .caps { text-align:center; }
+  .caps .now { font-size:19px; margin-top:12px; }
+  .team { background:#fff; border:3px solid var(--navy); box-shadow:3px 3px 0 var(--navy); padding:10px; }
+  .team h2 { font-size:10px; margin:2px 0 10px; }
+  .member { display:grid; grid-template-columns:50px 1fr; gap:8px; align-items:center; padding:6px; border:2px solid transparent; margin-bottom:5px; opacity:.55; transition:opacity .3s, background .3s; }
+  .member.active { opacity:1; border-color:var(--navy); background:var(--yellow); }
+  .member .mn { font-weight:800; font-size:14px; }
+  .member .md { font-size:13px; line-height:1.35; }
+  .member .doing { font-size:13px; font-weight:700; margin-top:3px; }
+  .legend { font-size:12px; line-height:1.5; border-top:2px dashed var(--navy); padding-top:8px; margin-top:4px; }
+  .hoop { position:absolute; left:50%; top:10px; margin-left:-46px; }
+  .swish { position:absolute; left:50%; top:34px; margin-left:62px; width:160px; text-align:center; font-family:"Press Start 2P",monospace; font-size:16px; color:#fff; text-shadow:3px 3px 0 var(--navy); opacity:0; transition:opacity .3s; }
+  .swish.show { opacity:1; }
+  .shot { position:absolute; animation:shot 1.3s cubic-bezier(.3,.0,.6,1) forwards; }
+  .shot canvas { width:32px; height:32px; image-rendering:pixelated; }
+  @keyframes shot { 0% { left:var(--x0); top:var(--y0);} 55% { left:calc((var(--x0) + var(--x1))/2); top:-10px;} 80% { left:var(--x1); top:32px;} 100% { left:var(--x1); top:78px; } }
+
+  /* ---------- screen 2: report ---------- */
+  #report { display:none; }
+  .rhead { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .rhead h1 { font-size:15px; line-height:1.6; margin:0; }
+  .rhead p { margin:4px 0 0; font-size:15px; }
+  .verdict { background:#fff; border:4px solid var(--navy); box-shadow:4px 4px 0 var(--navy); padding:16px 18px; margin-bottom:16px; }
+  .verdict .label { font-family:"Press Start 2P",monospace; font-size:10px; margin-bottom:8px; }
+  .verdict .big { font-size:22px; line-height:1.4; font-weight:800; }
+  .verdict .small { font-size:16px; line-height:1.5; margin-top:8px; }
+  .verdict .after { margin-top:10px; padding:8px 10px; background:#fff5f5; border:2px solid var(--red); font-size:15px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; }
+  .finding { background:var(--card); border:3px solid var(--navy); box-shadow:3px 3px 0 var(--navy); padding:14px; display:flex; flex-direction:column; gap:8px; }
+  .finding .top { display:flex; gap:10px; align-items:center; }
+  .finding canvas { image-rendering:pixelated; flex:none; }
+  .finding h3 { margin:0; font-size:17px; }
+  .finding .byline { font-size:13px; opacity:.85; }
+  .finding p { margin:0; font-size:16px; line-height:1.5; }
+  .finding.wide { grid-column:1/-1; }
+  .finding .checked { font-size:13px; color:var(--green); font-weight:700; }
+  .tag { display:inline-block; font-size:10px; font-weight:800; padding:1px 5px; border:2px solid var(--navy); margin-left:4px; vertical-align:middle; }
+  .tag.ai { background:#d0ebff; } .tag.rule { background:#e9ecef; }
+  .num { background:var(--yellow); padding:0 3px; font-weight:800; border-bottom:2px dotted var(--navy); cursor:help; }
+  .foot { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; font-size:14px; }
+  #tip { position:fixed; z-index:50; max-width:300px; background:var(--navy); color:#fff; padding:10px 12px; font-size:14px; line-height:1.4; border:3px solid #fff; box-shadow:4px 4px 0 rgba(0,0,0,.35); display:none; }
+  #tip b { color:var(--yellow); } #tip .x { float:right; cursor:pointer; margin-left:8px; font-weight:800; }
+  .ask { margin-top:18px; background:#fff3bf; border:3px solid var(--navy); padding:10px 12px; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- SCREEN 1 -->
+  <section id="loading">
+    <div class="pix building">Building Canary's report on</div><div class="bankname">Silicon Valley Bank</div>
+    <div class="themes">
+      <button class="btn on" id="t-det" onclick="setTheme('detective')">🔎 Detectives</button>
+      <button class="btn" id="t-bb" onclick="setTheme('basketball')">🏀 Basketball</button>
+    </div>
+    <div class="stagewrap"><div><div class="scene" id="scene"></div>
+    <div class="caps"><div class="now" id="now"></div>
+    <div class="who" id="who"></div>
+    <div class="bar" id="bar"></div>
+    <button class="btn big" id="see" style="visibility:hidden" onclick="showReport()">SEE THE REPORT ▶</button><br>
+    <button class="skip" onclick="showReport()">Skip to the report</button></div></div><aside class="team"><h2 class="pix">WHO'S ON NOW</h2><div id="members"></div><div class="legend"><span class="tag ai">AI</span> an AI helper that writes in plain English<br><span class="tag rule">RULE</span> plain computer code following a fixed rule</div></aside></div>
+
+  </section>
+
+  <!-- SCREEN 2 -->
+  <section id="report">
+    <div class="rhead">
+      <div><h1 class="pix">Silicon Valley Bank</h1><p>Canary's report, using the bank's numbers from the end of 2022.</p></div>
+      <button class="btn" onclick="replay()">▶ Watch how it was made</button>
+    </div>
+    <div class="verdict">
+      <div class="label">THE SHORT VERSION</div>
+      <div class="big">Canary's score said SVB looked <u>safer than most banks</u>. Its own numbers said otherwise.</div>
+      <div class="small">Canary ranked it <span class="num" data-tip="rank">3,494th</span> riskiest of <span class="num" data-tip="n">4,773</span> banks. But <span class="num" data-tip="unins">86.4%</span> of its deposits were uninsured, far more than a typical bank's <span class="num" data-tip="natmed">25.5%</span>, and losses on bonds it held were <span class="num" data-tip="htm">98.1%</span> of its safety cushion.</div>
+      <div class="after"><b>What happened next:</b> SVB collapsed on March 10, 2023. Canary did not flag it. That miss is the point of this project.</div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="foot">Every number above was checked against the bank's government data before it was saved. <b>Hover or tap</b> a highlighted number for what it means.</div>
+    <div class="ask"><b>Tell me in the terminal:</b> is the two-screen version easier? Does the loading screen make clear who does what, and does the report page make sense on its own?</div>
+  </section>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ---------- pixel sprite engine ---------- */
+const PAL = { k:'#1e2240', s:'#f4c29a', w:'#ffffff', y:'#ffd43b', o:'#f08c00', g:'#2f9e44', l:'#74c0fc', T:'#5c3a24' };
+const BODY = ["....kkkkkk....","...kHHHHHHk...","..kHHHHHHHHk..","..kHHHHHHHHk..","..kFFFFFFFFk..","..kFkFFFFkFk..","..kFkFFFFkFk..","..kFFFFFFFFk..",
+"...kkkkkkkk...","..kSSSSSSSSk..",".kSSSSSSSSSSk.",".kFSSSSSSSSFk.",".kkPPPPPPPPkk.","..kPPPkkPPPk..","..kPPk..kPPk..","..kkk....kkk.."];
+function draw(rows, map){ const h=rows.length, w=Math.max(...rows.map(r=>r.length)); const c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d');
+  rows.forEach((r,j)=>[...r].forEach((ch,i)=>{ if(ch!=='.'){ x.fillStyle=map[ch]||'#f0f'; x.fillRect(i,j,1,1);} })); return c; }
+function person(o){ let rows=BODY.slice(); if(o.hat) o.hat.forEach((r,i)=>{ if(r) rows[i]=r; });
+  if(o.stripes) rows=rows.map((r,j)=> j>=9&&j<=11 ? [...r].map((ch,i)=> ch==='S' && i%2===0 ? 'Z' : ch).join('') : r);
+  return draw(rows,{...PAL,H:o.H,F:o.F||PAL.s,S:o.S,P:o.P,X:o.X||'#000',Z:'#1b1b1b'}); }
+const HATS = { deerstalker:["...kkkkkkkk...","..kHHXHHXHHk..",".kHHHHHHHHHHk.",".kHkHHHHHHkHk."], fedora:[null,"...kHHHHHHk...","kkHHXXXXXXHHkk","kHHHHHHHHHHHHk"],
+  beanie:["....kXkXkX....","...kHXHXHXk...","..kXHXHXHXHk..","..kHXHXHXHXk.."], headband:[null,null,null,"..kXXXXXXXXk.."], cap:[null,"...kHHHHHHk...","..kHHHHHHHHkkk","..kXXXXXXXXXXk"],
+  glasses:[null,null,null,null,"..kFFFFFFFFk..","..kkkkFFkkkk.."] };
+const PROPS = { magnifier:["..kkk...",".kllk...","kllllk..",".kllk...","..kkkk..","....kTk.",".....kTk","......kk"], folder:["kkkk....","kyyykkkk","kyyyyyyk","kyyyyyyk","kyyyyyyk","kkkkkkkk"],
+  notepad:["kkkkkk","kwwwwk","kwkkwk","kwwwwk","kwkkwk","kkkkkk"], whistle:["kkkk..","kyyyk.","kyyyyk",".kkkk."], ball:["..kkkk..",".kookok.","kooookok","kkkkkkkk","kokoookk","kooookok",".kookok.","..kkkk.."],
+  stamp:["...kk...","..kTTk..","..kTTk..","...kk...",".kkkkkk.","kTTTTTTk","kkkkkkkk","kggggggk","kkkkkkkk"], check:["......kk",".....kgk","k...kgk.","kk.kgk..","kgkgk...",".kgk...."] };
+const prop = n => draw(PROPS[n], PAL);
+
+
+const BB = [
+".....kkkkkk.....","....kHHHHHHk....","...kHHHHHHHHk...","...kBBBBBBBBk...","...kFFFFFFFFk...","...kFkFFFFkFk...","...kFkFFFFkFk...","...kFFFFFFFFk...",
+"....kkFFFFkk....","..kkJJJJJJJJkk..",".kFkJJJJJJJJkRk.",".kFkJJJJJJJJkRk.",".kFkJJJJJJJJkRk.",".kFkJJJJJJJJkRk.",".kkkLLLLLLLLkkk.","...kSSSSSSSSk...",
+"...kSSSkkSSSk...","...kQQk..kGGk...","...kQQk..kGGk...","..kZZZk..kZZZk..","..kkkkk..kkkkk.."];
+const DIG = { '1':[".L.","LL.",".L.",".L.","LLL"], '2':["LLL","..L","LLL","L..","LLL"], '3':["LLL","..L","LLL","..L","LLL"], '5':["LLL","L..","LLL","..L","LLL"] };
+function baller(o){ // o: skin, hair, band, num, shoes, legSleeve, armSleeve
+  let rows = BB.map(r=>r.split(''));
+  const digits = String(o.num).split(''), w = digits.length*4-1, start = 4 + Math.floor((8-w)/2);
+  digits.forEach((d,di)=>DIG[d].forEach((r,ry)=>[...r].forEach((ch,rx)=>{ if(ch==='L') rows[9+ry][start+di*4+rx]='N'; })));
+  const map = {...PAL, H:o.hair, B:o.band||o.hair, F:o.skin, J:'#f8f9fa', N:'#4dabf7', L:'#74c0fc', S:'#74c0fc',
+    G:o.skin, Q:o.legSleeve||o.skin, R:o.armSleeve||o.skin, Z:o.shoes};
+  return draw(rows.map(r=>r.join('')), map);
+}
+function avatar(m){ return m.bb ? baller(m.bb) : m.look ? person(m.look) : prop(m.icon); }
+const TEAM = {
+ detective:{ rule:{name:'The Rule Stamp', tag:'rule', icon:'stamp'}, trend:{name:'Trend Detective', tag:'ai', look:{hat:HATS.deerstalker,H:'#8c5a3c',X:'#5c3a24',S:'#2b8a3e',P:'#495057'}, icon:'magnifier'},
+   peer:{name:'Peer Detective', tag:'ai', look:{hat:HATS.beanie,H:'#7048e8',X:'#b197fc',F:'#a0663f',S:'#e67700',P:'#364fc7'}, icon:'folder'},
+   check:{name:'The Fact Checker', tag:'rule', look:{hat:HATS.glasses,H:'#212529',S:'#f8f9fa',P:'#212529'}},
+   lead:{name:'Lead Detective', tag:'ai', look:{hat:HATS.fedora,H:'#495057',X:'#212529',S:'#c9a96e',P:'#5c3a24'}, icon:'notepad'} },
+ basketball:{ rule:{name:'The Referee', tag:'rule', look:{hat:[null,"...kHHHHHHk..."],H:'#212529',S:'#f8f9fa',P:'#212529',stripes:true}, icon:'whistle'},
+   trend:{name:'Trend Player #5', tag:'ai', bb:{num:5, skin:'#7a4a2a', hair:'#1b1b1b', shoes:'#1b1b1b', legSleeve:'#1b1b1b'}},
+   peer:{name:'Peer Player #13', tag:'ai', bb:{num:13, skin:'#c68a5a', hair:'#2b1d14', band:'#74c0fc', shoes:'#f8f9fa'}},
+   check:{name:'Replay Review', tag:'rule', look:{hat:HATS.glasses,H:'#6b4423',S:'#4dabf7',P:'#343a40'}},
+   lead:{name:'Captain #23', tag:'ai', bb:{num:23, skin:'#f6d3b3', hair:'#8a5a2b', shoes:'#74c0fc', armSleeve:'#74c0fc'}} }
+};
+const ROLE = { rule:'Checks one fixed rule: did the bank lend too much on commercial buildings? Just math.',
+  trend:'Looks at how this bank\'s own numbers changed over the last few years.', peer:'Compares the bank with similar banks to see what\'s normal for a bank like it.',
+  check:'Makes sure every number the AI helpers wrote really comes from the bank\'s data.', lead:'Reads everything and writes the summary. If findings disagree, must say so.' };
+const DOING = { rule:{rule:'Now: checking the building-loan rule'}, pair:{trend:'Now: studying how SVB\'s numbers changed', peer:'Now: comparing SVB with 23 similar banks'},
+  check:{check:'Now: checking every number'}, lead:{lead:'Now: writing the summary'}, done:{trend:'Done ✓', peer:'Done ✓', lead:'Done ✓', check:'Done ✓', rule:'Done ✓'} };
+const ACTIVE = { gather:[], rule:['rule'], pair:['trend','peer'], check:['check'], lead:['lead'], done:['trend','peer','check','lead','rule'] };
+function renderTeam(){ const box=$('members'); box.innerHTML=''; const T=TEAM[theme], k=STEPS[step].k;
+  ['rule','trend','peer','check','lead'].forEach(id=>{ const m=T[id], row=el('div','member'+(ACTIVE[k].includes(id)?' active':''));
+    row.appendChild(scaled(avatar(m), m.bb?3:m.look?3:5));
+    const doing=(DOING[k]||{})[id]; row.appendChild(el('div','',`<div class="mn">${m.name}<span class="tag ${m.tag}">${m.tag==='ai'?'AI':'RULE'}</span></div><div class="md">${ROLE[id]}</div>${doing?`<div class="doing">${doing}</div>`:''}`));
+    box.appendChild(row); }); }
+const STEPS = [
+ { k:'gather', now:'Gathering the bank\'s numbers from public government data…', who:{detective:'No AI yet: just collecting the facts.', basketball:'No AI yet: just collecting the facts.'} },
+ { k:'rule', now:'Checking one simple rule: did the bank lend too much on commercial buildings?', who:{detective:'The Rule Stamp · plain math, not AI', basketball:'The Referee · plain math, not AI'} },
+ { k:'pair', now:'Two AI helpers investigate at the same time.', who:{detective:'Trend Detective studies how the bank changed · Peer Detective compares it with similar banks', basketball:'Trend Player studies how the bank changed · Peer Player compares it with similar banks'} },
+ { k:'check', now:'Making sure every number they wrote is real…', who:{detective:'The Fact Checker · plain code, not AI', basketball:'Replay Review · plain code, not AI'} },
+ { k:'lead', now:'Writing the summary from everything found…', who:{detective:'Lead Detective · the third AI helper', basketball:'Captain #23 · the third AI helper'} },
+ { k:'done', now:'Report ready!', who:{detective:'Every number checked. Nothing had to be redone.', basketball:'Every number checked. Nothing had to be redone.'} },
+];
+let theme='detective', step=0, timer=null;
+const $=id=>document.getElementById(id);
+function el(tag, cls, html){ const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; }
+function scaled(c,s){ c.style.width=(c.width*s)+'px'; c.style.height=(c.height*s)+'px'; return c; }
+function actor(m, x, working){ const a=el('div','actor'+(working?' go':'')); a.style.left=x+'px'; a.appendChild(scaled(avatar(m), m.bb?8:10));
+  if (m.icon && m.icon!=='stamp'){ const t=el('div','prop tool'); t.appendChild(scaled(prop(m.icon),5)); t.style.left='118px'; t.style.top='70px'; a.appendChild(t); } return a; }
+function ball(x, y, dr){ const b=el('div','ball'+(dr?' dribble':'')); b.style.left=x+'px'; b.style.top=y+'px'; b.appendChild(prop('ball')); return b; }
+function scene(){ const s=$('scene'); s.className='scene '+theme; s.innerHTML=''; const T=TEAM[theme], k=STEPS[step].k;
+  if (k==='gather'){ const p=el('div','papers'); ['RANK 3,494','DEPOSITS','BONDS','LOANS','CAPITAL','86.4%','…'].forEach((w,i)=>{ const sp=el('span','',w); sp.style.animationDelay=(i*.25)+'s'; p.appendChild(sp); }); s.appendChild(p); }
+  if (k==='rule'){ if(theme==='detective'){ const st=el('div','prop'); st.appendChild(scaled(prop('stamp'),9)); st.style.left='290px'; st.style.bottom='30px'; s.appendChild(st); }
+    else s.appendChild(actor(T.rule, 60, true));
+    const b=el('div','bigstamp','NO WARNING<br><small style="font-size:9px">commercial-building loans:<br>13.7% of cushion (line: 300%)</small>'); if(theme==='basketball') b.style.marginLeft='-40px'; s.appendChild(b); setTimeout(()=>b.classList.add('show'), 700); }
+  if (k==='pair'){ s.appendChild(actor(T.trend, 70, true)); s.appendChild(actor(T.peer, 370, true));
+    if(theme==='basketball'){ s.appendChild(ball(210,190,true)); s.appendChild(ball(338,190,true)); } }
+  if (k==='check'){ s.appendChild(actor(T.check, 40, true)); const c=el('div','checks'); c.style.marginLeft='-60px';
+    ['-8.4% <b>✓ real</b>','86.4% <b>✓ real</b>','41.1% <b>✓ real</b>','3,494 <b>✓ real</b>'].forEach((w,i)=>{ const d=el('div','',w); d.style.animationDelay=(.3+i*.45)+'s'; c.appendChild(d); }); s.appendChild(c); }
+  if (k==='lead'){ s.appendChild(actor(T.lead, 240, true)); if(theme==='basketball') s.appendChild(ball(372,190,true)); }
+  if (k==='done'){
+    if (theme==='basketball'){ ['trend','peer','lead'].forEach((id,i)=>s.appendChild(actor(T[id], [30,430,230][i], false)));
+      const h=el('div','hoop'); h.appendChild(scaled(draw(HOOP, {...PAL, r:'#f03e3e', n:'#f8f9fa', b:'#f8f9fa', e:'#adb5bd'}),6)); s.appendChild(h);
+      const sh=el('div','shot'); sh.style.setProperty('--x0','360px'); sh.style.setProperty('--y0','190px'); sh.style.setProperty('--x1', (s.clientWidth/2-16)+'px'); sh.appendChild(prop('ball')); s.appendChild(sh);
+      const sw=el('div','swish','SWISH!'); s.appendChild(sw); setTimeout(()=>sw.classList.add('show'), 1350);
+    } else { ['trend','peer','lead'].forEach((id,i)=>s.appendChild(actor(T[id], 40+i*200, false))); }
+  }
+  $('now').textContent=STEPS[step].now; $('who').textContent=STEPS[step].who[theme];
+  [...$('bar').children].forEach((d,i)=>{ d.classList.toggle('done', i<step); d.classList.toggle('on', i===step); });
+  renderTeam();
+  const last = step===STEPS.length-1; $('see').style.visibility='hidden';
+  if (last) setTimeout(()=>{ if(step===STEPS.length-1) $('see').style.visibility='visible'; }, theme==='basketball'?1900:600); }
+const HOOP = ["eeeeeeeeeeeeeeee","ebbbbbbbbbbbbbbe","ebbbbbbbbbbbbbbe","ebbbbbkkkkbbbbbe","ebbbbbkbbkbbbbbe","eeeeeeeeeeeeeeee","...rrrrrrrrrr...","...n.n.n.n.n.n..","....n.n.n.n.n...","....nnnnnnnn...."];
+function run(){ clearInterval(timer); step=0; scene(); timer=setInterval(()=>{ if(step<STEPS.length-1){ step++; scene(); } else clearInterval(timer); }, 5500); }
+function setTheme(t){ theme=t; $('t-det').classList.toggle('on',t==='detective'); $('t-bb').classList.toggle('on',t==='basketball'); run(); }
+function showReport(){ clearInterval(timer); $('loading').style.display='none'; $('report').style.display='block'; buildReport(); window.scrollTo(0,0); }
+function replay(){ $('report').style.display='none'; $('loading').style.display='block'; run(); }
+
+const TIPS = {
+  rank:'Canary\'s model ranks every US bank by risk. SVB was <b>3,494th</b> out of 4,773: riskier than only about 27% of banks. It looked calm to the model.',
+  n:'<b>4,773</b> banks were ranked that quarter (the end of 2022).',
+  unins:'<b>86.4%</b> of SVB\'s deposits were above the $250,000 government insurance limit. That money is the most likely to be pulled out fast in a panic, which is what happened in March 2023.',
+  natmed:'<b>25.5%</b> is the typical (middle) figure across all US banks that quarter.',
+  htm:'SVB held bonds whose value had fallen since it bought them. On paper, those losses equaled <b>98.1%</b> of its safety cushion (equity).',
+  dep:'SVB\'s deposits <b>shrank 8.4%</b> over the year. In the three years before, they had grown every year: between 3.8% and 99.7%.',
+  peermed:'<b>41.1%</b> is the typical figure among the 23 large banks the government groups SVB with.',
+  cre:'Loans for commercial buildings were <b>13.7%</b> of SVB\'s safety cushion. Regulators look harder at banks above <b>300%</b>.',
+};
+function buildReport(){ const T=TEAM[theme], g=$('grid'); g.innerHTML='';
+  const F=[
+   ['trend','How its numbers changed', 'Deposits <span class="num" data-tip="dep">shrank 8.4%</span> in a year after years of fast growth. Canary\'s model did not treat that as a warning.'],
+   ['peer','Compared with similar banks', 'Even next to 23 similar big banks, its share of uninsured deposits (<span class="num" data-tip="unins">86.4%</span>) was unusually high. Typical for those banks: <span class="num" data-tip="peermed">41.1%</span>. Its bond losses stood out too.'],
+   ['rule','The building-loan rule', 'No warning. Commercial-building loans were only <span class="num" data-tip="cre">13.7%</span> of its cushion. That simply wasn\'t SVB\'s problem.'],
+   ['lead','The summary', 'Its loans looked healthy, but its funding and bonds stood out. Canary\'s calm score and these numbers <b>point in different directions</b>, and the report says so instead of hiding it.'],
+  ];
+  F.forEach(([id,title,text])=>{ const m=T[id]; const f=el('div','finding'+(id==='lead'?' wide':'')); const top=el('div','top'); top.appendChild(scaled(avatar(m), m.bb?3:m.look?3.5:5));
+    top.appendChild(el('div','',`<h3>${title}</h3><div class="byline">Found by ${m.name} <span class="tag ${m.tag}">${m.tag==='ai'?'AI':'RULE'}</span></div>`)); f.appendChild(top);
+    f.appendChild(el('p','',text)); f.appendChild(el('div','checked', m.tag==='ai'?'✓ Every number fact-checked':'✓ Plain math, no AI')); g.appendChild(f); }); }
+
+const tip=$('tip'); let pinned=false;
+function showTip(h,x,y,pin){ tip.innerHTML=(pin?'<span class="x" onclick="hideTip(true)">✕</span>':'')+h; tip.style.display='block'; tip.style.left=Math.min(x+14, innerWidth-312)+'px'; tip.style.top=Math.min(y+14, innerHeight-tip.offsetHeight-12)+'px'; pinned=!!pin; }
+function hideTip(f){ if(pinned&&!f) return; tip.style.display='none'; pinned=false; }
+const tgt=e=>e.target instanceof Element ? e.target.closest('[data-tip]') : null;
+document.addEventListener('mousemove', e=>{ const t=tgt(e); if(t&&!pinned) showTip(TIPS[t.dataset.tip], e.clientX, e.clientY); else if(!t) hideTip(); });
+document.addEventListener('click', e=>{ const t=tgt(e); if(t){ showTip(TIPS[t.dataset.tip], e.clientX, e.clientY, true); } else if(!(e.target instanceof Element && e.target.closest('#tip'))) hideTip(true); });
+
+STEPS.forEach(()=>$('bar').appendChild(el('div','')));
+run();
+</script>
+</body>
+</html>
