@@ -139,6 +139,8 @@ header[data-testid="stHeader"] { background:var(--nav); border-bottom:4px solid 
   margin-right:14px; border:2px solid var(--navy); background:#fff center/18px no-repeat; image-rendering:pixelated;
   background-image:url("{PLACEHOLDER}"); }
 .bank-icon { vertical-align:middle; margin-bottom:4px; }
+h3.start-title { font-size:11px !important; margin:0 0 10px; line-height:1.6; }
+[class*="st-key-box-start-"] [class*="st-key-pick-"] button { box-shadow:none; }
 [data-testid="stTextInputRootElement"] { border:3px solid var(--navy) !important; border-radius:0; box-shadow:3px 3px 0 var(--navy); background:#fff; }
 [data-testid="stTextInputRootElement"] input { font-size:17px; color:var(--navy); background:#fff; }
 [data-testid="stForm"] { border:0; padding:0; }

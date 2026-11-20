@@ -142,3 +142,18 @@ def test_full_report_dollars_are_not_maths(fixture_data):
     [note] = [m.value for m in at.expander[0].markdown if "size band" in m.value]
     assert r"(\$100 million to \$1 billion)" in note
     assert "$" not in note.replace(r"\$", "")
+
+
+def test_empty_page_suggests_banks_with_reports():
+    at = _find()
+    text = _text(at)
+    assert "Or start with one of these" in text and "The 2023 collapses" in text
+    starters = [b for b in at.button if str(b.key).startswith("pick-")]
+    assert [str(b.key) for b in starters] == ["pick-24735", "pick-57053", "pick-59017"]
+    at.button(key="pick-24735").click().run()
+    assert not at.exception and at.query_params["cert"] in ("24735", ["24735"])
+    assert "SILICON VALLEY BANK" in _text(at)
+
+
+def test_typed_search_hides_the_starters():
+    assert "Or start with one of these" not in _text(_find(q="bank"))
