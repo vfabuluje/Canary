@@ -1,9 +1,9 @@
 """The Ask Canary box on a written-report page, with its spending guards (spec 5.6).
 
-Off unless secrets hold ASK_ENABLED = true and an ANTHROPIC_API_KEY; off, the daily cap, or an error
-shows "Ask Canary is resting for today." A question is checked (not empty, at most MAX_CHARS) before
-anything is sent, and it counts against the visit's SESSION_LIMIT and the app's DAILY_LIMIT only when a
-call is actually made. Questions and answers are shown once and never stored. The key is never shown.
+Hidden entirely unless secrets hold ASK_ENABLED = true and an ANTHROPIC_API_KEY (ruling R22). Once on,
+the daily cap, an API error, a refusal or a bad reply shows "Ask Canary is resting for today." A
+question is checked (not empty, at most MAX_CHARS) before anything is sent, and it counts against the
+visit's SESSION_LIMIT and the app's DAILY_LIMIT only when a call is actually made. Questions and answers are shown once and never stored. The key is never shown.
 """
 
 import html
@@ -49,9 +49,15 @@ def _say(text: str) -> None:
     st.markdown(text)
 
 
+def answer_html(text: str) -> str:
+    """The answer as one HTML block with no line breaks: whitespace is collapsed before escaping, so no blank
+    line can end the block and let Markdown ($...$ maths, [x](url) links) render; "$" is an entity too."""
+    paragraphs = (" ".join(p.split()) for p in text.split("\n\n"))
+    return "".join(f'<p class="ask-answer">{html.escape(p).replace("$", "&#36;")}</p>' for p in paragraphs if p)
+
+
 def _show_answer(text: str) -> None:
-    # Escaped HTML, not Markdown: a "$" in an answer must not turn into maths.
-    theme.html_block("".join(f'<p class="ask-answer">{html.escape(p)}</p>' for p in text.split("\n\n")))
+    theme.html_block(answer_html(text))
 
 
 def _send(report: dict, question: str, key: str) -> None:
@@ -78,11 +84,13 @@ def _send(report: dict, question: str, key: str) -> None:
 
 
 def render_askbox(report: dict) -> None:
-    """Draw the box for one written-report page."""
+    """Draw the box for one written-report page; nothing at all while Ask is off or has no key."""
+    key = _api_key() if _enabled() else None
+    if key is None:
+        return
     with st.container(key="box-ask"):
         theme.html_block(f'<div class="ct">{html.escape(ASK_TITLE)}</div>')
-        key = _api_key() if _enabled() else None
-        if key is None or not DAILY.available(utc_today()):
+        if not DAILY.available(utc_today()):
             _say(ask.RESTING)
         elif st.session_state.get(SESSION_KEY, 0) >= ask.SESSION_LIMIT:
             _say(ASK_SESSION_DONE.format(limit=ask.SESSION_LIMIT))
