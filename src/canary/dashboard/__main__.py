@@ -1,7 +1,7 @@
 """Dashboard data export: python -m canary.dashboard export [--out dashboard/data].
 
 Writes the files the Streamlit app reads, prints each file's size and the folder total, and exits 1
-if the folder is over 50 MB. No Claude calls. Later writers (case studies, reports) are added to write_all.
+if the folder is over 50 MB. No Claude calls. Every writer goes in write_all.
 """
 import argparse
 import json
@@ -10,6 +10,7 @@ from pathlib import Path
 
 from canary.analyst.context import load_context
 from canary.dashboard.cases import export_cases
+from canary.dashboard.reports import write_reports
 from canary.dashboard.tables import showcase_certs, write_tables
 
 MAX_BYTES = 50 * 1024 * 1024
@@ -33,6 +34,9 @@ def write_all(ctx, args, out: Path, certs: set[int]) -> None:
     write_tables(ctx, Path(args.model_dir), out, certs)
     cases = export_cases(ctx, Path(args.model_dir) / "case_studies.csv")
     (out / "case_studies.json").write_text(json.dumps(cases))
+    written = write_reports(ctx, Path(args.notes), Path(args.traces), out)
+    if set(written) != certs:
+        raise RuntimeError(f"report files {sorted(set(written) ^ certs)} disagree with banks.has_report")
 
 
 def _sizes(out: Path) -> tuple[list[tuple[str, int]], int]:

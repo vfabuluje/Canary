@@ -19,17 +19,26 @@ METRIC_KEYS = ("auc", "recall", "banks_caught", "eligible_banks", "lead_time_med
 _FRONT_FIELD = re.compile(r"^(cert|as_of):\s*(\S+)\s*$", re.MULTILINE)
 
 
+def note_key(note_md: str) -> tuple[str, str] | None:
+    """(cert, as_of) from a note's front matter, as written; None if either is missing."""
+    head = note_md.split("---", 2)
+    if len(head) < 3:
+        return None
+    fields = dict(_FRONT_FIELD.findall(head[1]))
+    if "cert" not in fields or "as_of" not in fields:
+        return None
+    return fields["cert"], fields["as_of"]
+
+
 def showcase_certs(notes_dir: Path, trace_dir: Path) -> set[int]:
     """Certs with a note in notes_dir and a passing trace `<cert>_<as_of>.json` in trace_dir."""
     certs: set[int] = set()
     for note in Path(notes_dir).glob("*.md"):
-        head = note.read_text(encoding="utf-8").split("---", 2)
-        if len(head) < 3:
+        key = note_key(note.read_text(encoding="utf-8"))
+        if key is None:
             continue
-        fields = dict(_FRONT_FIELD.findall(head[1]))
-        if "cert" not in fields or "as_of" not in fields:
-            continue
-        trace = Path(trace_dir) / f"{fields['cert']}_{fields['as_of']}.json"
+        cert, as_of = key
+        trace = Path(trace_dir) / f"{cert}_{as_of}.json"
         if not trace.exists():
             continue
         try:
@@ -37,7 +46,7 @@ def showcase_certs(notes_dir: Path, trace_dir: Path) -> set[int]:
         except (json.JSONDecodeError, OSError):
             continue
         if ok:
-            certs.add(int(fields["cert"]))
+            certs.add(int(cert))
     return certs
 
 
