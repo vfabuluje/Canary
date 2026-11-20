@@ -15,6 +15,22 @@ from canary.analyst.writer import PRICES, RefusalError, TruncatedError, cost_usd
 
 
 
+@pytest.fixture(autouse=True)
+def _empty_default_trace_dir(tmp_path, monkeypatch):
+    """The CLI's default --trace-dir is data/analyst/traces (real finished banks); tests use an empty one."""
+    parser = cli.build_parser
+
+    def build():
+        p = parser()
+        p.set_defaults(trace_dir=str(tmp_path / "default_traces"))
+        for action in p._subparsers._group_actions[0].choices["showcase"]._actions:
+            if action.dest == "trace_dir":
+                action.default = str(tmp_path / "default_traces")
+        return p
+
+    monkeypatch.setattr(cli, "build_parser", build)
+
+
 @pytest.fixture
 def tmp_model_dir(tmp_path):
     d = tmp_path / "mdir"
@@ -1447,3 +1463,64 @@ def test_cli_round1_stop_says_rerun_not_resume(analyst_ctx, tmp_model_dir, tmp_r
                    "--report", str(tmp_path / "rep.json"), "--max-cost", "1"])
     err = capsys.readouterr().err
     assert rc == 1 and "nothing was paid" in err and "RE-RUN" in err and "--resume BATCH_ID" not in err
+
+
+# -- guards on a real (non-dry) run: no repaying, no overwriting, one trace folder -----------------------
+def _real_args(model_dir, replay_dir, tmp_path, *extra):
+    return ["showcase", "--model-dir", str(model_dir), "--replay-dir", str(replay_dir),
+            "--report", str(tmp_path / "new_report.json"), "--out", str(tmp_path / "banks"),
+            "--trace-dir", str(tmp_path / "traces"), *extra]
+
+
+def _no_client_cli(analyst_ctx, monkeypatch):
+    monkeypatch.setattr(cli, "make_client", lambda: pytest.fail("client constructed"))
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", lambda *a, **k: pytest.fail("run started"))
+
+
+def test_real_run_refuses_done_banks_without_skip_done(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path,
+                                                       monkeypatch, capsys):
+    _no_client_cli(analyst_ctx, monkeypatch)
+    banks = showcase_banks(analyst_ctx, tmp_model_dir, tmp_replay_dir.path)
+    _write_trace(tmp_path / "traces", banks[0][0], banks[0][1], True)
+    rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path))
+    err = capsys.readouterr().err
+    assert rc == 1 and "1 of the" in err and "--skip-done" in err
+
+
+def test_real_run_refuses_existing_report_or_state(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path,
+                                                   monkeypatch, capsys):
+    _no_client_cli(analyst_ctx, monkeypatch)
+    for name, content in (("new_report.json", "{}"), ("new_report.state.json", '{"complete": true}')):
+        for f in tmp_path.glob("new_report*"):
+            f.unlink()
+        (tmp_path / name).write_text(content)
+        rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path))
+        err = capsys.readouterr().err
+        assert rc == 1 and "new --report path" in err and name in err
+        assert (tmp_path / name).read_text() == content
+
+
+@pytest.mark.parametrize("dry", [True, False])
+def test_skip_done_missing_trace_dir_is_an_error(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path,
+                                                 monkeypatch, capsys, dry):
+    _no_client_cli(analyst_ctx, monkeypatch)
+    rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path, "--skip-done",
+                             *(["--dry-run"] if dry else [])))
+    err = capsys.readouterr().err
+    assert rc == 1 and "does not exist" in err
+
+
+def test_trace_dir_flag_reaches_run_showcase(analyst_ctx, tmp_model_dir, tmp_replay_dir, tmp_path, monkeypatch):
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    seen = {}
+
+    def fake_run(*a, **k):
+        seen.update(k)
+        return {"written": 0, "failed": 0, "banks_total": 0, "cost_usd": 0.0, "banks": []}
+
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", fake_run)
+    (tmp_path / "traces").mkdir()
+    rc = cli.main(_real_args(tmp_model_dir, tmp_replay_dir.path, tmp_path, "--skip-done"))
+    assert rc == 0 and seen["trace_dir"] == tmp_path / "traces"

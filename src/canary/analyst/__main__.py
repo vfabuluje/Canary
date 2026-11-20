@@ -156,11 +156,16 @@ def _showcase(args) -> int:
 
     ctx = load_context(Path(args.features), Path(args.model_dir), Path(args.failures))
     banks = showcase_banks(ctx, Path(args.model_dir), Path(args.replay_dir), watchlist_top=args.watchlist_top)
+    trace_dir = Path(args.trace_dir)
     if args.skip_done and args.resume is None:
         from canary.analyst.showcase import drop_done
 
+        if not trace_dir.is_dir():
+            print(f"error: --skip-done: trace folder {trace_dir} does not exist (a wrong path would mean "
+                  "'nothing done'); nothing changed", file=sys.stderr)
+            return 1
         before = len(banks)
-        banks = drop_done(banks, Path(args.trace_dir))
+        banks = drop_done(banks, trace_dir)
         print(f"--skip-done: {before - len(banks)} banks already done, {len(banks)} left")
     if args.dry_run:
         counts: dict[str, int] = {}
@@ -180,12 +185,28 @@ def _showcase(args) -> int:
               f"rerun with --resume {state['batch_id']} (or delete that file to start a new batch)",
               file=sys.stderr)
         return 1
+    if args.resume is None:
+        from canary.analyst.showcase import done_banks
+
+        done = done_banks(trace_dir) if trace_dir.is_dir() else set()
+        n_done = sum((c, d) in done for c, d, _ in banks)
+        if n_done and not args.skip_done:
+            print(f"error: {n_done} of the {len(banks)} selected banks already have a passing trace in "
+                  f"{trace_dir} and would be paid for again; pass --skip-done to leave them out; nothing "
+                  "was started", file=sys.stderr)
+            return 1
+        existing = [p for p in (Path(args.report), state_path(Path(args.report))) if p.exists()]
+        if existing:
+            print("error: a fresh run would replace the records of an earlier run ("
+                  + ", ".join(str(p) for p in existing) + "); use a new --report path or move the old "
+                  "files deliberately; nothing was started", file=sys.stderr)
+            return 1
     from canary.analyst.showcase import ResumeError
 
     try:
         report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
                               banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume,
-                              max_cost=args.max_cost)
+                              trace_dir=trace_dir, max_cost=args.max_cost)
     except RunStopped as exc:
         st = read_state(Path(args.report))
         if st is None:
