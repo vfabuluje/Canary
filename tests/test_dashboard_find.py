@@ -67,10 +67,45 @@ def test_suggestions_are_buttons_and_pick_opens_bank():
     assert not at.exception and "cert" in at.query_params
 
 
-@pytest.mark.parametrize("cert", ["abc", "999999999"])
+@pytest.mark.parametrize("cert", ["abc", "999999999", "²", "٣", "1" * 5000, "-46", " 46"])
 def test_bad_cert_param(cert):
+    """Non-ASCII digits ("²" passes str.isdigit), a 5,000-digit number and signs get the message, not a traceback."""
     at = _find(cert=cert)
     assert any("No bank found" in w.value for w in at.warning)
+
+
+def test_visitors_never_see_tracebacks():
+    import tomllib
+    config = tomllib.loads((Path(__file__).resolve().parents[1] / ".streamlit" / "config.toml").read_text())
+    assert config["client"]["showErrorDetails"] == "none"
+
+
+def _rename(fixture_data, cert: int, **values) -> None:
+    path = fixture_data / "banks.parquet"
+    frame = pd.read_parquet(path)
+    for col, value in values.items():
+        frame[col] = frame[col].astype(object)
+        frame.loc[frame["cert"] == cert, col] = value
+    frame.to_parquet(path)
+
+
+def _pick(at: AppTest, cert: int):
+    return next(b for b in at.button if b.key == f"pick-{cert}")
+
+
+def test_suggestion_label_escapes_markdown(fixture_data):
+    _rename(fixture_data, NO_REPORT, name="E*Trade [Bank] _One_")
+    _rename(fixture_data, AFTER_TEST, name="E*Trade Savings")
+    label = _pick(_find(q="e trade"), NO_REPORT).label
+    assert label.startswith(r"**E\*Trade \[Bank\] \_One\_**")
+
+
+def test_suggestion_without_a_state_shows_no_nan(fixture_data):
+    _rename(fixture_data, NO_REPORT, name="Banco De La Nacion Argentina", state=None)
+    _rename(fixture_data, AFTER_TEST, name="Banco De La Nacion Uruguay")
+    label = _pick(_find(q="banco de la nacion"), NO_REPORT).label
+    assert "nan" not in label.lower() and "None" not in label
+    assert label.endswith("]") and ":small[" in label and ":small[ ·" not in label
 
 
 def test_empty_search_shows_hint():

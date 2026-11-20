@@ -1,5 +1,8 @@
 """FIND A BANK: search by name; `?cert=N` opens a bank, `?q=text` pre-fills the search (Home's search box)."""
 
+import re
+
+import pandas as pd
 import streamlit as st
 
 from canary.dashboard import bankpage, data, search, theme
@@ -15,6 +18,17 @@ def _open(cert: int) -> None:
     st.query_params["cert"] = str(cert)
 
 
+def _cert(raw: str) -> int | None:
+    """A cert from the address bar: ASCII digits only ("²" passes str.isdigit but not int), at most 10 of them."""
+    return int(raw) if re.fullmatch(r"[0-9]{1,10}", raw) else None
+
+
+def _plain(text: str) -> str:
+    """Bank names as literal text on a Markdown button label: every ASCII punctuation mark is backslash-escaped
+    (so "E*Trade" keeps its star instead of starting italics)."""
+    return re.sub(r"([!-/:-@\[-`{-~])", r"\\\1", str(text))
+
+
 def _search_again() -> None:
     st.query_params.pop("cert", None)
     st.query_params.pop("q", None)  # otherwise the same query would reopen the same bank
@@ -28,7 +42,7 @@ if typed != params.get("q", ""):  # a new search replaces any open bank
 
 raw = params.get("cert")
 if raw is not None:
-    cert = int(raw) if raw.isdigit() else None
+    cert = _cert(raw)
     if cert is not None and (banks["cert"] == cert).any():
         st.button(FIND_BACK, on_click=_search_again, key="find-back")
         bankpage.render_bank(cert)
@@ -43,7 +57,9 @@ if result.direct is not None:
 elif result.suggestions:
     st.markdown(f"**{FIND_DID_YOU_MEAN}**")
     for s in result.suggestions:
-        st.button(f'**{s["label"]}**\n\n:small[{s["state"]} · {s["status"]}]', key=f'pick-{s["cert"]}', on_click=_open, args=(s["cert"],), width="stretch")
+        where = " · ".join(_plain(p) for p in (s["state"], s["status"]) if pd.notna(p) and p)
+        st.button(f'**{_plain(s["label"])}**\n\n:small[{where}]', key=f'pick-{s["cert"]}', on_click=_open,
+                  args=(s["cert"],), width="stretch")
 else:
     if typed:
         st.markdown(FIND_NONE)
