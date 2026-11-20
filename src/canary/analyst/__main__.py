@@ -85,7 +85,9 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--skip-done", action="store_true",
                       help="drop banks that already have a passing trace (data/analyst/traces/<cert>_<as_of>.json "
                            "with ok: true) before the estimate and before any batch; ignored with --resume")
-    show.add_argument("--trace-dir", default="data/analyst/traces", help="where --skip-done looks for traces")
+    show.add_argument("--trace-dir", default="data/analyst/traces",
+                      help="where every memo's trace is written, where --skip-done looks for passing traces, "
+                           "and what a fresh run checks so done banks are not paid for again")
     cmp_ = sub.add_parser("compare", parents=[shared], help="write the case-study notes with several models and compare")
     cmp_.add_argument("--models", default="claude-opus-5-5,claude-sonnet-5-5", help="comma-separated writer models")
     cmp_.add_argument("--out", default="data/analyst/compare", help="comparison folder (one subfolder per model)")
