@@ -214,7 +214,12 @@ _CAVEAT = re.compile(
     r"|\b(?:does\s+not|doesn't|did\s+not|didn't|cannot|can't|can\s+not|could\s+not|couldn't)\s+"
     r"(?:predict|forecast|foresee)\b"
     r"|\bwarning\s+(?:signs?|signals?|lights?|flags?)\b(?!\s+of\s+(?:coming\s+|impending\s+)?fail)"
-    r"|\bearly[- ]warning\s+system\b",
+    r"|\bearly[- ]warning\s+system\b"
+    # "I can't tell whether it will fail / is safe": a refusal to forecast, not a forecast
+    r"|\bwhether\s+(?:(?!\b(?:and|but|so)\b)[\w']+\s+){0,4}?(?:will|could|might|may|would|is going to|is likely to)"
+    r"\s+(?:(?:still|ever|not|eventually)\s+)*(?:fail|collapse|go under|be closed|survive)\b"
+    r"|\bwhether\s+(?:the bank|this bank|it|its deposits|your (?:money|deposits|savings))\s+"
+    r"(?:is|are|looks|seems|remains|stays)\s+(?:\w+\s+)?(?:safe|safer|sound|healthy|secure)\b",
     re.IGNORECASE)
 _FORECAST = re.compile(
     r"\bpredict\w*|\bforecast\w*|\bforesaw\b|\bforesee\w*|\bforeshadow\w*"
