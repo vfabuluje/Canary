@@ -51,6 +51,25 @@ HONEST_MISS = (
     "bond investments lost value when interest rates rose, and nervous customers pulled their money out fast."
 )
 
+# Home headline cards: label and note. Notes may hold {metric} placeholders (format_map over metrics.json);
+# the big figure on each card is formatted from metrics.json in the page.
+HOME_STATS: dict[str, tuple[str, str]] = {
+    "caught": ("FAILURES CAUGHT EARLY", "Banks that failed 2016–2024 that Canary flagged before they failed."),
+    "lead": ("TYPICAL HEADS-UP", "How far ahead it flagged the typical bank it caught."),
+    "auc": ("RANKING SCORE", "How well it sorts risky from safe (1.00 is perfect). The classic rule of thumb, "
+                             "the Texas ratio, scores {baseline[auc]:.2f}."),
+    "false_alarm": ("FALSE ALARMS", "Most flagged banks don't fail. Failures are rare, so a watchlist is mostly "
+                                    "“keep an eye on it”."),
+}
+
+# Home link cards: title and text. {report_count} is the number of exported written reports.
+HOME_CARDS: dict[str, tuple[str, str]] = {
+    "find": ("🔎 FIND A BANK",
+             "Look up any bank's risk rank and history. {report_count} banks have a full written report."),
+    "how": ("▶ HOW IT WORKS", "Watch the team of AI helpers and fact-checkers build one, step by step."),
+    "watch": ("🎚 WATCHLIST SIZE", "Flag more banks, catch more failures, raise more false alarms. Try it."),
+}
+
 # Why Canary. Bodies may hold {metric} placeholders, filled from metrics.json at display time.
 WHY_SECTIONS: list[tuple[str, str]] = [
     ("THE NAME",
@@ -69,7 +88,8 @@ WHY_SECTIONS: list[tuple[str, str]] = [
      "2015, then was tested on 2016–2024 without peeking. AI helpers write plain-English reports, and every number "
      "they use is checked against the data."),
     ("THE HONEST ANSWER",
-     "It caught {banks_caught} of the {eligible_banks} banks that failed in 2016–2024, usually about a year ahead. "
+     "It caught {banks_caught} of the {eligible_banks} banks that failed in 2016–2024, typically "
+     "{lead_time_median:g} quarters ahead. "
      "It did **not** catch SVB, Signature or First Republic. Showing why is part of the point."),
 ]
 

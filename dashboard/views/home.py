@@ -3,10 +3,9 @@
 import streamlit as st
 
 from canary.dashboard import data, theme
-from canary.dashboard.copy import HOME_WHAT, HONEST_MISS
+from canary.dashboard.copy import HOME_CARDS, HOME_STATS, HOME_WHAT, HONEST_MISS
 
 metrics = data.metrics()
-baseline = metrics["baseline"]
 
 theme.html_block(
     f'<div class="hero">{theme.bird_svg(104)}'
@@ -26,23 +25,21 @@ with st.container(key="home-themes", horizontal=True, vertical_alignment="center
 theme.html_block(f'<div class="box what">{theme.bold(HOME_WHAT)}</div>')
 
 
-def _stat(label: str, big: str, note: str) -> str:
-    return f'<div class="box stat"><div class="lab">{label}</div><div class="big">{big}</div><div class="note">{note}</div></div>'
+BIG = {
+    "caught": f'{metrics["banks_caught"]} <small>of {metrics["eligible_banks"]}</small>',
+    "lead": f'{metrics["lead_time_median"]:g} <small>quarters</small>',
+    "auc": f'{metrics["auc"]:.2f}',
+    "false_alarm": f'{metrics["false_alarm_rate"] * 100:.1f}%',
+}
 
 
-theme.html_block(
-    '<div class="stats">'
-    + _stat("FAILURES CAUGHT EARLY", f'{metrics["banks_caught"]} <small>of {metrics["eligible_banks"]}</small>',
-            "Banks that failed 2016–2024 that Canary flagged up to a year before.")
-    + _stat("TYPICAL HEADS-UP", f'{metrics["lead_time_median"]:g} <small>quarters</small>',
-            "How far ahead it flagged the typical bank it caught.")
-    + _stat("RANKING SCORE", f'{metrics["auc"]:.2f}',
-            "How well it sorts risky from safe (1.00 is perfect). The classic rule of thumb, the Texas ratio, "
-            f'scores {baseline["auc"]:.2f}.')
-    + _stat("FALSE ALARMS", f'{metrics["false_alarm_rate"] * 100:.1f}%',
-            "Most flagged banks don't fail. Failures are rare, so a watchlist is mostly “keep an eye on it”.")
-    + "</div>"
-)
+def _stat(key: str) -> str:
+    label, note = HOME_STATS[key]
+    return (f'<div class="box stat"><div class="lab">{label}</div><div class="big">{BIG[key]}</div>'
+            f'<div class="note">{note.format_map(metrics)}</div></div>')
+
+
+theme.html_block('<div class="stats">' + "".join(_stat(key) for key in BIG) + "</div>")
 
 with st.container(key="box-miss"):
     theme.html_block(
@@ -51,16 +48,12 @@ with st.container(key="box-miss"):
     )
     st.page_link("views/cases.py", label="SEE WHAT IT MISSED ▶")
 
-CARDS = [
-    ("find", "views/find.py", "🔎 FIND A BANK",
-     f"Look up any bank's risk rank and history. {len(data.report_certs())} banks have a full written report."),
-    ("how", "views/how.py", "▶ HOW IT WORKS", "Watch the team of AI helpers and fact-checkers build one, step by step."),
-    ("watch", "views/watchlist.py", "🎚 WATCHLIST SIZE",
-     "Flag more banks, catch more failures, raise more false alarms. Try it."),
-]
-for column, (key, target, title, text) in zip(st.columns(3, gap="medium"), CARDS):
+CARD_TARGETS = {"find": "views/find.py", "how": "views/how.py", "watch": "views/watchlist.py"}
+report_count = len(data.report_certs())
+for column, (key, target) in zip(st.columns(3, gap="medium"), CARD_TARGETS.items()):
+    title, text = HOME_CARDS[key]
     with column, st.container(key=f"box-card-{key}"):
-        theme.html_block(f'<h2 class="pix">{title}</h2><p>{text}</p>')
+        theme.html_block(f'<h2 class="pix">{title}</h2><p>{text.format(report_count=report_count)}</p>')
         st.page_link(target, label="OPEN ▶")
 
 theme.footer()

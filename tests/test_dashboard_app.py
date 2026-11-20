@@ -7,7 +7,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from canary.dashboard import data
-from canary.dashboard.copy import HONEST_MISS, WHY_SECTIONS
+from canary.dashboard.copy import HOME_CARDS, HOME_STATS, HOME_WHAT, HONEST_MISS, WHY_SECTIONS
 from tests.dashboard_fixtures import REPORT_CERTS, set_metric, write_fixture_data
 
 REPO = Path(__file__).resolve().parents[1]
@@ -76,16 +76,39 @@ def test_why_has_no_student_line(fixture_data):
 
 
 def test_why_honest_answer_from_metrics(fixture_data):
-    assert any("21 of the 29 banks" in t for t in _texts(_run("why")))
+    assert any("21 of the 29 banks" in t and "typically 4 quarters ahead" in t for t in _texts(_run("why")))
     set_metric(fixture_data, "banks_caught", 7)
-    assert any("7 of the 29 banks" in t for t in _texts(_run("why")))
+    set_metric(fixture_data, "lead_time_median", 2.0)
+    assert any("7 of the 29 banks" in t and "typically 2 quarters ahead" in t for t in _texts(_run("why")))
+
+
+def test_home_lead_time_and_baseline_from_metrics(fixture_data):
+    set_metric(fixture_data, "lead_time_median", 3.0)
+    set_metric(fixture_data, "baseline", {"auc": 0.6})
+    at = _run()
+    assert _stat_values(at)[1] == "3 <small>quarters</small>"
+    assert "scores 0.60" in next(t for t in _texts(at) if "FAILURES CAUGHT EARLY" in t)
+
+
+def _all_fixed_copy() -> str:
+    parts = [HOME_WHAT, HONEST_MISS]
+    parts += [text for pair in list(HOME_STATS.values()) + list(HOME_CARDS.values()) for text in pair]
+    parts += [text for pair in WHY_SECTIONS for text in pair]
+    return "\n".join(parts)
+
+
+# Figures in fixed copy that are history or definitions, not results the data could contradict.
+FIXED_FIGURES = {"2008", "2015", "2016", "2020", "2021", "2022", "2023", "2024", "1.00", "250,000", "42", "10"}
 
 
 def test_fixed_copy_has_no_metric_figures():
-    """The honest-answer figures are filled from metrics.json at display time, never typed into copy."""
-    copy = HONEST_MISS + " ".join(body for _, body in WHY_SECTIONS)
-    assert "{banks_caught} of the {eligible_banks}" in copy
-    assert not re.search(r"\b(21|29)\b", copy)
+    """Results (banks caught, lead time, AUC, report count) are filled in at display time, never typed into copy."""
+    copy = _all_fixed_copy()
+    assert "{banks_caught} of the {eligible_banks}" in copy and "{lead_time_median:g} quarters" in copy
+    assert "{baseline[auc]:.2f}" in copy and "{report_count}" in copy
+    figures = set(re.findall(r"\d[\d,.]*\d|\d", re.sub(r"\{[^}]*\}", "", copy)))
+    assert figures <= FIXED_FIGURES, figures - FIXED_FIGURES
+    assert not re.search(r"year (ahead|before|early)|up to a year", copy, re.I)
 
 
 @pytest.mark.parametrize("theme, present, absent", [
@@ -157,12 +180,18 @@ def test_data_dir_default(monkeypatch):
     assert data.data_dir() == REPO / "dashboard" / "data"
 
 
-EXPORT_ONLY = {"__main__.py", "tables.py", "cases.py", "reports.py"}
+EXPORT_ONLY = {f"src/canary/dashboard/{name}" for name in ("__main__.py", "tables.py", "cases.py", "reports.py")}
 
 
 def _app_sources() -> list[Path]:
     files = list((REPO / "dashboard").rglob("*.py")) + list((REPO / "src" / "canary" / "dashboard").rglob("*.py"))
-    return [f for f in files if f.name not in EXPORT_ONLY]
+    return [f for f in files if f.relative_to(REPO).as_posix() not in EXPORT_ONLY]
+
+
+def test_app_sources_skip_only_export_modules():
+    sources = {f.relative_to(REPO).as_posix() for f in _app_sources()}
+    assert "dashboard/views/cases.py" in sources and "dashboard/app.py" in sources
+    assert not sources & EXPORT_ONLY
 
 
 def test_app_never_reads_data_dir():
