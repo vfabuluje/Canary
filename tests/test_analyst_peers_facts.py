@@ -19,7 +19,7 @@ from canary.analyst.peers import (
 )
 from canary.analyst.sections import sections_for
 from canary.analyst.writer import write_memo
-from tests.analyst_fakes import FakeClient
+from tests.analyst_fakes import FakeClient, split_memo
 
 CERT = 3
 AS_OF = date(2019, 12, 31)
@@ -177,10 +177,12 @@ def test_code_only_cases(analyst_ctx, tmp_path, monkeypatch, res):
         assert f"None of this bank's ratios were in the national top or bottom 10% at {sheet.as_of}." in out
     else:
         assert out == [PEER_SENTENCE]
-    client = FakeClient([_memo(sheet)])
+    client = FakeClient(split_memo(sheet, _memo(sheet)))
     r = write_memo(analyst_ctx, CERT, client=client, out_dir=tmp_path / "banks", replay_dir=tmp_path / "none")
     assert r.ok, r.errors
-    user = client.calls[0]["messages"][0]["content"]
+    assert len(client.calls) == 2  # trend and analyst only: the peer section is code-only here
+    assert not any("peer agent" in c["system"] for c in client.calls)
+    user = client.calls[-1]["messages"][0]["content"]
     assert '"Compared with similar banks"' not in user
     text = r.path.read_text()
     assert "## Compared with similar banks" in text and text.count(PEER_SENTENCE) == 1
@@ -194,11 +196,11 @@ def test_full_note_layout(analyst_ctx, tmp_path, monkeypatch):
     _force(monkeypatch, _res(rows))
     sheet = _sheet(analyst_ctx, tmp_path)
     assert PEER_KEY not in sheet.code_only
-    client = FakeClient([_memo(sheet)])
+    client = FakeClient(split_memo(sheet, _memo(sheet)))
     r = write_memo(analyst_ctx, CERT, client=client, out_dir=tmp_path / "banks", replay_dir=tmp_path / "none")
     assert r.ok, r.errors
-    user = client.calls[0]["messages"][0]["content"]
-    assert "Code adds lines before your peers section" in user
+    peer_call = next(c for c in client.calls if "peer agent" in c["system"])
+    assert "Code adds the table and fixed sentences around your peers section" in peer_call["messages"][0]["content"]
     text = r.path.read_text()
     head = text.index("## Compared with similar banks")
     spec = text.index("The FDIC's specialty group for this bank")

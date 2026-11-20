@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from analyst_fakes import FakeClient
+from analyst_fakes import FakeClient, split_memo
 from canary.analyst import __main__ as cli
 from canary.analyst.compare import compare_models
 from canary.analyst.facts import build_fact_sheet
@@ -16,25 +16,27 @@ OPUS, SONNET = "claude-opus-5-5", "claude-sonnet-5-5"
 @pytest.fixture
 def memos(analyst_ctx, tmp_path):
     sheets = {c: build_fact_sheet(analyst_ctx, c, replay_dir=tmp_path / "none") for c in CERTS}
-    good = {c: _memo(s) for c, s in sheets.items()}
-    bad = {c: _memo(s, rank_text="999,999") for c, s in sheets.items()}
+    good = {c: split_memo(s, _memo(s)) for c, s in sheets.items()}  # per-agent memos, call order
+    bad = {c: split_memo(s, _memo(s, rank_text="999,999")) for c, s in sheets.items()}
     return good, bad
 
 
 def test_compare_counts_and_cost(analyst_ctx, memos, tmp_path):
     good, bad = memos
     # opus: both pass first try; sonnet: cert 3 needs a retry, cert 110 passes first try
-    client = FakeClient([good[3], good[110], bad[3], good[3], good[110]])
+    client = FakeClient([*good[3], *good[110], *good[3][:-1], bad[3][-1], good[3][-1], *good[110]])
     out = tmp_path / "cmp"
+    n_o = len(good[3]) + len(good[110])
+    n_s = n_o + 1  # one analyst retry
     rep = compare_models(analyst_ctx, client, models=(OPUS, SONNET), certs=CERTS, out_dir=out,
                          replay_dir=tmp_path / "none")
     o, s = rep["models"][OPUS], rep["models"][SONNET]
     assert (o["passed_first_try"], o["passed_after_retry"], o["failed"]) == (2, 0, 0)
     assert (s["passed_first_try"], s["passed_after_retry"], s["failed"]) == (1, 1, 0)
-    assert o["input_tokens"] == 2000 and o["output_tokens"] == 1000
-    assert s["input_tokens"] == 3000 and s["output_tokens"] == 1500
-    assert o["cost_usd"] == pytest.approx(2 * cost_usd(OPUS, 1000, 500))
-    assert s["cost_usd"] == pytest.approx(3 * cost_usd(SONNET, 1000, 500))
+    assert o["input_tokens"] == 1000 * n_o and o["output_tokens"] == 500 * n_o
+    assert s["input_tokens"] == 1000 * n_s and s["output_tokens"] == 500 * n_s
+    assert o["cost_usd"] == pytest.approx(n_o * cost_usd(OPUS, 1000, 500))
+    assert s["cost_usd"] == pytest.approx(n_s * cost_usd(SONNET, 1000, 500))
     assert len(list((out / OPUS).glob("*.md"))) == 2 and len(list((out / SONNET).glob("*.md"))) == 2
     assert json.loads((out / "compare.json").read_text()) == rep
     m = [x for x in rep["memos"] if x["model"] == SONNET and x["cert"] == 3][0]
@@ -46,7 +48,7 @@ def test_compare_counts_and_cost(analyst_ctx, memos, tmp_path):
 
 def test_one_failure_does_not_abort(analyst_ctx, memos, tmp_path):
     good, _ = memos
-    client = FakeClient([RuntimeError("api down"), good[110]])
+    client = FakeClient([RuntimeError("api down"), *good[110]])
     rep = compare_models(analyst_ctx, client, models=(OPUS,), certs=CERTS, out_dir=tmp_path / "c",
                          replay_dir=tmp_path / "none")
     assert rep["models"][OPUS]["failed"] == 1 and rep["models"][OPUS]["passed_first_try"] == 1
@@ -56,7 +58,7 @@ def test_one_failure_does_not_abort(analyst_ctx, memos, tmp_path):
 
 def test_cli_compare(monkeypatch, analyst_ctx, memos, tmp_path, capsys):
     good, _ = memos
-    client = FakeClient([good[3], RefusalError("no")])
+    client = FakeClient([*good[3], RefusalError("no")])
     monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
     monkeypatch.setattr(cli, "make_client", lambda: client)
     monkeypatch.setattr("canary.analyst.compare.CASE_STUDY_CERTS", (3, 110))
@@ -75,8 +77,8 @@ def test_compare_served_model_usage_on_error_and_replay_dir(analyst_ctx, memos, 
     from analyst_fakes import fake_message
 
     good, bad = memos
-    served = fake_message(json.dumps(good[3]), model=SONNET)
-    client = FakeClient([served, bad[110], RefusalError("no")])
+    served = fake_message(json.dumps(good[3][-1]), model=SONNET)
+    client = FakeClient([*good[3][:-1], served, *bad[110], RefusalError("no")])
     seen = []
     import canary.analyst.compare as cmp
 
@@ -90,5 +92,6 @@ def test_compare_served_model_usage_on_error_and_replay_dir(analyst_ctx, memos, 
     assert not by[110]["ok"] and by[110]["served_model"] == OPUS
     # 110: one bad memo spent tokens before the retry refused; that spend is counted
     o = rep["models"][OPUS]
-    assert o["input_tokens"] == 2000 and o["output_tokens"] == 1000
-    assert o["cost_usd"] == pytest.approx(cost_usd(SONNET, 1000, 500) + cost_usd(OPUS, 1000, 500))
+    n = len(good[3]) + len(bad[110])
+    assert o["input_tokens"] == 1000 * n and o["output_tokens"] == 500 * n
+    assert o["cost_usd"] == pytest.approx(cost_usd(SONNET, 1000, 500) + (n - 1) * cost_usd(OPUS, 1000, 500))

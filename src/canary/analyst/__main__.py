@@ -1,5 +1,5 @@
 """Risk analyst: python -m canary.analyst ask "question" [--model M], memo --cert N [--as-of YYYY-MM-DD] [--model M] [--out banks],
-showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] (notes for the showcase set in one batch job), and
+showcase [--dry-run] [--resume BATCH_ID] [--watchlist-top N] [--max-cost USD] (notes for the showcase set in two batch rounds), and
 compare [--models A,B] (case-study notes with several models, pass rate and cost per model).
 
 Builds the fact sheet from the feature export and the saved model (read only), asks Claude to
@@ -66,14 +66,18 @@ def build_parser() -> argparse.ArgumentParser:
     ask = sub.add_parser("ask", parents=[shared], help="answer a plain-English question about the banks")
     ask.add_argument("question")
     ask.add_argument("--model", default=DEFAULT_MODEL, help="agent model")
-    show = sub.add_parser("showcase", parents=[shared], help="write notes for the showcase set in one batch job")
+    show = sub.add_parser("showcase", parents=[shared], help="write notes for the showcase set in two batch rounds (specialists, then analysts)")
     show.add_argument("--model", default=DEFAULT_MODEL, help="writer model")
     show.add_argument("--out", default="banks", help="notes folder")
     show.add_argument("--replay-dir", default=str(REPLAY_DIR), help="Phase 4 replay folder")
     show.add_argument("--report", default="data/analyst/showcase_report.json", help="run report (JSON)")
     show.add_argument("--dry-run", action="store_true", help="list the banks and estimate the cost; no API calls")
     show.add_argument("--resume", metavar="BATCH_ID", default=None,
-                      help="collect an existing batch (id from the log or the .state.json file) instead of creating one")
+                      help="continue an earlier run (either round's batch id, from the log or the .state.json file); finished rounds are not paid again")
+    show.add_argument("--max-cost", type=_positive_usd, default=None, metavar="USD",
+                      help="spending limit in USD (default: none). Checked before round 1, before round 2 "
+                           "(projected from round 1's actual spend) and before every full-price call; on breach "
+                           "the run stops cleanly. A resume reuses the saved limit unless overridden here")
     show.add_argument("--watchlist-top", type=int, default=None, metavar="N",
                       help="only the N best-ranked banks of the latest-quarter watchlist (default: all); "
                            "used by --dry-run and the real run, ignored with --resume (the bank list comes "
@@ -111,9 +115,34 @@ def _compare(args) -> int:
     return 0
 
 
+def _positive_usd(text: str) -> float:
+    try:
+        value = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a number: {text!r}") from None
+    if not value > 0:
+        raise argparse.ArgumentTypeError("must be greater than 0")
+    return value
+
+
+def _print_estimate(est: dict, model: str) -> None:
+    for rnd, label in ((1, "trend + peer"), (2, "analyst")):
+        r = est["rounds"][rnd]
+        print(f"round {rnd} ({label}, batch): {r['requests']} requests, {r['input']:,} input, "
+              f"{r['output']:,} output tokens; estimated cost ${r['cost']:.2f} (batch price, {model})")
+        for agent, a in r["by_agent"].items():
+            print(f"  {agent}: {a['requests']} requests, {a['input']:,} input, {a['output']:,} output: ${a['cost']:.2f}")
+    for agent, r in est["retries"].items():
+        print(f"retry allowance ({agent}): {r['calls']} calls at full price, {r['input']:,} input, "
+              f"{r['output']:,} output tokens: ${r['cost']:.2f}")
+    print(f"estimated tokens: {est['input']:,} input, {est['output']:,} output (first tries)")
+    print(f"estimated cost: ${est['cost']:.2f} first tries + ${est['retry_cost']:.2f} retry allowance")
+    print(f"estimated total with retries: ${est['total']:.2f}")
+
+
 def _showcase(args) -> int:
     from canary.analyst.showcase import (
-        RETRY_SHARE,
+        RunStopped,
         estimate_run,
         read_state,
         run_showcase,
@@ -130,11 +159,10 @@ def _showcase(args) -> int:
             print(f"{cert}\t{as_of}\t{group}")
         print(f"{len(banks)} banks: " + ", ".join(f"{g} {n}" for g, n in counts.items()))
         est = estimate_run(ctx, banks, args.model, Path(args.replay_dir))
-        print(f"estimated tokens: {est['input']:,} input, {est['output']:,} output")
-        print(f"estimated cost: ${est['cost']:.2f} (batch price, {args.model}; first tries only)")
-        print(f"retry allowance: {est['retries']} banks ({round(100 * RETRY_SHARE)}%) retried at full price, "
-              f"{est['retry_input']:,} input, {est['retry_output']:,} output tokens: ${est['retry_cost']:.2f}")
-        print(f"estimated total with retries: ${est['total']:.2f}")
+        _print_estimate(est, args.model)
+        if args.max_cost is not None:
+            over = "OVER" if est["total"] > args.max_cost else "within"
+            print(f"spending limit ${args.max_cost:.2f}: the estimated total is {over} the limit")
         return 0
     state = read_state(Path(args.report))
     if args.resume is None and state is not None and not state.get("complete"):
@@ -142,8 +170,28 @@ def _showcase(args) -> int:
               f"rerun with --resume {state['batch_id']} (or delete that file to start a new batch)",
               file=sys.stderr)
         return 1
-    report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
-                          banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume)
+    from canary.analyst.showcase import ResumeError
+
+    try:
+        report = run_showcase(ctx, make_client(), args.model, Path(args.out), Path(args.report),
+                              banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume,
+                              max_cost=args.max_cost)
+    except RunStopped as exc:
+        st = read_state(Path(args.report))
+        if st is None:
+            print(f"error: stopped at spending limit before round 1 was submitted (${exc.spent:.2f} spent of "
+                  f"${exc.limit:.2f}): nothing was paid and there is nothing to resume. RE-RUN (do not "
+                  f"--resume) with a higher --max-cost than ${exc.limit:.2f}", file=sys.stderr)
+        else:
+            rid = st.get("round1_batch_id") or st.get("batch_id") or "BATCH_ID"
+            print(f"error: stopped at spending limit (${exc.spent:.2f} spent of ${exc.limit:.2f}); everything "
+                  f"finished is saved. Resume with: python -m canary.analyst showcase --resume {rid} "
+                  f"--max-cost USD (higher than ${exc.limit:.2f}; without the flag the saved "
+                  f"${exc.limit:.2f} limit applies again); report {args.report}", file=sys.stderr)
+        return 1
+    except ResumeError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
     print(f"{report['written']} written, {report['failed']} failed of {report['banks_total']} "
           f"(${report['cost_usd']:.2f}); report {args.report}")
     if "first_try_passed" in report:
@@ -191,7 +239,10 @@ def _memo(args) -> int:
     except TruncatedError as exc:
         print(f"error: cert {args.cert}: {exc}; no note written.", file=sys.stderr)
         return 1
-    usage = f"{res.attempts} attempt(s), {res.input_tokens:,} in / {res.output_tokens:,} out tokens, ${res.cost_usd:.4f}"
+    per_agent = ", ".join(f"{name}: " + ("skipped (code-only)" if r.skipped else f"{r.attempts} attempt(s)")
+                          for name, r in res.agents.items())
+    usage = (f"{res.attempts} attempt(s) [{per_agent}], {res.input_tokens:,} in / {res.output_tokens:,} out "
+             f"tokens, ${res.cost_usd:.4f}")
     if not res.ok:
         print(f"cert {args.cert}: memo failed the citation check twice; no note written ({usage}).",
               file=sys.stderr)

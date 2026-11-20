@@ -1,6 +1,6 @@
 # bank_notes (Phase 5a risk-analyst notes)
 
-One Markdown note per bank in `banks/`, written by `python -m canary.analyst memo` / `showcase` / `ask`. They are **notes in the vault, not warehouse tables**. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]]. Runbook: [[runbooks/analyst]].
+One Markdown note per bank in `banks/`, written by `python -m canary.analyst memo` / `showcase` / `ask`. They are **notes in the vault, not warehouse tables**. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]], [[decisions/0022-three-agent-memo-pipeline]]. Runbook: [[runbooks/analyst]].
 
 | | |
 |---|---|
@@ -28,7 +28,7 @@ One Markdown note per bank in `banks/`, written by `python -m canary.analyst mem
 | `failure_date` | date or null | Failure date; null if the bank had not failed by the data end. |
 | `model_run` | string | First 12 characters of the SHA-256 of `model.json`: which saved model scored it. |
 | `written_at` | string | Local time the note was written (ISO, seconds). |
-| `writer_model` | string | The model that actually served the request (can differ from the one asked for if a fallback was used). |
+| `writer_model` | string | The model that actually served the requests (can differ from the one asked for if a fallback was used). |
 | `checked` | boolean | Always `true`; unchecked notes are never saved. |
 
 ## Outcome values
@@ -39,6 +39,8 @@ One Markdown note per bank in `banks/`, written by `python -m canary.analyst mem
 - `open_watchlist`: flagged at the latest quarter; outcome not yet known.
 
 ## Sections, in order
+Since Phase 5e three AI agents write the sections ([[decisions/0022-three-agent-memo-pipeline]]): the **trend agent** writes `trends`, the **peer agent** writes `peers`, and the **risk analyst** writes every other Claude section (summary, warning signs, the score, the outcome section, what happened next). The analyst never edits the specialists' text: it appears in the note as exactly the checked text of that agent's memo. "Claude" below means whichever of the three agent writes that section. Concentration is code-only.
+
 
 | Section | Who writes it | Time window |
 |---|---|---|

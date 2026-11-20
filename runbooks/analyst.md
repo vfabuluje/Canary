@@ -1,6 +1,6 @@
 # Runbook: the risk analyst (Phase 5a)
 
-How to write bank notes and ask questions. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]], [[decisions/0021-cre-concentration-2006-thresholds]]. Output formats: [[data-dictionary/bank_notes]], [[data-dictionary/analyst_outputs]].
+How to write bank notes and ask questions. Design: [[specs/2026-11-17-phase5a-risk-analyst-design]]. Decisions: [[decisions/0016-analyst-memo-design]], [[decisions/0017-analyst-agent-tool-runner]], [[decisions/0018-failures-after-test-window]], [[decisions/0019-ratio-trends-descriptive]], [[decisions/0020-peer-comparison-descriptive]], [[decisions/0021-cre-concentration-2006-thresholds]], [[decisions/0022-three-agent-memo-pipeline]]. Output formats: [[data-dictionary/bank_notes]], [[data-dictionary/analyst_outputs]].
 
 This calls **Anthropic's API, not AWS**, so AWS cost is unchanged. It needs the Phase 3 feature export and saved model on disk (read only).
 
@@ -18,9 +18,9 @@ All run from the repo root as `python -m canary.analyst <command>`.
 memo --cert 24735                       # one note; as-of defaults to last report before failure, or the latest quarter
 memo --cert 24735 --as-of 2022-12-31    # a chosen quarter (must be a quarter it reported, from 2016-03-31 on)
 ask "write up the bank in Santa Clara that failed in 2023"
-showcase --dry-run --watchlist-top 20   # list banks and estimate cost; no API calls
-showcase --watchlist-top 20             # real run: one Message Batches job, then failures retried one by one
-showcase --resume BATCH_ID              # collect a batch already created (id is in the log and the .state.json file)
+showcase --dry-run --watchlist-top 20 --max-cost 17   # list banks and estimate cost; no API calls (use the same flags as the paid run)
+showcase --watchlist-top 20 --max-cost 17   # real run: two Message Batches rounds, failures retried one by one
+showcase --resume BATCH_ID              # (inherits the saved --max-cost unless you pass one) continue a stopped run (either round's id; in the log and the .state.json file)
 compare                                 # SVB, Signature, First Republic with each model in --models
 ```
 
@@ -44,19 +44,50 @@ Every memo now includes "Real-estate concentration (2006 regulator thresholds)" 
 
 To see it for free, without a memo, build a fact sheet and print the section: after `import canary.analyst.writer`, load the context with `canary.analyst.context.load_context(...)`, call `canary.analyst.facts.build_fact_sheet(ctx, cert)` and print `render_concentration(sheet.extras["concentration"])` from `canary.analyst.concentration`. **Notes already in `banks/` do not have this section until the showcase is re-run** (once, with both the 5c and 5d sections, after the owner approves a dry-run estimate).
 
+## How a memo is written now (Phase 5e)
+Three AI agents write each memo, in order: the **trend agent** (`trends`), the **peer agent** (`peers`), then the **risk analyst** (every other AI section). Concentration stays code-only. Each agent is checked against its own facts, gets one retry with its checker errors (a direct call at full price), and the analyst never edits the specialists' text. Why and what each agent sees: [[decisions/0022-three-agent-memo-pipeline]]. `memo` makes these calls one after another; `showcase` sends all specialist requests in batch round 1, then all analyst requests in round 2. The analyst's message includes this instruction, word for word:
+
+> The trend, peer and concentration sections are written by other agents or code and appear in the note as they are. Don't repeat them at length; you may refer to their findings and cite the same fact ids for any number you use. If two sections genuinely point different ways, say so plainly in warning signs or the summary; never blend them into one statement.
+
+The checker **cannot verify** the "say so plainly" part: read real notes to see whether the analyst voices a disagreement.
+
+**Failure policy.** A specialist or the analyst that fails its check after one retry gives **no note** (and no analyst call if a specialist failed); an existing note is kept. A refusal, a cut-off or an unparseable reply on a direct call is final for that agent. A network or unexpected error is not final: resume does that agent again.
+
+**Traces.** Every memo attempt saves `data/analyst/traces/<cert>_<as_of>.json` (git-ignored): each call's request, reply, checker errors, tokens, cost, model and source. No API key or header is stored. Re-running a bank overwrites its trace (compare runs too), so **copy the calibration memo's trace aside before a showcase** (traces are overwritten per cert and as-of). Open one to see why an agent was rejected. Format: [[data-dictionary/analyst_outputs]].
+
 ## Exit codes
 - `0` success (for `showcase`, every bank written).
 - `1` a memo failed the citation check twice, Claude refused, the answer was cut off, malformed JSON, missing input files, no credentials, a Claude API error, or (showcase) any bank failed.
 - `2` bad cert or as-of date.
 
-## Cost (measured 2026-11-17)
-Opus 5.5 is about 9-10 cents per memo call at full price ($4 per million input tokens, $20 per million output), roughly half in a batch. Retries run at full price. `showcase --dry-run` builds the real requests (no API calls) and prints an estimate at batch price, then a separate retry allowance at full price, then the total. Derivation: the 5b/5c figures were measured. Output: the live 5c memo used 11,292 output tokens over 2 calls, so about 5,650 per call, rounded to 5,700 (`EST_OUTPUT_TOKENS`, adaptive thinking included; the 5b figure of 4,600 under-counted the longer 5c memo). Input = `len(json.dumps(request)) / CHARS_PER_TOKEN`, measured from the real requests. `CHARS_PER_TOKEN = 2.4` was calibrated on the 5b SVB 2022-03-31 memo (22,571 input over 2 calls; the first request is 22,979 characters; assuming the retry's extra, the rejected memo plus error text, was about 3,200 tokens, the first request was about 9,600 input tokens; the memo size is an assumption, so this is approximate; a plain 3.5 would under-count input by about 30%). Retry allowance: 60% of banks (`RETRY_SHARE`; the 5b showcase needed a retry for 37 of 61 banks) at full price, each with input about 2x the first request and 5,700 output. For the 61-bank `--watchlist-top 20` showcase the dry run prints about 773k input and 348k output tokens, $5.02 at batch price, plus $7.97 for 37 retries, $12.99 total (the earlier 30% and 4,600 figures gave $6.87 and understated cost). The 5a figures (7,300 in / 3,200 out) are retired. `ask`'s `get_bank_facts` now returns about 45 more facts (prompt about 50% larger, so slightly higher cost per question). The three-bank model comparison cost $0.47 with Opus and $0.21 with Sonnet.
+## Cost
+Opus 5.5 is $4 per million input tokens and $20 per million output, roughly half in a batch; retries run at full price. `showcase --dry-run` builds the real requests (no API calls) and prints, **per round and per agent**, the requests, estimated input and output tokens and batch cost, then a retry allowance per agent at full price, then the total. It adds a spending-limit line if `--max-cost` is given.
+
+**Method (per agent).** Input for each request = `len(json.dumps(request)) / CHARS_PER_TOKEN`, with `CHARS_PER_TOKEN = 2.4` (measured 2.45-2.53 on the 5e requests). Output = `EST_OUTPUT_TOKENS_BY_AGENT` for the trend, peer and analyst agent. The analyst's request does not exist until the specialists have answered, so the dry run builds it with placeholder specialist text of `EST_ANALYST_SPECIALIST_CHARS` characters per section. Retry allowance = `RETRY_SHARE_BY_AGENT` of that agent's calls, each resending about 2x its request (the request plus the rejected memo) at full price. During a real run, the round 2 batch cost is projected from round 1's actual spend per request, scaled by the analyst-to-specialist cost ratio.
+
+**Calibrated numbers.**
+
+Calibration memo: SVB cert 24735 as of 2022-12-31, run 2026-11-19, $0.4061 (trend 1 attempt, peer 1, analyst 2). Measured: output tokens trend 2,143, peer 2,142, analyst 4,616 (first attempt) and 3,128 (retry); input tokens trend 4,724 (11,931 request characters), peer 5,299 (13,256), analyst 14,310 (35,095), so 2.45-2.53 characters per token; each specialist's text adds about 2,281 characters to the analyst request. The analyst's first attempt was rejected because its summary said "rated it safer than a year earlier" without citing the fact containing "a year".
+
+Constants chosen (calibrated 2026-11-19 on SVB 24735, about 10-15% above measured): `EST_OUTPUT_TOKENS_BY_AGENT = {"trend": 2400, "peer": 2400, "analyst": 5000}`, `EST_ANALYST_SPECIALIST_CHARS = 2600`, `RETRY_SHARE_BY_AGENT = {"trend": 0.16, "peer": 0.16, "analyst": 0.30}`, `CHARS_PER_TOKEN = 2.4` (measured 2.45-2.53; 2.4 slightly over-counts input, which is conservative). The retry shares are judgement from one memo (the analyst retried once in one memo), not a rate; the 0.16 for the specialists carries over from 5b.
+
+Cost for this memo: $0.41 including one analyst retry (trend $0.062, peer $0.064, analyst $0.150 plus $0.131 for the retry).
+
+Fix from the retry: `SPAN_NOTE` is now added to the analyst user message next to `ANALYST_INSTRUCTION`: "Spelled time spans such as \"a year earlier\" count as figures: cite the fact that contains them (for example the trend agent's year-over-year rating fact)."
+
+Dry run for the 61-bank set (`showcase --watchlist-top 20 --max-cost 17 --dry-run`, 2026-11-19): round 1 $4.16, round 2 $4.84, retry allowance $5.70, total $14.70, within the $17 limit.
+
+The old single-call figures (about 9-10 cents per memo in 5a, $0.27-0.35 with the 5b and 5c sections, $6.60 for the last whole-set run) describe a different pipeline and are not a guide to three agents. The `ask` tests and the three-bank model comparison were measured earlier ($0.47 with Opus, $0.21 with Sonnet for compare).
 
 ## When a memo fails the checker
 The command prints the errors and writes no note. Each error names the section, the sentence and the reason (an unsupported number, a hindsight word in an as-of section, a missing post-hoc label). For `showcase`, the errors are in `data/analyst/showcase_report.json` under that bank's `errors`. Re-run `memo --cert N`: the model is not deterministic, so a second run often passes. If one bank fails repeatedly, read its errors; a recurring one may be a checker false rejection, which is a code fix, not a prompt change.
 
 ## If a showcase run stops
-Do not start a new one: it refuses while `data/analyst/showcase_report.state.json` is incomplete (and would pay for a second batch). Run `showcase --resume BATCH_ID`.
+Do not start a new one: it refuses while `data/analyst/showcase_report.state.json` is incomplete (and would pay for new batches). Run `showcase --resume BATCH_ID` (round 1's or round 2's id). Finished banks and paid rounds are not redone.
+
+`--resume` is refused, changing nothing, for: an id the state file does not name, no state file, a state that is already complete, a state from the old single-round run (no `round1_batch_id`; delete the file to start fresh), and `--resume ""`.
+
+**Spending limit.** `showcase --max-cost USD` (none by default; the paid command is pinned as `showcase --watchlist-top 20 --max-cost 17`, and the dry run must use the same flags so its estimate and the limit describe the same bank list). It is checked before round 1 is submitted (the built requests priced with the per-agent constants plus the retry allowance, as the dry run does; over the limit means nothing is submitted and nothing is paid), before round 2 is submitted (spent so far, plus a projection from round 1's actual spend per request scaled to the analyst, never less than the constants-based estimate, plus the analyst retry allowance) and before every direct call (spent so far plus that call's estimate). On a breach the run stops cleanly: finished notes, traces and the report are saved, the report and state file say `"stopped": "spending limit"`, the command prints "stopped at spending limit" with the amount spent and the resume command, and exits 1. The limit is saved in the state file: a resume without `--max-cost` keeps it (and stops again if it is still too low), and an explicit `--max-cost` overrides it: `showcase --resume BATCH_ID --max-cost HIGHER`. Notes for every bank whose agents had all passed are written before the stop, so a stop in round 2 does not hold them back. A stop just before a retry can repeat up to two direct calls for that agent when resumed. **Set `--max-cost` a few percent above the calibrated dry-run total**: the round 2 projection is neutral, so a limit set exactly at the total can stop a normal run just before it finishes. A refusal, a cut-off or an unparseable reply is final for that agent (saved as failed); a network or unexpected error leaves that agent to be redone on resume.
 
 ## Example `ask` answers
 Live runs on 2026-11-17 (Claude Opus 5.5).

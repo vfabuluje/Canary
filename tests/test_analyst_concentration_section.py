@@ -1,4 +1,4 @@
-from analyst_fakes import FakeClient
+from analyst_fakes import FakeClient, split_memo
 from canary.analyst import concentration as conc
 from canary.analyst import sections
 from canary.analyst.facts import build_fact_sheet
@@ -40,7 +40,7 @@ def test_section_definition():
 
 def test_note_renders_section(analyst_ctx, tmp_path):
     sheet = _sheet(analyst_ctx, tmp_path)
-    res = write_memo(analyst_ctx, 3, client=FakeClient([_memo(sheet)]), out_dir=tmp_path / "banks",
+    res = write_memo(analyst_ctx, 3, client=FakeClient(split_memo(sheet, _memo(sheet))), out_dir=tmp_path / "banks",
                      replay_dir=tmp_path / "none")
     assert res.ok, res.errors
     text = res.path.read_text()

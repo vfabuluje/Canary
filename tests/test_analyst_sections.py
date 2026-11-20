@@ -1,6 +1,6 @@
 import pytest
 
-from analyst_fakes import FakeClient
+from analyst_fakes import FakeClient, split_memo
 from canary.analyst import sections
 from canary.analyst.facts import Fact, build_fact_sheet
 from canary.analyst.render import render_note
@@ -41,10 +41,11 @@ def test_sections_for_code_only(registry, analyst_ctx, tmp_path):
 def test_code_only_section_not_requested(registry, analyst_ctx, tmp_path):
     sections.register(_spec())
     sheet = build_fact_sheet(analyst_ctx, CERT, replay_dir=tmp_path / "none")
-    client = FakeClient([_memo(sheet)])
+    client = FakeClient(split_memo(sheet, _memo(sheet)))
     res = write_memo(analyst_ctx, CERT, client=client, out_dir=tmp_path / "banks", replay_dir=tmp_path / "none")
-    schema = client.calls[0]["output_config"]["format"]["schema"]
-    assert "x" not in schema["properties"]["sections"]["items"]["properties"]["key"]["enum"]
+    for kw in client.calls:
+        schema = kw["output_config"]["format"]["schema"]
+        assert "x" not in schema["properties"]["sections"]["items"]["properties"]["key"]["enum"]
     assert res.ok, res.errors
 
 

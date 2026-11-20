@@ -241,3 +241,13 @@ def analyst_ctx(raw, trained_model, failures_path, financials_dir, specialty_dir
     trained_model.save_model(model_dir / "model.json")
     return load_context(features, model_dir, failures_path, financials_dir, tmp_path / "cache", specialty_dir,
                         concentration_dir)
+
+
+@pytest.fixture(autouse=True)
+def _traces_in_tmp(tmp_path_factory, monkeypatch):
+    """Tests never write memo traces into the real data/ directory."""
+    from canary.analyst import writer
+
+    kw = dict(writer.write_memo.__kwdefaults__)
+    kw["trace_dir"] = tmp_path_factory.mktemp("traces")
+    monkeypatch.setattr(writer.write_memo, "__kwdefaults__", kw)

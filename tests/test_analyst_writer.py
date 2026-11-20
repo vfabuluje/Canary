@@ -5,7 +5,7 @@ from datetime import date
 import pytest
 import yaml
 
-from analyst_fakes import FakeClient, fake_message
+from analyst_fakes import FakeClient, fake_message, split_memo
 from canary.analyst import __main__ as cli
 from canary.analyst.facts import POSTHOC_LABEL, build_fact_sheet
 from canary.analyst.sections import all_sections, sections_for
@@ -43,6 +43,11 @@ def _memo(sheet, rank_text=None, extra=None):
     return {"sections": secs}
 
 
+def _three(sheet, *memos):
+    """Each combined memo split into per-agent responses (trend, peer, analyst), concatenated in order."""
+    return [m for memo in memos for m in split_memo(sheet, memo)]
+
+
 def _write(ctx, tmp_path, responses, **kw):
     client = FakeClient(responses)
     res = write_memo(ctx, CERT, client=client, out_dir=tmp_path / "banks",
@@ -51,30 +56,33 @@ def _write(ctx, tmp_path, responses, **kw):
 
 
 def test_good_memo_written(analyst_ctx, sheet, tmp_path):
-    res, client = _write(analyst_ctx, tmp_path, [_memo(sheet)])
-    assert res.ok and res.attempts == 1 and res.errors == [] and len(client.calls) == 1
+    res, client = _write(analyst_ctx, tmp_path, _three(sheet, _memo(sheet)))
+    assert res.ok and res.attempts == 1 and res.errors == [] and len(client.calls) == 2
     assert res.path.exists() and res.path.parent == tmp_path / "banks"
     text = res.path.read_text()
     fm = yaml.safe_load(text.split("---\n")[1])
     assert fm["writer_model"] == "claude-opus-5-5" and fm["model_run"] == analyst_ctx.model_run
     assert "The bank looked weak in plain terms." in text
-    assert res.input_tokens == 1000 and res.output_tokens == 500
-    assert res.cost_usd == pytest.approx(cost_usd("claude-opus-5-5", 1000, 500))
+    assert res.input_tokens == 2000 and res.output_tokens == 1000
+    assert res.cost_usd == pytest.approx(2 * cost_usd("claude-opus-5-5", 1000, 500))
 
 
 def test_writer_model_is_the_serving_model(analyst_ctx, sheet, tmp_path):
-    msg = fake_message(json.dumps(_memo(sheet)), model="claude-sonnet-5-5")
-    res, _ = _write(analyst_ctx, tmp_path, [msg])
+    *pre, analyst = _three(sheet, _memo(sheet))
+    msg = fake_message(json.dumps(analyst), model="claude-sonnet-5-5")
+    res, _ = _write(analyst_ctx, tmp_path, [*pre, msg])
     assert res.model == "claude-sonnet-5-5"
     assert "writer_model: \"claude-sonnet-5-5\"" in res.path.read_text()
 
 
 def test_bad_then_good_retries_once(analyst_ctx, sheet, tmp_path):
-    bad = _memo(sheet, rank_text="999,999")
-    res, client = _write(analyst_ctx, tmp_path, [bad, _memo(sheet)])
-    assert res.ok and res.attempts == 2 and res.path.exists()
-    assert res.input_tokens == 2000 and res.output_tokens == 1000
-    second = client.calls[1]["messages"]
+    bad = split_memo(sheet, _memo(sheet, rank_text="999,999"))[-1]  # the analyst's memo
+    *pre, good = _three(sheet, _memo(sheet))
+    res, client = _write(analyst_ctx, tmp_path, [*pre, bad, good])
+    n = len(pre) + 2
+    assert res.ok and res.attempts == 2 and res.path.exists() and len(client.calls) == n
+    assert res.input_tokens == 1000 * n and res.output_tokens == 500 * n
+    second = client.calls[-1]["messages"]
     assert "999,999" in second[-1]["content"] and "not supported by cited facts" in second[-1]["content"]
     assert json.loads(second[-2]["content"]) == bad  # previous memo echoed as the assistant turn
     assert second[-2]["role"] == "assistant"
@@ -83,23 +91,25 @@ def test_bad_then_good_retries_once(analyst_ctx, sheet, tmp_path):
 
 
 def test_first_errors_empty_when_first_attempt_passes(analyst_ctx, sheet, tmp_path):
-    res, _ = _write(analyst_ctx, tmp_path, [_memo(sheet)])
+    res, _ = _write(analyst_ctx, tmp_path, _three(sheet, _memo(sheet)))
     assert res.first_errors == []
 
 
 def test_bad_twice_not_written(analyst_ctx, sheet, tmp_path):
-    bad = _memo(sheet, rank_text="999,999")
-    res, client = _write(analyst_ctx, tmp_path, [bad, bad])
-    assert not res.ok and res.path is None and res.attempts == 2 and len(client.calls) == 2
+    *pre, bad = _three(sheet, _memo(sheet, rank_text="999,999"))
+    res, client = _write(analyst_ctx, tmp_path, [*pre, bad, bad])
+    assert not res.ok and res.path is None and res.attempts == 2 and len(client.calls) == len(pre) + 2
     assert any("999,999" in e for e in res.errors)
     assert not (tmp_path / "banks").exists() or not any((tmp_path / "banks").iterdir())
 
 
-def test_first_memo_skips_first_call(analyst_ctx, sheet, tmp_path):
-    res, client = _write(analyst_ctx, tmp_path, [], first_memo=_memo(sheet))
+def test_first_memos_skip_first_calls(analyst_ctx, sheet, tmp_path):
+    *pre, analyst = _three(sheet, _memo(sheet))
+    firsts = {"trend": pre[0], "analyst": analyst}  # cert 3 has no peer call
+    res, client = _write(analyst_ctx, tmp_path, [], first_memos=firsts)
     assert res.ok and res.attempts == 1 and client.calls == []
-    bad = _memo(sheet, rank_text="999,999")
-    res, client = _write(analyst_ctx, tmp_path, [_memo(sheet)], first_memo=bad)
+    bad = split_memo(sheet, _memo(sheet, rank_text="999,999"))[-1]
+    res, client = _write(analyst_ctx, tmp_path, [analyst], first_memos={**firsts, "analyst": bad})
     assert res.ok and res.attempts == 2 and len(client.calls) == 1
 
 
@@ -151,10 +161,10 @@ def test_schema_section_enum():
 
 
 def test_create_called_with_fallbacks(analyst_ctx, sheet, tmp_path):
-    _, client = _write(analyst_ctx, tmp_path, [_memo(sheet)])
-    kw = client.calls[0]
-    assert kw["betas"] == [FALLBACK_BETA] == ["server-side-fallback-2026-07-01"]
-    assert kw["fallbacks"] == "default"
+    _, client = _write(analyst_ctx, tmp_path, _three(sheet, _memo(sheet)))
+    for kw in client.calls:
+        assert kw["betas"] == [FALLBACK_BETA] == ["server-side-fallback-2026-07-01"]
+        assert kw["fallbacks"] == "default"
 
 
 def test_cost():
@@ -171,13 +181,15 @@ def _cli(monkeypatch, analyst_ctx, tmp_path, responses, *extra):
 
 
 def test_cli_memo_ok(monkeypatch, analyst_ctx, sheet, tmp_path, capsys):
-    assert _cli(monkeypatch, analyst_ctx, tmp_path, [_memo(sheet)]) == 0
-    assert "Failed Bank 3 (3).md" in capsys.readouterr().out
+    assert _cli(monkeypatch, analyst_ctx, tmp_path, _three(sheet, _memo(sheet))) == 0
+    out = capsys.readouterr().out
+    assert "Failed Bank 3 (3).md" in out
+    assert "trend: 1 attempt(s)" in out and "peer: skipped (code-only)" in out and "analyst: 1 attempt(s)" in out
 
 
 def test_cli_memo_fails_check(monkeypatch, analyst_ctx, sheet, tmp_path, capsys):
-    bad = _memo(sheet, rank_text="999,999")
-    assert _cli(monkeypatch, analyst_ctx, tmp_path, [bad, bad]) == 1
+    *pre, bad = _three(sheet, _memo(sheet, rank_text="999,999"))
+    assert _cli(monkeypatch, analyst_ctx, tmp_path, [*pre, bad, bad]) == 1
     assert "999,999" in capsys.readouterr().err
 
 
@@ -205,7 +217,7 @@ def test_posthoc_label_passes_first_try(analyst_ctx, tmp_path):
     assert rr.quarter == date(2022, 12, 31)
     sent = {"text": f"On the run-risk rank, a {POSTHOC_LABEL}, it was #3 nationally.", "cites": [rr.id]}
     memo = _memo(sheet, extra={"outcome": sent})
-    client = FakeClient([memo])
+    client = FakeClient(split_memo(sheet, memo))
     res = write_memo(analyst_ctx, 24735, client=client, out_dir=tmp_path / "banks", replay_dir=replay)
     assert res.ok and res.attempts == 1, res.errors
 
@@ -275,16 +287,17 @@ def test_cli_memo_api_error_exits_1(monkeypatch, analyst_ctx, tmp_path, capsys):
 
 
 def test_exception_carries_usage_of_earlier_calls(analyst_ctx, sheet, tmp_path):
-    bad = _memo(sheet, rank_text="999,999")
+    *pre, bad = _three(sheet, _memo(sheet, rank_text="999,999"))
+    n = len(pre) + 1  # earlier agents plus the bad analyst call
     with pytest.raises(RefusalError) as info:
-        _write(analyst_ctx, tmp_path, [bad, fake_message("", stop_reason="refusal")])
+        _write(analyst_ctx, tmp_path, [*pre, bad, fake_message("", stop_reason="refusal")])
     u = info.value.usage
-    assert u["input_tokens"] == 2000 and u["output_tokens"] == 1000  # both calls returned usage
-    assert u["cost_usd"] == pytest.approx(2 * cost_usd("claude-opus-5-5", 1000, 500))
+    assert u["input_tokens"] == 1000 * (n + 1) and u["output_tokens"] == 500 * (n + 1)  # refusal reports usage too
+    assert u["cost_usd"] == pytest.approx((n + 1) * cost_usd("claude-opus-5-5", 1000, 500))
     assert u["model"] == "claude-opus-5-5"
     with pytest.raises(RuntimeError) as info:
-        _write(analyst_ctx, tmp_path, [bad, RuntimeError("down")])
-    assert info.value.usage["input_tokens"] == 1000
+        _write(analyst_ctx, tmp_path, [*pre, bad, RuntimeError("down")])
+    assert info.value.usage["input_tokens"] == 1000 * n
 
 
 def test_request_comment_on_adaptive_thinking():

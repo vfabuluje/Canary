@@ -76,3 +76,41 @@ def api_status_error(cls_name: str, status: int, message: str = "api error"):
     resp = SimpleNamespace(status_code=status, headers={},
                            request=SimpleNamespace(method="POST", url="https://api.example"))
     return getattr(anthropic, cls_name)(message, response=resp, body=None)
+
+
+def fake_agent_memo(sheet, agent: str, rank_text: str | None = None) -> dict:
+    """A valid memo for one agent's sections (the analyst's summary cites the national rank fact).
+
+    `rank_text` replaces the rank's display in the summary sentence (to make the memo fail the check).
+    """
+    from canary.analyst.pipeline import agent_sections
+
+    rank = next(f for f in sheet.facts if f.label.startswith("National rank"))
+    secs = []
+    for s in agent_sections(sheet, agent):
+        sents = [{"text": f"The {s.key} section reads calmly.", "cites": []}]
+        if s.key == "summary":
+            sents.append({"text": f"It ranked {rank_text or rank.display} nationally.", "cites": [rank.id]})
+        secs.append({"key": s.key, "paragraphs": [{"sentences": sents}]})
+    return {"sections": secs}
+
+
+def fake_agent_memos(sheet, bad_rank_text: str | None = None) -> list[dict]:
+    """The memos, in call order, for every agent that is not code-only (trend, peer, analyst)."""
+    from canary.analyst.pipeline import AGENTS, agent_sections
+
+    return [fake_agent_memo(sheet, a, bad_rank_text if a == "analyst" else None)
+            for a in AGENTS if agent_sections(sheet, a)]
+
+
+def split_memo(sheet, memo: dict) -> list[dict]:
+    """Split one combined memo into the per-agent memos, in call order (trend, peer, analyst), skipping
+    agents whose section is code-only. Lets a test keep writing one memo and feed the three-call pipeline."""
+    from canary.analyst.pipeline import AGENTS, agent_sections
+
+    out = []
+    for a in AGENTS:
+        keys = [s.key for s in agent_sections(sheet, a)]
+        if keys:
+            out.append({"sections": [s for s in memo["sections"] if s["key"] in keys]})
+    return out
