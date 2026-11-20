@@ -1,7 +1,7 @@
 # Phase 6 Spec: Canary dashboard
 
 **Date:** 2026-11-19
-**Status:** Draft for Victor's approval
+**Status:** Approved by Victor, 2026-11-20
 **Phase:** 6 (dashboard). Builds on Phases 1-5e. The approved visual design is
 `dashboard/design/report-replay-v6.html` (the "v6" mockup), which is the reference for look and
 behavior wherever this spec says "v6 style".
@@ -36,7 +36,7 @@ a non-technical viewer; the v6 two-screen design came from her feedback).
   deploy), README link to the live app.
 
 ## 3. Non-goals and anti-goals
-- **Non-goals:** new model or memo work; new written reports (the 61 stay as they are); AWS hosting; user
+- **Non-goals:** new model work; new written reports beyond the 39 in §5.8; AWS hosting; user
   accounts; scheduled re-runs; a separate modern-style theme (the "modern draft" was rejected).
 - **Anti-goals:**
   - any per-visitor cost or live API call outside the Ask Canary module (only that module imports
@@ -140,6 +140,13 @@ a non-technical viewer; the v6 two-screen design came from her feedback).
 - A single-series chart of failures caught by size, and a sentence that updates with the choice
   (e.g. at 10% Signature would have been caught; SVB and First Republic still not).
 
+### 5.5a "How it works" tab
+- The fastest way for a visitor who doesn't have a bank in mind to see the AI part: the replay of
+  SVB's real run at the top (with a picker for any of the showcase banks), then a short plain
+  strip of how Canary works end to end: public FDIC data → the model ranks every bank each quarter →
+  an AI team writes reports for the showcase banks → code checks every number. Each step is
+  marked AI or CODE. (Claude's proposal, answering Victor's "what's the point of this tab?")
+
 ### 5.5 Report replay ("loading screen") and report page — per showcase bank
 **Screen 1, the replay** (v6): "Building Canary's report on **<bank>**", one scene at a time,
 about 5.5 seconds each, a progress bar, one big plain sentence ("what's happening now") and one
@@ -184,6 +191,21 @@ errors, the section texts, the concentration result) — not the full prompts.
   behind it (SVB, Signature, First Republic in 2023, as in the project's CLAUDE.md), the goal
   (could public data have raised the alarm in time?), and the honest answer with a link to the
   2023 tab. A pixel canary in a cage. No numbers beyond ones already shown elsewhere in the app.
+
+### 5.8 Showcase expansion to 100 banks (Victor: option 1; paid, separate step)
+- 39 more written reports, made by the existing Phase 5e three-agent pipeline as of the latest
+  quarter (2026-06-30), so 100 banks get the full replay and report page.
+- **20 big banks people will search:** the 20 largest by total assets at 2026-06-30, one charter
+  per brand (Morgan Stanley Private Bank skipped in favor of M&T): JPMorgan Chase (628), Bank of
+  America (3510), Citibank (7213), Wells Fargo (3511), Goldman Sachs Bank USA (33124), U.S. Bank
+  (6548), Capital One (4297), PNC (6384), Truist (9846), BNY Mellon (639), Morgan Stanley Bank
+  (32992), State Street (14), TD Bank (18409), Fifth Third (6672), Huntington (6560), BMO (16571),
+  Charles Schwab Bank (57450), First Citizens (11063), Citizens (57957), M&T (588).
+- **19 more from today's watchlist:** the next best-ranked flagged banks at 2026-06-30 not already
+  among the 61 or the 20 above.
+- Cost: about $0.16 a bank on the 5e setup (≈ $6.24); `--max-cost 7.00`. The dry run's real
+  estimate is shown to Victor and nothing is spent without his yes. The run happens after the
+  dashboard is built; the dashboard works with 61 or 100.
 
 ### Navigation
 - Top bar: the Canary logo on the left; tabs **Home · Find a bank · 2023 · Watchlist · How it works ·
