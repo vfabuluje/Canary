@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2016-04-29
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:05:14"
+written_at: "2026-11-19T21:14:01"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,23 @@ checked: true
 
 ## Summary
 
-As of March 31, 2016, Trust Company Bank, based in TN, ranked 3 out of 6,193 banks nationally on Canary's risk score, which places it in the 100.0th percentile, where higher means riskier. It was flagged on the watchlist, which covers roughly the riskiest 2% of banks. Its capital, the cushion that absorbs losses, was below zero, with equity at -6.5% of assets against a national median of 10.9%, and its return on assets (profit as a share of assets) was -34.3%. Problem loans, meaning loans 90+ days past due or no longer paying interest, made up 13.4% of its loans, compared with a national median of 0.7%.
+As of 2016-03-31, Trust Company Bank, based in TN, ranked 3 out of 6,193 banks nationally on Canary's score, placing it in the 100.0th percentile on a scale where higher means riskier. Its capital, the owners' own money that cushions a bank against losses, was negative, with equity at -6.5% of assets against a national median of 10.9%. Problem loans were high, with 13.4% of loans 90 or more days overdue or no longer earning interest, against a national median of 0.7%. Its funding, by contrast, looked steady, with no uninsured or brokered deposits, so the weak points in the data are capital, loan quality and losses rather than deposits.
 
 ## Warning signs in the data
 
-Capital was the most striking weakness: equity was -6.5% of assets versus a national median of 10.9%, and the leverage ratio (core capital as a share of average assets) was -6.2% versus 10.4%. The Tier 1 risk-based capital ratio, which compares core capital with assets weighted by their riskiness, was -12.5% against a median of 15.2%, and the broader total risk-based capital ratio was -11.1% against 16.4%. The bank was also losing money heavily, with return on assets of -34.3% against a median of 0.9%, and an efficiency ratio (operating costs as a share of revenue) of 393.0% against 70.4%.
+Capital was below zero on every measure: equity was -6.5% of assets against a national median of 10.9%, and the leverage ratio (core capital as a share of average assets) was -6.2% against 10.4%. The Tier 1 risk-based capital ratio (top-quality capital against risk-weighted assets) was -12.5% against a median of 15.2%, and the total risk-based capital ratio was -11.1% against 16.4%. Return on assets (profit as a share of assets) was -34.3% against a median of 0.9%, and the efficiency ratio (operating costs as a share of revenue) was 393.0% against 70.4%.
 
-Credit quality was far worse than typical: loans 90+ days past due or not accruing interest were 13.4% of loans versus a median of 0.7%, and nonaccrual assets plus foreclosed property were 14.3% of assets versus 0.6%. Loans 30-89 days past due, an early sign of trouble, were 3.7% of assets versus 0.3%. The bank had set aside loan-loss reserves of 5.7% of loans versus a median of 1.3%, and its annualized provision for loan losses (new money set aside for bad loans) was 5.6% of assets versus 0.0%. The Texas ratio, which weighs troubled assets against capital plus reserves, read an unusual negative -457.7%, against a median of 5.5%.
+Credit quality was weak: loans 90 or more days overdue or not accruing interest were 13.4% of loans against a national median of 0.7%, and nonaccrual assets plus foreclosed property were 14.3% of assets against 0.6%. Loans 30-89 days past due, an early sign of trouble, were 3.7% of assets against 0.3%, while the annualized provision for loan losses (money set aside for expected bad loans) was 5.6% of assets against 0.0%. The Texas ratio (troubled assets against capital plus reserves) read -457.7% against a median of 5.5%; a negative reading is hard to interpret on its own here, because the bank's capital was itself below zero.
 
-On funding, the bank relied on stable core deposits equal to 106.1% of assets versus a median of 78.9%, with uninsured deposits at 0.0% of deposits versus 16.6% and volatile funding at 0.0% of assets versus 4.9%. Cash was 14.1% of assets versus 7.0%, but the bank was shrinking, with assets down -30.5% and deposits down -16.9% over the past four quarters, against national medians of 3.0% and 2.6%. Unrealized losses on bonds held to maturity were 2.8% of equity versus a median of 0.0%, and on bonds available for sale 0.6% versus -0.9%, though securities were only 2.4% of assets versus 18.6%.
+Funding pointed the other way and looked steady: core deposits (steadier everyday deposits) were 106.1% of assets against a national median of 78.9%, uninsured deposits were 0.0% of deposits against 16.6%, and cash was 14.1% of assets against 7.0%. The bank was small and shrinking, with total assets of $19.0 million against a median of $192.6 million, and asset growth over the past four quarters of -30.5% against 3.0%. Unrealized losses on bonds were modest: 2.8% of equity on bonds held to maturity against a median of 0.0%, and 0.6% on bonds available for sale against -0.9%, with securities only 2.4% of assets against 18.6%.
 
 ## Understanding the score
 
-For the quarter ending March 31, 2016, the bank ranked 3 out of 6,193 banks, putting it in the 100.0th percentile on a scale from 0 to 100 where higher means riskier. It was flagged on the watchlist, one of 124 banks that quarter; the watchlist covers about 2% of banks.
+As of 2016-03-31, the bank ranked 3 out of 6,193 banks nationally, in the 100.0th percentile, where higher means riskier. It was flagged on Canary's watchlist, which covers the riskiest 2% of banks, or 124 banks that quarter.
 
-The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at -12.5% (+1.605), return on equity, meaning profit as a share of equity (+1.137), the total risk-based capital ratio at -11.1% (+0.686), loans 90+ days past due or not accruing interest at 13.4% of loans (+0.637), and equity as a share of assets at -6.5% (+0.473). The five factors that pulled the score down most were interest expense at 0.8% of assets (-0.992), the Texas ratio at -457.7% (-0.965), construction loans at 4.9% of loans (-0.209), deposit growth of -16.9% over four quarters (-0.114), and the efficiency ratio at 393.0% (-0.071). Positive contributions raise the score and negative ones lower it; the upward pushes were much larger overall.
+The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at -12.5% (+1.605), return on equity, meaning profit as a share of equity (+1.137), and the total risk-based capital ratio at -11.1% (+0.686). The other two were loans 90 or more days past due or not accruing interest at 13.4% of loans (+0.637) and equity at -6.5% of assets (+0.473).
+
+The five factors that pulled the score down most were interest expense at 0.8% of assets (-0.992), the Texas ratio at -457.7% (-0.965), and construction loans at 4.9% of loans (-0.209). The last two were deposit growth over the past four quarters of -16.9% (-0.114) and the efficiency ratio at 393.0% (-0.071).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -49,11 +51,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 29 ratios checked this way, 17 sat outside their own prior range, and the table shows the 6 furthest outside.
+As of 2016-03-31, the bank ranked 3 out of 6,193 banks nationally, which places it in the 100.0th percentile on a scale where higher means riskier. Of the 29 ratios compared with their own prior range, 17 sat outside it, and the table shows the 6 furthest outside. For most ratios the prior range covers the prior 12 quarters, while year-to-date ratios are compared with the same quarter in the prior 3 years.
 
-The Tier 1 risk-based capital ratio was -12.5%, below its prior range of 0.1% to 6.0%, and contributed +1.605 model log-odds units, which pushed the score up. That ratio fell by -15.0 pp in a single quarter and by -16.3 pp over four quarters. The total risk-based capital ratio was -11.1%, below its prior range of 0.2% to 6.6%, and contributed +0.686, which pushed the score up. Annualized provision for loan losses was 5.6% of assets, above its prior range of 0.0% to 0.7%, and contributed +0.164, which pushed the score up. Return on assets was -34.3%, below its prior range of -6.6% to -4.5%, and contributed +0.118, which pushed the score up.
+The Tier 1 risk-based capital ratio (the bank's core loss-absorbing cushion measured against its risk-weighted assets) stood at -12.5%, below its prior range of 0.1% to 6.0%, and its contribution of +1.605 model log-odds units pushed the score up. That ratio changed by -15.0 pp over one quarter and by -16.3 pp over four quarters. The total risk-based capital ratio (a broader capital measure that also counts some reserves) was -11.1%, below its prior range of 0.2% to 6.6%, and its contribution of +0.686 model log-odds units pushed the score up. The Texas ratio (troubled assets measured against capital plus reserves) was -457.7%, far outside its prior range of 45.3% to 296.1%, yet its contribution of -0.965 model log-odds units pushed the score down.
 
-By contrast, the Texas ratio was -457.7%, far below its prior range of 45.3% to 296.1%, yet it contributed -0.965 and pushed the score down. Likewise, the efficiency ratio was 393.0%, well above its prior range of 133.6% to 156.0%, but it contributed -0.071 and pushed the score down.
+Return on assets (profit as a share of assets) was -34.3%, well below its prior range of -6.6% to -4.5%, and its contribution of +0.118 model log-odds units pushed the score up. The annualized provision for loan losses (money set aside for expected bad loans, as a share of assets) was 5.6%, above its prior range of 0.0% to 0.7%, and its contribution of +0.164 model log-odds units pushed the score up. The efficiency ratio (operating costs as a share of revenue) reached 393.0%, far above its prior range of 133.6% to 156.0%, but in contrast its contribution of -0.071 model log-odds units pushed the score down.
 
 There is no score from a year earlier to compare with (scores start 2016-03-31, or the bank did not report then).
 
@@ -76,9 +78,9 @@ The FDIC's specialty group for this bank at 2016-03-31: Commercial Lending Speci
 
 Peers: 373 banks in the same specialty group and size tier (under $100 million).
 
-Equity as a share of assets was -6.5%, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 11.0%, which is unusually low among its peers too. The leverage ratio was -6.2%, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 10.7%, which is unusually low among its peers too. The Tier 1 risk-based capital ratio was -12.5%, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 15.4%, which is unusually low among its peers too. The total risk-based capital ratio was -11.1%, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 16.5%, which is unusually low among its peers too.
+As of 2016-03-31, Trust Company Bank ranked 3 out of 6,193 banks nationally on Canary's score. Its equity as a share of assets, the owners' own money cushioning the bank against losses, was -6.5%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 11.0%, unusually low among its peers too. Its leverage ratio, core capital as a share of average assets, was -6.2%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 10.7%, unusually low among its peers too. Its total risk-based capital ratio, capital measured against assets weighted by how likely they are to lose value, was -11.1%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 16.5%, unusually low among its peers too. Its Tier 1 risk-based capital ratio, the same measure using only the highest-quality capital, was -12.5%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 15.4%, unusually low among its peers too.
 
-Return on assets was -34.3%, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 0.6%, which is unusually low among its peers too. The Texas ratio was -457.7%, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 8.2%, which is unusually low among its peers too. Core deposits were 106.1% of assets, in the 100.0th percentile nationally (unusually high), and in the 99.9th percentile among peers against a peer median of 81.6%, which is unusually high among its peers too. Uninsured deposits were 0.0% of deposits, in the 0.0th percentile nationally (unusually low), and in the 0.1st percentile among peers against a peer median of 11.7%, which is unusually low among its peers too.
+Its return on assets, profit as a share of assets, was -34.3%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 0.6%, unusually low among its peers too. Its Texas ratio, which compares troubled assets with capital plus reserves, was -457.7%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 8.2%, unusually low among its peers too. Its core deposits, the steadier everyday deposits, came to 106.1% of assets, at the 100.0th national percentile, which is unusually high, and at the 99.9th percentile among its peers against a peer median of 81.6%, unusually high among its peers too. Its uninsured deposits, balances above the government insurance limit, were 0.0% of deposits, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among its peers against a peer median of 11.7%, unusually low among its peers too.
 
 Overall, 21 of the bank's ratios fell in the national top or bottom 10%, and 20 of those were also unusual among its peers.
 
@@ -116,11 +118,11 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-With hindsight, this is a case Canary caught: the bank was first flagged in the quarter ending March 31, 2016. The bank failed on April 29, 2016, giving a lead time of 1 quarter between the first flag and the failure. At that first flag the bank ranked 3 out of 6,193 banks nationally.
+In hindsight, Canary first flagged the bank in the quarter ending 2016-03-31, which was also the last quarter the bank reported. The bank failed on 2016-04-29, giving a lead time of 1 quarter before failure. The model caught the bank, but the warning came from its final report, so the window between the flag and the failure was short.
 
 ## What happened next
 
-In hindsight, the last quarter the bank reported was 2016-03-31, so there are no later ranks or watchlist flags to show. The fact sheet records a failure date of April 29, 2016, shortly after that final report. On its own, a bank that stops reporting may have merged or closed, and our reporting data does not distinguish the two; here the recorded failure date explains why the reports ended.
+With hindsight, the bank failed on 2016-04-29. Its last report was for the quarter ending 2016-03-31, so our data holds no later ranks or watchlist flags for it.
 
 ## Sources
 
@@ -148,8 +150,6 @@ In hindsight, the last quarter the bank reported was 2016-03-31, so there are no
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2016-03-31 · 0.6% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
 - F25 · Bank: loans 30-89 days past due, as a share of assets · 2016-03-31 · 3.7% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
 - F26 · National median: loans 30-89 days past due, as a share of assets · 2016-03-31 · 0.3% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
-- F27 · Bank: loan-loss reserves as a share of loans · 2016-03-31 · 5.7% · data/features/fct_bank_features.parquet: allowance_to_loans
-- F28 · National median: loan-loss reserves as a share of loans · 2016-03-31 · 1.3% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F31 · Bank: annualized provision for loan losses as a share of assets · 2016-03-31 · 5.6% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F32 · National median: annualized provision for loan losses as a share of assets · 2016-03-31 · 0.0% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2016-03-31 · -457.7% · data/features/fct_bank_features.parquet: texas_ratio
@@ -162,8 +162,6 @@ In hindsight, the last quarter the bank reported was 2016-03-31, so there are no
 - F50 · National median: uninsured deposits as a share of deposits · 2016-03-31 · 16.6% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F53 · Bank: core deposits as a share of assets · 2016-03-31 · 106.1% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F54 · National median: core deposits as a share of assets · 2016-03-31 · 78.9% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
-- F57 · Bank: volatile funding as a share of assets · 2016-03-31 · 0.0% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
-- F58 · National median: volatile funding as a share of assets · 2016-03-31 · 4.9% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F59 · Bank: cash as a share of assets · 2016-03-31 · 14.1% · data/features/fct_bank_features.parquet: cash_to_assets
 - F60 · National median: cash as a share of assets · 2016-03-31 · 7.0% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F61 · Bank: losses on bonds held to maturity, as a share of equity · 2016-03-31 · 2.8% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
@@ -172,10 +170,10 @@ In hindsight, the last quarter the bank reported was 2016-03-31, so there are no
 - F64 · National median: losses on bonds available for sale, as a share of equity · 2016-03-31 · -0.9% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
 - F65 · Bank: securities as a share of assets · 2016-03-31 · 2.4% · data/features/fct_bank_features.parquet: securities_to_assets
 - F66 · National median: securities as a share of assets · 2016-03-31 · 18.6% · data/features/fct_bank_features.parquet: securities_to_assets (median of all banks)
+- F67 · Bank: total assets · 2016-03-31 · $19.0 million · data/features/fct_bank_features.parquet: log_total_assets
+- F68 · National median: total assets · 2016-03-31 · $192.6 million · data/features/fct_bank_features.parquet: log_total_assets (median of all banks)
 - F69 · Bank: asset growth over the past four quarters · 2016-03-31 · -30.5% · data/features/fct_bank_features.parquet: asset_growth_4q
 - F70 · National median: asset growth over the past four quarters · 2016-03-31 · 3.0% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
-- F71 · Bank: deposit growth over the past four quarters · 2016-03-31 · -16.9% · data/features/fct_bank_features.parquet: deposit_growth_4q
-- F72 · National median: deposit growth over the past four quarters · 2016-03-31 · 2.6% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F73 · Driver up #1: the Tier 1 risk-based capital ratio, value -12.5%; contribution to the score · 2016-03-31 · +1.605 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F74 · Driver up #2: return on equity (profit as a share of equity); contribution to the score · 2016-03-31 · +1.137 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F75 · Driver up #3: the total risk-based capital ratio, value -11.1%; contribution to the score · 2016-03-31 · +0.686 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution

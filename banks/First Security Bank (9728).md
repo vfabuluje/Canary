@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:19"
+written_at: "2026-11-19T21:16:01"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-As of June 30, 2026, First Security Bank (FDIC certificate 9728) ranked 7 out of 4,313 banks on Canary's risk score, which places it in the 99.9th percentile. That ranking puts it on Canary's watchlist, which covers the top 2% of banks. Its capital cushion is thin, with equity (the owners' stake) at 7.0% of assets against a national median of 10.6%. It also leans heavily on brokered deposits (money placed through middlemen rather than gathered from local customers), at 23.9% of deposits versus a national median of 0.0%.
+As of 2026-06-30, First Security Bank ranked 7 out of 4,313 banks nationally on Canary's risk score, placing it in the 99.9th percentile and on Canary's watchlist. The score is driven mainly by its heavy reliance on brokered deposits (money placed through third-party brokers), paper losses on its bond holdings, and thin capital compared with most banks. Troubled loans are also well above the national median, while strong profitability and its capital ratios worked to pull the score down rather than up. The code-written real-estate section adds that the bank crossed the regulators' construction-lending screen but not the total commercial real estate screen.
 
 ## Warning signs in the data
 
-Capital, the cushion that absorbs losses, is well below typical levels: equity was 7.0% of assets against a national median of 10.6%. The leverage ratio (core capital as a share of average assets) was 7.9% against a median of 11.0%. The Tier 1 risk-based capital ratio (core capital measured against riskier assets) was 10.8% against a median of 14.6%, and the total risk-based capital ratio was 12.1% against 15.8%.
+Capital, the bank's own money that absorbs losses, is thin: equity was 7.0% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 7.9% against 11.0%. Its Tier 1 risk-based capital ratio (core capital against assets weighted by riskiness) was 10.8% versus a median of 14.6%, and the total risk-based capital ratio was 12.1% versus 15.8%.
 
-Credit quality is weaker than most banks: loans 90 or more days past due or no longer earning interest were 2.6% of loans, against a national median of 0.5%. Nonaccrual assets and foreclosed property were 2.0% of assets versus a median of 0.3%, and the Texas ratio (troubled assets measured against capital plus reserves) was 24.5% versus 2.9%. The bank set aside an annualized 0.5% of assets for expected loan losses, against a median of 0.1%, and construction loans made up 12.1% of its loans versus a median of 5.3%.
+Credit quality is weaker than typical: loans 90 or more days past due or no longer earning interest were 2.6% of loans against a median of 0.5%, and nonaccrual assets plus foreclosed property were 2.0% of assets against 0.3%. Loans 30-89 days past due were 0.7% of assets versus 0.2%, the Texas ratio (troubled assets against capital plus reserves) was 24.5% versus 2.9%, and the provision for loan losses (money set aside for expected bad loans) was 0.5% of assets versus 0.1%. Construction loans made up 12.1% of loans, well above the median of 5.3%.
 
-On funding, brokered deposits were 23.9% of deposits against a national median of 0.0%, while core deposits (stable everyday customer deposits) were only 52.2% of assets versus 75.5%. Volatile funding (money that can leave quickly) was 22.5% of assets against a median of 9.0%, loans equaled 98.6% of deposits versus 80.2%, and interest expense ran at an annualized 2.5% of assets versus 1.6%. Unrealized losses on bonds available for sale (bonds worth less than the bank paid) equaled 9.9% of equity, compared with a national median of 5.6%.
+On funding, brokered deposits were 23.9% of deposits against a national median of 0.0%, core deposits (stable, everyday deposits) were 52.2% of assets against 75.5%, and volatile funding (money that can leave quickly) was 22.5% of assets against 9.0%. Loans equaled 98.6% of deposits versus a median of 80.2%, and interest expense was 2.5% of assets versus 1.6%, while uninsured deposits, at 23.7%, were close to the median of 24.8%. Unrealized losses on bonds available for sale equaled 9.9% of equity, above the median of 5.6%, though profitability points the other way, with return on equity of 15.0% against a median of 11.6%.
 
 ## Understanding the score
 
-As of 2026-06-30, First Security Bank ranked 7 of 4,313 banks, in the 99.9th percentile on a scale where higher means riskier, with a raw model score of 0.6456. It is flagged on the watchlist, which holds the top 2% of banks, or 87 banks that quarter.
+As of 2026-06-30, First Security Bank ranked 7 out of 4,313 banks, which is the 99.9th percentile on a 0 to 100 scale where higher means riskier. That places it on the watchlist, which covers the top 2% of banks and held 87 banks that quarter.
 
-Five features pushed the score up the most. The largest was brokered deposits at 23.9% of deposits, contributing +1.395, followed by losses on bonds available for sale at 9.9% of equity, contributing +0.965. Next came core deposits at 52.2% of assets (+0.454), the efficiency ratio (operating costs as a share of revenue) at 55.8% (+0.424), and interest expense at 2.5% of assets (+0.230).
+The five features that pushed the score up most were brokered deposits at 23.9% of deposits, contributing +1.395, and losses on bonds available for sale at 9.9% of equity, contributing +0.965. Next came core deposits at 52.2% of assets, contributing +0.454, the efficiency ratio (operating costs as a share of revenue) at 55.8%, contributing +0.424, and interest expense at 2.5% of assets, contributing +0.230. The efficiency ratio is better than the national median of 62.1%, yet the model still counted it toward higher risk.
 
-Five features pulled the score down. Return on equity (profit as a share of the owners' stake) at 15.0% contributed -0.630, and the Tier 1 risk-based capital ratio at 10.8% contributed -0.588. Return on assets at 1.1% contributed -0.288, the total risk-based capital ratio at 12.1% contributed -0.238, and loans 30-89 days past due at 0.7% of assets contributed -0.194.
+The five features that pulled the score down most were return on equity at 15.0%, contributing -0.630, the Tier 1 risk-based capital ratio at 10.8%, contributing -0.588, and return on assets at 1.1%, contributing -0.288. The total risk-based capital ratio at 12.1% contributed -0.238, and loans 30-89 days past due at 0.7% of assets contributed -0.194, even though that past-due figure is above the national median.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Canary compares each ratio with the bank's own history over the prior 12 quarters, and 7 of 30 ratios checked sat outside their own prior range at 2026-06-30. A year earlier, at 2025-06-30, the bank was in the 89.7th percentile, against the 99.9th percentile now, and the model rated it riskier than a year earlier.
+As of 2026-06-30, First Security Bank ranked 7 out of 4,313 banks nationally, placing it in the 99.9th percentile on a scale where higher means riskier. A year earlier, on 2025-06-30, it sat in the 89.7th percentile, and the model rated it riskier than a year earlier. Of the 30 ratios compared with their own prior range, usually the prior 12 quarters, 7 sat outside that range at 2026-06-30.
 
-Commercial real estate loans were 8.2% of loans, below their prior range of 9.9% to 13.4%, and this ratio pushed the score up by +0.175 model log-odds units. That share fell by -1.9 pp over one quarter and -2.0 pp over four quarters. The efficiency ratio was 55.8%, below its prior range of 57.8% to 63.2%, and it pushed the score up by +0.424.
+Commercial real estate loans (loans backed by property such as offices and stores) made up 8.2% of loans, below their prior range of 9.9% to 13.4%, and this ratio pushed the score up with a contribution of +0.175 model log-odds units. That share changed by -1.9 pp over one quarter and -2.0 pp over four quarters. The efficiency ratio (operating costs as a share of revenue) was 55.8%, below its prior range of 57.8% to 63.2%, and it pushed the score up with a contribution of +0.424 model log-odds units.
 
-The Tier 1 risk-based capital ratio was 10.8%, above its prior range of 9.8% to 10.7%, and it pushed the score down by -0.588. The total risk-based capital ratio was 12.1%, above its prior range of 10.8% to 11.9%, and it pushed the score down by -0.238. Net interest margin (the spread earned on lending and investing) was 3.51%, above its prior range of 3.2% to 3.45%, yet it pushed the score down by -0.066. The annualized provision for loan losses was 0.5% of assets, above its prior range of 0.1% to 0.3%, but it had little effect on the score, at -0.033.
+The Tier 1 risk-based capital ratio (core capital held as a cushion against losses, relative to risk-weighted assets) was 10.8%, above its prior range of 9.8% to 10.7%, yet despite being outside its range it pushed the score down with a contribution of -0.588 model log-odds units. The total risk-based capital ratio, a broader capital cushion measure, was 12.1%, above its prior range of 10.8% to 11.9%, and despite being outside its range it also pushed the score down with a contribution of -0.238 model log-odds units. Net interest margin (the spread earned on lending and investing) was 3.51%, above its prior range of 3.2% to 3.45%, yet it pushed the score down with a contribution of -0.066 model log-odds units. The annualized provision for loan losses (money set aside for expected bad loans) as a share of assets was 0.5%, above its prior range of 0.1% to 0.3%, but it had little effect on the score, with a contribution of -0.033 model log-odds units.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -85,11 +85,11 @@ This is a general group: the FDIC did not record a lending specialty for this ba
 
 Peers: 255 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-The leverage ratio was 7.9%, at the 2.7th national percentile, which is unusually low nationally. Against a peer median of 11.4%, it sat at the 2.2nd peer percentile, which is unusually low among its peers too. Equity was 7.0% of assets, at the 5.7th national percentile (unusually low), and at the 9.2nd peer percentile against a peer median of 10.5%, which is unusually low among its peers too. The Tier 1 risk-based capital ratio was 10.8%, at the 6.2nd national percentile (unusually low), and at the 1.9th peer percentile against a peer median of 19.2%, which is unusually low among its peers too.
+First Security Bank ranked 7 out of 4,313 banks nationally on Canary's score, and its ratios stand out against both all banks and its peers. Its leverage ratio (core capital, the bank's own loss-absorbing money, as a share of average assets) was 7.9%, at the 2.7th percentile nationally, which is unusually low; among peers it sat at the 2.2nd percentile against a peer median of 11.4%, unusually low among its peers too. Its equity as a share of assets was 7.0%, at the 5.7th percentile nationally, which is unusually low; among peers it sat at the 9.2nd percentile against a peer median of 10.5%, unusually low among its peers too. Its Tier 1 risk-based capital ratio (core capital measured against assets weighted by riskiness) was 10.8%, at the 6.2nd percentile nationally, which is unusually low; among peers it sat at the 1.9th percentile against a peer median of 19.2%, unusually low among its peers too.
 
-Brokered deposits were 23.9% of deposits, at the 96.7th national percentile (unusually high), and at the 98.6th peer percentile against a peer median of 0.0%, which is unusually high among its peers too. Volatile funding was 22.5% of assets, at the 95.4th national percentile (unusually high), and at the 97.1st peer percentile against a peer median of 8.2%, which is unusually high among its peers too. The Texas ratio was 24.5%, at the 96.4th national percentile (unusually high), and at the 98.2nd peer percentile against a peer median of 3.7%, which is unusually high among its peers too. The loan-loss provision was 0.5% of assets, at the 96.0th national percentile (unusually high), and at the 97.8th peer percentile against a peer median of 0.1%, which is unusually high among its peers too. Nonaccrual assets and foreclosed property were 2.0% of assets, at the 94.2nd national percentile (unusually high), and at the 97.1st peer percentile against a peer median of 0.3%, which is unusually high among its peers too.
+Brokered deposits (money placed through third-party brokers rather than gathered directly) made up 23.9% of deposits, at the 96.7th percentile nationally, which is unusually high; among peers this was the 98.6th percentile against a peer median of 0.0%, unusually high among its peers too. Volatile funding (money that can leave quickly) was 22.5% of assets, at the 95.4th percentile nationally, which is unusually high; among peers this was the 97.1st percentile against a peer median of 8.2%, unusually high among its peers too.
 
-Overall, 12 of the bank's ratios fell in the national top or bottom 10%, and all 12 of those were also unusual among its peers.
+The Texas ratio (troubled assets compared with capital plus reserves) was 24.5%, at the 96.4th percentile nationally, which is unusually high; among peers this was the 98.2nd percentile against a peer median of 3.7%, unusually high among its peers too. The annualized provision for loan losses (money set aside for expected bad loans) was 0.5% of assets, at the 96.0th percentile nationally, which is unusually high; among peers this was the 97.8th percentile against a peer median of 0.1%, unusually high among its peers too. Nonaccrual assets and foreclosed property (loans no longer paying interest plus repossessed property) were 2.0% of assets, at the 94.2nd percentile nationally, which is unusually high; among peers this was the 97.1st percentile against a peer median of 0.3%, unusually high among its peers too. Overall, 12 of the bank's ratios fell in the national top or bottom 10%, and 12 of those were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -125,21 +125,20 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it's on the watchlist
 
-This is a hindsight section, but the fact sheet supplies no data from after the as-of quarter. Without later facts, we cannot add hindsight evidence beyond the as-of picture of thin capital, troubled loans and heavy reliance on brokered and volatile funding described above.
+In hindsight: this bank is an open watchlist case, meaning it was flagged by the model and the data available to this memo contain no record of it failing. The fact sheet holds no figures from after the as-of quarter, so this section cannot yet judge whether the flag was early, wrong, or still developing. The reasons it sits on the watchlist are those described above: thin capital, heavy use of brokered and volatile funding, bond losses, and elevated troubled loans.
 
 ## What happened next
 
-In hindsight, the fact sheet contains no later ranks, watchlist flags or reporting status for this bank. We therefore cannot say how its position changed after the as-of quarter or whether it continued to report.
+In hindsight: the fact sheet contains no later ranks, watchlist flags or reporting status for this bank after the as-of quarter. Because of that, this memo cannot say how its rank moved afterward or whether it continued to file reports; the score history table added by code shows whatever later data exist.
 
 ## Sources
 
 - F1 · Bank name · n/a · First Security Bank · data/features/fct_bank_features.parquet: institution_name
-- F2 · Certificate number · n/a · 9728 · data/features/fct_bank_features.parquet: cert
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
-- F5 · Model score · 2026-06-30 · 0.6456 · data/analyst/scores.parquet: score
 - F6 · National rank (1 = highest score) · 2026-06-30 · 7 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2026-06-30 · 4,313 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2026-06-30 · 99.9% · data/analyst/scores.parquet: percentile
+- F9 · Percentile scale (0 to 100; higher means riskier) · n/a · 0 to 100 · canary.analyst.facts: percentile scale (fixed)
 - F10 · On the watchlist · 2026-06-30 · flagged · data/analyst/scores.parquet: flagged
 - F11 · Watchlist share of banks · n/a · 2% · canary.model.metrics.WATCHLIST_SHARE
 - F12 · Banks on the watchlist that quarter · 2026-06-30 · 87 · data/analyst/scores.parquet: flagged
@@ -155,16 +154,24 @@ In hindsight, the fact sheet contains no later ranks, watchlist flags or reporti
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 2.0% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 0.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
+- F25 · Bank: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.7% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
+- F26 · National median: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F31 · Bank: annualized provision for loan losses as a share of assets · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F32 · National median: annualized provision for loan losses as a share of assets · 2026-06-30 · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
 - F33 · Bank: construction loans as a share of loans · 2026-06-30 · 12.1% · data/features/fct_bank_features.parquet: construction_loans_to_loans
 - F34 · National median: construction loans as a share of loans · 2026-06-30 · 5.3% · data/features/fct_bank_features.parquet: construction_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 24.5% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 2.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
+- F41 · Bank: return on equity (profit as a share of equity) · 2026-06-30 · 15.0% · data/features/fct_bank_features.parquet: return_on_equity
+- F42 · National median: return on equity (profit as a share of equity) · 2026-06-30 · 11.6% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
+- F45 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2026-06-30 · 55.8% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F46 · National median: the efficiency ratio (operating costs as a share of revenue) · 2026-06-30 · 62.1% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
 - F47 · Bank: annualized interest expense as a share of assets · 2026-06-30 · 2.5% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F48 · National median: annualized interest expense as a share of assets · 2026-06-30 · 1.6% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann (median of all banks)
 - F49 · Bank: loans as a share of deposits · 2026-06-30 · 98.6% · data/features/fct_bank_features.parquet: loans_to_deposits
 - F50 · National median: loans as a share of deposits · 2026-06-30 · 80.2% · data/features/fct_bank_features.parquet: loans_to_deposits (median of all banks)
+- F51 · Bank: uninsured deposits as a share of deposits · 2026-06-30 · 23.7% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F52 · National median: uninsured deposits as a share of deposits · 2026-06-30 · 24.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F53 · Bank: brokered deposits as a share of deposits · 2026-06-30 · 23.9% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F54 · National median: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F55 · Bank: core deposits as a share of assets · 2026-06-30 · 52.2% · data/features/fct_bank_features.parquet: core_deposits_to_assets

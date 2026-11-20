@@ -10,7 +10,7 @@ outcome: "false_alarm"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:50"
+written_at: "2026-11-19T21:17:04"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-First Central Bank Mccook, a Nebraska bank (certificate 34995), ranked 82 out of 4,411 banks nationally on Canary's score as of December 31, 2025, placing it in the 98.2nd percentile, where higher means riskier. That put it on Canary's watchlist, which covers the top 2% of banks by score. The main concern is credit quality: 6.4% of its loans were 90 or more days past due or no longer earning interest, against a national median of 0.4%. Its capital ratios sat close to national medians, and the model treated its capital as a factor that lowered the score.
+As of 2025-12-31, Canary's model ranked First Central Bank Mccook, a Nebraska bank, 82 out of 4,411 FDIC-insured banks, placing it at the 98.2nd percentile and on the watchlist. The main concern is credit quality: loans 90 or more days past due or not accruing interest were 6.4% of loans, far above the national median of 0.4%. Funding also leaned on brokered deposits (money placed through outside middlemen) at 18.9% of deposits, against a national median of 0.0%. Pulling the other way, its capital ratios were close to the national medians and had risen above their own recent range, and the model rated it safer than a year earlier.
 
 ## Warning signs in the data
 
-Capital, the cushion of owners' money that absorbs losses, was near typical levels: equity was 10.6% of assets against a national median of 10.4%, and the Tier 1 risk-based capital ratio (core capital measured against assets weighted by their riskiness) was 13.7% against 14.4%. Profitability was thinner than usual, with return on assets of 0.6% against a national median of 1.1%.
+Credit quality is the clearest weak spot: loans 90 or more days past due or not accruing interest were 6.4% of loans, against a national median of 0.4%. Nonaccrual assets (loans that have stopped earning interest) plus foreclosed property were 4.5% of assets, well above the national median of 0.3%. The Texas ratio, which weighs troubled assets against capital plus reserves, was 37.6%, far above the national median of 2.7%. Net loan write-offs (loans recorded as lost, net of recoveries) ran at 1.3% of loans against a national median of 0.0%, while loan-loss reserves (money set aside for bad loans) were 1.8% of loans, above the 1.2% median.
 
-Credit quality, meaning how well borrowers are repaying, stands out. Loans 90+ days past due or not accruing interest were 6.4% of loans, against a national median of 0.4%. Nonaccrual assets and foreclosed property were 4.5% of assets against 0.3%, and the Texas ratio, which compares troubled assets with capital plus reserves, was 37.6% against 2.7%. Net loan write-offs, loans recorded as uncollectable after recoveries, ran at 1.3% of loans against a national median of 0.0%.
+On funding, brokered deposits were 18.9% of deposits against a national median of 0.0%, and core deposits (stable everyday deposits) were 59.6% of assets, below the 75.4% median. Borrowings from the Federal Home Loan Bank (a lender to banks) were 3.3% of assets versus a 0.2% median, and interest expense was 2.4% of assets versus 1.7%. Uninsured deposits, which can leave quickly in a scare, were lower than typical at 12.4% of deposits against a 24.5% median.
 
-On funding, brokered deposits, money gathered through third-party brokers rather than directly from customers, made up 18.9% of deposits, where the national median was 0.0%. Core deposits, the steadier everyday funding base, were 59.6% of assets against 75.4%, and interest expense ran at 2.4% of assets against 1.7%. Bond losses were modest: losses on bonds held to maturity were 2.9% of equity against a median of 0.0%, while losses on bonds available for sale were -0.4% of equity against 5.2%.
+Capital (the owners' cushion against losses) looks roughly typical: equity was 10.6% of assets against a 10.4% median, the leverage ratio was 10.7% against 10.8%, and the Tier 1 and total risk-based capital ratios were 13.7% and 14.9%, slightly below medians of 14.4% and 15.6%. Bond losses are mixed: unrealized losses on bonds held to maturity were 2.9% of equity versus a 0.0% median, while losses on bonds available for sale were -0.4% versus a 5.2% median. So the credit and funding figures point toward risk while the capital figures and the real-estate concentration check, which did not cross either regulatory line, point the other way.
 
 ## Understanding the score
 
-First Central Bank Mccook ranked 82 of 4,411 banks as of December 31, 2025, the 98.2nd percentile on a 0 to 100 scale where higher means riskier. It was flagged on the watchlist, which covers the top 2% of banks by score, or 89 banks that quarter.
+As of 2025-12-31, the bank ranked 82 out of 4,411 banks, the 98.2nd percentile on a 0 to 100 scale where higher means riskier. It was flagged on the watchlist, which covers the riskiest 2% of banks, or 89 banks that quarter.
 
-Five features pushed the score up the most: loans 90+ days past due or not accruing interest at 6.4% of loans (contribution +0.867), brokered deposits at 18.9% of deposits (+0.677), and annualized interest expense at 2.4% of assets (+0.340). The other two were loans 30-89 days past due at 0.0% of assets (+0.163) and commercial real estate loans at 11.4% of loans (+0.097).
+The five features that pushed the score up most were loans 90 or more days past due or not accruing interest at 6.4% of loans, brokered deposits at 18.9% of deposits, interest expense at 2.4% of assets, recently overdue loans not yet seriously delinquent at 0.0% of assets, and commercial real estate loans at 11.4% of loans. The last two are lower than the national medians of 0.2% and 23.5%, yet the model still counted them as small upward pushes.
 
-Five features pulled the score down the most: the Tier 1 risk-based capital ratio at 13.7% (contribution -1.178), the total risk-based capital ratio at 14.9% (-0.402), and return on equity, profit as a share of equity, at 5.5% (-0.384). The other two were return on assets at 0.6% (-0.368) and deposit growth over the past four quarters at -0.8% (-0.298).
+The five features that pulled the score down most were the Tier 1 risk-based capital ratio at 13.7%, the total risk-based capital ratio at 14.9%, return on equity (profit as a share of equity) at 5.5%, return on assets (profit as a share of assets) at 0.6%, and deposit growth over the past four quarters at -0.8%. The Tier 1 capital ratio was the single largest influence, with a contribution of -1.178.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Canary compares each ratio with its own prior range, usually the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 30 ratios compared, 13 were outside their own prior range at 2025-12-31. The model rated the bank safer than a year earlier: it sat at the 99.5th percentile at 2024-12-31 and the 98.2nd percentile at the as-of quarter.
+As of 2025-12-31, the model ranked First Central Bank Mccook 82 out of 4,411 banks, which places it at the 98.2nd percentile on a scale of 0 to 100 where higher means riskier. A year earlier, on 2024-12-31, it sat at the 99.5th percentile, so the model rated it safer than a year earlier. Each ratio is compared with its own prior range, which for most ratios covers the prior 12 quarters and for year-to-date ratios covers the same quarter in the prior 3 years. Of 30 ratios compared this way, 13 were outside their own prior range, and the 6 furthest outside are discussed here.
 
-The Tier 1 risk-based capital ratio was 13.7%, above its prior range of 11.1% to 13.4%, yet it pushed the score down, with a contribution of -1.178 model log-odds units. That ratio rose by +2.6 pp over four quarters. The total risk-based capital ratio was 14.9%, above its prior range of 12.3% to 14.6%, and it also pushed the score down, contributing -0.402.
+Brokered deposits (money placed with the bank through outside middlemen) were 18.9% of deposits, below their prior range of 21.8% to 32.8%, yet this ratio pushed the score up, adding +0.677 model log-odds units. That share fell by -2.9 pp over one quarter and by -7.5 pp over four quarters.
 
-Return on equity was 5.5%, above its prior range of -5.2% to 3.0%, and it pushed the score down, contributing -0.384. Return on assets was 0.6%, above its prior range of -0.6% to 0.3%, and it pushed the score down, contributing -0.368. Brokered deposits were 18.9% of deposits, below their prior range of 21.8% to 32.8%, but this ratio still pushed the score up, contributing +0.677. Losses on bonds available for sale were -0.4% of equity, below their prior range of -0.1% to 1.0%, and pushed the score down, contributing -0.085.
+The Tier 1 risk-based capital ratio (core capital as a cushion against riskier assets) reached 13.7%, above its prior range of 11.1% to 13.4%, and it pushed the score down by -1.178 model log-odds units. The total risk-based capital ratio (a broader capital cushion) was 14.9%, above its prior range of 12.3% to 14.6%, and it also pushed the score down, by -0.402 model log-odds units. Return on equity (profit as a share of equity) was 5.5%, above its prior range of -5.2% to 3.0%, and it pushed the score down by -0.384 model log-odds units. Return on assets (profit as a share of assets) was 0.6%, above its prior range of -0.6% to 0.3%, and it pushed the score down by -0.368 model log-odds units. Losses on bonds available for sale (unrealized losses on bonds the bank could sell, as a share of equity) stood at -0.4%, below their prior range of -0.1% to 1.0%, and they pushed the score down by -0.085 model log-odds units. So although these five ratios moved outside their usual ranges, the model treated each of those moves as lowering the score rather than raising it.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,11 +83,11 @@ The FDIC's specialty group for this bank at 2025-12-31: Agricultural Specializat
 
 Peers: 654 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-Nonaccrual assets and foreclosed property were 4.5% of assets, at the 99.2nd national percentile, which is unusually high, and at the 99.6th percentile among peers against a peer median of 0.2%, unusually high among its peers too. Loans 90+ days past due or not accruing interest were 6.4% of loans, at the 99.0th national percentile, unusually high, and at the 99.5th percentile among peers against a peer median of 0.3%, unusually high among its peers too. The Texas ratio was 37.6%, at the 98.8th national percentile, unusually high, and at the 98.5th percentile among peers against a peer median of 2.2%, unusually high among its peers too. Net loan write-offs were 1.3% of loans, at the 97.6th national percentile, unusually high, and at the 99.0th percentile among peers against a peer median of 0.0%, unusually high among its peers too.
+Nonaccrual assets (loans that have stopped earning interest) plus foreclosed property made up 4.5% of the bank's assets, the 99.2nd percentile nationally, which is unusually high; among its peers it sits at the 99.6th percentile against a peer median of 0.2%, unusually high among its peers too. Loans 90 or more days past due or not accruing interest were 6.4% of loans, the 99.0th percentile nationally, which is unusually high; among peers it ranks at the 99.5th percentile against a peer median of 0.3%, unusually high among its peers too. The Texas ratio, which weighs troubled assets against capital plus reserves, was 37.6%, the 98.8th percentile nationally, which is unusually high; among peers it is at the 98.5th percentile against a peer median of 2.2%, unusually high among its peers too.
 
-The provision for loan losses, money set aside for expected bad loans, was 0.5% of assets, at the 95.3rd national percentile, unusually high, and at the 97.3rd percentile among peers against a peer median of 0.1%, unusually high among its peers too. Brokered deposits were 18.9% of deposits, at the 94.3rd national percentile, unusually high, and at the 96.4th percentile among peers against a peer median of 0.0%, unusually high among its peers too. Losses on bonds available for sale were -0.4% of equity, at the 4.3rd national percentile, unusually low, and at the 4.8th percentile among peers against a peer median of 6.9%, unusually low among its peers too. Asset growth over the past four quarters was -2.3%, at the 9.3rd national percentile, unusually low, and at the 5.7th percentile among peers against a peer median of 4.5%, unusually low among its peers too.
+Annualized loan write-offs (loans recorded as lost, net of amounts later recovered) were 1.3% of loans, the 97.6th percentile nationally, which is unusually high; among peers it is at the 99.0th percentile against a peer median of 0.0%, unusually high among its peers too. The annualized provision for loan losses (money set aside to cover expected bad loans) was 0.5% of assets, the 95.3rd percentile nationally, which is unusually high; among peers it is at the 97.3rd percentile against a peer median of 0.1%, unusually high among its peers too. Brokered deposits (deposits placed through outside intermediaries) were 18.9% of deposits, the 94.3rd percentile nationally, which is unusually high; among peers it is at the 96.4th percentile against a peer median of 0.0%, unusually high among its peers too. Losses on bonds available for sale, as a share of equity, were -0.4%, the 4.3rd percentile nationally, which is unusually low; among peers it is at the 4.8th percentile against a peer median of 6.9%, unusually low among its peers too. Asset growth over the past four quarters was -2.3%, the 9.3rd percentile nationally, which is unusually low; among peers it is at the 5.7th percentile against a peer median of 4.5%, unusually low among its peers too.
 
-Overall, 8 of the bank's ratios were in the national top or bottom 10%, and all 8 of those were also unusual among its peers.
+Overall, 8 of the bank's ratios fall in the national top or bottom 10%, and 8 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -122,11 +122,11 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it was flagged, and what happened
 
-In hindsight, Canary classes this case as a false alarm. The bank was flagged at 2025-12-31 with a rank of 82, driven mainly by its high share of problem loans and its reliance on brokered deposits. Looking back, the flag did not persist: by 2026-03-31 its rank had moved to 271 and it was no longer flagged. By 2026-06-30 it ranked 534, again not flagged.
+With hindsight, this case is classed as a false alarm: the bank was flagged mainly for weak credit quality and reliance on brokered deposits, but later data shows it moving off the watchlist. In hindsight, at 2026-03-31 it ranked 271 and was not flagged, and at 2026-06-30 it ranked 534 and was not flagged. Its stronger capital and improving profits, which the model already weighed against the flag, are consistent with that easing, though the data cannot say why the ranking fell.
 
 ## What happened next
 
-With hindsight, the bank kept reporting after the as-of quarter and moved off the watchlist. It ranked 271 at 2026-03-31 and 534 at 2026-06-30, not flagged in either quarter. It was still reporting as of 2026-06-30.
+Looking back with hindsight, the bank kept reporting after the as-of quarter and kept being ranked. Its rank moved to 271 at 2026-03-31 and to 534 at 2026-06-30, and it was not flagged in either quarter. Our data does not show it stopping reporting through the latest quarter shown.
 
 | Quarter | Rank | Of | Watchlist |
 |---|---|---|---|
@@ -135,8 +135,6 @@ With hindsight, the bank kept reporting after the as-of quarter and moved off th
 
 ## Sources
 
-- F1 · Bank name · n/a · First Central Bank Mccook · data/features/fct_bank_features.parquet: institution_name
-- F2 · Certificate number · n/a · 34995 · data/features/fct_bank_features.parquet: cert
 - F3 · As-of quarter · 2025-12-31 · 2025-12-31 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · NE · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2025-12-31 · 82 · data/analyst/scores.parquet: rank
@@ -148,24 +146,34 @@ With hindsight, the bank kept reporting after the as-of quarter and moved off th
 - F12 · Banks on the watchlist that quarter · 2025-12-31 · 89 · data/analyst/scores.parquet: flagged
 - F13 · Bank: equity as a share of assets · 2025-12-31 · 10.6% · data/features/fct_bank_features.parquet: equity_to_assets
 - F14 · National median: equity as a share of assets · 2025-12-31 · 10.4% · data/features/fct_bank_features.parquet: equity_to_assets (median of all banks)
+- F15 · Bank: the leverage ratio (core capital as a share of average assets) · 2025-12-31 · 10.7% · data/features/fct_bank_features.parquet: leverage_ratio
+- F16 · National median: the leverage ratio (core capital as a share of average assets) · 2025-12-31 · 10.8% · data/features/fct_bank_features.parquet: leverage_ratio (median of all banks)
 - F17 · Bank: the Tier 1 risk-based capital ratio · 2025-12-31 · 13.7% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F18 · National median: the Tier 1 risk-based capital ratio · 2025-12-31 · 14.4% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio (median of all banks)
+- F19 · Bank: the total risk-based capital ratio · 2025-12-31 · 14.9% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F20 · National median: the total risk-based capital ratio · 2025-12-31 · 15.6% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2025-12-31 · 6.4% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2025-12-31 · 0.4% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2025-12-31 · 4.5% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2025-12-31 · 0.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
+- F26 · National median: loans 30-89 days past due, as a share of assets · 2025-12-31 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
+- F27 · Bank: loan-loss reserves as a share of loans · 2025-12-31 · 1.8% · data/features/fct_bank_features.parquet: allowance_to_loans
+- F28 · National median: loan-loss reserves as a share of loans · 2025-12-31 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F29 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2025-12-31 · 1.3% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F30 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2025-12-31 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
+- F36 · National median: commercial real estate loans as a share of loans · 2025-12-31 · 23.5% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2025-12-31 · 37.6% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2025-12-31 · 2.7% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
-- F39 · Bank: return on assets (profit as a share of assets) · 2025-12-31 · 0.6% · data/features/fct_bank_features.parquet: return_on_assets
-- F40 · National median: return on assets (profit as a share of assets) · 2025-12-31 · 1.1% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F47 · Bank: annualized interest expense as a share of assets · 2025-12-31 · 2.4% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F48 · National median: annualized interest expense as a share of assets · 2025-12-31 · 1.7% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann (median of all banks)
+- F51 · Bank: uninsured deposits as a share of deposits · 2025-12-31 · 12.4% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F52 · National median: uninsured deposits as a share of deposits · 2025-12-31 · 24.5% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F53 · Bank: brokered deposits as a share of deposits · 2025-12-31 · 18.9% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F54 · National median: brokered deposits as a share of deposits · 2025-12-31 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F55 · Bank: core deposits as a share of assets · 2025-12-31 · 59.6% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F56 · National median: core deposits as a share of assets · 2025-12-31 · 75.4% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
+- F57 · Bank: Federal Home Loan Bank borrowings as a share of assets · 2025-12-31 · 3.3% · data/features/fct_bank_features.parquet: fhlb_to_assets
+- F58 · National median: Federal Home Loan Bank borrowings as a share of assets · 2025-12-31 · 0.2% · data/features/fct_bank_features.parquet: fhlb_to_assets (median of all banks)
 - F63 · Bank: losses on bonds held to maturity, as a share of equity · 2025-12-31 · 2.9% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
 - F64 · National median: losses on bonds held to maturity, as a share of equity · 2025-12-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2025-12-31 · -0.4% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
@@ -190,6 +198,8 @@ With hindsight, the bank kept reporting after the as-of quarter and moved off th
 - F93 · Trend: brokered deposits as a share of deposits, value at the as-of quarter · 2025-12-31 · 18.9% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F94 · Trend: brokered deposits as a share of deposits, lowest value in the comparison window · n/a · 21.8% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F95 · Trend: brokered deposits as a share of deposits, highest value in the comparison window · n/a · 32.8% · data/features/fct_bank_features.parquet: brokered_to_deposits
+- F96 · Trend: brokered deposits as a share of deposits, change over one quarter, in percentage points · 2025-12-31 · -2.9 pp · data/features/fct_bank_features.parquet: brokered_to_deposits
+- F97 · Trend: brokered deposits as a share of deposits, change over four quarters, in percentage points · 2025-12-31 · -7.5 pp · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F98 · Trend: brokered deposits as a share of deposits, contribution to the score (model log-odds units) · 2025-12-31 · +0.677 · data/analyst/scores.parquet: feature brokered_to_deposits contribution
 - F99 · Trend: brokered deposits as a share of deposits, what the model did with it · 2025-12-31 · pushed the score up · data/analyst/scores.parquet: feature brokered_to_deposits contribution
 - F100 · Trend: losses on bonds available for sale, as a share of equity, value at the as-of quarter · 2025-12-31 · -0.4% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
@@ -205,7 +215,6 @@ With hindsight, the bank kept reporting after the as-of quarter and moved off th
 - F113 · Trend: the Tier 1 risk-based capital ratio, value at the as-of quarter · 2025-12-31 · 13.7% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F114 · Trend: the Tier 1 risk-based capital ratio, lowest value in the comparison window · n/a · 11.1% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F115 · Trend: the Tier 1 risk-based capital ratio, highest value in the comparison window · n/a · 13.4% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
-- F117 · Trend: the Tier 1 risk-based capital ratio, change over four quarters, in percentage points · 2025-12-31 · +2.6 pp · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F118 · Trend: the Tier 1 risk-based capital ratio, contribution to the score (model log-odds units) · 2025-12-31 · -1.178 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F119 · Trend: the Tier 1 risk-based capital ratio, what the model did with it · 2025-12-31 · pushed the score down · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F120 · Trend: the total risk-based capital ratio, value at the as-of quarter · 2025-12-31 · 14.9% · data/features/fct_bank_features.parquet: total_risk_based_ratio
@@ -214,6 +223,7 @@ With hindsight, the bank kept reporting after the as-of quarter and moved off th
 - F125 · Trend: the total risk-based capital ratio, contribution to the score (model log-odds units) · 2025-12-31 · -0.402 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F126 · Trend: the total risk-based capital ratio, what the model did with it · 2025-12-31 · pushed the score down · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F127 · Trend: ratios outside their own prior range · 2025-12-31 · 13 · data/features/fct_bank_features.parquet
+- F128 · Trend: ratios shown in the table (the furthest outside their prior range) · 2025-12-31 · 6 · data/features/fct_bank_features.parquet
 - F129 · Trend: ratios compared with their own prior range · 2025-12-31 · 30 · data/features/fct_bank_features.parquet
 - F130 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F131 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)

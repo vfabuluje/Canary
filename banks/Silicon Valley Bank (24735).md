@@ -10,7 +10,7 @@ outcome: "missed"
 after_test_window: false
 failure_date: 2023-03-10
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:04:13"
+written_at: "2026-11-19T21:13:19"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2022-12-31, Silicon Valley Bank ranked 3,494 out of 4,773 FDIC-insured banks on Canary's risk score, which places it in the 26.8th percentile on a scale where higher means riskier. It was not flagged on Canary's watchlist, which covered 2% of banks. Two figures stood out. Uninsured deposits, meaning balances above the government insurance limit, made up 86.4% of its deposits against a national median of 25.5%, and losses on bonds held to maturity equaled 98.1% of its equity against a median of 0.0%.
+As of 2022-12-31, Silicon Valley Bank, a California bank with $209.0 billion in assets, ranked 3,494 out of 4,773 banks nationally on Canary's score, which is the 26.8th percentile on a scale where higher means riskier. It was not on the watchlist, and the model rated it safer than a year earlier. Its loans looked clean, but its funding and bonds stood out: uninsured deposits (money above the government insurance limit) were 86.4% of deposits against a national median of 25.5%, and paper losses on bonds held to maturity equaled 98.1% of equity against a median of 0.0%. The model's calm reading and these balance-sheet figures point in different directions.
 
 ## Warning signs in the data
 
-Capital is the cushion that absorbs losses. On simple measures the bank's cushion was thinner than most: equity was 7.4% of assets against a national median of 9.0%, and the leverage ratio (core capital as a share of average assets) was 8.0% against 10.3%. On risk-weighted measures, which count safer assets less heavily, it looked stronger: the Tier 1 risk-based capital ratio was 15.3% against a median of 14.2%. Credit quality was clean. Loans 90+ days past due or not accruing interest were 0.2% of loans, matching the national median of 0.2%, and the Texas ratio (troubled assets against capital plus reserves) was 0.9% against 1.8%.
+Capital, the owners' cushion against losses, was thin on simple measures: equity was 7.4% of assets against a national median of 9.0%, and the leverage ratio (core capital as a share of average assets) was 8.0% against a median of 10.3%. Risk-weighted measures, which count each asset by how risky it is considered, looked stronger: the Tier 1 risk-based capital ratio was 15.3% against a median of 14.2%, and the total risk-based capital ratio was 16.1% against 15.3%.
 
-Funding was where the bank differed most. Uninsured deposits were 86.4% of deposits, far above the national median of 25.5%. Deposits changed by -8.4% over the past four quarters, while the median bank's grew 2.6%. Volatile funding, money that can leave quickly, was 14.8% of assets against a median of 5.7%, and borrowings from the Federal Home Loan Bank system, a lender to banks, were 7.2% of assets against 0.3%.
+Credit quality was clean: loans 90+ days past due or not accruing interest were 0.2% of loans, matching the national median of 0.2%, and commercial real estate loans were only 2.4% of loans against a median of 23.5%. The real-estate concentration check likewise found that the bank did not cross either line.
 
-Securities, mostly bonds the bank invests in, made up 56.1% of assets against a national median of 22.3%. Losses on bonds held to maturity, those the bank plans to keep until they repay, equaled 98.1% of equity, against a national median of 0.0%. Losses on bonds available for sale were 16.3% of equity, close to the median of 18.6%.
+Funding was the weak spot: uninsured deposits were 86.4% of deposits against a national median of 25.5%, deposit growth over the past four quarters was -8.4% against a median of 2.6%, and volatile funding (money that can leave quickly) was 14.8% of assets against 5.7%. Federal Home Loan Bank borrowings (loans from a government-sponsored lender to banks) were 7.2% of assets, well above the median of 0.3%. Securities (bonds and similar investments) were 56.1% of assets against a median of 22.3%, and paper losses on bonds held to maturity, the ones it planned to keep until repaid, equaled 98.1% of equity against a median of 0.0%, while losses on bonds available for sale were 16.3% of equity, slightly below the median of 18.6%.
 
 ## Understanding the score
 
-Silicon Valley Bank ranked 3,494 of 4,773 banks at 2022-12-31, the 26.8th percentile on a scale of 0 to 100 where higher means riskier. It was not flagged on the watchlist, which covered 2% of banks, or 96 banks that quarter.
+As of 2022-12-31, the bank ranked 3,494 out of 4,773 banks, the 26.8th percentile on a 0 to 100 scale where higher means riskier. It was not flagged for the watchlist, which covers the top 2% of banks, or 96 banks that quarter.
 
-Each factor's contribution is measured in the model's internal units, where a positive value pushes the score up and a negative one pushes it down. The five factors that pushed the score up most were losses on bonds available for sale at 16.3% of equity (+0.804), the efficiency ratio (operating costs as a share of revenue) at 46.4% (+0.159), commercial real estate loans at 2.4% of loans (+0.118), equity at 7.4% of assets (+0.047), and construction loans at 0.6% of loans (+0.023). The five that pushed it down most were interest expense at 0.5% of assets (-1.065), the Tier 1 risk-based capital ratio at 15.3% (-1.054), the Texas ratio at 0.9% (-0.987), securities at 56.1% of assets (-0.864), and return on equity (profit as a share of equity) at 13.4% (-0.506). The downward pulls were larger than the upward ones, which kept the bank in the lower part of the ranking.
+The five features that pushed the score up most were losses on bonds available for sale at 16.3% of equity (+0.804), the efficiency ratio (operating costs as a share of revenue) at 46.4% (+0.159), commercial real estate loans at 2.4% of loans (+0.118), equity at 7.4% of assets (+0.047), and construction loans at 0.6% of loans (+0.023).
+
+The five that pushed it down most were interest expense at 0.5% of assets (-1.065), the Tier 1 risk-based capital ratio at 15.3% (-1.054), the Texas ratio (troubled assets against capital plus reserves) at 0.9% (-0.987), securities at 56.1% of assets (-0.864), and return on equity (profit as a share of equity) at 13.4% (-0.506). The downward pushes were much larger than the upward ones, which is why the bank sat in the safer part of the ranking.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Canary compares each ratio with its own prior range, usually the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 30 ratios compared, 11 sat outside their own prior range, and the table shows the 6 furthest outside.
+As of 2022-12-31, the bank ranked 3,494 out of 4,773 banks nationally, which puts it at the 26.8th percentile on a scale where higher means riskier. A year earlier it sat at the 56.0th percentile, and the model rated it safer than a year earlier. Each ratio is compared with its own prior range, which for most ratios covers the prior 12 quarters, and 11 of the 30 ratios checked were outside that range, with the 6 furthest outside shown here.
 
-Annualized interest expense was 0.5% of assets, above its prior range of 0.0% to 0.3%, yet its contribution of -1.065 pushed the score down. Volatile funding was 14.8% of assets, above its prior range of 7.4% to 13.4%, but its contribution of -0.089 pushed the score down. Core deposits, the steady everyday deposits, were 76.6% of assets, below their prior range of 77.6% to 84.1%, yet with a contribution of -0.048 they had little effect on the score. Deposit growth over the past four quarters was -8.4%, below its prior range of 3.8% to 99.7%, but its contribution of -0.125 pushed the score down. Asset growth over the past four quarters was 0.2%, below its prior range of 11.6% to 97.9%, but its contribution of -0.116 pushed the score down. Federal Home Loan Bank borrowings were 7.2% of assets, above their prior range of 0.0% to 6.4%, yet with a contribution of -0.004 they had little effect on the score.
+Interest expense as a share of assets (what the bank pays on deposits and borrowings) was 0.5%, above its prior range of 0.0% to 0.3%, yet its contribution of -1.065 model log-odds units pushed the score down. Volatile funding (money that can move out quickly) was 14.8% of assets, above its prior range of 7.4% to 13.4%, but its contribution of -0.089 pushed the score down. Core deposits (steadier, everyday deposits) were 76.6% of assets, below their prior range of 77.6% to 84.1%, and their contribution of -0.048 had little effect on the score.
 
-A year earlier, at 2021-12-31, the bank sat in the 56.0th percentile; at its current rank of 3,494 of 4,773, the model rated it safer than a year earlier.
+Asset growth over the past four quarters was 0.2%, below its prior range of 11.6% to 97.9%, and its contribution of -0.116 pushed the score down. Deposit growth over the past four quarters was -8.4%, below its prior range of 3.8% to 99.7%, and its contribution of -0.125 pushed the score down. Federal Home Loan Bank borrowings (loans from a government-sponsored lender to banks) were 7.2% of assets, above their prior range of 0.0% to 6.4%, yet their contribution of -0.004 had little effect on the score. In short, all of these ratios moved outside their usual ranges, but none of them pushed the model's score up.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,11 +85,11 @@ This is a general group: the FDIC did not record a lending specialty for this ba
 
 Peers: 23 banks in the same specialty group and size tier (over $10 billion).
 
-Losses on bonds held to maturity were 98.1% of equity, in the 99.7th percentile nationally, which is unusually high, and in the 93.2nd percentile among peers against a peer median of 0.6%, unusually high among its peers too. Uninsured deposits were 86.4% of deposits, in the 99.6th percentile nationally, which is unusually high, and in the 93.2nd percentile among peers against a peer median of 41.1%, unusually high among its peers too. Securities were 56.1% of assets, in the 95.5th percentile nationally, which is unusually high, but in the 89.1st percentile among peers against a peer median of 25.7%, typical for its peer group.
+As of 2022-12-31, the bank ranked 3,494 out of 4,773 banks nationally, placing it in the 26.8th percentile on Canary's score. Losses on bonds held to maturity (paper losses on bonds the bank planned to keep until they paid back), as a share of equity (the owners' cushion), were 98.1%, at the 99.7th percentile nationally, which is unusually high, and at the 93.2nd percentile among its peers against a peer median of 0.6%, which is unusually high among its peers too. Uninsured deposits (money above the government insurance limit) made up 86.4% of deposits, at the 99.6th percentile nationally, which is unusually high, and at the 93.2nd percentile among its peers against a peer median of 41.1%, which is unusually high among its peers too.
 
-Net interest margin, the spread earned on lending and investing, was 2.2%, in the 5.6th percentile nationally, which is unusually low, and in the 45.7th percentile among peers against a peer median of 2.4%, typical for its peer group. The leverage ratio was 8.0%, in the 6.3rd percentile nationally, which is unusually low, and in the 32.6th percentile among peers against a peer median of 9.1%, typical for its peer group. Deposit growth over the past four quarters was -8.4%, in the 6.7th percentile nationally, which is unusually low, and in the 32.6th percentile among peers against a peer median of -2.9%, typical for its peer group. Commercial real estate loans were 2.4% of loans, in the 5.5th percentile nationally, which is unusually low, and in the 15.2nd percentile among peers against a peer median of 10.0%, typical for its peer group. The efficiency ratio was 46.4%, in the 8.5th percentile nationally, which is unusually low, and in the 32.6th percentile among peers against a peer median of 56.2%, typical for its peer group.
+Securities (bonds and similar investments) were 56.1% of assets, at the 95.5th percentile nationally, which is unusually high, but at the 89.1st percentile among its peers against a peer median of 25.7%, which is typical for its peer group. Commercial real estate loans were 2.4% of loans, at the 5.5th percentile nationally, which is unusually low, and at the 15.2nd percentile among its peers against a peer median of 10.0%, which is typical for its peer group. The net interest margin (the spread earned on lending and investing) was 2.2%, at the 5.6th percentile nationally, which is unusually low, and at the 45.7th percentile among its peers against a peer median of 2.4%, which is typical for its peer group. The leverage ratio (core capital as a share of average assets) was 8.0%, at the 6.3rd percentile nationally, which is unusually low, and at the 32.6th percentile among its peers against a peer median of 9.1%, which is typical for its peer group. Deposit growth over the past four quarters was -8.4%, at the 6.7th percentile nationally, which is unusually low, and at the 32.6th percentile among its peers against a peer median of -2.9%, which is typical for its peer group. The efficiency ratio (operating costs as a share of revenue) was 46.4%, at the 8.5th percentile nationally, which is unusually low, and at the 32.6th percentile among its peers against a peer median of 56.2%, which is typical for its peer group.
 
-Overall, 9 of the bank's ratios were in the national top or bottom 10%, and 2 of those were also unusual among its peers.
+Overall, 9 of the bank's ratios sat in the national top or bottom 10%, and 2 of those, the bond losses and the uninsured deposits, were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -122,17 +124,19 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why the model missed it
 
-In hindsight: the bank failed on 2023-03-10, while the model had ranked it 3,494 of 4,773 at its last reported quarter, 2022-12-31. The model learned from 539 failed banks in its training period, and 96% of those were credit-loss failures, where bad loans eat through capital. Of those failures, 462 had a credit-loss-only profile and 53 combined credit losses with run risk, meaning the danger of depositors pulling money quickly. This bank's loans looked clean, while its unusual features were in funding and bond losses, a pattern the training data rarely showed.
+In hindsight, the bank failed on 2023-03-10 while ranked 3,494 of 4,773 as of 2022-12-31, so this is a miss. The model learned from 539 failed banks in its training period, and 96% of those were credit-loss failures: 462 had a credit-loss-only profile and 53 combined credit losses with run risk. This bank's loans were clean, so the pattern the model knew best did not show up.
 
-A run-risk rank (post-hoc check, designed after the 2023 failures) placed the bank at 54. In a what-if (post-hoc check, designed after the 2023 failures) that set losses on bonds held to maturity anywhere from 0.0% to 150.0% of equity with other data unchanged, the best rank reached was 3,494 of 4,773, at 0.0%, so this figure did not raise the bank's rank. In a what-if (post-hoc check, designed after the 2023 failures) that set uninsured deposits anywhere from 0.0% to 100.0% of deposits, the best rank reached was 3,019 of 4,773, at 0.0%. In a what-if (post-hoc check, designed after the 2023 failures) that set losses on bonds available for sale anywhere from 0.0% to 100.0% of equity, the best rank reached was 1,948 of 4,773, at 30.0%, still far from the top of the list.
+On the Run-risk rank (post-hoc check, designed after the 2023 failures), the bank ranked 54, far riskier than its model rank. In a What-if (post-hoc check, designed after the 2023 failures) that set losses on bonds available for sale, as a share of equity to each value from 0.0% to 100.0%, the best rank reached was 1,948 of 4,773, at 30.0%. In a What-if (post-hoc check, designed after the 2023 failures) that set losses on bonds held to maturity, as a share of equity to each value from 0.0% to 150.0%, the best rank reached was 3,494 of 4,773, at 0.0%, so the model did not react to those losses. In a What-if (post-hoc check, designed after the 2023 failures) that set uninsured deposits as a share of deposits to each value from 0.0% to 100.0%, the best rank reached was 3,019 of 4,773, at 0.0%.
 
 ## What happened next
 
-In hindsight: Silicon Valley Bank failed on 2023-03-10. Its last reported quarter was 2022-12-31, the same quarter this memo describes, so there are no later ranks or watchlist flags for it.
+In hindsight, the bank failed on 2023-03-10. Its last reported quarter was 2022-12-31, so there are no later ranks or watchlist flags. Our data does not distinguish a merger from a closure when a bank stops reporting, but here a failure date is on record.
 
 ## Sources
 
+- F1 · Bank name · n/a · Silicon Valley Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2022-12-31 · 2022-12-31 · data/features/fct_bank_features.parquet: report_date
+- F4 · State · n/a · CA · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2022-12-31 · 3,494 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2022-12-31 · 4,773 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2022-12-31 · 26.8% · data/analyst/scores.parquet: percentile
@@ -146,10 +150,12 @@ In hindsight: Silicon Valley Bank failed on 2023-03-10. Its last reported quarte
 - F16 · National median: the leverage ratio (core capital as a share of average assets) · 2022-12-31 · 10.3% · data/features/fct_bank_features.parquet: leverage_ratio (median of all banks)
 - F17 · Bank: the Tier 1 risk-based capital ratio · 2022-12-31 · 15.3% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F18 · National median: the Tier 1 risk-based capital ratio · 2022-12-31 · 14.2% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio (median of all banks)
+- F19 · Bank: the total risk-based capital ratio · 2022-12-31 · 16.1% · data/features/fct_bank_features.parquet: total_risk_based_ratio
+- F20 · National median: the total risk-based capital ratio · 2022-12-31 · 15.3% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2022-12-31 · 0.2% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2022-12-31 · 0.2% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
-- F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2022-12-31 · 0.9% · data/features/fct_bank_features.parquet: texas_ratio
-- F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2022-12-31 · 1.8% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
+- F35 · Bank: commercial real estate loans as a share of loans · 2022-12-31 · 2.4% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F36 · National median: commercial real estate loans as a share of loans · 2022-12-31 · 23.5% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2022-12-31 · 86.4% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2022-12-31 · 25.5% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F57 · Bank: Federal Home Loan Bank borrowings as a share of assets · 2022-12-31 · 7.2% · data/features/fct_bank_features.parquet: fhlb_to_assets
@@ -162,6 +168,7 @@ In hindsight: Silicon Valley Bank failed on 2023-03-10. Its last reported quarte
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2022-12-31 · 18.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
 - F67 · Bank: securities as a share of assets · 2022-12-31 · 56.1% · data/features/fct_bank_features.parquet: securities_to_assets
 - F68 · National median: securities as a share of assets · 2022-12-31 · 22.3% · data/features/fct_bank_features.parquet: securities_to_assets (median of all banks)
+- F69 · Bank: total assets · 2022-12-31 · $209.0 billion · data/features/fct_bank_features.parquet: log_total_assets
 - F73 · Bank: deposit growth over the past four quarters · 2022-12-31 · -8.4% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F74 · National median: deposit growth over the past four quarters · 2022-12-31 · 2.6% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: losses on bonds available for sale, as a share of equity, value 16.3%; contribution to the score · 2022-12-31 · +0.804 · data/analyst/scores.parquet: feature afs_unrealized_loss_to_equity contribution
@@ -218,7 +225,6 @@ In hindsight: Silicon Valley Bank failed on 2023-03-10. Its last reported quarte
 - F137 · Trend: ratios shown in the table (the furthest outside their prior range) · 2022-12-31 · 6 · data/features/fct_bank_features.parquet
 - F138 · Trend: ratios compared with their own prior range · 2022-12-31 · 30 · data/features/fct_bank_features.parquet
 - F139 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F140 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F141 · Percentile a year earlier (100 = highest risk) · 2021-12-31 · 56.0% · data/analyst/scores.parquet: percentile
 - F142 · Trend: how the model's rating compares with a year earlier · 2022-12-31 · the model rated it safer than a year earlier · data/analyst/scores.parquet: percentile
 - F146 · Peers: losses on bonds held to maturity, as a share of equity, bank value at the as-of quarter · 2022-12-31 · 98.1% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity

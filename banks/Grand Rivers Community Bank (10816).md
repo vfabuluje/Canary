@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:19"
+written_at: "2026-11-19T21:16:24"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,21 @@ checked: true
 
 ## Summary
 
-As of June 30, 2026, Grand Rivers Community Bank, a small Illinois lender, ranked 12 out of 4,313 banks on Canary's risk score, placing it in the 99.7th percentile, where higher means riskier. That puts it on Canary's watchlist, which covers the top 2% of banks, or 87 banks that quarter. The main concerns in the data are a large share of loans that borrowers have stopped paying on time and steep losses, with 19.0% of loans 90 or more days overdue or no longer earning interest and a return on equity of -38.7%.
+As of 2026-06-30, Grand Rivers Community Bank, a small Illinois bank, ranked 12 out of 4,313 banks nationally on Canary's score, placing it in the 99.7th percentile, where higher means riskier. That put it on Canary's watchlist, which covers the riskiest 2% of banks. Its loan problems and losses were far worse than at a typical bank: 19.0% of its loans were 90 or more days past due or no longer earning interest, against a national median of 0.5%, and its return on assets was -3.4% against a median of 1.2%. Its funding and cash position, by contrast, looked steadier than the typical bank's.
 
 ## Warning signs in the data
 
-Credit quality is the standout problem: 19.0% of the bank's loans were 90 or more days past due or not accruing interest (no longer booking interest because repayment is in doubt), against a national median of 0.5%. Nonaccrual assets and foreclosed property made up 12.6% of assets versus a median of 0.3%, and loans 30-89 days past due (an early stage of late payment) were 6.4% of assets versus 0.2%. The Texas ratio, which compares troubled assets with the capital and reserves available to absorb them, stood at 113.1%, far above the national median of 2.9%.
+Capital, the owners' cushion that absorbs losses, was thinner than at most banks: equity was 8.6% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 8.4% against 11.0%. The Tier 1 risk-based capital ratio was 10.7% against a median of 14.6%, and the total risk-based capital ratio was 12.0% against 15.8%.
 
-Capital, the cushion that absorbs losses, was thinner than at a typical bank: equity was 8.6% of assets versus a median of 10.6%, and the leverage ratio (core capital against average assets) was 8.4% versus 11.0%. The Tier 1 risk-based capital ratio, which weighs assets by how risky they are, was 10.7% against a median of 14.6%, and the total risk-based capital ratio was 12.0% against 15.8%. The bank was losing money, with a return on assets of -3.4% versus a median of 1.2%, and its efficiency ratio (operating costs as a share of revenue) was 169.4% versus 62.1%, meaning costs exceeded revenue. It set aside loan-loss reserves of 5.0% of loans, well above the median of 1.2%.
+Credit quality, meaning whether borrowers repay, was the weakest area: nonaccrual assets (loans no longer earning interest) plus foreclosed property equaled 12.6% of assets against a national median of 0.3%, and loans 30-89 days past due equaled 6.4% of assets against 0.2%. The Texas ratio, which weighs troubled assets against capital plus reserves, was 113.1% against a median of 2.9%, and loan-loss reserves (money set aside for bad loans) were 5.0% of loans against 1.2%. The bank was also losing money, with a return on equity of -38.7% against a median of 11.6%, and it was shrinking, with assets down -14.0% over four quarters while the median bank grew 4.5%. Commercial real estate loans made up 42.0% of its loans against a median of 23.6%, though the separate concentration check found it did not cross either regulatory screening line.
 
-Funding looked steadier: core deposits (stable everyday deposits) funded 89.2% of assets versus a median of 75.5%, volatile funding was 0.0% versus 9.0%, and cash was 13.8% of assets versus 6.2%. Uninsured deposits were 21.6% of deposits, a little below the median of 24.8%, and brokered deposits were 0.0%. Unrealized losses on bonds available for sale were only 0.1% of equity versus a median of 5.6%. The bank is very small, with total assets of $15.1 million against a median of $384.7 million, and it shrank, with assets down -14.0% and deposits down -13.6% over the past four quarters while the medians grew 4.5% and 4.2%.
+Liquidity and funding point the other way: core deposits, the stable everyday deposits, funded 89.2% of assets against a median of 75.5%, volatile funding was 0.0% against 9.0%, and cash was 13.8% of assets against 6.2%. Uninsured deposits were 21.6% of deposits against a median of 24.8%, although deposits fell -13.6% over four quarters while the median bank's grew 4.2%. Unrealized losses on bonds available for sale were small at 0.1% of equity, well below the national median of 5.6%.
 
 ## Understanding the score
 
-At 2026-06-30 the bank ranked 12 of 4,313 banks, in the 99.7th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which holds the top 2% of banks, 87 banks that quarter.
+Grand Rivers Community Bank ranked 12 out of 4,313 banks as of 2026-06-30, which is the 99.7th percentile on a scale of 0 to 100 where higher means riskier. It was flagged for the watchlist, the riskiest 2% of banks, which held 87 banks that quarter.
 
-Five features pushed the score up most. The largest was loans 90 or more days past due or not accruing interest, at 19.0% of loans, adding +1.079. Next came return on equity at -38.7%, adding +0.701, and the Texas ratio at 113.1%, adding +0.672. Loans 30-89 days past due at 6.4% of assets added +0.550, and the bank's small size, with total assets of $15.1 million, added +0.459.
-
-Five features pulled the score down. The Tier 1 risk-based capital ratio at 10.7% had the largest effect, at -1.502, followed by interest expense of 1.0% of assets at -0.902. The total risk-based capital ratio at 12.0% contributed -0.318, commercial real estate loans at 42.0% of loans contributed -0.240, and construction loans at 0.0% of loans contributed -0.198.
+The five features that pushed its score up most were loans 90+ days past due or not accruing interest at 19.0% of loans, return on equity at -38.7%, the Texas ratio at 113.1%, loans 30-89 days past due at 6.4% of assets, and its small size, with total assets of $15.1 million. The five that pulled it down most were the Tier 1 risk-based capital ratio at 10.7%, interest expense at 1.0% of assets, the total risk-based capital ratio at 12.0%, commercial real estate loans at 42.0% of loans, and construction loans at 0.0% of loans.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +56,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years; 8 of 30 ratios checked sat outside that range, and the table shows the 6 furthest out. Return on equity was -38.7%, below its prior range of -28.3% to -9.1%, and at +0.701 it pushed the score up. Return on assets was -3.4%, below its prior range of -2.4% to -0.9% after a change of -1.4 pp over four quarters, and at +0.080 it pushed the score up. Loan-loss reserves were 5.0% of loans, just above their prior range of 2.7% to 4.9%, and at +0.073 they pushed the score up.
+As of 2026-06-30, Grand Rivers Community Bank ranked 12 out of 4,313 banks nationally, placing it in the 99.7th percentile, where 100 marks the highest model score. On 2025-06-30 it also sat at the 99.7th percentile, and the model rated it about the same as a year earlier. Of 30 ratios compared with their own history, usually the prior 12 quarters, 8 were outside their prior range. Each ratio's contribution is given in model log-odds units, an internal scale where a positive number raises the score and a negative one lowers it.
 
-The efficiency ratio rose to 169.4%, above its prior range of 112.8% to 154.1%, yet at -0.033 it had little effect on the score. Net interest margin slipped to 4.4%, just below its prior range of 4.5% to 4.8%, but at -0.117 it pushed the score down. Losses on bonds available for sale fell to 0.1% of equity, below their prior range of 0.2% to 1.0%, and at +0.010 they had little effect on the score.
+Return on equity (profit as a share of shareholders' money) was -38.7%, below its prior range of -28.3% to -9.1%, and at +0.701 it pushed the score up. Return on assets (profit as a share of everything the bank owns) was -3.4%, below its prior range of -2.4% to -0.9%, and at +0.080 it pushed the score up. Loan-loss reserves (money set aside for loans that may not be repaid) reached 5.0% of loans, just above their prior range of 2.7% to 4.9%, and at +0.073 they pushed the score up.
 
-The bank's percentile was 99.7% a year earlier at 2025-06-30, and the model rated it about the same as a year earlier, with a rank of 12 at 2026-06-30.
+The efficiency ratio (operating costs as a share of revenue) was 169.4%, above its prior range of 112.8% to 154.1%, yet at -0.033 it had little effect on the score. Net interest margin (the spread earned on lending and investing) was 4.4%, slightly below its prior range of 4.5% to 4.8%, but at -0.117 it pushed the score down. Losses on bonds available for sale were 0.1% of equity, below their prior range of 0.2% to 1.0%, and at +0.010 they had little effect on the score.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,11 +81,11 @@ The FDIC's specialty group for this bank at 2026-06-30: Commercial Lending Speci
 
 Peers: 95 banks in the same specialty group and size tier (under $100 million).
 
-Loans 30-89 days past due were 6.4% of assets, at the 100.0th national percentile (unusually high), and at the 99.5th percentile among peers against a peer median of 0.4%, unusually high among its peers too. Nonaccrual assets and foreclosed property were 12.6% of assets, at the 99.9th national percentile (unusually high), and at the 99.5th percentile among peers against a peer median of 0.3%, unusually high among its peers too. The Texas ratio was 113.1%, at the 99.9th national percentile (unusually high), and at the 98.4th percentile among peers against a peer median of 3.0%, unusually high among its peers too. Loans 90 or more days past due or not accruing interest were 19.0% of loans, at the 99.9th national percentile (unusually high), and at the 99.5th percentile among peers against a peer median of 0.5%, unusually high among its peers too.
+Grand Rivers Community Bank ranks 12 out of 4,313 banks nationally on Canary's score, which places it in the 99.7th percentile. Loans 30-89 days past due (borrowers who are behind on payments) equal 6.4% of assets, in the 100.0th percentile nationally, which is unusually high, and in the 99.5th percentile among its peers against a peer median of 0.4%, which is unusually high among its peers too. Nonaccrual assets (loans no longer earning interest) plus foreclosed property equal 12.6% of assets, in the 99.9th percentile nationally, which is unusually high, and in the 99.5th percentile among its peers against a peer median of 0.3%, which is unusually high among its peers too. Loans 90+ days past due or not accruing interest make up 19.0% of loans, in the 99.9th percentile nationally, which is unusually high, and in the 99.5th percentile among its peers against a peer median of 0.5%, which is unusually high among its peers too. The Texas ratio (troubled assets measured against capital plus reserves) is 113.1%, in the 99.9th percentile nationally, which is unusually high, and in the 98.4th percentile among its peers against a peer median of 3.0%, which is unusually high among its peers too.
 
-Return on equity was -38.7%, at the 0.5th national percentile (unusually low), and at the 3.7th percentile among peers against a peer median of 7.0%, unusually low among its peers too. Return on assets was -3.4%, at the 0.8th national percentile (unusually low), and at the 5.8th percentile among peers against a peer median of 0.8%, unusually low among its peers too. Loan-loss reserves were 5.0% of loans, at the 99.2nd national percentile (unusually high), and at the 98.4th percentile among peers against a peer median of 1.3%, unusually high among its peers too. The efficiency ratio was 169.4%, at the 99.2nd national percentile (unusually high), and at the 94.2nd percentile among peers against a peer median of 75.6%, unusually high among its peers too.
+Return on equity (profit as a share of the owners' stake) is -38.7%, in the 0.5th percentile nationally, which is unusually low, and in the 3.7th percentile among its peers against a peer median of 7.0%, which is unusually low among its peers too. Return on assets (profit as a share of everything the bank owns) is -3.4%, in the 0.8th percentile nationally, which is unusually low, and in the 5.8th percentile among its peers against a peer median of 0.8%, which is unusually low among its peers too. The efficiency ratio (operating costs as a share of revenue) is 169.4%, in the 99.2nd percentile nationally, which is unusually high, and in the 94.2nd percentile among its peers against a peer median of 75.6%, which is unusually high among its peers too. Loan-loss reserves (money set aside to cover expected bad loans) equal 5.0% of loans, in the 99.2nd percentile nationally, which is unusually high, and in the 98.4th percentile among its peers against a peer median of 1.3%, which is unusually high among its peers too.
 
-Overall, 16 of the bank's ratios fell in the national top or bottom 10%, and 15 of those were also unusual among its peers.
+Overall, 16 of the bank's ratios sit in the national top or bottom 10%, and 15 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -122,15 +120,14 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it's on the watchlist
 
-In hindsight: this bank's outcome case is an open bank on the watchlist, meaning it remained among the banks flagged by the model rather than leaving the data. The fact sheet contains no hindsight facts, so there is no later data here to explain that outcome further, and nothing beyond the as-of quarter is claimed.
+Looking back with hindsight, the fact sheet holds no data from after the as-of quarter, so it cannot confirm how this bank's situation developed. Its place on the watchlist rests on the figures described above, chiefly its severe loan problems and ongoing losses.
 
 ## What happened next
 
-In hindsight: the fact sheet provides no later ranks, flags or reporting status for this bank after the as-of quarter. Its outcome case is listed as open and on the watchlist, so no failure is recorded, and the score history table added below shows whatever later quarters are available.
+With hindsight, later ranks, flags or reporting status for this bank are not included in the fact sheet, so this memo cannot say what happened next. The score history table added below shows whatever later data Canary holds.
 
 ## Sources
 
-- F1 · Bank name · n/a · Grand Rivers Community Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · IL · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2026-06-30 · 12 · data/analyst/scores.parquet: rank
@@ -156,16 +153,16 @@ In hindsight: the fact sheet provides no later ranks, flags or reporting status 
 - F26 · National median: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F27 · Bank: loan-loss reserves as a share of loans · 2026-06-30 · 5.0% · data/features/fct_bank_features.parquet: allowance_to_loans
 - F28 · National median: loan-loss reserves as a share of loans · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
+- F35 · Bank: commercial real estate loans as a share of loans · 2026-06-30 · 42.0% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F36 · National median: commercial real estate loans as a share of loans · 2026-06-30 · 23.6% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 113.1% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 2.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2026-06-30 · -3.4% · data/features/fct_bank_features.parquet: return_on_assets
 - F40 · National median: return on assets (profit as a share of assets) · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2026-06-30 · -38.7% · data/features/fct_bank_features.parquet: return_on_equity
-- F45 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2026-06-30 · 169.4% · data/features/fct_bank_features.parquet: efficiency_ratio
-- F46 · National median: the efficiency ratio (operating costs as a share of revenue) · 2026-06-30 · 62.1% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
+- F42 · National median: return on equity (profit as a share of equity) · 2026-06-30 · 11.6% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
 - F51 · Bank: uninsured deposits as a share of deposits · 2026-06-30 · 21.6% · data/features/fct_bank_features.parquet: uninsured_to_deposits
 - F52 · National median: uninsured deposits as a share of deposits · 2026-06-30 · 24.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
-- F53 · Bank: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F55 · Bank: core deposits as a share of assets · 2026-06-30 · 89.2% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F56 · National median: core deposits as a share of assets · 2026-06-30 · 75.5% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
 - F59 · Bank: volatile funding as a share of assets · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
@@ -174,8 +171,6 @@ In hindsight: the fact sheet provides no later ranks, flags or reporting status 
 - F62 · National median: cash as a share of assets · 2026-06-30 · 6.2% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2026-06-30 · 0.1% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2026-06-30 · 5.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
-- F69 · Bank: total assets · 2026-06-30 · $15.1 million · data/features/fct_bank_features.parquet: log_total_assets
-- F70 · National median: total assets · 2026-06-30 · $384.7 million · data/features/fct_bank_features.parquet: log_total_assets (median of all banks)
 - F71 · Bank: asset growth over the past four quarters · 2026-06-30 · -14.0% · data/features/fct_bank_features.parquet: asset_growth_4q
 - F72 · National median: asset growth over the past four quarters · 2026-06-30 · 4.5% · data/features/fct_bank_features.parquet: asset_growth_4q (median of all banks)
 - F73 · Bank: deposit growth over the past four quarters · 2026-06-30 · -13.6% · data/features/fct_bank_features.parquet: deposit_growth_4q
@@ -193,7 +188,6 @@ In hindsight: the fact sheet provides no later ranks, flags or reporting status 
 - F85 · Trend: return on assets (profit as a share of assets), value at the as-of quarter · 2026-06-30 · -3.4% · data/features/fct_bank_features.parquet: return_on_assets
 - F86 · Trend: return on assets (profit as a share of assets), lowest value in the comparison window · n/a · -2.4% · data/features/fct_bank_features.parquet: return_on_assets
 - F87 · Trend: return on assets (profit as a share of assets), highest value in the comparison window · n/a · -0.9% · data/features/fct_bank_features.parquet: return_on_assets
-- F88 · Trend: return on assets (profit as a share of assets), change over four quarters, in percentage points · 2026-06-30 · -1.4 pp · data/features/fct_bank_features.parquet: return_on_assets
 - F89 · Trend: return on assets (profit as a share of assets), contribution to the score (model log-odds units) · 2026-06-30 · +0.080 · data/analyst/scores.parquet: feature return_on_assets contribution
 - F90 · Trend: return on assets (profit as a share of assets), what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature return_on_assets contribution
 - F91 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2026-06-30 · -38.7% · data/features/fct_bank_features.parquet: return_on_equity
@@ -222,10 +216,8 @@ In hindsight: the fact sheet provides no later ranks, flags or reporting status 
 - F121 · Trend: loan-loss reserves as a share of loans, contribution to the score (model log-odds units) · 2026-06-30 · +0.073 · data/analyst/scores.parquet: feature allowance_to_loans contribution
 - F122 · Trend: loan-loss reserves as a share of loans, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature allowance_to_loans contribution
 - F123 · Trend: ratios outside their own prior range · 2026-06-30 · 8 · data/features/fct_bank_features.parquet
-- F124 · Trend: ratios shown in the table (the furthest outside their prior range) · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
 - F125 · Trend: ratios compared with their own prior range · 2026-06-30 · 30 · data/features/fct_bank_features.parquet
 - F126 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F127 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F128 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 99.7% · data/analyst/scores.parquet: percentile
 - F129 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · about the same as a year earlier · data/analyst/scores.parquet: percentile
 - F133 · Peers: loans 30-89 days past due, as a share of assets, bank value at the as-of quarter · 2026-06-30 · 6.4% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets

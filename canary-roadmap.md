@@ -15,6 +15,7 @@ kanban-plugin: board
 - [ ] Phase 5c: Peer comparison section (FDIC specialty + size tier; descriptive; in all 61 showcase notes)
 - [ ] Phase 5d: Real-estate concentration section (2006 regulator thresholds; code-written, no AI; in all 61 showcase notes)
 - [ ] Showcase re-run with all Phase 5 sections: 61/61 notes, $6.60 (2026-11-19)
+- [ ] Phase 5e: three-agent memo pipeline (trend, peer, risk analyst + code-only concentration); showcase re-run 61/61, $9.74
 
 
 ## In Progress

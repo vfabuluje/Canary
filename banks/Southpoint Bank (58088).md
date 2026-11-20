@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:07:50"
+written_at: "2026-11-19T21:16:01"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,23 @@ checked: true
 
 ## Summary
 
-As of June 30, 2026, Southpoint Bank, an Alabama bank, ranked 4 out of 4,313 FDIC-insured banks on Canary's risk score, placing it in the 99.9th percentile, where higher means riskier. That put it on Canary's watchlist, which covers the riskiest 2% of banks. The main pressures in the data were a sharp loss in profit, thin capital, heavy loan write-offs and a large reliance on brokered deposits, which are funds placed through middlemen rather than gathered directly from customers.
+As of 2026-06-30, Southpoint Bank, based in AL, ranked 4 out of 4,313 banks nationally on Canary's risk score, placing it in the 99.9th percentile, where higher means riskier. Its capital cushion (the owners' money that absorbs losses) was thin, with equity at 7.7% of assets against a national median of 10.6%, and it was losing money, with a return on equity of -22.1%. Loan losses were running high, and both asset growth and deposit growth over the past four quarters were -18.8%. Its commercial real estate lending was heavy, though the separate concentration check found it did not cross either of the regulators' screening lines.
 
 ## Warning signs in the data
 
-Capital, the owners' cushion that absorbs losses, was thin: equity was 7.7% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 6.9% against 11.0%. Its risk-based capital ratios, which weigh assets by how risky they are, were also well below the norm, with a Tier 1 ratio of 8.9% against a median of 14.6% and a total ratio of 10.2% against 15.8%.
+Capital was well below typical levels: the leverage ratio (core capital as a share of average assets) was 6.9% against a national median of 11.0%. The Tier 1 risk-based capital ratio, which weighs assets by riskiness, was 8.9% against a median of 14.6%, and the broader total risk-based capital ratio was 10.2% against 15.8%.
 
-Credit quality was weak: loans 90 or more days past due or no longer accruing interest were 3.5% of loans, against a national median of 0.5%. Net loan write-offs, loans given up as uncollectable, ran at an annualized 4.5% of loans against a median of 0.0%, and the provision for future loan losses was 3.7% of assets against 0.1%. The Texas ratio, which sets troubled assets against capital plus reserves, was 32.5% against a median of 2.9%, and return on equity, profit as a share of equity, was -22.1% against 11.6%.
+Credit quality was weak: loans 90 or more days past due or no longer earning interest were 3.5% of loans, against a national median of 0.5%. Net loan write-offs (loans declared uncollectible, minus recoveries) ran at 4.5% of loans against a median of 0.0%, and the provision for loan losses (money set aside for expected bad loans) was 3.7% of assets against 0.1%. The Texas ratio, which compares troubled assets with capital plus reserves, was 32.5% against a median of 2.9%, while loan-loss reserves were a somewhat larger cushion than usual at 2.7% of loans against 1.2%. Commercial real estate loans made up 38.0% of loans against a median of 23.6%, even though the concentration section found the bank did not cross either regulatory screening line, so these two views of real estate exposure point somewhat different ways.
 
-On funding, brokered deposits made up 23.4% of deposits against a national median of 0.0%, while core deposits, the stable everyday kind, were 55.0% of assets against 75.5%. Deposits shrank by -18.8% over the past four quarters, while the median bank grew them by 4.2%, though the bank held cash of 13.2% of assets, well above the median of 6.2%. Unrealized losses on bonds available for sale equalled 8.7% of equity, above the national median of 5.6%.
+Funding leaned on less stable sources: brokered deposits (deposits placed through middlemen) were 23.4% of deposits against a national median of 0.0%, and core deposits were 55.0% of assets against 75.5%. Volatile funding was 15.2% of assets against 9.0%, and interest expense was 2.8% of assets against 1.6%. On the other side, cash was 13.2% of assets against 6.2%, and uninsured deposits were 13.3% of deposits against 24.8%. Unrealized losses on bonds available for sale equaled 8.7% of equity, above the national median of 5.6%.
 
 ## Understanding the score
 
-Southpoint Bank ranked 4 of 4,313 banks as of 2026-06-30, the 99.9th percentile on a scale where higher means riskier. It was flagged for the watchlist, which holds the top 2% of banks by score, or 87 banks that quarter.
+As of 2026-06-30, Southpoint Bank ranked 4 out of 4,313 banks, in the 99.9th percentile on a scale where higher means riskier. It was flagged on the watchlist, which covers the top 2% of banks; 87 banks were on it that quarter.
 
-The five features that pushed the score up most were return on equity at -22.1% (contribution +0.828), losses on bonds available for sale at 8.7% of equity (+0.762), brokered deposits at 23.4% of deposits (+0.511), the Tier 1 risk-based capital ratio at 8.9% (+0.419), and interest expense at 2.8% of assets (+0.376). The five that pulled it down most were construction loans at 10.0% of loans (-0.301), loans 30-89 days past due at 0.7% of assets (-0.233), the Texas ratio at 32.5% (-0.231), total assets of $1.4 billion (-0.178), and commercial real estate loans at 38.0% of loans (-0.165).
+The five factors that pushed the score up most were return on equity at -22.1% (contribution +0.828), losses on bonds available for sale at 8.7% of equity (+0.762), and brokered deposits at 23.4% of deposits (+0.511). The other two were the Tier 1 risk-based capital ratio at 8.9% (+0.419) and interest expense at 2.8% of assets (+0.376).
+
+The five factors that pulled the score down most were construction loans at 10.0% of loans (-0.301), loans 30-89 days past due at 0.7% of assets (-0.233), and the Texas ratio at 32.5% (-0.231). The last two were total assets of $1.4 billion (-0.178) and commercial real estate loans at 38.0% of loans (-0.165). Several of these downward factors are still above the national median, so they eased the score only relative to the patterns the model learned, not because they looked healthy.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own prior range, usually over the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 30 ratios checked, 8 were outside their own prior range at the as-of quarter. The model rated the bank about the same as a year earlier: it was in the 99.7th percentile on 2025-06-30 and the 99.9th percentile now.
+As of 2026-06-30, Southpoint Bank ranked 4 out of 4,313 banks nationally, placing it in the 99.9th percentile, where higher means riskier. A year earlier, on 2025-06-30, it sat in the 99.7th percentile, and the model rated it about the same as a year earlier. Of 30 ratios compared with their own prior range, usually the prior 12 quarters, 8 were outside that range.
 
-Return on equity fell to -22.1%, far below its prior range of 7.2% to 13.7%, a change of -29.3 pp over four quarters, and it pushed the score up with a contribution of +0.828. The loan-loss provision rose to 3.7% of assets, above its prior range of 0.2% to 0.9%, and it pushed the score up with a contribution of +0.168.
+Return on equity (profit as a share of the owners' stake) was -22.1%, far below its prior range of 7.2% to 13.7%, and its contribution of +0.828 model log-odds units pushed the score up. The provision for loan losses (money set aside for expected bad loans), as a share of assets, was 3.7% against a prior range of 0.2% to 0.9%, and its contribution of +0.168 pushed the score up. Net loan write-offs (loans declared uncollectible, minus recoveries) reached 4.5% of loans, well above their prior range of 0.0% to 0.9%, yet their contribution of -0.005 had little effect on the score. Return on assets fell to -1.7%, below its prior range of 0.5% to 1.2%, but its contribution of +0.043 had little effect on the score.
 
-Net loan write-offs reached 4.5% of loans, well above their prior range of 0.0% to 0.9%, yet they had little effect on the score, with a contribution of -0.005. Return on assets dropped to -1.7%, below its prior range of 0.5% to 1.2%, but it too had little effect on the score, contributing +0.043. The efficiency ratio, operating costs as a share of revenue, climbed to 65.3%, above its prior range of 53.7% to 57.9%, but had little effect on the score, contributing -0.044. Construction loans slipped to 10.0% of loans, below their prior range of 10.7% to 17.5%, and this pushed the score down with a contribution of -0.301.
+The efficiency ratio (operating costs as a share of revenue) rose to 65.3%, above its prior range of 53.7% to 57.9%, yet its contribution of -0.044 had little effect on the score. Construction loans made up 10.0% of loans, just below their prior range of 10.7% to 17.5%, and their contribution of -0.301 pushed the score down.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -81,11 +83,11 @@ The FDIC's specialty group for this bank at 2026-06-30: Commercial Lending Speci
 
 Peers: 753 banks in the same specialty group and size tier ($1 billion to $10 billion).
 
-The bank's Tier 1 risk-based capital ratio of 8.9% sat at the 0.3rd percentile nationally, unusually low, and at the 0.1st percentile among peers against a peer median of 13.3%, unusually low among its peers too. Its total risk-based capital ratio of 10.2% was at the 0.3rd percentile nationally, unusually low, and at the 0.1st percentile among peers against a peer median of 14.5%, unusually low among its peers too. Its leverage ratio of 6.9% was at the 0.9th percentile nationally, unusually low, and at the 0.6th percentile among peers against a peer median of 10.5%, unusually low among its peers too.
+The Tier 1 risk-based capital ratio, which compares core capital (the bank's own money that absorbs losses) with its assets weighted by riskiness, was 8.9%, at the 0.3rd percentile nationally, which is unusually low; at the 0.1st percentile among its peers, against a peer median of 13.3%, it was unusually low among its peers too. The total risk-based capital ratio, a broader version of the same capital measure, was 10.2%, at the 0.3rd percentile nationally, which is unusually low; at the 0.1st percentile among its peers, against a peer median of 14.5%, it was unusually low among its peers too. The leverage ratio (core capital as a share of average assets) was 6.9%, at the 0.9th percentile nationally, which is unusually low; at the 0.6th percentile among its peers, against a peer median of 10.5%, it was unusually low among its peers too.
 
-Return on equity of -22.1% was at the 0.8th percentile nationally, unusually low, and at the 0.5th percentile among peers against a peer median of 11.8%, unusually low among its peers too. The loan-loss provision of 3.7% of assets was at the 99.6th percentile nationally, unusually high, and at the 99.5th percentile among peers against a peer median of 0.1%, unusually high among its peers too. Net loan write-offs of 4.5% of loans were at the 99.5th percentile nationally, unusually high, and at the 99.5th percentile among peers against a peer median of 0.0%, unusually high among its peers too.
+The annualized provision for loan losses, money set aside for loans expected to go bad, was 3.7% of assets, at the 99.6th percentile nationally, which is unusually high; at the 99.5th percentile among its peers, against a peer median of 0.1%, it was unusually high among its peers too. Annualized loan write-offs, net of recoveries (loans written off as uncollectable, minus amounts later recovered), were 4.5% of loans, at the 99.5th percentile nationally, which is unusually high; at the 99.5th percentile among its peers, against a peer median of 0.0%, this was unusually high among its peers too. Return on equity (profit as a share of equity) was -22.1%, at the 0.8th percentile nationally, which is unusually low; at the 0.5th percentile among its peers, against a peer median of 11.8%, it was unusually low among its peers too.
 
-Asset growth of -18.8% was at the 0.4th percentile nationally, unusually low, and at the 0.3rd percentile among peers against a peer median of 5.3%, unusually low among its peers too. Deposit growth of -18.8% was at the 0.6th percentile nationally, unusually low, and at the 0.3rd percentile among peers against a peer median of 5.0%, unusually low among its peers too. Overall, 17 of the bank's ratios fell in the national top or bottom 10%, and 17 of those were also unusual among its peers.
+Asset growth over the past four quarters was -18.8%, at the 0.4th percentile nationally, which is unusually low; at the 0.3rd percentile among its peers, against a peer median of 5.3%, it was unusually low among its peers too. Deposit growth over the past four quarters was -18.8%, at the 0.6th percentile nationally, which is unusually low; at the 0.3rd percentile among its peers, against a peer median of 5.0%, it was unusually low among its peers too. Overall, 17 of the bank's ratios sat in the national top or bottom 10%, and all 17 of those were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -121,14 +123,15 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it's on the watchlist
 
-In hindsight, this bank's case is that it remained open and on Canary's watchlist rather than appearing among banks that closed. This fact sheet holds no data from after the as-of quarter, so we cannot add later figures that explain why it stayed flagged.
+In hindsight: this is an open watchlist case, meaning the bank was flagged and no outcome has yet been recorded in our data. The fact sheet contains no information from after the as-of quarter, so it cannot yet show whether the flag was borne out or whether the bank's position improved.
 
 ## What happened next
 
-In hindsight, the bank is classed as still open and still on the watchlist in our data. The fact sheet does not include its later ranks or flags, so we cannot report how its position moved after the as-of quarter.
+In hindsight: our data has no later ranks, watchlist flags or reporting status for this bank beyond the as-of quarter, so there is nothing yet to report about what happened next. Later quarters will show whether it stays on the watchlist and whether it keeps filing reports; if it stops reporting, our data cannot tell a merger from a closure.
 
 ## Sources
 
+- F1 · Bank name · n/a · Southpoint Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · AL · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2026-06-30 · 4 · data/analyst/scores.parquet: rank
@@ -147,24 +150,33 @@ In hindsight, the bank is classed as still open and still on the watchlist in ou
 - F20 · National median: the total risk-based capital ratio · 2026-06-30 · 15.8% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 3.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
+- F27 · Bank: loan-loss reserves as a share of loans · 2026-06-30 · 2.7% · data/features/fct_bank_features.parquet: allowance_to_loans
+- F28 · National median: loan-loss reserves as a share of loans · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F29 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2026-06-30 · 4.5% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F30 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
 - F31 · Bank: annualized provision for loan losses as a share of assets · 2026-06-30 · 3.7% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F32 · National median: annualized provision for loan losses as a share of assets · 2026-06-30 · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
+- F35 · Bank: commercial real estate loans as a share of loans · 2026-06-30 · 38.0% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F36 · National median: commercial real estate loans as a share of loans · 2026-06-30 · 23.6% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 32.5% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 2.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2026-06-30 · -22.1% · data/features/fct_bank_features.parquet: return_on_equity
-- F42 · National median: return on equity (profit as a share of equity) · 2026-06-30 · 11.6% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
+- F47 · Bank: annualized interest expense as a share of assets · 2026-06-30 · 2.8% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
+- F48 · National median: annualized interest expense as a share of assets · 2026-06-30 · 1.6% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann (median of all banks)
+- F51 · Bank: uninsured deposits as a share of deposits · 2026-06-30 · 13.3% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F52 · National median: uninsured deposits as a share of deposits · 2026-06-30 · 24.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F53 · Bank: brokered deposits as a share of deposits · 2026-06-30 · 23.4% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F54 · National median: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F55 · Bank: core deposits as a share of assets · 2026-06-30 · 55.0% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F56 · National median: core deposits as a share of assets · 2026-06-30 · 75.5% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
+- F59 · Bank: volatile funding as a share of assets · 2026-06-30 · 15.2% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
+- F60 · National median: volatile funding as a share of assets · 2026-06-30 · 9.0% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
 - F61 · Bank: cash as a share of assets · 2026-06-30 · 13.2% · data/features/fct_bank_features.parquet: cash_to_assets
 - F62 · National median: cash as a share of assets · 2026-06-30 · 6.2% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2026-06-30 · 8.7% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2026-06-30 · 5.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
+- F71 · Bank: asset growth over the past four quarters · 2026-06-30 · -18.8% · data/features/fct_bank_features.parquet: asset_growth_4q
 - F73 · Bank: deposit growth over the past four quarters · 2026-06-30 · -18.8% · data/features/fct_bank_features.parquet: deposit_growth_4q
-- F74 · National median: deposit growth over the past four quarters · 2026-06-30 · 4.2% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: return on equity (profit as a share of equity), value -22.1%; contribution to the score · 2026-06-30 · +0.828 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F76 · Driver up #2: losses on bonds available for sale, as a share of equity, value 8.7%; contribution to the score · 2026-06-30 · +0.762 · data/analyst/scores.parquet: feature afs_unrealized_loss_to_equity contribution
 - F77 · Driver up #3: brokered deposits as a share of deposits, value 23.4%; contribution to the score · 2026-06-30 · +0.511 · data/analyst/scores.parquet: feature brokered_to_deposits contribution
@@ -178,7 +190,6 @@ In hindsight, the bank is classed as still open and still on the watchlist in ou
 - F89 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2026-06-30 · -22.1% · data/features/fct_bank_features.parquet: return_on_equity
 - F90 · Trend: return on equity (profit as a share of equity), lowest value in the comparison window · n/a · 7.2% · data/features/fct_bank_features.parquet: return_on_equity
 - F91 · Trend: return on equity (profit as a share of equity), highest value in the comparison window · n/a · 13.7% · data/features/fct_bank_features.parquet: return_on_equity
-- F92 · Trend: return on equity (profit as a share of equity), change over four quarters, in percentage points · 2026-06-30 · -29.3 pp · data/features/fct_bank_features.parquet: return_on_equity
 - F93 · Trend: return on equity (profit as a share of equity), contribution to the score (model log-odds units) · 2026-06-30 · +0.828 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F94 · Trend: return on equity (profit as a share of equity), what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature return_on_equity contribution
 - F95 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, value at the as-of quarter · 2026-06-30 · 4.5% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
@@ -209,7 +220,6 @@ In hindsight, the bank is classed as still open and still on the watchlist in ou
 - F126 · Trend: ratios outside their own prior range · 2026-06-30 · 8 · data/features/fct_bank_features.parquet
 - F128 · Trend: ratios compared with their own prior range · 2026-06-30 · 30 · data/features/fct_bank_features.parquet
 - F129 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F130 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F131 · Percentile a year earlier (100 = highest risk) · 2025-06-30 · 99.7% · data/analyst/scores.parquet: percentile
 - F132 · Trend: how the model's rating compares with a year earlier · 2026-06-30 · about the same as a year earlier · data/analyst/scores.parquet: percentile
 - F136 · Peers: the Tier 1 risk-based capital ratio, bank value at the as-of quarter · 2026-06-30 · 8.9% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio

@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: true
 failure_date: 2026-01-30
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:07:49"
+written_at: "2026-11-19T21:15:20"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -22,21 +22,21 @@ checked: true
 
 ## Summary
 
-As of 2025-12-31, Metropolitan Capital B&T, a bank in IL, ranked 2 out of 4,411 banks on Canary's risk score, placing it in the 100.0th percentile, where higher means riskier. It was on Canary's watchlist, which covers the top 2% of banks and held 89 banks that quarter. Its capital cushion was gone: equity, the owners' stake, stood at -0.8% of assets against a national median of 10.4%. Loan losses were heavy, with annualized write-offs (loans given up as lost, net of recoveries) at 12.4% of loans against a national median of 0.0%.
+As of 2025-12-31, Metropolitan Capital B&T, a bank in IL, ranked 2 out of 4,411 banks nationally on Canary's risk score, placing it at the 100.0th percentile and on the watchlist. Its capital, the owners' cushion against losses, had run out: equity was -0.8% of assets, against a national median of 10.4%. The bank was also losing money heavily and writing off loans at a far higher rate than typical banks, while leaning more than most on borrowed and brokered funding.
 
 ## Warning signs in the data
 
-Capital, the buffer that absorbs losses, was far below normal: equity was -0.8% of assets against a national median of 10.4%. The leverage ratio (core capital as a share of average assets) was 1.8% against a median of 10.8%, and the Tier 1 risk-based capital ratio (core capital measured against risk-weighted assets) was 3.0% against 14.4%. The total risk-based capital ratio was 4.3% against a national median of 15.6%.
+Capital was the weakest area, with all three regulatory capital ratios far below national medians. The leverage ratio (core capital as a share of average assets) was 1.8% against a median of 10.8%, the Tier 1 risk-based capital ratio (strongest capital against risk-adjusted assets) was 3.0% against 14.4%, and the total risk-based capital ratio was 4.3% against 15.6%. Earnings were deeply negative: return on assets (profit as a share of assets) was -6.9% against a median of 1.1%, and the efficiency ratio (operating costs as a share of revenue) was 123.3% against 63.8%, meaning costs exceeded revenue.
 
-Credit quality was weak: loans 90 or more days past due or no longer accruing interest were 2.8% of loans against a median of 0.4%, and annualized net write-offs were 12.4% of loans against 0.0%. The annualized provision for loan losses (money set aside for expected bad loans) was 6.1% of assets against a median of 0.1%, and the Texas ratio (troubled assets against capital plus reserves) was 152.5% against 2.7%. The bank was losing money, with return on assets at -6.9% against a median of 1.1% and an efficiency ratio (operating costs as a share of revenue) of 123.3% against 63.8%.
+Credit quality was poor: loans 90 or more days past due or not accruing interest (nonaccrual, meaning the bank has stopped counting interest as income) were 2.8% of loans against a median of 0.4%. Net loan write-offs were 12.4% of loans against a median of 0.0%, and the annualized provision for loan losses (money set aside for expected bad loans) was 6.1% of assets against 0.1%. The Texas ratio, which compares troubled assets with capital plus reserves, was 152.5% against a median of 2.7%, meaning troubled assets exceeded the bank's loss-absorbing resources.
 
-On funding, brokered deposits (deposits gathered through middlemen) were 22.0% of deposits against a national median of 0.0%, and Federal Home Loan Bank borrowings were 14.0% of assets against 0.2%. Deposits shrank by -7.3% over the past four quarters while the median bank grew deposits by 4.1%, though cash was a higher-than-usual 16.7% of assets against a median of 6.5%. Losses on bonds available for sale, measured against equity, showed an extreme reading of -684.7% against a national median of 5.2%, a figure distorted by the bank's negative equity.
+On funding, brokered deposits (money placed through middlemen, which can leave quickly) were 22.0% of deposits against a median of 0.0%, and Federal Home Loan Bank borrowings (loans from a government-sponsored lender to banks) were 14.0% of assets against 0.2%. Deposits shrank by -7.3% over the past four quarters, while the median bank grew deposits by 4.1%; on the other side, cash was a relatively high 16.7% of assets against a median of 6.5%. Losses on bonds available for sale were -684.7% of equity against a median of 5.2%, but because equity was below zero this ratio is hard to read. The separate real-estate concentration check found that the bank did not cross either supervisory line, so commercial property lending is not where the strain shows.
 
 ## Understanding the score
 
-As of 2025-12-31, the bank ranked 2 out of 4,411 banks nationally, in the 100.0th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, the top 2% of banks, which held 89 banks that quarter.
+Metropolitan Capital B&T ranked 2 out of 4,411 banks as of 2025-12-31, which is the 100.0th percentile on a 0 to 100 scale where higher means riskier. It was flagged on the watchlist, which covers the riskiest 2% of banks, or 89 banks that quarter. Its percentile a year earlier, on 2024-12-31, was also the 100.0th, so the rating was about the same as a year earlier.
 
-Five features pushed the score up most: the Tier 1 risk-based capital ratio at 3.0% (+1.701), return on equity at -672.4% (+1.537), the Texas ratio at 152.5% (+1.021), the total risk-based capital ratio at 4.3% (+0.524), and the leverage ratio at 1.8% (+0.364). Five features pulled the score down most: nonaccrual assets and foreclosed property at 2.2% of assets (-0.489), net interest margin at 4.9% (-0.426), losses on bonds available for sale at -684.7% of equity (-0.368), loans 90+ days past due or not accruing at 2.8% of loans (-0.262), and construction loans at 4.7% of loans (-0.227).
+The five features that pushed the score up most were the Tier 1 risk-based capital ratio at 3.0% (contribution +1.701), return on equity at -672.4% (+1.537), the Texas ratio at 152.5% (+1.021), the total risk-based capital ratio at 4.3% (+0.524), and the leverage ratio at 1.8% (+0.364). The five that pushed it down most were nonaccrual assets and foreclosed property at 2.2% of assets (-0.489), net interest margin (the spread earned on lending and investing) at 4.9% (-0.426), losses on bonds available for sale at -684.7% of equity (-0.368), loans 90+ days past due or nonaccrual at 2.8% of loans (-0.262), and construction loans at 4.7% of loans (-0.227). Some of these downward drivers, such as the bad-loan measures, look weak next to national medians, so the model's treatment of them points a different way from the plain comparison; the capital and earnings drivers far outweighed them.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -57,11 +57,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, or for year-to-date ratios with the same quarter in the prior 3 years. At 2025-12-31, 15 of the 30 ratios checked sat outside their own prior range, and the table shows the 6 furthest outside.
+As of 2025-12-31, Metropolitan Capital B&T ranked 2 out of 4,411 banks nationally, which places it at the 100.0th percentile on a scale where higher means riskier. A year earlier, on 2024-12-31, it also sat at the 100.0th percentile, and the model's rating is about the same as a year earlier. Each ratio is compared with the bank's own prior range, usually the previous 12 quarters, or the same quarter in the prior 3 years for year-to-date figures. Of 30 ratios checked, 15 were outside their prior range, and the 6 furthest outside are shown in the table.
 
-Return on equity fell to -672.4%, below its prior range of -91.0% to 14.6% and down -581.5 pp over four quarters, and it pushed the score up with a contribution of +1.537. The efficiency ratio rose to 123.3%, above its prior range of 76.3% to 91.0%, yet it had little effect on the score, contributing -0.044. Losses on bonds available for sale moved to -684.7% of equity, outside a prior range of 73.1% to 505.3%, but this ratio pushed the score down, contributing -0.368. That bond ratio changed by -982.2 pp over one quarter and -1189.9 pp over four quarters. Net write-offs climbed to 12.4% of loans, above a prior range of 0.0% to 4.5%, yet they had little effect on the score, contributing -0.024. Construction loans reached 4.7% of loans, above a prior range of 0.0% to 3.2%, but this ratio pushed the score down, contributing -0.227. Net interest margin slipped to 4.9%, below a prior range of 5.7% to 7.4%, yet it pushed the score down, contributing -0.426.
+Return on equity (profit as a share of the owners' stake) was -672.4%, far below its prior range of -91.0% to 14.6%, and it pushed the score up by +1.537 model log-odds units. Its change over four quarters was -581.5 pp. The efficiency ratio (operating costs as a share of revenue) was 123.3%, above its prior range of 76.3% to 91.0%, yet it had little effect on the score, contributing -0.044 model log-odds units. Net loan write-offs (loans written off as unrecoverable, minus recoveries) were 12.4% of loans, above the prior range of 0.0% to 4.5%, but this had little effect on the score, at -0.024 model log-odds units.
 
-The bank was in the 100.0th percentile at 2024-12-31 and again in the 100.0th percentile at 2025-12-31, ranked 2 out of 4,411, so the model's rating was about the same as a year earlier.
+Losses on bonds available for sale (bonds the bank may sell) measured -684.7% of equity, outside the prior range of 73.1% to 505.3%, yet this ratio pushed the score down by -0.368 model log-odds units. Construction loans were 4.7% of loans, above the prior range of 0.0% to 3.2%, but this ratio pushed the score down, contributing -0.227 model log-odds units. Net interest margin (the spread earned on lending and investing) was 4.9%, below its prior range of 5.7% to 7.4%, and it also pushed the score down, by -0.426 model log-odds units.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -82,9 +82,11 @@ The FDIC's specialty group for this bank at 2025-12-31: Commercial Lending Speci
 
 Peers: 1473 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-Equity as a share of assets was -0.8%, unusually low nationally at the 0.0th percentile, and at the 0.0th percentile among peers against a peer median of 10.1% it was unusually low among its peers too. The total risk-based capital ratio was 4.3%, unusually low nationally at the 0.0th percentile, and at the 0.1st percentile among peers against a peer median of 15.3% it was unusually low among its peers too. The Tier 1 risk-based capital ratio was 3.0%, unusually low nationally at the 0.0th percentile, and at the 0.1st percentile among peers against a peer median of 14.1% it was unusually low among its peers too. Losses on bonds available for sale were -684.7% of equity, unusually low nationally at the 0.0th percentile, and at the 0.0th percentile among peers against a peer median of 5.0% this was unusually low among its peers too. Return on equity was -672.4%, unusually low nationally at the 0.0th percentile, and at the 0.0th percentile among peers against a peer median of 11.3% it was unusually low among its peers too.
+Metropolitan Capital B&T ranked 2 out of 4,411 banks nationally on Canary's score as of 2025-12-31, and its financial ratios set it far apart from similar banks. Equity as a share of assets, the owners' cushion against losses, was -0.8%, at the 0.0th percentile nationally (unusually low) and the 0.0th percentile among its peers against a peer median of 10.1%, unusually low among its peers too. The total risk-based capital ratio, which measures capital against assets adjusted for their credit quality, was 4.3%, at the 0.0th percentile nationally (unusually low) and the 0.1st percentile among its peers against a peer median of 15.3%, unusually low among its peers too. The Tier 1 risk-based capital ratio, a similar measure using only the strongest form of capital, was 3.0%, at the 0.0th percentile nationally (unusually low) and the 0.1st percentile among its peers against a peer median of 14.1%, unusually low among its peers too.
 
-The Texas ratio was 152.5%, unusually high nationally at the 99.9th percentile, and at the 99.9th percentile among peers against a peer median of 2.8% it was unusually high among its peers too. The annualized provision for loan losses was 6.1% of assets, unusually high nationally at the 99.9th percentile, and at the 100.0th percentile among peers against a peer median of 0.1% it was unusually high among its peers too. Annualized net write-offs were 12.4% of loans, unusually high nationally at the 99.9th percentile, and at the 100.0th percentile among peers against a peer median of 0.0% they were unusually high among its peers too. Overall, 20 of the bank's ratios fell in the national top or bottom 10%, and 19 of those were also unusual among its peers.
+Losses on bonds available for sale (bonds the bank can sell before they mature) as a share of equity stood at -684.7%, at the 0.0th percentile nationally (unusually low) and the 0.0th percentile among its peers against a peer median of 5.0%, unusually low among its peers too. Return on equity, profit as a share of equity, was -672.4%, at the 0.0th percentile nationally (unusually low) and the 0.0th percentile among its peers against a peer median of 11.3%, unusually low among its peers too. The Texas ratio, which compares troubled assets with capital plus reserves, was 152.5%, at the 99.9th percentile nationally (unusually high) and the 99.9th percentile among its peers against a peer median of 2.8%, unusually high among its peers too. The annualized provision for loan losses, money set aside for expected bad loans, was 6.1% of assets, at the 99.9th percentile nationally (unusually high) and the 100.0th percentile among its peers against a peer median of 0.1%, unusually high among its peers too. Annualized loan write-offs, net of recoveries, were 12.4% of loans, at the 99.9th percentile nationally (unusually high) and the 100.0th percentile among its peers against a peer median of 0.0%, unusually high among its peers too.
+
+Overall, 20 of the bank's ratios fall in the national top or bottom 10%, and 19 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -120,13 +122,15 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, Canary first flagged this bank at 2025-03-31, 4 quarters before it failed on 2026-01-30. At that first flag, the main drivers pushing the score up were return on equity at -72.9% (+1.052), the Texas ratio at 138.8% (+0.874), and the Tier 1 risk-based capital ratio at 6.3% (+0.666). Losses on bonds available for sale at 388.4% of equity (+0.566) and loans 90+ days past due or not accruing at 8.8% of loans (+0.454) also pushed the score up then.
+In hindsight, this is a case Canary caught: the bank failed on 2026-01-30, after the model's test window. Under the lead-time rule, the bank was first flagged in the quarter ending 2025-03-31, which gave a lead time of 4 quarters before the failure.
+
+At that first flag, the top drivers pushing the score up were return on equity at -72.9% (+1.052), the Texas ratio at 138.8% (+0.874), the Tier 1 risk-based capital ratio at 6.3% (+0.666), losses on bonds available for sale at 388.4% of equity (+0.566), and loans 90+ days past due or nonaccrual at 8.8% of loans (+0.454). So, looking back, weak earnings, troubled assets and thin capital were already visible in the data well before the failure.
 
 *After the test window: not part of the reported 2016-2024 results.*
 
 ## What happened next
 
-In hindsight, the bank failed on January 30, 2026. Its last reported quarter was 2025-12-31, so no later ranks exist in our data.
+In hindsight, Metropolitan Capital B&T failed on 2026-01-30. The last quarter it reported was 2025-12-31, so there are no later ranks or watchlist flags to show.
 
 ## Sources
 
@@ -203,8 +207,6 @@ In hindsight, the bank failed on January 30, 2026. Its last reported quarter was
 - F111 · Trend: losses on bonds available for sale, as a share of equity, value at the as-of quarter · 2025-12-31 · -684.7% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F112 · Trend: losses on bonds available for sale, as a share of equity, lowest value in the comparison window · n/a · 73.1% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F113 · Trend: losses on bonds available for sale, as a share of equity, highest value in the comparison window · n/a · 505.3% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
-- F114 · Trend: losses on bonds available for sale, as a share of equity, change over one quarter, in percentage points · 2025-12-31 · -982.2 pp · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
-- F115 · Trend: losses on bonds available for sale, as a share of equity, change over four quarters, in percentage points · 2025-12-31 · -1189.9 pp · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F116 · Trend: losses on bonds available for sale, as a share of equity, contribution to the score (model log-odds units) · 2025-12-31 · -0.368 · data/analyst/scores.parquet: feature afs_unrealized_loss_to_equity contribution
 - F117 · Trend: losses on bonds available for sale, as a share of equity, what the model did with it · 2025-12-31 · pushed the score down · data/analyst/scores.parquet: feature afs_unrealized_loss_to_equity contribution
 - F118 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, value at the as-of quarter · 2025-12-31 · 12.4% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann

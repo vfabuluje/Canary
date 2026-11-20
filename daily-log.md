@@ -1,5 +1,17 @@
 # Daily Log
 
+## 2026-11-19 (evening): Phase 5e
+**Done**
+- PR #12 (showcase notes) merged. Phase 6 spec received; before it, Victor asked for **three real AI agents**: trend and peer agents each write their own section in their own Claude call; concentration stays code-only; the risk analyst sees all three outputs and writes the rest, **never editing the specialists' text** and stating genuine disagreements plainly.
+- **Phase 5e built** (spec [[specs/2026-11-19-phase5e-three-agent-memos-design]], plan [[plans/2026-11-19-phase5e-three-agent-memos]], decision [[decisions/0022-three-agent-memo-pipeline]]): per-agent fact subsets, per-call check and retry, no note on any failure, traces of every call, showcase in two half-price batch rounds with resume, and a `--max-cost` limit (checked before round 1, round 2 and every full-price call; remembered on resume; stops cleanly and still saves finished notes). Reviews caught several money bugs before any spend (a typo resume id wiping paid progress; resuming the old state at full price; an empty section blocking the run after round 1; a stop writing no notes). 639 pytest pass. PR #13 merged.
+- Calibration memo (SVB, $0.41) set the estimate; added a prompt line so "a year earlier" gets cited.
+- **Showcase re-run with the three agents** (approved, `--max-cost 17`): 61/61 written, 0 failed, **$9.74** (estimate $14.70). All notes have every section; trend and peer text match their traces exactly; no prediction words. 18 notes explicitly contrast what different sections found.
+- **Cost:** Claude API total about $31.94; balance about $8.07. The SVB trace for the Phase 6 animation is saved at `data/analyst/animation_trace/` (local).
+
+**Next**
+- Merge the showcase PR. Then **Phase 6** (Victor's spec): bank search, SVB/Signature/First Republic replay, flag-threshold slider, agent-handoff animation (from the saved real trace), honest-miss banner. Open question from earlier: what the ~11,000 banks without a memo show in search.
+- Phase 6 must make no Claude calls per visitor (read-only).
+
 ## 2026-11-19
 **Done**
 - Free fix (PR #9, branch `showcase-first-errors`): the showcase report now records first-attempt checker errors per bank and a per-section tally.

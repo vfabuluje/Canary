@@ -10,7 +10,7 @@ outcome: "open_watchlist"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:19"
+written_at: "2026-11-19T21:16:24"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2026-06-30, Iuka State Bank, a small Illinois bank, ranked 14 out of 4,313 banks on Canary's risk score, which puts it in the 99.7th percentile, where higher means riskier. That places it on Canary's watchlist, a group of 87 banks that quarter. The main reasons are troubled loans: 8.0% of its loans were 90 or more days late or no longer paying interest, against a national median of 0.5%. It also relied on brokered deposits (money placed through middlemen) for 20.2% of its deposits, while the typical bank used none (0.0%).
+As of 2026-06-30, Iuka State Bank, based in IL, ranked 14 out of 4,313 FDIC-insured banks, placing it in the 99.7th percentile, where higher means riskier, and on Canary's watchlist. The main concern is troubled loans: loans seriously past due or no longer earning interest were 8.0% of loans against a national median of 0.5%, and the Texas ratio, which weighs troubled assets against capital plus reserves, was 57.1% against a median of 2.9%. Profits have thinned, the bank leans far more than most on brokered deposits (money placed through outside middlemen), and its capital sits slightly below the national medians.
 
 ## Warning signs in the data
 
-Capital, the bank's own cushion against losses, was slightly thinner than usual: equity was 9.6% of assets against a national median of 10.6%. Its leverage ratio (core capital as a share of average assets) was 10.3%, a little below the national median of 11.0%.
+Credit quality is the clearest weak spot. Loans seriously past due or no longer earning interest were 8.0% of loans, far above the national median of 0.5%, and nonaccrual assets and foreclosed property were 6.9% of assets against a median of 0.3%. Loans in the early stage of delinquency were 1.5% of assets against a median of 0.2%, and net loan write-offs were 1.8% of loans against a median of 0.0%. The Texas ratio, troubled assets measured against capital plus reserves, was 57.1% against a national median of 2.9%. Pointing the other way, loan-loss reserves (the cushion set aside for bad loans) were 3.0% of loans, well above the median of 1.2%.
 
-Credit quality stands out most. Loans 90 or more days past due or not accruing interest (no longer counted as earning) were 8.0% of loans, far above the national median of 0.5%. Nonaccrual assets and foreclosed property made up 6.9% of assets, against a national median of 0.3%. The Texas ratio, which weighs troubled assets against capital plus reserves, was 57.1%, versus a national median of 2.9%. Net loan write-offs (loans given up as lost) ran at 1.8% of loans, against a national median of 0.0%, and the provision for loan losses (money set aside for expected losses) was 1.2% of assets, against 0.1% nationally. Profit was thin, with return on assets of 0.1% against a national median of 1.2%.
+Capital, the owners' cushion that absorbs losses, is a little thin: equity was 9.6% of assets against a national median of 10.6%, and the leverage ratio (core capital as a share of average assets) was 10.3% against 11.0%. Earnings are weak, with return on assets of 0.1% against a median of 1.2%. Unrealized losses on bonds available for sale equaled 11.0% of equity, about the national median of 5.6% in direction but well above it, while losses on bonds held to maturity were 0.0%, matching the median of 0.0%.
 
-On funding, brokered deposits were 20.2% of deposits against a national median of 0.0%, and core deposits (stable everyday deposits) were 63.6% of assets, below the national median of 75.5%. Borrowings from the Federal Home Loan Bank, a lender to banks, were 4.6% of assets against a national median of 0.2%, and loans equalled 94.1% of deposits against 80.2% nationally. Unrealized losses on bonds available for sale (bonds it could sell, now worth less than their cost) equalled 11.0% of equity, about double-digit compared with a national median of 5.6%.
+On funding, brokered deposits were 20.2% of deposits against a national median of 0.0%, core deposits (steady customer deposits) were 63.6% of assets against 75.5%, and Federal Home Loan Bank borrowings were 4.6% of assets against 0.2%. Loans were 94.1% of deposits against a median of 80.2%, and cash was 5.4% of assets against 6.2%. Again pointing the other way, uninsured deposits, which can leave quickly in a scare, were only 12.4% of deposits, below the median of 24.8%.
 
 ## Understanding the score
 
-As of 2026-06-30 the bank ranked 14 of 4,313 banks nationally, in the 99.7th percentile on a scale where higher means riskier. It is flagged on the watchlist, which covers the top 2% of banks by score, or 87 banks that quarter.
+Iuka State Bank ranked 14 out of 4,313 banks on 2026-06-30, which is the 99.7th percentile on a 0 to 100 scale where higher means riskier. Its raw model score was 0.5072, a number used mainly to order banks against each other. It is flagged on the watchlist, which holds about 2% of banks; 87 banks were on it that quarter.
 
-Five features pushed the score up most. The largest was the Texas ratio at 57.1%, adding +0.900. Next came loans 90 or more days past due or not accruing interest at 8.0% of loans, adding +0.844. Losses on bonds available for sale at 11.0% of equity added +0.589. Brokered deposits at 20.2% of deposits added +0.349. The provision for loan losses at 1.2% of assets added +0.145.
+The five biggest factors pushing the score up were the Texas ratio at 57.1%, loans seriously past due or not earning interest at 8.0% of loans, losses on bonds available for sale at 11.0% of equity, brokered deposits at 20.2% of deposits, and the provision for loan losses (money set aside for expected bad loans) at 1.2% of assets.
 
-Five features pulled the score down. The biggest was the Tier 1 risk-based capital ratio (core capital against risk-weighted assets), at -0.733. Return on equity (profit as a share of equity) at 0.8% contributed -0.369. Construction loans at 1.7% of loans contributed -0.310. The leverage ratio at 10.3% contributed -0.272. Volatile funding at 11.8% of assets contributed -0.178.
+The five biggest factors pushing the score down were the Tier 1 risk-based capital ratio (core capital against risk-weighted assets, value not shown in our data), return on equity at 0.8%, construction loans at 1.7% of loans, the leverage ratio at 10.3%, and volatile funding at 11.8% of assets. The model treated the low return on equity as a point in the bank's favor, even though it sits far below the bank's own past range, as the trend section notes.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own range over the prior 12 quarters, and for year-to-date ratios with the same quarter in the prior 3 years. Of 28 ratios checked, 14 sat outside their own prior range. The bank ranked 14 nationally as of 2026-06-30, and a year earlier, on 2025-06-30, it was in the 99.3rd percentile, so the model rated it about the same as a year earlier.
+As of 2026-06-30, Iuka State Bank ranked 14 out of 4,313 banks nationally, which puts it in the 99.7th percentile, where higher means riskier. On 2025-06-30 it sat in the 99.3rd percentile, and the model rates it about the same as a year earlier. Of 28 ratios compared with their own prior range, 14 sat outside it, and the 6 furthest outside are shown here. Most ratios are compared with the bank's own prior 12 quarters, and year-to-date ratios are compared with the same quarter in the prior 3 years.
 
-Brokered deposits reached 20.2% of deposits, above a prior range of 0.0% to 15.3%, and contributed +0.349, which pushed the score up. That share rose +4.9 pp in the latest quarter and +17.3 pp over four quarters. The provision for loan losses was 1.2% of assets, above its prior range of 0.4% to 0.8%, and contributed +0.145, which pushed the score up.
+Brokered deposits are money placed through outside middlemen rather than gathered directly from customers. They made up 20.2% of deposits, above the bank's prior range of 0.0% to 15.3%, and the model's contribution of +0.349 model log-odds units (positive values push the score up) pushed the score up. That share rose +17.3 pp over four quarters, including +4.9 pp in the latest quarter. The provision for loan losses, money set aside for loans expected to go bad, was 1.2% of assets, above its prior range of 0.4% to 0.8%, and its contribution of +0.145 pushed the score up.
 
-Return on equity fell to 0.8%, below its prior range of 7.9% to 12.1%, yet its contribution of -0.369 pushed the score down. Return on assets was 0.1%, below its prior range of 0.7% to 1.1%, but its contribution of -0.163 also pushed the score down. The efficiency ratio (operating costs as a share of revenue) rose to 74.4%, above its prior range of 59.0% to 65.6%, yet its contribution of -0.052 pushed the score down. Net loan write-offs reached 1.8% of loans, above their prior range of 0.0% to 0.4%, but at -0.001 they had little effect on the score.
+Return on equity was 0.8%, well below its prior range of 7.9% to 12.1%, yet its contribution of -0.369 pushed the score down rather than up. Return on assets was 0.1%, below its prior range of 0.7% to 1.1%, but its contribution of -0.163 also pushed the score down. The efficiency ratio was 74.4%, above its prior range of 59.0% to 65.6%, meaning costs took a bigger bite of revenue, but its contribution of -0.052 pushed the score down. Net loan write-offs, loans written off as lost minus amounts recovered, were 1.8% of loans, above their prior range of 0.0% to 0.4%, yet their contribution of -0.001 had little effect on the score.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,9 +83,11 @@ The FDIC's specialty group for this bank at 2026-06-30: Commercial Lending Speci
 
 Peers: 1444 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-The bank ranked 14 nationally as of 2026-06-30. Nonaccrual assets and foreclosed property were 6.9% of assets, in the 99.7th percentile nationally, which is unusually high, and in the 99.5th percentile among peers against a peer median of 0.3%, unusually high among its peers too. The Texas ratio was 57.1%, in the 99.6th percentile nationally, which is unusually high, and in the 99.6th percentile among peers against a peer median of 3.0%, unusually high among its peers too. Loans 90 or more days past due or not accruing interest were 8.0% of loans, in the 99.2nd percentile nationally, which is unusually high, and in the 99.5th percentile among peers against a peer median of 0.4%, unusually high among its peers too. The provision for loan losses was 1.2% of assets, in the 98.6th percentile nationally, which is unusually high, and in the 98.6th percentile among peers against a peer median of 0.1%, unusually high among its peers too.
+Nonaccrual assets and foreclosed property (loans that have stopped paying interest plus repossessed real estate) were 6.9% of assets, at the 99.7th national percentile, which is unusually high, and at the 99.5th percentile among peers against a peer median of 0.3%, which is unusually high among its peers too. The Texas ratio, which weighs troubled assets against capital plus reserves, was 57.1%, at the 99.6th national percentile, which is unusually high, and at the 99.6th percentile among peers against a peer median of 3.0%, which is unusually high among its peers too. Loans 90 or more days past due or not accruing interest were 8.0% of loans, at the 99.2nd national percentile, which is unusually high, and at the 99.5th percentile among peers against a peer median of 0.4%, which is unusually high among its peers too.
 
-Net loan write-offs were 1.8% of loans, in the 98.4th percentile nationally, which is unusually high, and in the 98.6th percentile among peers against a peer median of 0.0%, unusually high among its peers too. Loan-loss reserves were 3.0% of loans, in the 97.7th percentile nationally, which is unusually high, and in the 99.0th percentile among peers against a peer median of 1.2%, unusually high among its peers too. Asset growth over the past four quarters was -6.6%, in the 3.2nd percentile nationally, which is unusually low, and in the 3.0th percentile among peers against a peer median of 4.8%, unusually low among its peers too. Brokered deposits were 20.2% of deposits, in the 95.3rd percentile nationally, which is unusually high, and in the 94.7th percentile among peers against a peer median of 0.0%, unusually high among its peers too. Overall, 11 of the bank's ratios fell in the national top or bottom 10%, and 11 of those were also unusual among its peers.
+The annualized provision for loan losses (money set aside from earnings to cover expected bad loans) was 1.2% of assets, at the 98.6th national percentile, which is unusually high, and at the 98.6th percentile among peers against a peer median of 0.1%, which is unusually high among its peers too. Annualized loan write-offs net of recoveries (loans written off as lost, minus amounts later recovered) were 1.8% of loans, at the 98.4th national percentile, which is unusually high, and at the 98.6th percentile among peers against a peer median of 0.0%, which is unusually high among its peers too. Loan-loss reserves (the cushion held against future loan losses) were 3.0% of loans, at the 97.7th national percentile, which is unusually high, and at the 99.0th percentile among peers against a peer median of 1.2%, which is unusually high among its peers too.
+
+Asset growth over the past four quarters was -6.6%, at the 3.2nd national percentile, which is unusually low, and at the 3.0th percentile among peers against a peer median of 4.8%, which is unusually low among its peers too. Brokered deposits (deposits placed through outside middlemen rather than gathered directly) were 20.2% of deposits, at the 95.3rd national percentile, which is unusually high, and at the 94.7th percentile among peers against a peer median of 0.0%, which is unusually high among its peers too. Overall, 11 of the bank's ratios fell in the national top or bottom 10%, and all 11 of those were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -120,17 +122,18 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it's on the watchlist
 
-Hindsight view: this bank remains an open watchlist case, meaning there is no later outcome to report yet. The fact sheet for this memo contains no data from after the as-of quarter, so it cannot confirm or explain what followed; the reasons the bank sits on the watchlist are the as-of figures described above, chiefly troubled loans and reliance on brokered deposits.
+With hindsight: this bank's recorded outcome is that it remains open and on the watchlist. Our fact sheet holds no data from after the as-of quarter, so the reasons it is flagged are the as-of readings above: heavy troubled loans, thin earnings, and growing reliance on brokered deposits.
 
 ## What happened next
 
-Hindsight view: the fact sheet includes no ranks, watchlist flags or reporting status from after the as-of quarter. Because of that, this memo cannot say whether the bank's rank changed later or whether it is still filing reports; later quarters will show whether its troubled loans and funding mix improve or worsen.
+With hindsight: the fact sheet contains no later ranks, flags or reporting status beyond the as-of quarter. The outcome recorded for this bank is that it is open and on the watchlist, and no failure is recorded in our data. Whether it later stops reporting cannot be told from these facts.
 
 ## Sources
 
 - F1 · Bank name · n/a · Iuka State Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2026-06-30 · 2026-06-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · IL · data/raw/financials: STALP
+- F5 · Model score · 2026-06-30 · 0.5072 · data/analyst/scores.parquet: score
 - F6 · National rank (1 = highest score) · 2026-06-30 · 14 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2026-06-30 · 4,313 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2026-06-30 · 99.7% · data/analyst/scores.parquet: percentile
@@ -146,22 +149,30 @@ Hindsight view: the fact sheet includes no ranks, watchlist flags or reporting s
 - F18 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2026-06-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F19 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 6.9% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F20 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2026-06-30 · 0.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
+- F21 · Bank: loans 30-89 days past due, as a share of assets · 2026-06-30 · 1.5% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
+- F22 · National median: loans 30-89 days past due, as a share of assets · 2026-06-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
+- F23 · Bank: loan-loss reserves as a share of loans · 2026-06-30 · 3.0% · data/features/fct_bank_features.parquet: allowance_to_loans
+- F24 · National median: loan-loss reserves as a share of loans · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: allowance_to_loans (median of all banks)
 - F25 · Bank: annualized loan write-offs, net of recoveries, as a share of loans · 2026-06-30 · 1.8% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
 - F26 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
-- F27 · Bank: annualized provision for loan losses as a share of assets · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: provision_to_assets_ann
-- F28 · National median: annualized provision for loan losses as a share of assets · 2026-06-30 · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
 - F33 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 57.1% · data/features/fct_bank_features.parquet: texas_ratio
 - F34 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2026-06-30 · 2.9% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F35 · Bank: return on assets (profit as a share of assets) · 2026-06-30 · 0.1% · data/features/fct_bank_features.parquet: return_on_assets
 - F36 · National median: return on assets (profit as a share of assets) · 2026-06-30 · 1.2% · data/features/fct_bank_features.parquet: return_on_assets (median of all banks)
 - F45 · Bank: loans as a share of deposits · 2026-06-30 · 94.1% · data/features/fct_bank_features.parquet: loans_to_deposits
 - F46 · National median: loans as a share of deposits · 2026-06-30 · 80.2% · data/features/fct_bank_features.parquet: loans_to_deposits (median of all banks)
+- F47 · Bank: uninsured deposits as a share of deposits · 2026-06-30 · 12.4% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F48 · National median: uninsured deposits as a share of deposits · 2026-06-30 · 24.8% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F49 · Bank: brokered deposits as a share of deposits · 2026-06-30 · 20.2% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F50 · National median: brokered deposits as a share of deposits · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F51 · Bank: core deposits as a share of assets · 2026-06-30 · 63.6% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F52 · National median: core deposits as a share of assets · 2026-06-30 · 75.5% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
 - F53 · Bank: Federal Home Loan Bank borrowings as a share of assets · 2026-06-30 · 4.6% · data/features/fct_bank_features.parquet: fhlb_to_assets
 - F54 · National median: Federal Home Loan Bank borrowings as a share of assets · 2026-06-30 · 0.2% · data/features/fct_bank_features.parquet: fhlb_to_assets (median of all banks)
+- F57 · Bank: cash as a share of assets · 2026-06-30 · 5.4% · data/features/fct_bank_features.parquet: cash_to_assets
+- F58 · National median: cash as a share of assets · 2026-06-30 · 6.2% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
+- F59 · Bank: losses on bonds held to maturity, as a share of equity · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
+- F60 · National median: losses on bonds held to maturity, as a share of equity · 2026-06-30 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F61 · Bank: losses on bonds available for sale, as a share of equity · 2026-06-30 · 11.0% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F62 · National median: losses on bonds available for sale, as a share of equity · 2026-06-30 · 5.6% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
 - F71 · Driver up #1: the Texas ratio (troubled assets against capital plus reserves), value 57.1%; contribution to the score · 2026-06-30 · +0.900 · data/analyst/scores.parquet: feature texas_ratio contribution
@@ -207,6 +218,7 @@ Hindsight view: the fact sheet includes no ranks, watchlist flags or reporting s
 - F116 · Trend: brokered deposits as a share of deposits, contribution to the score (model log-odds units) · 2026-06-30 · +0.349 · data/analyst/scores.parquet: feature brokered_to_deposits contribution
 - F117 · Trend: brokered deposits as a share of deposits, what the model did with it · 2026-06-30 · pushed the score up · data/analyst/scores.parquet: feature brokered_to_deposits contribution
 - F118 · Trend: ratios outside their own prior range · 2026-06-30 · 14 · data/features/fct_bank_features.parquet
+- F119 · Trend: ratios shown in the table (the furthest outside their prior range) · 2026-06-30 · 6 · data/features/fct_bank_features.parquet
 - F120 · Trend: ratios compared with their own prior range · 2026-06-30 · 28 · data/features/fct_bank_features.parquet
 - F121 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F122 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)

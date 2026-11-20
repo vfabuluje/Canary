@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2020-10-16
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:05:15"
+written_at: "2026-11-19T21:14:02"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,21 +21,21 @@ checked: true
 
 ## Summary
 
-As of 2020-09-30, First City Bank Of Florida, a Florida bank with $136.6 million in assets, ranked 2 out of 5,098 banks nationally on Canary's risk score, placing it in the 100.0th percentile. It was on the watchlist, the top 2% of banks by score. Its capital cushion was very thin, with equity (the owners' stake) at 1.5% of assets against a national median of 10.9%, and its Texas ratio (troubled assets compared with capital plus reserves) stood at 489.0%.
+As of 2020-09-30, First City Bank Of Florida (certificate 16748, based in FL) ranked 2 out of 5,098 FDIC-insured banks on Canary's risk score, at the 100.0th percentile, and was on the watchlist. Its capital cushion was extremely thin, with equity at 1.5% of assets against a national median of 10.9%, and its Texas ratio, which weighs troubled assets against capital plus reserves, stood at 489.0% against a median of 3.4%. The bank was also losing money, with return on equity of -68.6%, even though its funding looked steady, with core deposits at 98.1% of assets.
 
 ## Warning signs in the data
 
-Capital, the cushion that absorbs losses, was far below typical levels: equity was 1.5% of assets versus a national median of 10.9%, and the leverage ratio (core capital as a share of average assets) was 1.4% versus 10.2%. Risk-weighted measures were similarly low, with a Tier 1 risk-based capital ratio of 2.5% against a median of 14.7% and a total risk-based capital ratio of 3.7% against 15.9%.
+Capital, the owners' money that absorbs losses before depositors are hurt, was far below normal levels. Equity was 1.5% of assets against a national median of 10.9%, and the leverage ratio (core capital as a share of average assets) was 1.4% against a median of 10.2%. The Tier 1 risk-based capital ratio, which measures top-quality capital against assets weighted by riskiness, was 2.5% against a median of 14.7%, and the broader total risk-based capital ratio was 3.7% against 15.9%. Profits were not rebuilding that cushion: return on equity (profit as a share of equity) was -68.6% against a median of 8.7%, and the efficiency ratio (operating costs as a share of revenue) was 148.2% against 65.6%.
 
-Credit quality was weak: nonaccrual assets (loans no longer paying interest) and foreclosed property made up 12.7% of assets, against a national median of 0.3%. Loans 30-89 days past due were 3.0% of assets versus a median of 0.2%, and the Texas ratio was 489.0% versus a median of 3.4%. The bank was also losing money, with a return on equity of -68.6% against a national median of 8.7%, and its efficiency ratio (costs as a share of revenue) was 148.2% versus 65.6%.
+Credit quality, meaning how well borrowers were repaying, was weak. Nonaccrual assets and foreclosed property (loans no longer paying interest plus repossessed property) equaled 12.7% of assets, far above the national median of 0.3%. Loans 30-89 days past due came to 3.0% of assets against a median of 0.2%, and loans 90+ days past due or not accruing interest were 1.6% of loans against 0.5%. Construction loans made up 15.6% of loans, well above the national median of 4.3%. One finding points the other way: the trend section shows troubled assets had fallen below their own prior range, so they had eased compared with the bank's own recent past even while remaining far above other banks.
 
-Funding looked steady by contrast: core deposits (stable, everyday deposits) were 98.1% of assets versus a median of 78.8%, cash was 32.0% of assets versus 9.6%, and brokered deposits were 0.0%. Unrealized losses on bonds available for sale equaled -11.2% of equity, deeper than the national median of -2.5%.
+Funding, by contrast, looked stable: core deposits, the steadier everyday deposits, were 98.1% of assets against a median of 78.8%, and brokered deposits were 0.0% of deposits while volatile funding was 0.0% of assets. Uninsured deposits, those above the federal insurance limit, were 12.3% of deposits against a median of 21.3%, and cash was 32.0% of assets against 9.6%. Unrealized losses on bonds available for sale (bonds the bank can sell before they mature) equaled -11.2% of equity against a national median of -2.5%, a heavier hit relative to its small capital base.
 
 ## Understanding the score
 
-On 2020-09-30 the bank ranked 2 out of 5,098 banks, in the 100.0th percentile on a scale where higher means riskier. That put it on the watchlist, which covered 102 banks that quarter, the top 2% by score.
+As of 2020-09-30 the bank ranked 2 out of 5,098 banks, placing it at the 100.0th percentile on a scale of 0 to 100 where higher means riskier. That put it on Canary's watchlist, which covers the top 2% of banks by score and held 102 banks that quarter. Each driver below is listed with the bank's value and its contribution in the model's internal units, where positive values raise the score and negative values lower it.
 
-The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at 2.5% (+2.082), the Texas ratio at 489.0% (+1.510), return on equity at -68.6% (+1.438), the leverage ratio at 1.4% (+0.590), and the total risk-based capital ratio at 3.7% (+0.436). The five factors that pulled it down most were loans 90+ days past due or not accruing interest at 1.6% of loans (-0.686), interest expense at 0.3% of assets (-0.622), losses on bonds available for sale at -11.2% of equity (-0.375), uninsured deposits at 12.3% of deposits (-0.131), and net interest margin (the lending spread) at 3.7% (-0.108).
+The five factors that pushed the score up most were the Tier 1 risk-based capital ratio at 2.5% (+2.082), the Texas ratio at 489.0% (+1.510), return on equity at -68.6% (+1.438), the leverage ratio at 1.4% (+0.590), and the total risk-based capital ratio at 3.7% (+0.436). The five factors that pulled it down most were loans 90+ days past due or not accruing interest at 1.6% of loans (-0.686), interest expense at 0.3% of assets (-0.622), losses on bonds available for sale at -11.2% of equity (-0.375), uninsured deposits at 12.3% of deposits (-0.131), and the net interest margin, the spread earned on lending and investing, at 3.7% (-0.108).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -56,11 +56,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Most ratios are compared with the bank's own range over the prior 12 quarters, and 19 of 30 ratios checked were outside that range at 2020-09-30. The Tier 1 risk-based capital ratio fell to 2.5%, below its prior range of 3.1% to 3.7%, and pushed the score up by +2.082 model log-odds units. The total risk-based capital ratio was 3.7%, below its prior range of 4.3% to 5.0%, and pushed the score up by +0.436. Return on equity dropped to -68.6%, below its prior range of -24.2% to -12.0%, a change of -47.2 pp, and pushed the score up by +1.438.
+As of 2020-09-30, the bank ranked 2 out of 5,098 banks nationally, placing it at the 100.0th percentile on a scale where higher means riskier. A year earlier it sat at the 99.9th percentile, and the model's rating is about the same as a year earlier. Each ratio is compared with its own past values, usually over the prior 12 quarters; of 30 ratios compared, 19 were outside their prior range, and the table shows the 6 furthest outside.
 
-The efficiency ratio rose to 148.2%, well above its prior range of 110.7% to 114.7%, yet it had little effect on the score, at +0.010. Return on assets was -1.5%, below its prior range of -0.6% to -0.3%, but it also had little effect on the score, at +0.015. Nonaccrual assets and foreclosed property fell to 12.7% of assets, below their prior range of 16.7% to 20.8%, and had little effect on the score, at +0.049.
+The Tier 1 risk-based capital ratio (core capital as a share of loans and other assets weighted by risk) was 2.5%, below its prior range of 3.1% to 3.7%, and it pushed the score up, contributing +2.082 model log-odds units (positive values raise the score). That ratio changed by -0.6 pp over one quarter and -0.9 pp over four quarters. The total risk-based capital ratio, a broader capital measure, was 3.7%, below its prior range of 4.3% to 5.0%, and it pushed the score up with a contribution of +0.436. Return on equity (profit as a share of owners' equity) was -68.6%, well below its prior range of -24.2% to -12.0% after a change of -47.2 pp over four quarters, and it pushed the score up with a contribution of +1.438.
 
-The bank stood in the 99.9% percentile a year earlier and the 100.0th percentile at 2020-09-30, so the model rated it about the same as a year earlier.
+Return on assets (profit as a share of assets) was -1.5%, below its prior range of -0.6% to -0.3%, yet despite being outside its range it had little effect on the score, contributing +0.015. The efficiency ratio (operating costs as a share of revenue) was 148.2%, above its prior range of 110.7% to 114.7% after a change of +33.5 pp over four quarters, but it too had little effect on the score, contributing +0.010. Nonaccrual assets and foreclosed property (loans no longer paying interest plus repossessed property) were 12.7% of assets, below their prior range of 16.7% to 20.8% after a change of -4.1 pp over one quarter, and this ratio had little effect on the score, contributing +0.049.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -81,11 +81,11 @@ The FDIC's specialty group for this bank at 2020-09-30: Commercial Lending Speci
 
 Peers: 1819 banks in the same specialty group and size tier ($100 million to $1 billion).
 
-The bank ranked 2 out of 5,098 banks nationally at 2020-09-30. Core deposits were 98.1% of assets, in the 100.0th percentile nationally (unusually high) and the 100.0th percentile among peers against a peer median of 79.1%, unusually high among its peers too. The Texas ratio was 489.0%, in the 100.0th percentile nationally (unusually high) and the 100.0th percentile among peers against a peer median of 3.6%, unusually high among its peers too. Nonaccrual assets and foreclosed property were 12.7% of assets, in the 99.9th percentile nationally (unusually high) and the 100.0th percentile among peers against a peer median of 0.4%, unusually high among its peers too.
+Core deposits, the bank's steadier everyday deposits, made up 98.1% of assets, at the 100.0th percentile nationally (unusually high), and at the 100.0th percentile among its peers against a peer median of 79.1%, which is unusually high among its peers too. The Texas ratio, which weighs troubled assets against capital plus reserves, was 489.0%, at the 100.0th percentile nationally (unusually high), and at the 100.0th percentile among its peers against a peer median of 3.6%, which is unusually high among its peers too. Nonaccrual assets (loans no longer paying interest) plus foreclosed property came to 12.7% of assets, at the 99.9th percentile nationally (unusually high), and at the 100.0th percentile among its peers against a peer median of 0.4%, which is unusually high among its peers too.
 
-The total risk-based capital ratio was 3.7%, in the 0.0th percentile nationally (unusually low) and the 0.0th percentile among peers against a peer median of 15.3%, unusually low among its peers too. The Tier 1 risk-based capital ratio was 2.5%, in the 0.0th percentile nationally (unusually low) and the 0.0th percentile among peers against a peer median of 14.2%, unusually low among its peers too. Equity was 1.5% of assets, in the 0.4th percentile nationally (unusually low) and the 0.1st percentile among peers against a peer median of 10.2%, unusually low among its peers too. The leverage ratio was 1.4%, in the 0.4th percentile nationally (unusually low) and the 0.1st percentile among peers against a peer median of 9.8%, unusually low among its peers too. Return on equity was -68.6%, in the 0.1st percentile nationally (unusually low) and the 0.0th percentile among peers against a peer median of 9.4%, unusually low among its peers too.
+The total risk-based capital ratio, a bank's capital cushion measured against its assets weighted by riskiness, was 3.7%, at the 0.0th percentile nationally (unusually low), and at the 0.0th percentile among its peers against a peer median of 15.3%, which is unusually low among its peers too. The Tier 1 risk-based capital ratio, which counts only the highest-quality capital, was 2.5%, at the 0.0th percentile nationally (unusually low), and at the 0.0th percentile among its peers against a peer median of 14.2%, which is unusually low among its peers too. Equity as a share of assets was 1.5%, at the 0.4th percentile nationally (unusually low), and at the 0.1st percentile among its peers against a peer median of 10.2%, which is unusually low among its peers too. The leverage ratio, core capital as a share of average assets, was 1.4%, at the 0.4th percentile nationally (unusually low), and at the 0.1st percentile among its peers against a peer median of 9.8%, which is unusually low among its peers too.
 
-Overall, 20 of the bank's ratios fell in the national top or bottom 10%, and all 20 of those were also unusual among its peers.
+Return on equity, profit as a share of shareholders' equity, was -68.6%, at the 0.1st percentile nationally (unusually low), and at the 0.0th percentile among its peers against a peer median of 9.4%, which is unusually low among its peers too. Overall, 20 of the bank's ratios sat in the national top or bottom 10%, and all 20 of those were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -121,15 +121,18 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, the bank failed on 2020-10-16, and Canary had first flagged it at 2019-12-31, 4 quarters before the failure. At that first flag, the main factors pushing the score up were a Tier 1 risk-based capital ratio of 3.4%, a Texas ratio of 473.5%, and a total risk-based capital ratio of 4.7%. Loans 90+ days past due or not accruing interest at 6.6% of loans and a leverage ratio of 2.4% also added to the score then.
+In hindsight, Canary first flagged this bank at 2019-12-31 under its lead-time rule, 4 quarters before the bank failed on 2020-10-16. At that first flag, the top factors pushing the score up were already thin capital and heavy troubled assets: the Tier 1 risk-based capital ratio at 3.4%, the Texas ratio at 473.5%, and the total risk-based capital ratio at 4.7%. Loans 90+ days past due or not accruing interest were then 6.6% of loans and the leverage ratio was 2.4%, both also raising the score.
+
+Looking back, the capital weakness deepened between the first flag and the as-of quarter, with the Tier 1 risk-based capital ratio going from 3.4% to 2.5%.
 
 ## What happened next
 
-In hindsight, the last quarter the bank reported was 2020-09-30, the same quarter as this memo's as-of date. The bank failed on 2020-10-16, shortly after that final report.
+In hindsight, the bank failed on 2020-10-16, shortly after the as-of quarter of 2020-09-30. Its last reported quarter was 2020-09-30, so there are no later ranks or watchlist flags for it.
 
 ## Sources
 
 - F1 · Bank name · n/a · First City Bank Of Florida · data/features/fct_bank_features.parquet: institution_name
+- F2 · Certificate number · n/a · 16748 · data/features/fct_bank_features.parquet: cert
 - F3 · As-of quarter · 2020-09-30 · 2020-09-30 · data/features/fct_bank_features.parquet: report_date
 - F4 · State · n/a · FL · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2020-09-30 · 2 · data/analyst/scores.parquet: rank
@@ -147,24 +150,30 @@ In hindsight, the last quarter the bank reported was 2020-09-30, the same quarte
 - F18 · National median: the Tier 1 risk-based capital ratio · 2020-09-30 · 14.7% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio (median of all banks)
 - F19 · Bank: the total risk-based capital ratio · 2020-09-30 · 3.7% · data/features/fct_bank_features.parquet: total_risk_based_ratio
 - F20 · National median: the total risk-based capital ratio · 2020-09-30 · 15.9% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
+- F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2020-09-30 · 1.6% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
+- F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2020-09-30 · 0.5% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
 - F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2020-09-30 · 12.7% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2020-09-30 · 0.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
 - F25 · Bank: loans 30-89 days past due, as a share of assets · 2020-09-30 · 3.0% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
 - F26 · National median: loans 30-89 days past due, as a share of assets · 2020-09-30 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
+- F33 · Bank: construction loans as a share of loans · 2020-09-30 · 15.6% · data/features/fct_bank_features.parquet: construction_loans_to_loans
+- F34 · National median: construction loans as a share of loans · 2020-09-30 · 4.3% · data/features/fct_bank_features.parquet: construction_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2020-09-30 · 489.0% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2020-09-30 · 3.4% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F41 · Bank: return on equity (profit as a share of equity) · 2020-09-30 · -68.6% · data/features/fct_bank_features.parquet: return_on_equity
 - F42 · National median: return on equity (profit as a share of equity) · 2020-09-30 · 8.7% · data/features/fct_bank_features.parquet: return_on_equity (median of all banks)
 - F45 · Bank: the efficiency ratio (operating costs as a share of revenue) · 2020-09-30 · 148.2% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F46 · National median: the efficiency ratio (operating costs as a share of revenue) · 2020-09-30 · 65.6% · data/features/fct_bank_features.parquet: efficiency_ratio (median of all banks)
+- F51 · Bank: uninsured deposits as a share of deposits · 2020-09-30 · 12.3% · data/features/fct_bank_features.parquet: uninsured_to_deposits
+- F52 · National median: uninsured deposits as a share of deposits · 2020-09-30 · 21.3% · data/features/fct_bank_features.parquet: uninsured_to_deposits (median of all banks)
 - F53 · Bank: brokered deposits as a share of deposits · 2020-09-30 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits
 - F55 · Bank: core deposits as a share of assets · 2020-09-30 · 98.1% · data/features/fct_bank_features.parquet: core_deposits_to_assets
 - F56 · National median: core deposits as a share of assets · 2020-09-30 · 78.8% · data/features/fct_bank_features.parquet: core_deposits_to_assets (median of all banks)
+- F59 · Bank: volatile funding as a share of assets · 2020-09-30 · 0.0% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F61 · Bank: cash as a share of assets · 2020-09-30 · 32.0% · data/features/fct_bank_features.parquet: cash_to_assets
 - F62 · National median: cash as a share of assets · 2020-09-30 · 9.6% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2020-09-30 · -11.2% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2020-09-30 · -2.5% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
-- F69 · Bank: total assets · 2020-09-30 · $136.6 million · data/features/fct_bank_features.parquet: log_total_assets
 - F75 · Driver up #1: the Tier 1 risk-based capital ratio, value 2.5%; contribution to the score · 2020-09-30 · +2.082 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F76 · Driver up #2: the Texas ratio (troubled assets against capital plus reserves), value 489.0%; contribution to the score · 2020-09-30 · +1.510 · data/analyst/scores.parquet: feature texas_ratio contribution
 - F77 · Driver up #3: return on equity (profit as a share of equity), value -68.6%; contribution to the score · 2020-09-30 · +1.438 · data/analyst/scores.parquet: feature return_on_equity contribution
@@ -187,6 +196,7 @@ In hindsight, the last quarter the bank reported was 2020-09-30, the same quarte
 - F99 · Trend: the efficiency ratio (operating costs as a share of revenue), value at the as-of quarter · 2020-09-30 · 148.2% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F100 · Trend: the efficiency ratio (operating costs as a share of revenue), lowest value in the comparison window · n/a · 110.7% · data/features/fct_bank_features.parquet: efficiency_ratio
 - F101 · Trend: the efficiency ratio (operating costs as a share of revenue), highest value in the comparison window · n/a · 114.7% · data/features/fct_bank_features.parquet: efficiency_ratio
+- F102 · Trend: the efficiency ratio (operating costs as a share of revenue), change over four quarters, in percentage points · 2020-09-30 · +33.5 pp · data/features/fct_bank_features.parquet: efficiency_ratio
 - F103 · Trend: the efficiency ratio (operating costs as a share of revenue), contribution to the score (model log-odds units) · 2020-09-30 · +0.010 · data/analyst/scores.parquet: feature efficiency_ratio contribution
 - F104 · Trend: the efficiency ratio (operating costs as a share of revenue), what the model did with it · 2020-09-30 · little effect on the score · data/analyst/scores.parquet: feature efficiency_ratio contribution
 - F105 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2020-09-30 · -68.6% · data/features/fct_bank_features.parquet: return_on_equity
@@ -198,6 +208,7 @@ In hindsight, the last quarter the bank reported was 2020-09-30, the same quarte
 - F111 · Trend: nonaccrual assets and foreclosed property, as a share of assets, value at the as-of quarter · 2020-09-30 · 12.7% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F112 · Trend: nonaccrual assets and foreclosed property, as a share of assets, lowest value in the comparison window · n/a · 16.7% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F113 · Trend: nonaccrual assets and foreclosed property, as a share of assets, highest value in the comparison window · n/a · 20.8% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
+- F114 · Trend: nonaccrual assets and foreclosed property, as a share of assets, change over one quarter, in percentage points · 2020-09-30 · -4.1 pp · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
 - F116 · Trend: nonaccrual assets and foreclosed property, as a share of assets, contribution to the score (model log-odds units) · 2020-09-30 · +0.049 · data/analyst/scores.parquet: feature nonaccrual_ore_to_assets contribution
 - F117 · Trend: nonaccrual assets and foreclosed property, as a share of assets, what the model did with it · 2020-09-30 · little effect on the score · data/analyst/scores.parquet: feature nonaccrual_ore_to_assets contribution
 - F118 · Trend: return on assets (profit as a share of assets), value at the as-of quarter · 2020-09-30 · -1.5% · data/features/fct_bank_features.parquet: return_on_assets
@@ -208,6 +219,8 @@ In hindsight, the last quarter the bank reported was 2020-09-30, the same quarte
 - F124 · Trend: the Tier 1 risk-based capital ratio, value at the as-of quarter · 2020-09-30 · 2.5% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F125 · Trend: the Tier 1 risk-based capital ratio, lowest value in the comparison window · n/a · 3.1% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F126 · Trend: the Tier 1 risk-based capital ratio, highest value in the comparison window · n/a · 3.7% · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F127 · Trend: the Tier 1 risk-based capital ratio, change over one quarter, in percentage points · 2020-09-30 · -0.6 pp · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
+- F128 · Trend: the Tier 1 risk-based capital ratio, change over four quarters, in percentage points · 2020-09-30 · -0.9 pp · data/features/fct_bank_features.parquet: tier1_risk_based_ratio
 - F129 · Trend: the Tier 1 risk-based capital ratio, contribution to the score (model log-odds units) · 2020-09-30 · +2.082 · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F130 · Trend: the Tier 1 risk-based capital ratio, what the model did with it · 2020-09-30 · pushed the score up · data/analyst/scores.parquet: feature tier1_risk_based_ratio contribution
 - F131 · Trend: the total risk-based capital ratio, value at the as-of quarter · 2020-09-30 · 3.7% · data/features/fct_bank_features.parquet: total_risk_based_ratio
@@ -216,6 +229,7 @@ In hindsight, the last quarter the bank reported was 2020-09-30, the same quarte
 - F136 · Trend: the total risk-based capital ratio, contribution to the score (model log-odds units) · 2020-09-30 · +0.436 · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F137 · Trend: the total risk-based capital ratio, what the model did with it · 2020-09-30 · pushed the score up · data/analyst/scores.parquet: feature total_risk_based_ratio contribution
 - F138 · Trend: ratios outside their own prior range · 2020-09-30 · 19 · data/features/fct_bank_features.parquet
+- F139 · Trend: ratios shown in the table (the furthest outside their prior range) · 2020-09-30 · 6 · data/features/fct_bank_features.parquet
 - F140 · Trend: ratios compared with their own prior range · 2020-09-30 · 30 · data/features/fct_bank_features.parquet
 - F141 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
 - F143 · Percentile a year earlier (100 = highest risk) · 2019-09-30 · 99.9% · data/analyst/scores.parquet: percentile

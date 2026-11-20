@@ -10,7 +10,7 @@ outcome: "false_alarm"
 after_test_window: false
 failure_date: null
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:08:50"
+written_at: "2026-11-19T21:16:43"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,23 @@ checked: true
 
 ## Summary
 
-As of 2024-12-31, Crescent Bank ranked 59 out of 4,560 banks on Canary's risk score, which places it in the 98.7th percentile, where higher means riskier. That rank put it on the watchlist, the 2% of banks with the highest scores, which held 92 banks that quarter. The clearest strain was in its loans: loans 30-89 days past due equaled 17.6% of assets, against a national median of 0.2%, and net write-offs (loans given up as lost, minus recoveries) ran at 11.4% of loans, against a median of 0.0%. Its capital cushion against losses sat near or somewhat below typical levels, while its funding costs were well above the norm.
+As of 2024-12-31, Crescent Bank, a Louisiana bank with $1.1 billion in assets, ranked 59 out of 4,560 banks on Canary's score, which places it in the 98.7th percentile and on the watchlist. Its clearest strains are in credit quality and funding costs: overdue loans, loan write-offs, money set aside for loan losses and interest expense were all far above the national median. Deposit growth over the past four quarters was -19.5%, against a national median of 3.9%. Its capital ratios were near or somewhat below the national median, and the model counted its capital as a point in the bank's favour.
 
 ## Warning signs in the data
 
-Credit quality, meaning how well borrowers are repaying, stands out most. Loans 90 or more days past due or no longer earning interest were 3.3% of loans, well above the national median of 0.4%. Loans 30-89 days past due equaled 17.6% of assets, far above the national median of 0.2%. Nonaccrual assets and foreclosed property were 1.3% of assets, against a national median of 0.2%. The bank set aside an annualized provision (money charged against profit for expected loan losses) of 8.4% of assets, versus a national median of 0.1%, and its loan-loss reserves stood at 11.2% of loans, versus 1.2%. Its Texas ratio, which weighs troubled assets against capital plus reserves, was 15.7%, well above the national median of 2.3%.
+Capital, the cushion that absorbs losses, was mixed: equity was 9.1% of assets against a national median of 9.7%, and the leverage ratio (core capital as a share of average assets) was 10.8% against 10.6%. The risk-based measures, which weight assets by riskiness, were below the median, with a Tier 1 ratio of 12.4% against 14.3% and a total ratio of 13.7% against 15.5%.
 
-Capital, the owners' cushion that absorbs losses, was mixed. Equity was 9.1% of assets, a little below the national median of 9.7%, while the leverage ratio (core capital as a share of average assets) was 10.8%, slightly above the median of 10.6%. The Tier 1 risk-based capital ratio, which measures core capital against riskier assets, was 12.4% versus a national median of 14.3%, and the total risk-based capital ratio was 13.7% versus 15.5%. Profit was slightly negative, with a return on assets of -0.2% against a national median of 0.9%, even though its net interest margin (the spread earned on lending and investing) was 14.0% versus 3.4%.
+Credit quality stands out most: loans 30-89 days past due were 17.6% of assets against a national median of 0.2%, and loans 90+ days past due or not earning interest were 3.3% of loans against 0.4%. Net loan write-offs (loans recorded as losses, after recoveries) ran at an annualized 11.4% of loans against a median of 0.0%, and the provision for loan losses (money set aside for expected bad loans) was 8.4% of assets against 0.1%. Offsetting this, loan-loss reserves were 11.2% of loans against a median of 1.2%, and the net interest margin (the spread earned on lending) was 14.0% against 3.4%. The bank still posted a return on assets of -0.2% against a median of 0.9%, and its Texas ratio (troubled assets against capital plus reserves) was 15.7% against 2.3%. Commercial real estate lending was small, at 1.9% of loans against a median of 23.2%, and the separate real-estate concentration check found it did not cross either line.
 
-On funding, annualized interest expense was 4.2% of assets, well above the national median of 1.8%, and deposits shrank by -19.5% over the past four quarters while the median bank grew them by 3.9%. Volatile funding, money that can leave quickly, was 18.3% of assets versus a median of 8.8%, and brokered deposits (funds placed through middlemen) were 3.6% of deposits versus 0.0%, though uninsured deposits were only 4.6% of deposits versus 24.1%. Unrealized losses on bonds available for sale were 10.0% of equity, close to the national median of 11.2%.
+On funding, interest expense was an annualized 4.2% of assets against a median of 1.8%, and volatile funding (money that can leave quickly) was 18.3% of assets against 8.8%. Uninsured deposits, which are above the government guarantee limit, were low at 4.6% of deposits against 24.1%, while brokered deposits (placed through middlemen) were 3.6% against 0.0% and cash was 4.8% of assets against 6.1%. Unrealized losses on bonds available for sale were 10.0% of equity, slightly below the median of 11.2%, and losses on bonds held to maturity were 0.0% against 0.0%. The trend section notes that the sharp drop in deposits pushed the score down rather than up, so the raw figure and the model's reading of it point in different directions.
 
 ## Understanding the score
 
-Crescent Bank ranked 59 out of 4,560 banks nationally as of 2024-12-31, which is the 98.7th percentile on a scale of 0 to 100 where higher means riskier. It was flagged on the watchlist, which covers the top 2% of banks by score and included 92 banks that quarter.
+Crescent Bank ranked 59 out of 4,560 banks as of 2024-12-31, placing it in the 98.7th percentile on a 0 to 100 scale where higher means riskier. That put it on the watchlist, which covers the top 2% of banks, or 92 banks that quarter.
 
-Five features pushed the score up the most. The largest was annualized interest expense as a share of assets, at 4.2%, adding +0.688. Next came losses on bonds available for sale, at 10.0% of equity, adding +0.673. The annualized provision for loan losses, at 8.4% of assets, added +0.562. The efficiency ratio (operating costs as a share of revenue), at 45.3%, added +0.290. Commercial real estate loans, at 1.9% of loans, added +0.147.
+The five factors that pushed the score up most were interest expense at 4.2% of assets (+0.688), losses on bonds available for sale at 10.0% of equity (+0.673), and the provision for loan losses at 8.4% of assets (+0.562). The other two were the efficiency ratio (operating costs as a share of revenue) at 45.3% (+0.290) and commercial real estate loans at 1.9% of loans (+0.147).
 
-Five features pulled the score down the most. The Tier 1 risk-based capital ratio, at 12.4%, had the biggest effect at -1.220. Deposit growth over the past four quarters, at -19.5%, contributed -0.403. The Texas ratio, at 15.7%, contributed -0.402. Return on equity (profit as a share of equity), at -2.8%, contributed -0.363. The leverage ratio, at 10.8%, contributed -0.261.
+The five factors that pulled the score down most were the Tier 1 risk-based capital ratio at 12.4% (-1.220), deposit growth over the past four quarters at -19.5% (-0.403), and the Texas ratio at 15.7% (-0.402). The other two were return on equity at -2.8% (-0.363) and the leverage ratio at 10.8% (-0.261). Some of these, such as shrinking deposits and a loss, look weak on their own but lowered the score here, reflecting patterns the model learned rather than a simple good-or-bad reading.
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -58,11 +58,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Each ratio is compared with its own history, usually the prior 12 quarters, or for year-to-date ratios the same quarter in the prior 3 years. Of 30 ratios checked this way at 2024-12-31, 8 were outside their prior range, and the table shows the 6 furthest outside. Overall, the model rated the bank about the same as a year earlier, at the 98.7th percentile versus the 98.8th percentile then.
+Crescent Bank ranked 59 out of 4,560 banks nationally, which puts it in the 98.7th percentile on a scale where higher means riskier. A year earlier it sat at the 98.8th percentile, and the model rated it about the same as a year earlier. Each ratio is compared with its own prior range, mostly over the prior 12 quarters, and 8 of the 30 ratios checked sat outside that range.
 
-Annualized interest expense was 4.2% of assets, above its prior range of 1.2% to 3.1%, and it pushed the score up by +0.688 model log-odds units. Loans 30-89 days past due reached 17.6% of assets, above its prior range of 9.4% to 15.9%, and pushed the score up by +0.147. Net loan write-offs were 11.4% of loans, above their prior range of 3.5% to 8.8%, yet they had little effect on the score, at -0.023. Loans 90 or more days past due or not accruing interest were 3.3% of loans, just above the prior range of 2.0% to 3.2%, but this had little effect on the score, at +0.017.
+Interest expense, meaning what the bank pays on deposits and borrowings, was 4.2% of assets on an annualized basis, above its prior range of 1.2% to 3.1%, and it pushed the score up with a contribution of +0.688 model log-odds units. Loans 30-89 days past due, meaning borrowers who are behind on payments, reached 17.6% of assets, above their prior range of 9.4% to 15.9%, and this ratio pushed the score up with a contribution of +0.147 model log-odds units. Net loan write-offs, meaning loans recorded as losses after any recoveries, were 11.4% of loans on an annualized basis, well above their prior range of 3.5% to 8.8%, yet this ratio had little effect on the score, contributing -0.023 model log-odds units. Loans 90+ days past due or no longer earning interest were 3.3% of loans, just above their prior range of 2.0% to 3.2%, but this ratio also had little effect on the score, contributing +0.017 model log-odds units.
 
-Brokered deposits were 3.6% of deposits, above their prior range of 0.9% to 3.3%, yet the model pushed the score down for them, by -0.155. Deposit growth over the past four quarters was -19.5%, below its prior range of -14.7% to 51.3%, after a change of -21.7 pp, and even so it pushed the score down, by -0.403.
+Brokered deposits, meaning money placed at the bank through middlemen, were 3.6% of deposits, slightly above their prior range of 0.9% to 3.3%, yet this ratio pushed the score down with a contribution of -0.155 model log-odds units. Deposit growth over the past four quarters was -19.5%, below its prior range of -14.7% to 51.3%, but the model still pushed the score down on this ratio, with a contribution of -0.403 model log-odds units.
 
 | Ratio | As-of value | Prior range | Window | Change 1q | Change 4q | Model contribution | Direction |
 |---|---|---|---|---|---|---|---|
@@ -83,11 +83,11 @@ The FDIC's specialty group for this bank at 2024-12-31: Consumer Lending Special
 
 Peers: 40 banks in the same specialty group (all sizes), because fewer than 15 shared its size tier.
 
-Loans 30-89 days past due were 17.6% of assets, at the 100.0th national percentile, which is unusually high, and at the 98.8th percentile among peers against a peer median of 0.7%, unusually high among its peers too. The annualized provision for loan losses was 8.4% of assets, at the 99.9th national percentile, unusually high, and at the 96.2nd percentile among peers against a peer median of 0.1%, unusually high among its peers too. Net loan write-offs were 11.4% of loans, at the 99.9th national percentile, unusually high, and at the 98.8th percentile among peers against a peer median of 0.2%, unusually high among its peers too. Loan-loss reserves were 11.2% of loans, at the 99.9th national percentile, unusually high, and at the 98.8th percentile among peers against a peer median of 1.0%, unusually high among its peers too.
+Crescent Bank ranks 59 out of 4,560 banks nationally on Canary's score, which places it in the 98.7th percentile, and it is on the watchlist. Loans 30-89 days past due (borrowers behind on payments) equal 17.6% of assets, at the 100.0th percentile nationally, which is unusually high; at the 98.8th percentile among peers, against a peer median of 0.7%, this is unusually high among its peers too. The provision for loan losses (money set aside to cover expected bad loans) runs at an annualized 8.4% of assets, at the 99.9th percentile nationally, which is unusually high; at the 96.2nd percentile among peers, against a peer median of 0.1%, it is unusually high among its peers too. Net write-offs (loans written off as uncollectable, minus later recoveries) run at an annualized 11.4% of loans, at the 99.9th percentile nationally, which is unusually high; at the 98.8th percentile among peers, against a peer median of 0.2%, they are unusually high among its peers too. Loan-loss reserves (a cushion held against future loan losses) equal 11.2% of loans, at the 99.9th percentile nationally, which is unusually high; at the 98.8th percentile among peers, against a peer median of 1.0%, they are unusually high among its peers too.
 
-The net interest margin was 14.0%, at the 99.8th national percentile, unusually high, and at the 96.2nd percentile among peers against a peer median of 3.8%, unusually high among its peers too. Annualized interest expense was 4.2% of assets, at the 99.7th national percentile, unusually high, and at the 98.8th percentile among peers against a peer median of 2.1%, unusually high among its peers too. Deposit growth over the past four quarters was -19.5%, at the 0.5th national percentile, unusually low, and at the 3.8th percentile among peers against a peer median of 6.0%, unusually low among its peers too. Asset growth over the past four quarters was -18.2%, at the 0.5th national percentile, unusually low, and at the 3.8th percentile among peers against a peer median of 2.9%, unusually low among its peers too.
+The net interest margin (the spread earned on lending and investing) is 14.0%, at the 99.8th percentile nationally, which is unusually high; at the 96.2nd percentile among peers, against a peer median of 3.8%, it is unusually high among its peers too. Interest expense (what the bank pays to borrow, including on deposits) equals an annualized 4.2% of assets, at the 99.7th percentile nationally, which is unusually high; at the 98.8th percentile among peers, against a peer median of 2.1%, it is unusually high among its peers too. Deposits changed by -19.5% over the past four quarters, at the 0.5th percentile nationally, which is unusually low; at the 3.8th percentile among peers, against a peer median of 6.0%, this is unusually low among its peers too. Total assets changed by -18.2% over the past four quarters, at the 0.5th percentile nationally, which is unusually low; at the 3.8th percentile among peers, against a peer median of 2.9%, this is unusually low among its peers too.
 
-Overall, 18 of the bank's ratios fell in the national top or bottom 10%, and 12 of those were also unusual among its peers.
+Overall, 18 of the bank's ratios sit in the national top or bottom 10%, and 12 of those are also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -122,11 +122,11 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## Why it was flagged, and what happened
 
-In hindsight, this was a false alarm. At 2024-12-31 the bank ranked 59 and was flagged, driven mainly by high interest expense of 4.2% of assets, bond losses of 10.0% of equity and a loan-loss provision of 8.4% of assets. Looking at later data, it dropped off the watchlist by the next quarter, ranking 240 at 2025-03-31 without a flag. It kept reporting through 2026-06-30, when it ranked 4,037 and was still not flagged. Its heavy loan losses resembled the credit-loss pattern seen in 96% of the 539 training failures, which helps explain the high score, but the bank stayed open in our data.
+In hindsight, this flag was a false alarm: the bank was on the watchlist as of 2024-12-31, mainly because of very high funding costs, bond losses and loan-loss provisions. In the following quarters it dropped off the watchlist, ranking 240 at 2025-03-31 and 244 at 2025-06-30, both not flagged. By 2026-06-30 it ranked 4,037, not flagged, and it was still reporting, so the data show no sign of the failure the flag warned about.
 
 ## What happened next
 
-With hindsight, the bank was not flagged in any later quarter in our data. It ranked 240 at 2025-03-31, 244 at 2025-06-30 and 299 at 2025-09-30. Its rank rose again to 145 at 2025-12-31, still below the watchlist cut, then fell sharply to 3,355 at 2026-03-31 and 4,037 at 2026-06-30. The bank was still filing reports as of 2026-06-30, the latest quarter in our data.
+With hindsight, the bank's later ranks were 240 at 2025-03-31, 244 at 2025-06-30, 299 at 2025-09-30 and 145 at 2025-12-31, none of them flagged. Its rank then fell sharply to 3,355 at 2026-03-31 and 4,037 at 2026-06-30, also not flagged. The bank was still filing reports as of 2026-06-30, the latest quarter in our data.
 
 | Quarter | Rank | Of | Watchlist |
 |---|---|---|---|
@@ -139,8 +139,8 @@ With hindsight, the bank was not flagged in any later quarter in our data. It ra
 
 ## Sources
 
-- F1 · Bank name · n/a · Crescent Bank · data/features/fct_bank_features.parquet: institution_name
 - F3 · As-of quarter · 2024-12-31 · 2024-12-31 · data/features/fct_bank_features.parquet: report_date
+- F4 · State · n/a · LA · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2024-12-31 · 59 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2024-12-31 · 4,560 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2024-12-31 · 98.7% · data/analyst/scores.parquet: percentile
@@ -158,8 +158,6 @@ With hindsight, the bank was not flagged in any later quarter in our data. It ra
 - F20 · National median: the total risk-based capital ratio · 2024-12-31 · 15.5% · data/features/fct_bank_features.parquet: total_risk_based_ratio (median of all banks)
 - F21 · Bank: loans 90+ days past due or not accruing interest, as a share of loans · 2024-12-31 · 3.3% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans
 - F22 · National median: loans 90+ days past due or not accruing interest, as a share of loans · 2024-12-31 · 0.4% · data/features/fct_bank_features.parquet: noncurrent_loans_to_loans (median of all banks)
-- F23 · Bank: nonaccrual assets and foreclosed property, as a share of assets · 2024-12-31 · 1.3% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets
-- F24 · National median: nonaccrual assets and foreclosed property, as a share of assets · 2024-12-31 · 0.2% · data/features/fct_bank_features.parquet: nonaccrual_ore_to_assets (median of all banks)
 - F25 · Bank: loans 30-89 days past due, as a share of assets · 2024-12-31 · 17.6% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets
 - F26 · National median: loans 30-89 days past due, as a share of assets · 2024-12-31 · 0.2% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets (median of all banks)
 - F27 · Bank: loan-loss reserves as a share of loans · 2024-12-31 · 11.2% · data/features/fct_bank_features.parquet: allowance_to_loans
@@ -168,6 +166,8 @@ With hindsight, the bank was not flagged in any later quarter in our data. It ra
 - F30 · National median: annualized loan write-offs, net of recoveries, as a share of loans · 2024-12-31 · 0.0% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann (median of all banks)
 - F31 · Bank: annualized provision for loan losses as a share of assets · 2024-12-31 · 8.4% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F32 · National median: annualized provision for loan losses as a share of assets · 2024-12-31 · 0.1% · data/features/fct_bank_features.parquet: provision_to_assets_ann (median of all banks)
+- F35 · Bank: commercial real estate loans as a share of loans · 2024-12-31 · 1.9% · data/features/fct_bank_features.parquet: cre_loans_to_loans
+- F36 · National median: commercial real estate loans as a share of loans · 2024-12-31 · 23.2% · data/features/fct_bank_features.parquet: cre_loans_to_loans (median of all banks)
 - F37 · Bank: the Texas ratio (troubled assets against capital plus reserves) · 2024-12-31 · 15.7% · data/features/fct_bank_features.parquet: texas_ratio
 - F38 · National median: the Texas ratio (troubled assets against capital plus reserves) · 2024-12-31 · 2.3% · data/features/fct_bank_features.parquet: texas_ratio (median of all banks)
 - F39 · Bank: return on assets (profit as a share of assets) · 2024-12-31 · -0.2% · data/features/fct_bank_features.parquet: return_on_assets
@@ -182,8 +182,13 @@ With hindsight, the bank was not flagged in any later quarter in our data. It ra
 - F54 · National median: brokered deposits as a share of deposits · 2024-12-31 · 0.0% · data/features/fct_bank_features.parquet: brokered_to_deposits (median of all banks)
 - F59 · Bank: volatile funding as a share of assets · 2024-12-31 · 18.3% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets
 - F60 · National median: volatile funding as a share of assets · 2024-12-31 · 8.8% · data/features/fct_bank_features.parquet: volatile_liabilities_to_assets (median of all banks)
+- F61 · Bank: cash as a share of assets · 2024-12-31 · 4.8% · data/features/fct_bank_features.parquet: cash_to_assets
+- F62 · National median: cash as a share of assets · 2024-12-31 · 6.1% · data/features/fct_bank_features.parquet: cash_to_assets (median of all banks)
+- F63 · Bank: losses on bonds held to maturity, as a share of equity · 2024-12-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity
+- F64 · National median: losses on bonds held to maturity, as a share of equity · 2024-12-31 · 0.0% · data/features/fct_bank_features.parquet: htm_unrealized_loss_to_equity (median of all banks)
 - F65 · Bank: losses on bonds available for sale, as a share of equity · 2024-12-31 · 10.0% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity
 - F66 · National median: losses on bonds available for sale, as a share of equity · 2024-12-31 · 11.2% · data/features/fct_bank_features.parquet: afs_unrealized_loss_to_equity (median of all banks)
+- F69 · Bank: total assets · 2024-12-31 · $1.1 billion · data/features/fct_bank_features.parquet: log_total_assets
 - F73 · Bank: deposit growth over the past four quarters · 2024-12-31 · -19.5% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F74 · National median: deposit growth over the past four quarters · 2024-12-31 · 3.9% · data/features/fct_bank_features.parquet: deposit_growth_4q (median of all banks)
 - F75 · Driver up #1: annualized interest expense as a share of assets, value 4.2%; contribution to the score · 2024-12-31 · +0.688 · data/analyst/scores.parquet: feature interest_expense_to_assets_ann contribution
@@ -202,8 +207,6 @@ With hindsight, the bank was not flagged in any later quarter in our data. It ra
 - F88 · Rank in a later quarter (2025-12-31), not flagged · 2025-12-31 · 145 (not flagged) · data/analyst/scores.parquet: rank, flagged
 - F89 · Rank in a later quarter (2026-03-31), not flagged · 2026-03-31 · 3,355 (not flagged) · data/analyst/scores.parquet: rank, flagged
 - F90 · Rank in a later quarter (2026-06-30), not flagged · 2026-06-30 · 4,037 (not flagged) · data/analyst/scores.parquet: rank, flagged
-- F91 · Training failures that were credit-loss failures (share) · n/a · 96% · data/replay/posthoc_metrics.json: failure_mix.training
-- F92 · Failed banks in the training period · n/a · 539 · data/replay/posthoc_metrics.json: failure_mix.training
 - F95 · Trend: annualized interest expense as a share of assets, value at the as-of quarter · 2024-12-31 · 4.2% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F96 · Trend: annualized interest expense as a share of assets, lowest value in the comparison window · n/a · 1.2% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
 - F97 · Trend: annualized interest expense as a share of assets, highest value in the comparison window · n/a · 3.1% · data/features/fct_bank_features.parquet: interest_expense_to_assets_ann
@@ -232,14 +235,11 @@ With hindsight, the bank was not flagged in any later quarter in our data. It ra
 - F128 · Trend: deposit growth over the past four quarters, value at the as-of quarter · 2024-12-31 · -19.5% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F129 · Trend: deposit growth over the past four quarters, lowest value in the comparison window · n/a · -14.7% · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F130 · Trend: deposit growth over the past four quarters, highest value in the comparison window · n/a · 51.3% · data/features/fct_bank_features.parquet: deposit_growth_4q
-- F132 · Trend: deposit growth over the past four quarters, change over four quarters, in percentage points · 2024-12-31 · -21.7 pp · data/features/fct_bank_features.parquet: deposit_growth_4q
 - F133 · Trend: deposit growth over the past four quarters, contribution to the score (model log-odds units) · 2024-12-31 · -0.403 · data/analyst/scores.parquet: feature deposit_growth_4q contribution
 - F134 · Trend: deposit growth over the past four quarters, what the model did with it · 2024-12-31 · pushed the score down · data/analyst/scores.parquet: feature deposit_growth_4q contribution
 - F135 · Trend: ratios outside their own prior range · 2024-12-31 · 8 · data/features/fct_bank_features.parquet
-- F136 · Trend: ratios shown in the table (the furthest outside their prior range) · 2024-12-31 · 6 · data/features/fct_bank_features.parquet
 - F137 · Trend: ratios compared with their own prior range · 2024-12-31 · 30 · data/features/fct_bank_features.parquet
 - F138 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F139 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F140 · Percentile a year earlier (100 = highest risk) · 2023-12-31 · 98.8% · data/analyst/scores.parquet: percentile
 - F141 · Trend: how the model's rating compares with a year earlier · 2024-12-31 · about the same as a year earlier · data/analyst/scores.parquet: percentile
 - F145 · Peers: loans 30-89 days past due, as a share of assets, bank value at the as-of quarter · 2024-12-31 · 17.6% · data/features/fct_bank_features.parquet: past_due_30_89_to_assets

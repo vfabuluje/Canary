@@ -10,7 +10,7 @@ outcome: "caught"
 after_test_window: false
 failure_date: 2016-09-23
 model_run: "bf7af0bddf5b"
-written_at: "2026-11-19T14:04:14"
+written_at: "2026-11-19T21:13:39"
 writer_model: "claude-opus-5-5"
 checked: true
 ---
@@ -21,23 +21,21 @@ checked: true
 
 ## Summary
 
-As of 2016-06-30, Allied Bank (certificate 91) ranked 1 out of 6,129 FDIC-insured banks on Canary's risk score, which places it in the 100.0th percentile. It was flagged on Canary's watchlist, which covers the top 2% of banks and held 123 banks that quarter. Its capital, the owners' money that absorbs losses, was thin, with equity at 2.0% of assets against a national median of 11.0%. It was also losing money, with a return on assets of -12.4% against a national median of 0.9%.
+As of 2016-06-30, Allied Bank (cert 91, based in AR) ranked 1 out of 6,129 banks nationally on Canary's risk score, the 100.0th percentile, and it was on the watchlist. Its capital cushion, the owners' money that absorbs losses, was very thin: equity was 2.0% of assets against a national median of 11.0%. Problem loans and losses were severe, with nonaccrual assets and foreclosed property at 21.4% of assets against a national median of 0.6%, and a return on assets of -12.4% against 0.9%. Funding pointed the other way, looking stable rather than strained, with core deposits at 94.4% of assets against a national median of 78.4%.
 
 ## Warning signs in the data
 
-Capital, the cushion of owners' money that absorbs losses, was far below typical levels. The leverage ratio (core capital as a share of average assets) was 1.8%, against a national median of 10.5%. The Tier 1 risk-based capital ratio, which measures core capital against assets weighted by riskiness, was 2.7% against a median of 15.1%, and the total risk-based capital ratio was 4.0% against 16.3%.
+Capital was far below normal levels. Equity was 2.0% of assets against a national median of 11.0%, and the leverage ratio (core capital as a share of average assets) was 1.8% against 10.5%. The Tier 1 risk-based capital ratio (the strongest capital measured against assets weighted by riskiness) was 2.7% against a national median of 15.1%, and the total risk-based capital ratio was 4.0% against 16.3%.
 
-Credit quality, meaning how well borrowers were repaying, was very weak. Loans 90 or more days past due or no longer accruing interest made up 12.3% of loans, against a national median of 0.7%, and nonaccrual assets plus foreclosed property were 21.4% of assets, against 0.6%. The Texas ratio, which compares troubled assets with capital plus reserves, stood at 379.7%, well above the national median of 5.3%. Loan write-offs ran at an annualized 14.6% of loans against a median of 0.0%, and the provision for loan losses (money set aside for expected losses) was 10.2% of assets against 0.1%. These losses drove return on equity to -223.2%, against a national median of 7.9%, and the efficiency ratio (operating costs as a share of revenue) was 184.8%, against 69.7%.
+Credit quality, meaning how well borrowers were repaying, was very weak. Loans 90+ days past due or no longer accruing interest were 12.3% of loans against a national median of 0.7%, and nonaccrual assets and foreclosed property were 21.4% of assets against 0.6%. The Texas ratio, which compares troubled assets with capital plus reserves, was 379.7% against a national median of 5.3%. Net loan write-offs (loans given up on, after recoveries) ran at an annualized 14.6% of loans against a median of 0.0%, and the provision for loan losses (money set aside for expected bad loans) was 10.2% of assets against 0.1%. Those costs showed up in earnings: return on equity was -223.2% against a national median of 7.9%, and the efficiency ratio (operating costs as a share of revenue) was 184.8% against 69.7%.
 
-Funding looked steadier: core deposits, the stable everyday deposits, were 94.4% of assets against a median of 78.4%, uninsured deposits were only 5.3% of deposits against 16.6%, and cash was 12.9% of assets against 6.4%. Even so, the bank was shrinking, with assets down -32.7% and deposits down -28.6% over the past four quarters, while the national medians grew 3.8% and 3.2%. Unrealized losses on bonds available for sale equaled -4.5% of equity, deeper than the national median of -1.6%, while losses on bonds held to maturity were small at -0.2% against 0.0%.
+Liquidity and funding, by contrast, did not look strained. Core deposits (stable, everyday customer deposits) were 94.4% of assets against a national median of 78.4%, uninsured deposits were 5.3% of deposits against 16.6%, and cash was 12.9% of assets against 6.4%. The bank was shrinking, though: assets changed by -32.7% over the past four quarters against a national median of 3.8%, and deposits by -28.6% against 3.2%. Unrealized losses on bonds available for sale (paper losses on bonds the bank could sell) were -4.5% of equity against a national median of -1.6%, while those on bonds held to maturity were -0.2% against 0.0%. The real-estate concentration section found the bank crossed the construction-lending screen but not the broader commercial real estate screen.
 
 ## Understanding the score
 
-Allied Bank ranked 1 of 6,129 banks as of 2016-06-30, the 100.0th percentile on a scale of 0 to 100 where higher means riskier. That put it on the watchlist, the top 2% of banks, which held 123 banks that quarter.
+As of 2016-06-30, Allied Bank ranked 1 out of 6,129 banks, the 100.0th percentile on a 0 to 100 scale where higher means riskier. It was flagged as one of 123 banks on the watchlist that quarter, which covers the top 2% of banks.
 
-Five features pushed the score up the most. The largest was the Tier 1 risk-based capital ratio at 2.7%, contributing +2.117, followed by the Texas ratio at 379.7%, contributing +1.418. Return on equity at -223.2% added +1.284, the leverage ratio at 1.8% added +0.678, and the total risk-based capital ratio at 4.0% added +0.562.
-
-Five features pulled the score down. Low interest expense, at 0.3% of assets, contributed -0.723, and losses on bonds available for sale at -4.5% of equity contributed -0.255. Construction loans at 6.6% of loans contributed -0.181, deposit growth of -28.6% contributed -0.126, and volatile funding at 3.2% of assets contributed -0.096.
+The five features that pushed the score up most were the Tier 1 risk-based capital ratio at 2.7% (+2.117), the Texas ratio at 379.7% (+1.418), return on equity at -223.2% (+1.284), the leverage ratio at 1.8% (+0.678), and the total risk-based capital ratio at 4.0% (+0.562). The five that pulled it down most were annualized interest expense at 0.3% of assets (-0.723), losses on bonds available for sale at -4.5% of equity (-0.255), construction loans at 6.6% of loans (-0.181), deposit growth over the past four quarters at -28.6% (-0.126), and volatile funding at 3.2% of assets (-0.096).
 
 The score ranks banks against each other; it is not a probability of failure, because the model was trained with extra weight on banks that failed.
 
@@ -52,11 +50,11 @@ The score ranks banks against each other; it is not a probability of failure, be
 
 ## How its ratios moved
 
-Canary compared 30 of the bank's ratios with their own prior range, usually the prior 12 quarters, and 18 of them were outside that range at 2016-06-30. Year-to-date ratios were instead compared with the same quarter in the prior 3 years.
+As of 2016-06-30, Allied Bank ranked 1 out of 6,129 banks nationally, which places it at the 100.0th percentile on a 0 to 100 scale where higher means riskier. Of the 30 ratios compared with their own prior range, 18 sat outside it; for most ratios that range is what the bank itself showed over the prior 12 quarters.
 
-Return on equity was -223.2%, far below its prior range of -22.2% to -6.7%, and it pushed the score up by +1.284 model log-odds units. That was a change of -216.6 pp over four quarters. Return on assets was -12.4%, below its prior range of -1.9% to -0.5%, and it pushed the score up by +0.184. The provision for loan losses was 10.2% of assets, above its prior range of 0.0% to 2.0% after a change of +10.2 pp, and it pushed the score up by +0.122. The total risk-based capital ratio was 4.0%, below its prior range of 10.7% to 13.6%, and it pushed the score up by +0.562. It fell -6.7 pp in one quarter and -9.4 pp over four quarters.
+Return on equity, meaning profit as a share of the owners' stake, was -223.2%, far below its prior range of -22.2% to -6.7%, and it pushed the score up with a contribution of +1.284 model log-odds units. Return on assets, meaning profit as a share of everything the bank owns, was -12.4% against a prior range of -1.9% to -0.5%, and it pushed the score up by +0.184 model log-odds units. The total risk-based capital ratio, a measure of the bank's loss-absorbing cushion relative to its riskier assets, was 4.0%, well below its prior range of 10.7% to 13.6%, and it pushed the score up by +0.562 model log-odds units. That capital ratio changed by -6.7 pp over one quarter and by -9.4 pp over four quarters. The annualized provision for loan losses, money set aside to cover expected bad loans, was 10.2% of assets compared with a prior range of 0.0% to 2.0%, and it pushed the score up by +0.122 model log-odds units.
 
-Two ratios moved well outside their ranges yet mattered little to the model. Loan write-offs were 14.6% of loans, above their prior range of -0.3% to 2.9%, but had little effect on the score at -0.016. The efficiency ratio was 184.8%, above its prior range of 120.0% to 138.2%, but also had little effect on the score at -0.024.
+By contrast, annualized net loan write-offs, loans the bank gave up on after any recoveries, were 14.6% of loans, well above the prior range of -0.3% to 2.9%, yet they had little effect on the score, at -0.016 model log-odds units. Likewise, the efficiency ratio, operating costs as a share of revenue, was 184.8% against a prior range of 120.0% to 138.2%, but it had little effect on the score, at -0.024 model log-odds units.
 
 There is no score from a year earlier to compare with (scores start 2016-03-31, or the bank did not report then).
 
@@ -79,11 +77,11 @@ The FDIC's specialty group for this bank at 2016-06-30: Commercial Lending Speci
 
 Peers: 359 banks in the same specialty group and size tier (under $100 million).
 
-Return on assets was -12.4%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among peers with a peer median of 0.6%, which is unusually low among its peers too. Return on equity was -223.2%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among peers with a peer median of 5.5%, which is unusually low among its peers too. Loan write-offs were 14.6% of loans, at the 100.0th national percentile, which is unusually high, and at the 99.9th percentile among peers with a peer median of 0.0%, which is unusually high among its peers too. The provision for loan losses was 10.2% of assets, at the 100.0th national percentile, which is unusually high, and at the 99.9th percentile among peers with a peer median of 0.0%, which is unusually high among its peers too.
+Allied Bank's return on assets (profit as a share of assets) was -12.4%, at the 0.0th national percentile, which is unusually low; among its peers it sat at the 0.1st percentile against a peer median of 0.6%, unusually low among its peers too. Its return on equity (profit as a share of the owners' stake) was -223.2%, at the 0.0th national percentile, which is unusually low; it sat at the 0.1st percentile of its peers against a peer median of 5.5%, unusually low among its peers too.
 
-Nonaccrual assets and foreclosed property were 21.4% of assets, at the 100.0th national percentile, which is unusually high, and at the 99.9th percentile among peers with a peer median of 0.9%, which is unusually high among its peers too. The total risk-based capital ratio was 4.0%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among peers with a peer median of 16.6%, which is unusually low among its peers too. The Tier 1 risk-based capital ratio was 2.7%, at the 0.0th national percentile, which is unusually low, and at the 0.1st percentile among peers with a peer median of 15.5%, which is unusually low among its peers too. Core deposits were 94.4% of assets, at the 99.9th national percentile, which is unusually high, and at the 99.9th percentile among peers with a peer median of 81.3%, which is unusually high among its peers too.
+Annualized loan write-offs, net of recoveries (loans the bank gave up on collecting), were 14.6% of loans, at the 100.0th national percentile, which is unusually high; it sat at the 99.9th percentile of its peers against a peer median of 0.0%, unusually high among its peers too. The annualized provision for loan losses (money set aside for expected loan losses) was 10.2% of assets, at the 100.0th national percentile, which is unusually high; it sat at the 99.9th percentile of its peers against a peer median of 0.0%, unusually high among its peers too. Nonaccrual assets and foreclosed property (loans no longer paying interest, plus property taken back from borrowers) were 21.4% of assets, at the 100.0th national percentile, which is unusually high; it sat at the 99.9th percentile of its peers against a peer median of 0.9%, unusually high among its peers too.
 
-Overall, 18 of the bank's ratios were in the national top or bottom 10%, and 17 of those were also unusual among its peers.
+The total risk-based capital ratio (the bank's loss-absorbing cushion measured against its assets weighted by riskiness) was 4.0%, at the 0.0th national percentile, which is unusually low; it sat at the 0.1st percentile of its peers against a peer median of 16.6%, unusually low among its peers too. The Tier 1 risk-based capital ratio (the same measure using only the strongest form of capital) was 2.7%, at the 0.0th national percentile, which is unusually low; it sat at the 0.1st percentile of its peers against a peer median of 15.5%, unusually low among its peers too. Core deposits (stable, everyday customer deposits) were 94.4% of assets, at the 99.9th national percentile, which is unusually high; it sat at the 99.9th percentile of its peers against a peer median of 81.3%, unusually high among its peers too. Overall, 18 of the bank's ratios were in the national top or bottom 10%, and 17 of those were also unusual among its peers.
 
 | Ratio | Bank | National percentile | Peer median | Peer percentile | Reading |
 |---|---|---|---|---|---|
@@ -119,19 +117,20 @@ Crossing a line is a supervisory screen, not a prediction: it has not been teste
 
 ## How early Canary caught it
 
-In hindsight, Canary first flagged Allied Bank in the quarter ending 2016-03-31, and the bank failed on 2016-09-23. That gave a lead time of 2 quarters before the failure.
+In hindsight, Allied Bank failed on 2016-09-23. Canary first flagged it in the quarter ending 2016-03-31, a lead time of 2 quarters before the failure.
 
-At that first flag, the main features pushing the score up were the Texas ratio at 212.6%, contributing +1.267, and return on equity at -62.0%, contributing +1.089. Loans 90 or more days past due or not accruing interest, at 16.5% of loans, added +0.756. At that point the Tier 1 risk-based capital ratio was still 9.4% and pulled the score down by -1.415, before it fell sharply in the following quarter.
+At that first flag, the top drivers pushing the score up were the Texas ratio at 212.6% (+1.267), return on equity at -62.0% (+1.089), and loans 90+ days past due or not accruing interest at 16.5% of loans (+0.756). At that point the Tier 1 risk-based capital ratio, at 9.4%, still pulled the score down (-1.415); by 2016-06-30 it had fallen to 2.7% and become the largest driver pushing the score up (+2.117).
 
 ## What happened next
 
-In hindsight, the last quarter Allied Bank reported data was 2016-06-30, the as-of quarter of this memo. The bank failed on 2016-09-23, before it filed another quarterly report.
+In hindsight, the last quarter Allied Bank reported was 2016-06-30, the as-of quarter of this memo, so there are no later ranks or flags. Our data alone does not distinguish a merger from a closure when a bank stops reporting, but the fact sheet records a failure date of 2016-09-23.
 
 ## Sources
 
 - F1 · Bank name · n/a · Allied Bank · data/features/fct_bank_features.parquet: institution_name
 - F2 · Certificate number · n/a · 91 · data/features/fct_bank_features.parquet: cert
 - F3 · As-of quarter · 2016-06-30 · 2016-06-30 · data/features/fct_bank_features.parquet: report_date
+- F4 · State · n/a · AR · data/raw/financials: STALP
 - F6 · National rank (1 = highest score) · 2016-06-30 · 1 · data/analyst/scores.parquet: rank
 - F7 · Banks ranked that quarter · 2016-06-30 · 6,129 · data/analyst/scores.parquet: n_banks
 - F8 · Percentile (100 = highest risk) · 2016-06-30 · 100.0% · data/analyst/scores.parquet: percentile
@@ -198,7 +197,6 @@ In hindsight, the last quarter Allied Bank reported data was 2016-06-30, the as-
 - F99 · Trend: return on equity (profit as a share of equity), value at the as-of quarter · 2016-06-30 · -223.2% · data/features/fct_bank_features.parquet: return_on_equity
 - F100 · Trend: return on equity (profit as a share of equity), lowest value in the comparison window · n/a · -22.2% · data/features/fct_bank_features.parquet: return_on_equity
 - F101 · Trend: return on equity (profit as a share of equity), highest value in the comparison window · n/a · -6.7% · data/features/fct_bank_features.parquet: return_on_equity
-- F102 · Trend: return on equity (profit as a share of equity), change over four quarters, in percentage points · 2016-06-30 · -216.6 pp · data/features/fct_bank_features.parquet: return_on_equity
 - F103 · Trend: return on equity (profit as a share of equity), contribution to the score (model log-odds units) · 2016-06-30 · +1.284 · data/analyst/scores.parquet: feature return_on_equity contribution
 - F104 · Trend: return on equity (profit as a share of equity), what the model did with it · 2016-06-30 · pushed the score up · data/analyst/scores.parquet: feature return_on_equity contribution
 - F105 · Trend: return on assets (profit as a share of assets), value at the as-of quarter · 2016-06-30 · -12.4% · data/features/fct_bank_features.parquet: return_on_assets
@@ -209,7 +207,6 @@ In hindsight, the last quarter Allied Bank reported data was 2016-06-30, the as-
 - F111 · Trend: annualized provision for loan losses as a share of assets, value at the as-of quarter · 2016-06-30 · 10.2% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F112 · Trend: annualized provision for loan losses as a share of assets, lowest value in the comparison window · n/a · 0.0% · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F113 · Trend: annualized provision for loan losses as a share of assets, highest value in the comparison window · n/a · 2.0% · data/features/fct_bank_features.parquet: provision_to_assets_ann
-- F114 · Trend: annualized provision for loan losses as a share of assets, change over four quarters, in percentage points · 2016-06-30 · +10.2 pp · data/features/fct_bank_features.parquet: provision_to_assets_ann
 - F115 · Trend: annualized provision for loan losses as a share of assets, contribution to the score (model log-odds units) · 2016-06-30 · +0.122 · data/analyst/scores.parquet: feature provision_to_assets_ann contribution
 - F116 · Trend: annualized provision for loan losses as a share of assets, what the model did with it · 2016-06-30 · pushed the score up · data/analyst/scores.parquet: feature provision_to_assets_ann contribution
 - F117 · Trend: annualized loan write-offs, net of recoveries, as a share of loans, value at the as-of quarter · 2016-06-30 · 14.6% · data/features/fct_bank_features.parquet: net_charge_offs_to_loans_ann
@@ -232,7 +229,6 @@ In hindsight, the last quarter Allied Bank reported data was 2016-06-30, the as-
 - F136 · Trend: ratios outside their own prior range · 2016-06-30 · 18 · data/features/fct_bank_features.parquet
 - F138 · Trend: ratios compared with their own prior range · 2016-06-30 · 30 · data/features/fct_bank_features.parquet
 - F139 · Comparison window for most ratios: the prior 12 quarters (at least 8 with a value) · n/a · 12 quarters · canary.analyst.trends: range rule (fixed)
-- F140 · Comparison window for year-to-date ratios: the same quarter in the prior 3 years (at least 2 with a value) · n/a · 3 years · canary.analyst.trends: range rule (fixed)
 - F144 · Peers: return on assets (profit as a share of assets), bank value at the as-of quarter · 2016-06-30 · -12.4% · data/features/fct_bank_features.parquet: return_on_assets
 - F145 · Peers: return on assets (profit as a share of assets), national percentile (100 = highest value among all banks) · 2016-06-30 · 0.0th · data/features/fct_bank_features.parquet: return_on_assets
 - F146 · Peers: return on assets (profit as a share of assets), national reading · 2016-06-30 · unusually low · data/features/fct_bank_features.parquet: return_on_assets
