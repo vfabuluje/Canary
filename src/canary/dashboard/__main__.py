@@ -4,10 +4,12 @@ Writes the files the Streamlit app reads, prints each file's size and the folder
 if the folder is over 50 MB. No Claude calls. Later writers (case studies, reports) are added to write_all.
 """
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from canary.analyst.context import load_context
+from canary.dashboard.cases import export_cases
 from canary.dashboard.tables import showcase_certs, write_tables
 
 MAX_BYTES = 50 * 1024 * 1024
@@ -29,6 +31,8 @@ def build_parser() -> argparse.ArgumentParser:
 def write_all(ctx, args, out: Path, certs: set[int]) -> None:
     """Every export writer, in order. Add new writers here."""
     write_tables(ctx, Path(args.model_dir), out, certs)
+    cases = export_cases(ctx, Path(args.model_dir) / "case_studies.csv")
+    (out / "case_studies.json").write_text(json.dumps(cases))
 
 
 def _sizes(out: Path) -> tuple[list[tuple[str, int]], int]:
