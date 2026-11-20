@@ -1,0 +1,62 @@
+[
+  {
+    "share": 0.005,
+    "caught": 20,
+    "eligible": 29,
+    "false_alarm": 0.9364583333333333,
+    "rows": 960,
+    "caught_case_studies": []
+  },
+  {
+    "share": 0.01,
+    "caught": 21,
+    "eligible": 29,
+    "false_alarm": 0.9663335086796423,
+    "rows": 1901,
+    "caught_case_studies": []
+  },
+  {
+    "share": 0.02,
+    "caught": 21,
+    "eligible": 29,
+    "false_alarm": 0.9828178694158075,
+    "rows": 3783,
+    "caught_case_studies": []
+  },
+  {
+    "share": 0.03,
+    "caught": 21,
+    "eligible": 29,
+    "false_alarm": 0.9880007058408329,
+    "rows": 5667,
+    "caught_case_studies": []
+  },
+  {
+    "share": 0.05,
+    "caught": 22,
+    "eligible": 29,
+    "false_alarm": 0.9926821508113267,
+    "rows": 9429,
+    "caught_case_studies": []
+  },
+  {
+    "share": 0.075,
+    "caught": 24,
+    "eligible": 29,
+    "false_alarm": 0.9948355146798726,
+    "rows": 14135,
+    "caught_case_studies": [
+      57053
+    ]
+  },
+  {
+    "share": 0.1,
+    "caught": 25,
+    "eligible": 29,
+    "false_alarm": 0.9959129511677283,
+    "rows": 18840,
+    "caught_case_studies": [
+      57053
+    ]
+  }
+]
