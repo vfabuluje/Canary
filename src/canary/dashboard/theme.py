@@ -162,7 +162,11 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .hero .title { font-family:var(--pix); font-size:clamp(36px, 10vw, 88px); line-height:1.1; margin:0; padding:0;
   color:var(--navy); text-shadow:6px 6px 0 var(--yellow); letter-spacing:4px; }
 .hero .tag { font-family:var(--pix); font-size:clamp(10px, 2vw, 14px); margin:22px 0 8px; line-height:1.8; color:var(--navy); }
-.st-key-home-search { max-width:560px; margin:0 auto; }
+.st-key-home-search { max-width:680px; margin:0 auto; }
+/* the two bank search boxes (Home, Find): taller, larger text */
+.st-key-home-q [data-testid="stTextInputRootElement"], .st-key-find-search [data-testid="stTextInputRootElement"] { height:58px; }
+.st-key-home-q input, .st-key-find-search input { font-size:20px !important; padding:0 18px !important; height:100%; }
+.st-key-home-search [data-testid="stFormSubmitButton"] button { height:58px; padding:0 26px; }
 .st-key-home-themes { justify-content:center; }
 .st-key-home-themes .theme-label { font-family:var(--pix); font-size:10px; }
 .what { padding:22px; margin:6px 0 22px; font-size:18px; }
