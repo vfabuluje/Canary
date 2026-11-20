@@ -197,6 +197,21 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .three { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin:14px 0 18px; }
 @media (max-width:760px){ .three { grid-template-columns:1fr; } }
 .three .stat .big { font-size:22px; }
+
+/* how it works: the replay's bank picker and the four-step strip (arrows between steps; stacked on phones) */
+.st-key-how-picker { max-width:560px; }
+.st-key-how-picker label p { font-weight:700; color:var(--navy); }
+.st-key-how-picker [role="group"]:has(> input) { border:3px solid var(--navy); border-radius:0; box-shadow:3px 3px 0 var(--navy); background:#fff; }
+.st-key-how-picker input { font-size:16px; color:var(--navy); background:#fff; }
+h2.how-strip-title { margin-top:26px; }
+.steps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:26px; margin:6px 0 10px; }
+.step { position:relative; padding:16px; }
+.step p { font-size:15px; margin:6px 0; }
+.step:not(:last-child)::after { content:"▶"; position:absolute; right:-22px; top:50%; margin-top:-10px; font-size:16px; color:var(--navy); }
+.mark { display:inline-block; font-family:var(--pix); font-size:9px; padding:4px 6px; border:2px solid var(--navy); margin-bottom:8px; }
+.mark.ai { background:#d0ebff; } .mark.code { background:#e9ecef; }
+@media (max-width:860px){ .steps { grid-template-columns:repeat(2,minmax(0,1fr)); } .step:nth-child(2)::after { content:none; } }
+@media (max-width:520px){ .steps { grid-template-columns:1fr; gap:22px; } .step:not(:last-child)::after { content:"▼"; right:auto; left:50%; top:auto; bottom:-21px; margin:0 0 0 -8px; } }
 """
 
 STANDARD_CSS = ""
@@ -222,7 +237,7 @@ BASKETBALL_CSS = """
     repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,225,180,.14) 29px 31px, transparent 31px 58px);
   background-repeat:no-repeat, no-repeat, repeat, repeat; }
 :root { --nav:#1c4e80; --nav-edge:#74c0fc; }
-h1.page-title, .lede { color:#fff; text-shadow:2px 2px 0 var(--navy); }
+h1.page-title, h2.page-title, .lede, .st-key-how-picker label p { color:#fff; text-shadow:2px 2px 0 var(--navy); }
 .foot, .hero .tag, .st-key-home-themes .theme-label { color:#fff; text-shadow:2px 2px 0 var(--navy); font-weight:600; }
 """
 

@@ -477,6 +477,22 @@ BANK_CONCENTRATION_REASON = "The check can't be applied for the latest quarter: 
 BANK_CONCENTRATION_NONE = "No commercial real estate check is available for this bank."
 BANK_UNSCORED = ("Canary only scores banks from 2016 on; this bank stopped reporting in {year}, before that. "
                  "Earlier years were used to train the model, so scoring them would not be a fair test.")
-BANK_REPLAY_SLOT = "The quarter-by-quarter replay for this bank appears here."
 BANK_FULL_REPORT = "Read the full report"
 BANK_FAILED = "Failed {date}"
+
+HOW_TITLE = "HOW IT WORKS"
+HOW_LEDE = ("Watch Canary's AI team build a real report, one step at a time. Then see how the whole system fits "
+            "together, from public data to checked numbers.")
+HOW_PICK = "Watch the report being built for"
+HOW_STRIP_TITLE = "Canary, end to end"
+# (title, one plain line, "AI" or "CODE")
+HOW_STEPS = [
+    ("Public FDIC data", "Every insured bank's quarterly numbers, from the FDIC's free public data.", "CODE"),
+    ("The model ranks every bank", "Each quarter a machine-learning model scores every bank, and code ranks them "
+                                   "from riskiest to safest.", "CODE"),
+    ("An AI team writes reports", "For the showcase banks, AI helpers write a plain-English report on what stands "
+                                  "out.", "AI"),
+    ("Every number is checked", "Code checks each number the AI wrote against the bank's own data before the "
+                                "report is saved.", "CODE"),
+]
+HOW_MARKS = {"AI": "an AI helper writes this part", "CODE": "plain code, no AI"}

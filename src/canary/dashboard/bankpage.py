@@ -10,7 +10,8 @@ from canary.dashboard import charts, data, theme
 from canary.dashboard.copy import (BANK_AFTER_TEST, BANK_CONCENTRATION_NONE, BANK_CONCENTRATION_REASON,
                                    BANK_CONCENTRATION_TITLE, BANK_FAILED, BANK_FLAGGED, BANK_FULL_REPORT,
                                    BANK_HISTORY_TITLE, BANK_LATEST, BANK_NO_REPORT, BANK_NO_REPORT_NOTE,
-                                   BANK_REPLAY_SLOT, BANK_UNSCORED)
+                                   BANK_UNSCORED)
+from canary.dashboard.replay import render_replay
 
 Kind = Literal["report", "scored", "unscored"]
 
@@ -31,10 +32,10 @@ def _header(bank: pd.Series, title: str | None = None) -> None:
 
 
 def _render_report(bank: pd.Series) -> None:
-    with st.container(key="replay-slot"):  # Task 8 puts the replay here
-        theme.html_block(f'<p class="note">{html.escape(BANK_REPLAY_SLOT)}</p>')
     report = data.report(int(bank["cert"]))
     if report:
+        with st.container(key="replay-slot"):
+            render_replay(report, theme.current_theme())
         with st.expander(BANK_FULL_REPORT):
             st.markdown(report["note_md"])
 
@@ -74,7 +75,7 @@ def _render_unscored(bank: pd.Series) -> None:
 
 
 def render_bank(cert: int) -> None:
-    """Draw the page for `cert`. Task 8 adds the replay to the report kind; Task 10 adds the Ask box."""
+    """Draw the page for `cert`. Task 10 adds the Ask box."""
     banks = data.banks()
     match = banks[banks["cert"] == int(cert)]
     if match.empty:
