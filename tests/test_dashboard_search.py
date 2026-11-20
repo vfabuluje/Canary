@@ -76,3 +76,51 @@ def test_status_values():
 def test_real_banks_svb():
     banks = pd.read_parquet("dashboard/data/banks.parquet")
     assert search("silicon valley bank", banks).direct == 24735
+
+
+@pytest.mark.parametrize("q", ["&", "!!!", "-"])
+def test_no_alphanumerics_is_empty(q):
+    r = search(q, BANKS)
+    assert r.direct is None and r.suggestions == []
+
+
+def test_alias_punctuation_insensitive():
+    assert search("svb.", BANKS).direct == 24735
+    assert search("U.S. Bank", BANKS).direct == 6548
+
+
+_needs_parquet = pytest.mark.skipif(not Path("dashboard/data/banks.parquet").exists(),
+                                    reason="banks.parquet not exported")
+
+
+@pytest.mark.data
+@_needs_parquet
+@pytest.mark.parametrize("q,cert", [("M&T", 588), ("m and t", 588), ("chase", 628),
+                                    ("first republic bank", 59017), ("Signature Bank", 57053)])
+def test_real_alias_opens_directly(q, cert):
+    banks = pd.read_parquet("dashboard/data/banks.parquet")
+    assert search(q, banks).direct == cert
+
+
+@pytest.mark.data
+@_needs_parquet
+def test_real_banks_empty_punctuation():
+    banks = pd.read_parquet("dashboard/data/banks.parquet")
+    r = search("!!!", banks)
+    assert r.direct is None and r.suggestions == []
+
+
+@pytest.mark.data
+@_needs_parquet
+def test_alias_certs_exist_with_expected_names():
+    from canary.dashboard.search import ALIASES
+    banks = pd.read_parquet("dashboard/data/banks.parquet").set_index("cert")
+    assert set(ALIASES.values()) <= set(banks.index)
+    expect = {588: "manufacturers", 628: "jpmorgan", 3510: "bank of america", 7213: "citibank",
+              3511: "wells fargo", 33124: "goldman", 6548: "u s bank", 4297: "capital one",
+              6384: "pnc", 9846: "truist", 639: "new york mellon", 32992: "morgan stanley",
+              14: "state street", 18409: "td bank", 6672: "fifth third", 6560: "huntington",
+              16571: "bmo", 57450: "schwab", 11063: "first-citizens", 57957: "citizens bank",
+              24735: "silicon valley", 57053: "signature", 59017: "first republic"}
+    for cert, frag in expect.items():
+        assert frag in banks.loc[cert, "name"].lower(), cert
