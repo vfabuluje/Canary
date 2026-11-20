@@ -178,3 +178,10 @@
 - How to handle the amended-values-only limitation in the SVB replay (FFIEC call reports may help; to check in Phase 2).
 - How to treat 0 as "not reported" vs a real zero (Phase 3).
 - Store dates as Parquet timestamps (now) or convert to a date type for Athena? See [[decisions/0002-parquet-partitioned-by-quarter]] Phase 2 notes.
+
+## 2026-11-20 — Phase 6 dashboard build (in progress)
+- Done: mockup chosen (v6 pixel style, three themes, Why Canary, How it works); spec approved (specs/2026-11-19-phase6-dashboard-design.md); plan written (plans/2026-11-20-phase6-dashboard.md); branch phase6-dashboard.
+- Built and reviewed: Tasks 1–5 (exports + committed dashboard/data, case studies + copy, report cards/slim traces, search with big-bank aliases, app shell/themes/Home/Why).
+- In progress: Task 6 (2023 + Watchlist pages) — partial work uncommitted; resume from the SDD ledger at .superpowers/sdd/2026-11-20-phase6-dashboard/progress.md.
+- Next: Tasks 6–12 (bank pages, replay component, docs/deploy, Ask Canary with Haiku, 39-bank expansion code + dry run, whole-app check).
+- Open: Victor to approve the SVB/Signature/First Republic card wording before merge; paid 39-bank run (~$6.24) and Ask Canary smoke test need his go-ahead; PR #14 still open.
