@@ -61,6 +61,13 @@ def html_block(markup: str) -> None:
     st.markdown(markup, unsafe_allow_html=True)
 
 
+def on_background(text: str, bold: bool = False) -> None:
+    """A line of plain text that sits on the page background, not in a card (a paper tag in the
+    detective and basketball themes, so it stays readable on the cork board and the court)."""
+    weight = " strong" if bold else ""
+    html_block(f'<p class="on-bg{weight}">{html.escape(text)}</p>')
+
+
 # ------------------------------------------------------------------------------------------------- CSS
 BASE_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -138,6 +145,7 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .lede { font-size:17px; max-width:760px; margin:0 0 20px; }
 .note { font-size:14px; color:var(--muted); }
 .foot { text-align:center; margin-top:30px; font-size:13px; color:var(--muted); }
+.on-bg { margin:4px 0 12px; } .on-bg.strong { font-weight:700; }
 
 /* home */
 .hero { text-align:center; padding:24px 0 18px; }
@@ -228,7 +236,6 @@ DETECTIVE_CSS = """
 .box::before, [class*="st-key-box-"]::before { content:""; position:absolute; top:-10px; left:50%; margin-left:-7px;
   width:14px; height:14px; background:#e03131; border:3px solid var(--navy); box-shadow:2px 2px 0 rgba(0,0,0,.35); z-index:2; }
 .stats .box::before { top:-10px; }
-.lede, .foot, .st-key-home-themes .theme-label { color:var(--navy); font-weight:600; }
 """
 
 BASKETBALL_CSS = """
@@ -240,9 +247,20 @@ BASKETBALL_CSS = """
     repeating-linear-gradient(90deg, transparent 0 29px, rgba(255,225,180,.14) 29px 31px, transparent 31px 58px);
   background-repeat:no-repeat, no-repeat, repeat, repeat; }
 :root { --nav:#1c4e80; --nav-edge:#74c0fc; }
-h1.page-title, h2.page-title, .lede, .st-key-how-picker label p { color:#fff; text-shadow:2px 2px 0 var(--navy); }
-.foot, .hero .tag, .st-key-home-themes .theme-label { color:#fff; text-shadow:2px 2px 0 var(--navy); font-weight:600; }
+h1.page-title, h2.page-title, .st-key-how-picker label p { color:#fff; text-shadow:2px 2px 0 var(--navy); }
 """
+
+# Text that sits straight on the cork board or the court (not in a card) goes on a small paper tag, so it is
+# readable whatever is behind it. (White text with a navy shadow lost to Streamlit's own text colour.)
+PAPER_TAG_CSS = """
+.lede, .foot, .on-bg, .hero .tag, .st-key-home-themes .theme-label, .cs-head .note, .bank-head .note {
+  display:inline-block; background:var(--paper); color:var(--navy) !important; text-shadow:none !important;
+  font-weight:600; padding:4px 10px; border:2px solid var(--navy); box-shadow:3px 3px 0 var(--navy); }
+.foot { display:table; margin:30px auto 0; }
+.cs-head .note, .bank-head .note { margin-top:6px; }
+"""
+DETECTIVE_CSS += PAPER_TAG_CSS
+BASKETBALL_CSS += PAPER_TAG_CSS
 
 THEME_CSS = {"standard": STANDARD_CSS, "detective": DETECTIVE_CSS, "basketball": BASKETBALL_CSS}
 

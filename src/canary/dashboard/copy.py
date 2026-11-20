@@ -463,6 +463,8 @@ FIND_LABEL = "Bank name"
 FIND_PLACEHOLDER = "Find a bank, e.g. SVB"
 FIND_HINT = "Try “SVB”, “Chase” or “IndyMac”."
 FIND_DID_YOU_MEAN = "Did you mean one of these?"
+FIND_NOT_CLOSE = ("No bank with that name in the FDIC data. Canary covers FDIC-insured banks, so credit unions "
+                  "aren't included. The closest names:")
 FIND_NONE = "No bank found. Check the spelling, or try part of the name."
 FIND_BAD_CERT = "No bank found for that certificate number."
 FIND_BACK = "◀ SEARCH AGAIN"
