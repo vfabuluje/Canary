@@ -177,9 +177,12 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .st-key-box-why-answer { background:var(--cream); }
 
 /* chips, sliders and the 2023 / watchlist pages */
-[data-testid="stButtonGroup"] button[data-testid^="stBaseButton-segmented_control"] { min-height:0; }
-[data-testid="stButtonGroup"] button[data-testid="stBaseButton-segmented_controlActive"] { background:var(--navy); color:#fff; }
-[data-testid="stButtonGroup"] button[data-testid="stBaseButton-segmented_controlActive"] p { color:#fff; }
+/* Streamlit 1.67 draws segmented-control chips as button[data-variant="segmented_control"]; the chosen one
+   carries [data-selected] (no per-button test id). Its own style is a pale tint of the primary colour. */
+[data-testid="stButtonGroup"] button[data-variant="segmented_control"] { min-height:0; }
+[data-testid="stButtonGroup"] button[data-variant="segmented_control"][data-selected]:not([data-disabled]) {
+  background:var(--navy); border-color:var(--navy); color:#fff; }
+[data-testid="stButtonGroup"] button[data-variant="segmented_control"][data-selected]:not([data-disabled]) p { color:#fff; }
 [data-testid="stButtonGroup"] { flex-wrap:wrap; gap:8px; }
 .cs-head { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start; margin:14px 0; }
 .cs-head h2.pix { font-size:18px; text-shadow:3px 3px 0 var(--yellow); }

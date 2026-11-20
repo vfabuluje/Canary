@@ -241,3 +241,18 @@ def test_only_ask_imports_anthropic():
     files = list((REPO / "dashboard").rglob("*.py")) + list((REPO / "src" / "canary" / "dashboard").rglob("*.py"))
     importers = [f.relative_to(REPO).as_posix() for f in files if pattern.search(f.read_text())]
     assert set(importers) <= {"src/canary/dashboard/ask.py"}
+
+
+def test_selected_chip_css_matches_streamlit_markup(fixture_data):
+    """The 2023 and Watchlist chips are navy when chosen. Streamlit 1.67 draws them as
+    button[data-variant='segmented_control'] and marks the chosen one [data-selected] (checked in a browser);
+    if an upgrade changes that markup, the bundle check below fails before the chip silently goes pale."""
+    import streamlit
+    bundle = "".join(p.read_text(errors="ignore") for p in
+                     (Path(streamlit.__file__).parent / "static" / "static" / "js").glob("*.js"))
+    assert "button[data-variant='segmented_control']" in bundle and "[data-selected]" in bundle
+    css = _css(_run("cases"))
+    chosen = 'button[data-variant="segmented_control"][data-selected]:not([data-disabled])'
+    rule = re.search(re.escape(chosen) + r"\s*\{([^}]*)\}", css)
+    assert rule and "background:var(--navy)" in rule.group(1) and "color:#fff" in rule.group(1)
+    assert "stBaseButton-segmented_control" not in css
