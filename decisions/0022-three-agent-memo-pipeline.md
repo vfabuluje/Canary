@@ -23,7 +23,7 @@ The owner wanted the analyst to be a real agent that reads other agents' work, n
 - A specialist is **skipped** when its section is code-only for that bank (a bank with no unusual ratio, or too few peers). Its code-written text still appears, and the analyst's message says that section is code-only.
 
 ## The analyst never edits specialist text
-The merged note renders each specialist section from that agent's checked memo, **byte for byte**. The analyst cannot change, shorten or reword it. This keeps each section's checks meaningful: what the checker passed is what the reader sees.
+The merged note renders each specialist section from that agent's checked memo, **exactly the checked text**. The analyst cannot change, shorten or reword it. This keeps each section's checks meaningful: what the checker passed is what the reader sees.
 
 The analyst's user message carries this instruction, word for word:
 

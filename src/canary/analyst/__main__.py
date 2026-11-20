@@ -181,7 +181,8 @@ def _showcase(args) -> int:
         rid = st.get("round1_batch_id") or st.get("batch_id") or "BATCH_ID"
         print(f"error: stopped at spending limit (${exc.spent:.2f} spent of ${exc.limit:.2f}); everything "
               f"finished is saved. Resume with: python -m canary.analyst showcase --resume {rid} "
-              f"--max-cost USD (a higher limit); report {args.report}", file=sys.stderr)
+              f"--max-cost USD (higher than ${exc.limit:.2f}; without the flag the saved "
+              f"${exc.limit:.2f} limit applies again); report {args.report}", file=sys.stderr)
         return 1
     except ResumeError as exc:
         print(f"error: {exc}", file=sys.stderr)

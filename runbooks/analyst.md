@@ -18,9 +18,9 @@ All run from the repo root as `python -m canary.analyst <command>`.
 memo --cert 24735                       # one note; as-of defaults to last report before failure, or the latest quarter
 memo --cert 24735 --as-of 2022-12-31    # a chosen quarter (must be a quarter it reported, from 2016-03-31 on)
 ask "write up the bank in Santa Clara that failed in 2023"
-showcase --dry-run --watchlist-top 20   # list banks and estimate cost; no API calls
+showcase --dry-run --watchlist-top 20 --max-cost 17   # list banks and estimate cost; no API calls (use the same flags as the paid run)
 showcase --watchlist-top 20 --max-cost 17   # real run: two Message Batches rounds, failures retried one by one
-showcase --resume BATCH_ID              # continue a stopped run (either round's id; in the log and the .state.json file)
+showcase --resume BATCH_ID              # (inherits the saved --max-cost unless you pass one) continue a stopped run (either round's id; in the log and the .state.json file)
 compare                                 # SVB, Signature, First Republic with each model in --models
 ```
 
@@ -53,7 +53,7 @@ The checker **cannot verify** the "say so plainly" part: read real notes to see 
 
 **Failure policy.** A specialist or the analyst that fails its check after one retry gives **no note** (and no analyst call if a specialist failed); an existing note is kept. A refusal, a cut-off or an unparseable reply on a direct call is final for that agent. A network or unexpected error is not final: resume does that agent again.
 
-**Traces.** Every memo attempt saves `data/analyst/traces/<cert>_<as_of>.json` (git-ignored): each call's request, reply, checker errors, tokens, cost, model and source. No API key or header is stored. Re-running a bank overwrites its trace (compare runs too). Open one to see why an agent was rejected. Format: [[data-dictionary/analyst_outputs]].
+**Traces.** Every memo attempt saves `data/analyst/traces/<cert>_<as_of>.json` (git-ignored): each call's request, reply, checker errors, tokens, cost, model and source. No API key or header is stored. Re-running a bank overwrites its trace (compare runs too), so **copy the calibration memo's trace aside before a showcase** (traces are overwritten per cert and as-of). Open one to see why an agent was rejected. Format: [[data-dictionary/analyst_outputs]].
 
 ## Exit codes
 - `0` success (for `showcase`, every bank written).
@@ -75,7 +75,7 @@ Do not start a new one: it refuses while `data/analyst/showcase_report.state.jso
 
 `--resume` is refused, changing nothing, for: an id the state file does not name, no state file, a state that is already complete, a state from the old single-round run (no `round1_batch_id`; delete the file to start fresh), and `--resume ""`.
 
-**Spending limit.** `showcase --max-cost USD` (none by default). It is checked before round 2 is submitted (spent so far, plus a projection from round 1's actual spend per request scaled to the analyst, plus the analyst retry allowance) and before every direct call (spent so far plus that call's estimate). On a breach the run stops cleanly: finished notes, traces and the report are saved, the report and state file say `"stopped": "spending limit"`, the command prints "stopped at spending limit" with the amount spent and the resume command, and exits 1. Resume with the same or a new limit: `showcase --resume BATCH_ID --max-cost HIGHER`. A stop just before a retry can repeat up to two direct calls for that agent when resumed. **Set `--max-cost` a few percent above the calibrated dry-run total**: the round 2 projection is neutral, so a limit set exactly at the total can stop a normal run just before it finishes. A refusal, a cut-off or an unparseable reply is final for that agent (saved as failed); a network or unexpected error leaves that agent to be redone on resume.
+**Spending limit.** `showcase --max-cost USD` (none by default; the paid command is pinned as `showcase --watchlist-top 20 --max-cost 17`, and the dry run must use the same flags so its estimate and the limit describe the same bank list). It is checked before round 1 is submitted (the built requests priced with the per-agent constants plus the retry allowance, as the dry run does; over the limit means nothing is submitted and nothing is paid), before round 2 is submitted (spent so far, plus a projection from round 1's actual spend per request scaled to the analyst, never less than the constants-based estimate, plus the analyst retry allowance) and before every direct call (spent so far plus that call's estimate). On a breach the run stops cleanly: finished notes, traces and the report are saved, the report and state file say `"stopped": "spending limit"`, the command prints "stopped at spending limit" with the amount spent and the resume command, and exits 1. The limit is saved in the state file: a resume without `--max-cost` keeps it (and stops again if it is still too low), and an explicit `--max-cost` overrides it: `showcase --resume BATCH_ID --max-cost HIGHER`. Notes for every bank whose agents had all passed are written before the stop, so a stop in round 2 does not hold them back. A stop just before a retry can repeat up to two direct calls for that agent when resumed. **Set `--max-cost` a few percent above the calibrated dry-run total**: the round 2 projection is neutral, so a limit set exactly at the total can stop a normal run just before it finishes. A refusal, a cut-off or an unparseable reply is final for that agent (saved as failed); a network or unexpected error leaves that agent to be redone on resume.
 
 ## Example `ask` answers
 Live runs on 2026-11-17 (Claude Opus 5.5).

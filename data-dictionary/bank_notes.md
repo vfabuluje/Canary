@@ -39,7 +39,7 @@ One Markdown note per bank in `banks/`, written by `python -m canary.analyst mem
 - `open_watchlist`: flagged at the latest quarter; outcome not yet known.
 
 ## Sections, in order
-Since Phase 5e three AI agents write the sections ([[decisions/0022-three-agent-memo-pipeline]]): the **trend agent** writes `trends`, the **peer agent** writes `peers`, and the **risk analyst** writes every other Claude section (summary, warning signs, the score, the outcome section, what happened next). The analyst never edits the specialists' text: it appears in the note byte for byte as that agent's checked memo. "Claude" below means whichever of the three agent writes that section. Concentration is code-only.
+Since Phase 5e three AI agents write the sections ([[decisions/0022-three-agent-memo-pipeline]]): the **trend agent** writes `trends`, the **peer agent** writes `peers`, and the **risk analyst** writes every other Claude section (summary, warning signs, the score, the outcome section, what happened next). The analyst never edits the specialists' text: it appears in the note as exactly the checked text of that agent's memo. "Claude" below means whichever of the three agent writes that section. Concentration is code-only.
 
 
 | Section | Who writes it | Time window |

@@ -159,3 +159,13 @@ def test_code_only_specialist_and_unknown_agent_raise():
         build_agent_request(make_sheet(code_only={"trends"}), "trend", "m")
     with pytest.raises(ValueError):
         build_agent_request(make_sheet(), "bogus", "m")
+
+
+def test_analyst_request_says_concentration_figures_are_not_citable():
+    s = make_sheet(code_only={"peers"})
+    msg = build_agent_request(s, "analyst", "m", specialist_memos={"trend": MEMO})["messages"][0]["content"]
+    line = ("Its figures and dates are not in the fact sheet: refer to its result in words "
+            "(e.g. 'did not cross either line'); do not quote them.")
+    assert line in msg
+    block = msg.index("### Real-estate concentration")
+    assert block < msg.index(line) < msg.index("These specialist sections are code-only")

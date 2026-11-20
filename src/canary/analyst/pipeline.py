@@ -29,6 +29,8 @@ ANALYST_INSTRUCTION = (
     "fact ids for any number you use. If two sections genuinely point different ways, say so plainly in "
     "warning signs or the summary; never blend them into one statement."
 )
+CONCENTRATION_NOTE = ("Its figures and dates are not in the fact sheet: refer to its result in words "
+                      "(e.g. 'did not cross either line'); do not quote them.")
 
 
 def _check_agent(agent: str) -> None:
@@ -110,7 +112,8 @@ def _analyst_message(sheet: FactSheet, sections: list[Section], specialist_memos
         lines += _specialist_block(agent, key, memo)
     conc = sheet.extras.get(CONCENTRATION_KEY)
     if conc is not None:
-        lines += ["### Real-estate concentration (code-written)", *render_concentration(conc), ""]
+        lines += ["### Real-estate concentration (code-written)", *render_concentration(conc), "",
+                  CONCENTRATION_NOTE, ""]
     if code_only:
         lines.append("These specialist sections are code-only for this bank (no agent text): "
                      + ", ".join(code_only) + ".")
@@ -160,6 +163,20 @@ class AgentResult:
     cost_usd: float = 0.0
     served_model: str | None = None
     skipped: bool = False
+
+
+def _empty_section_errors(memo: dict, sections: list[Section]) -> list[str]:
+    """One error per requested section with no sentence of non-blank text (check_memo accepts an empty one)."""
+    have = set()
+    for s in memo.get("sections", []):
+        for p in s.get("paragraphs", []):
+            if any((x.get("text") or "").strip() for x in p.get("sentences", [])):
+                have.add(s.get("key"))
+    return [f"section '{s.key}': no text — write the section" for s in sections if s.key not in have]
+
+
+def _check(memo: dict, check_sheet: FactSheet, sections: list[Section]) -> list[str]:
+    return check_memo(memo, check_sheet, sections) + _empty_section_errors(memo, sections)
 
 
 def run_agent(sheet: FactSheet, agent: str, *, client, model: str, specialist_memos: dict[str, dict] | None = None,
@@ -213,12 +230,12 @@ def run_agent(sheet: FactSheet, agent: str, *, client, model: str, specialist_me
 
     try:
         memo = given(first_memo) if first_memo is not None else call()
-        errors = check_memo(memo, check_sheet, sections)
+        errors = _check(memo, check_sheet, sections)
         trace[-1]["checker_errors"] = list(errors)
         res.first_errors = list(errors)
         if errors:
             memo = call(errors, memo)
-            errors = check_memo(memo, check_sheet, sections)
+            errors = _check(memo, check_sheet, sections)
             trace[-1]["checker_errors"] = list(errors)
     except Exception as exc:
         try:

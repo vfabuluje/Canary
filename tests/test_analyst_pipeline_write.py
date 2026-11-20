@@ -199,3 +199,49 @@ def test_before_call_fires_per_direct_call_and_can_stop(analyst_ctx, tmp_path):
         write_memo(analyst_ctx, FULL, client=client, out_dir=tmp_path / "b2", replay_dir=tmp_path / "none",
                    trace_dir=tmp_path / "t2", before_call=stop)
     assert len(client.calls) == 3  # the retry call was never made
+
+
+def _emptied(memo, key):
+    """The memo with section `key` left without any paragraph (passes check_memo on its own)."""
+    for s in memo["sections"]:
+        if s["key"] == key:
+            s["paragraphs"] = []
+    return memo
+
+
+def test_empty_specialist_section_retried(analyst_ctx, tmp_path):
+    sheet = _sheet(analyst_ctx, FULL, tmp_path)
+    trend, peer, analyst = fake_agent_memos(sheet)
+    res, client = _run(analyst_ctx, FULL, tmp_path, [_emptied(fake_agent_memo(sheet, "trend"), "trends"),
+                                                     trend, peer, analyst])
+    assert res.ok and len(client.calls) == 4 and res.agents["trend"].attempts == 2
+    assert "section 'trends': no text" in client.calls[1]["messages"][-1]["content"]
+    assert any("no text" in e for e in res.first_errors)
+
+
+def test_empty_analyst_section_retried(analyst_ctx, tmp_path):
+    sheet = _sheet(analyst_ctx, FULL, tmp_path)
+    trend, peer, analyst = fake_agent_memos(sheet)
+    res, client = _run(analyst_ctx, FULL, tmp_path, [trend, peer, _emptied(fake_agent_memo(sheet, "analyst"), "summary"),
+                                                     analyst])
+    assert res.ok and res.agents["analyst"].attempts == 2
+    assert "section 'summary': no text" in client.calls[-1]["messages"][-1]["content"]
+
+
+def test_blank_text_counts_as_empty(analyst_ctx, tmp_path):
+    sheet = _sheet(analyst_ctx, FULL, tmp_path)
+    trend = fake_agent_memo(sheet, "trend")
+    trend["sections"][0]["paragraphs"] = [{"sentences": [{"text": "   ", "cites": []}]}]
+    peer = fake_agent_memo(sheet, "peer")
+    res, client = _run(analyst_ctx, FULL, tmp_path, [trend, fake_agent_memo(sheet, "trend"), peer,
+                                                     fake_agent_memo(sheet, "analyst")])
+    assert res.ok and res.agents["trend"].attempts == 2
+
+
+def test_agent_that_stays_empty_fails_no_note(analyst_ctx, tmp_path):
+    sheet = _sheet(analyst_ctx, FULL, tmp_path)
+    mk = lambda: _emptied(fake_agent_memo(sheet, "trend"), "trends")  # noqa: E731
+    res, client = _run(analyst_ctx, FULL, tmp_path, [mk(), mk()])
+    assert not res.ok and res.path is None and len(client.calls) == 2
+    assert any("[trend] section 'trends': no text" in e for e in res.errors)
+    assert not (tmp_path / "banks").exists() or not any((tmp_path / "banks").iterdir())

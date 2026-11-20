@@ -314,6 +314,15 @@ class _Run:
         d = self._read_file(f"{base}-{agent}")
         return None if d is None else (AgentResult(**d["result"]), d["trace"], d["source"])
 
+    def _create_batch(self, requests: list[dict]):
+        """batches.create with the SDK's automatic retries off: a retried create could start a second paid
+        batch while the first one still runs. A failure here is final (the CLI reports it)."""
+        client = self.client
+        with_options = getattr(client, "with_options", None)
+        if with_options is not None:
+            client = with_options(max_retries=0)
+        return client.messages.batches.create(requests=requests)
+
     # -- one batch round --------------------------------------------------------------------
     def _collect(self, rnd: int, requests: list[dict]) -> dict[str, dict]:
         """Create (unless this run already has) the round's batch, wait for it, and return
@@ -326,7 +335,9 @@ class _Run:
             if batch_id:
                 log.info("showcase: resuming round %d batch %s", rnd, batch_id)
             else:
-                batch_id = self.client.messages.batches.create(requests=requests).id
+                print(f"showcase: {len(self.banks)} banks; submitting round {rnd} with {len(requests)} requests",
+                      flush=True)
+                batch_id = self._create_batch(requests).id
                 self.state[key] = batch_id
                 if rnd == 1:
                     self.state["batch_id"] = batch_id
@@ -376,9 +387,17 @@ class _Run:
         raised = False
         memo = first.get("memo") if first else None
         self._cur_trace = trace
+        if memo is None and first and first.get("why") and first["why"] != "no batch result":
+            try:  # a paid-for (or errored) batch result that could not be used still belongs in the trace
+                req = build_agent_request(sheet, agent, self.model, specialist_memos)
+            except Exception:
+                req = None
+            trace.append({"agent": agent, "attempt": 0, "request": req, "response_text": "",
+                          "checker_errors": [], "error": first["why"], "input_tokens": first.get("in", 0),
+                          "output_tokens": first.get("out", 0), "cost_usd": first.get("cost", 0.0),
+                          "served_model": first.get("served"), "source": "batch"})
         if self.max_cost is not None:  # size the call the limit check may have to price
-            self._cur_tokens[agent] = request_tokens(build_agent_request(sheet, agent, self.model,
-                                                                         specialist_memos))
+            self._cur_tokens[agent] = self._size(sheet, agent, specialist_memos)
         try:
             res = run_agent(sheet, agent, client=self.client, model=self.model, specialist_memos=specialist_memos,
                             first_memo=memo, trace=trace, before_call=self._before_call)
@@ -404,9 +423,8 @@ class _Run:
             log.warning("showcase: %s %s failed: %s", base, agent, exc)
         finally:
             self._cur_trace = None
-        batch_cost = 0.0
+        batch_cost = first.get("cost", 0.0) if first else 0.0  # paid even if the result was unusable
         if memo is not None and first:
-            batch_cost = first.get("cost", 0.0)
             for t in trace:
                 if t["source"] == "batch":
                     t.update(input_tokens=first.get("in", 0), output_tokens=first.get("out", 0),
@@ -429,6 +447,15 @@ class _Run:
             self._write_file(f"{base}-{agent}", {"result": asdict(res), "trace": trace, "source": source})
         return res
 
+    def _size(self, sheet, agent: str, specialist_memos: dict | None = None) -> int:
+        """Input tokens of this agent's request, for the spending limit. Sizing must never crash the run: if
+        the request cannot be built here, fall back to the largest size known so far (0 if none)."""
+        try:
+            return request_tokens(build_agent_request(sheet, agent, self.model, specialist_memos))
+        except Exception as exc:
+            log.warning("showcase: could not size the %s request: %s", agent, exc)
+            return max(self._cur_tokens.values(), default=0)
+
     # -- spending limit (spec 6.1) ----------------------------------------------------------
     def spent(self) -> float:
         """Everything paid so far: batch (half price) and direct (full price) spend of every round."""
@@ -444,7 +471,8 @@ class _Run:
         Batch cost = round 1's actual batch spend per request, times the number of analyst requests, times
         the analyst/specialist ratio: the estimated cost of an average analyst request (its real size,
         EST_OUTPUT_TOKENS_BY_AGENT output) over that of an average specialist request, both at the same
-        price basis. Retry allowance = RETRY_SHARE_BY_AGENT["analyst"] of the analyst calls, each resending
+        price basis; never less than the constants-based estimate (half the full-price cost of an average
+        analyst request, times the analyst requests), so a round 1 that paid nothing does not project 0. Retry allowance = RETRY_SHARE_BY_AGENT["analyst"] of the analyst calls, each resending
         RETRY_INPUT_FACTOR x its request, at full price."""
         n2 = len(self._todo2)
         r1 = self.state["spend"].get("round1") or _zero_spend()
@@ -453,25 +481,46 @@ class _Run:
         spec = [cost_usd(self.model, request_tokens(build_agent_request(b[4], a, self.model)),
                          EST_OUTPUT_TOKENS_BY_AGENT[a])
                 for b in self._live for a in SPECIALISTS if a in self._requested[b[3]]]
-        an_in = [request_tokens(build_agent_request(b[4], "analyst", self.model, self._spec_ok[b[3]]))
-                 for b in self._todo2]
+        an_in = [self._size(b[4], "analyst", self._spec_ok[b[3]]) for b in self._todo2]
         avg_in = sum(an_in) / len(an_in) if an_in else 0.0
         analyst = cost_usd(self.model, avg_in, EST_OUTPUT_TOKENS_BY_AGENT["analyst"])
         ratio = analyst / (sum(spec) / len(spec)) if spec else 1.0
         retries = round(RETRY_SHARE_BY_AGENT["analyst"] * n2)
         retry = retries * cost_usd(self.model, RETRY_INPUT_FACTOR * avg_in, EST_OUTPUT_TOKENS_BY_AGENT["analyst"])
-        return per_request * ratio * n2, retry
+        floor = analyst / 2 * n2  # the constants-based estimate (batch price); round 1 may have paid nothing
+        return max(per_request * ratio * n2, floor), retry
 
-    def _round_boundary(self, rnd: int) -> None:
-        """Called only before a round's batch is created (never for one already paid for). Checks the
-        spending limit before round 2: spent + projected round 2 (batch + retry allowance) over the limit
-        stops the run. Round 1 is not checked (nothing to project from; the limit guards what follows)."""
-        if self.max_cost is None or rnd != 2:
+    def _round1_projection(self, requests: list[dict]) -> tuple[float, float]:
+        """(batch cost, retry allowance) for round 1 in USD, priced as `estimate_run` does: each request's
+        real size, EST_OUTPUT_TOKENS_BY_AGENT output, batch price; per agent, RETRY_SHARE_BY_AGENT of its
+        calls retried at full price, each resending RETRY_INPUT_FACTOR x the average request."""
+        sizes: dict[str, list[int]] = {a: [] for a in SPECIALISTS}
+        for r in requests:
+            sizes[r["custom_id"].rsplit("-", 1)[1]].append(request_tokens(r["params"]))
+        batch = retry = 0.0
+        for a, tokens in sizes.items():
+            if not tokens:
+                continue
+            out = EST_OUTPUT_TOKENS_BY_AGENT[a]
+            batch += cost_usd(self.model, sum(tokens), out * len(tokens)) / 2
+            calls = round(RETRY_SHARE_BY_AGENT[a] * len(tokens))
+            retry += calls * cost_usd(self.model, RETRY_INPUT_FACTOR * sum(tokens) / len(tokens), out)
+        return batch, retry
+
+    def _round_boundary(self, rnd: int, requests: list[dict] | None = None) -> None:
+        """Called only before a round's batch is created (never for one already paid for). Spent so far plus
+        the round's projected batch cost and retry allowance over the limit stops the run before anything
+        is paid for that round. Round 1 is priced from its built requests (`requests`) and the per-agent
+        constants; round 2 from round 1's actual spend (see `_round2_projection`)."""
+        if self.max_cost is None:
             return
         spent = self.spent()
-        batch, retry = self._round2_projection()
+        if rnd == 1:
+            batch, retry = self._round1_projection(requests or [])
+        else:
+            batch, retry = self._round2_projection()
         if spent + batch + retry > self.max_cost:
-            raise self._stop(f"round 2 is projected at ${batch:.2f} batch + ${retry:.2f} retry allowance, "
+            raise self._stop(f"round {rnd} is projected at ${batch:.2f} batch + ${retry:.2f} retry allowance, "
                              f"total ${spent + batch + retry:.2f}", spent)
 
     def _before_call(self, agent: str, attempt: int) -> None:
@@ -553,10 +602,10 @@ class _Run:
         todo = [(b, a) for b in live for a in SPECIALISTS if a in self._requested[b[3]]
                 and self._load_agent(b[3], a) is None]
         if todo:
-            if not self.state.get("round1_batch_id"):
-                self._round_boundary(1)
             requests = [{"custom_id": custom_id(b[0], b[1], a), "params": build_agent_request(b[4], a, self.model)}
                         for b, a in todo]
+            if not self.state.get("round1_batch_id"):
+                self._round_boundary(1, requests)
             batch = self._collect(1, requests)
             for b, a in todo:
                 first = batch.get(custom_id(b[0], b[1], a)) or {"memo": None, "why": "no batch result"}
@@ -570,21 +619,32 @@ class _Run:
             else:
                 self._finish(cert, as_of, group, base)  # a specialist failed: no analyst call, no note
 
-        # Round 2: one analyst request per bank whose specialists passed.
+        # Round 2: one analyst request per bank whose specialists passed. Each bank is finished (its note
+        # written) right after its analyst result, and on a stop every bank whose analyst result is saved is
+        # finished before the stop propagates, so a stop never leaves a complete bank without its note.
         eligible = [b for b in live if b[3] in spec_ok]
         todo2 = [b for b in eligible if self._load_agent(b[3], "analyst") is None]
         self._todo2, self._spec_ok = todo2, spec_ok
-        if todo2:
-            if not self.state.get("round2_batch_id"):
-                self._round_boundary(2)
-            requests = [{"custom_id": custom_id(b[0], b[1], "analyst"),
-                         "params": build_agent_request(b[4], "analyst", self.model, spec_ok[b[3]])} for b in todo2]
-            batch = self._collect(2, requests)
-            for b in todo2:
-                first = batch.get(custom_id(b[0], b[1], "analyst")) or {"memo": None, "why": "no batch result"}
-                self._run_agent(2, b[3], b[4], "analyst", first, spec_ok[b[3]])
-        for cert, as_of, group, base, sheet in eligible:
-            self._finish(cert, as_of, group, base)
+        try:
+            if todo2:
+                if not self.state.get("round2_batch_id"):
+                    self._round_boundary(2)
+                requests = [{"custom_id": custom_id(b[0], b[1], "analyst"),
+                             "params": build_agent_request(b[4], "analyst", self.model, spec_ok[b[3]])}
+                            for b in todo2]
+                batch = self._collect(2, requests)
+                for b in todo2:
+                    first = batch.get(custom_id(b[0], b[1], "analyst")) or {"memo": None, "why": "no batch result"}
+                    self._run_agent(2, b[3], b[4], "analyst", first, spec_ok[b[3]])
+                    self._finish(*b[:4])
+            for b in eligible:
+                if b[3] not in self.entries:
+                    self._finish(*b[:4])
+        except RunStopped:
+            for b in eligible:
+                if b[3] not in self.entries and self._load_agent(b[3], "analyst") is not None:
+                    self._finish(*b[:4])
+            raise
 
 
 def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: Path,
@@ -608,14 +668,18 @@ def run_showcase(ctx: Context, client, model: str, out_dir: Path, report_path: P
                               "(no round1_batch_id); it cannot be resumed. Delete the state file to start a new run")
         banks = [(int(c), date.fromisoformat(d), g) for c, d, g in state["banks"]]
         model = state.get("model", model)
+        if max_cost is None:
+            max_cost = state.get("max_cost")  # an explicit --max-cost overrides; otherwise the saved limit holds
         state.setdefault("spend", {})
         state.pop("stopped", None)  # a resumed run starts un-stopped (it may be stopped again)
     else:
         state = {"batch_id": None, "round1_batch_id": None, "round2_batch_id": None, "spend": {},
-                 "created_at": datetime.now().isoformat(timespec="seconds"), "model": model, "complete": False}
+                 "created_at": datetime.now().isoformat(timespec="seconds"), "model": model, "complete": False,
+                 "max_cost": max_cost}
         banks = banks if banks is not None else showcase_banks(ctx, model_dir, replay_dir)
         state["banks"] = [[c, d.isoformat(), g] for c, d, g in banks]
         shutil.rmtree(Path(report_path).with_suffix(".progress"), ignore_errors=True)  # nothing stale carries over
+    state["max_cost"] = max_cost
     run = _Run(ctx, client, model, out_dir, report_path, poll_seconds, banks, replay_dir, trace_dir, state,
                  max_cost=max_cost)
     error = None
