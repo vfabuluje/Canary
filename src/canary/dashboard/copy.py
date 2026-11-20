@@ -419,3 +419,40 @@ FLAGSHIP_CARDS: dict[int, dict] = {
         },
     },
 }
+
+
+# ------------------------------------------------------------------------- 2023 and Watchlist pages
+CASES_TITLE = "THE 2023 COLLAPSES"
+CASES_LEDE = ("Each bank, quarter by quarter, in the two years before it failed. Top: how risky Canary thought it was. "
+              "Bottom: the bank's real weak spot. Drag the slider or tap a point.")
+CASES_SCORE_TITLE = "Canary's risk rating (higher = riskier)"
+CASES_SCORE_NOTE = "Dashed line: the watchlist. Above it, Canary would have flagged the bank."
+CASES_SLIDER_LABEL = "Quarter"
+CASES_SIDE = {
+    "report": "{quarter} REPORT",
+    "of": "riskiest of {n:,} banks (#1 = riskiest)",
+    "rating": "Risk rating",
+    "on_list": "On the watchlist?",
+    "yes": "YES",
+    "no": "No",
+    "bars": "WHAT PUSHED THE RATING UP MOST",
+}
+WEAK_SHORT_LABELS: dict[int, str] = {24735: "Bond losses vs. equity", 57053: "Bond losses vs. equity",
+                                     59017: "Uninsured deposits"}
+
+WATCH_TITLE = "HOW BIG SHOULD THE WATCHLIST BE?"
+WATCH_LEDE = ("Each quarter Canary flags its riskiest slice of banks. Flag more, and you catch more failures, but you "
+              "also flag more banks that turn out fine. Pick a size. The numbers are recalculated from the real "
+              "2016-2024 test.")
+WATCH_PUBLISHED = "★ CANARY USES THIS"
+WATCH_CARDS = {
+    "caught": ("FAILURES CAUGHT EARLY", "Out of {eligible} banks that failed 2016-2024."),
+    "false_alarm": ("FALSE ALARMS", "Share of flags where the bank did not fail within a year."),
+    "flags": ("FLAGS RAISED", "Bank-quarters flagged, 2016-2024."),
+}
+WATCH_CHART_TITLE = "Failures caught, by watchlist size"
+WATCH_CHART_NOTE = "Highlighted: the size you picked."
+WATCH_SAY = "Flagging the **top {share}%** each quarter catches **{caught} of {eligible}** failures early. {cases}"
+WATCH_CASES_CAUGHT = "At this size **{caught} would have been caught**.{missed}"
+WATCH_CASES_MISSED = " {missed} still would not."
+WATCH_CASES_NONE = "None of the three 2023 collapses is caught at this size."

@@ -170,6 +170,28 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .why-hero svg.pixel { display:block; margin:0 auto 14px; }
 .why-hero h1.pix { font-size:24px; }
 .st-key-box-why-answer { background:var(--cream); }
+
+/* chips, sliders and the 2023 / watchlist pages */
+[data-testid="stButtonGroup"] button[data-testid^="stBaseButton-segmented_control"] { min-height:0; }
+[data-testid="stButtonGroup"] button[data-testid="stBaseButton-segmented_controlActive"] { background:var(--navy); color:#fff; }
+[data-testid="stButtonGroup"] button[data-testid="stBaseButton-segmented_controlActive"] p { color:#fff; }
+[data-testid="stButtonGroup"] { flex-wrap:wrap; gap:8px; }
+.cs-head { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start; margin:14px 0; }
+.cs-head h2.pix { font-size:18px; text-shadow:3px 3px 0 var(--yellow); }
+.status { font-family:var(--pix); font-size:9px; padding:7px 9px; border:2px solid var(--navy); display:inline-block; background:#fff; color:var(--navy); }
+.status.failed { background:#ffc9c9; } .status.near { background:var(--yellow); }
+.ct { font-weight:800; font-size:15px; margin-top:6px; } .cst { font-size:13px; color:var(--muted); }
+.side-q { font-family:var(--pix); font-size:9px; }
+.side-rank { font-family:var(--pix); font-size:22px; margin:8px 0 4px; }
+.side-row { display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:2px dotted #ced4da; font-size:15px; }
+.side-bars { font-family:var(--pix); font-size:8px; margin-top:16px; line-height:1.6; }
+.bar { font-size:14px; margin-top:8px; }
+.bar .track { height:10px; background:var(--soft); border:2px solid var(--navy); margin-top:4px; }
+.bar .fill { height:100%; background:#e8590c; }
+.say { margin-top:14px; padding:12px; background:var(--cream); border:3px solid var(--navy); font-size:15px; color:var(--navy); }
+.three { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin:14px 0 18px; }
+@media (max-width:760px){ .three { grid-template-columns:1fr; } }
+.three .stat .big { font-size:22px; }
 """
 
 STANDARD_CSS = ""
