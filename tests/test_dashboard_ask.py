@@ -4,9 +4,11 @@ Fake clients only: no test here (or anywhere) makes a real Anthropic call.
 """
 
 import json
+import logging
 import threading
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from streamlit.testing.v1 import AppTest
@@ -151,6 +153,72 @@ def test_answer_html_cannot_escape_into_markdown():
     assert markup.count('<p class="ask-answer">') == 2  # the whitespace-only paragraph is dropped
 
 
+@pytest.mark.parametrize("text", [
+    "Canary predicted this bank's trouble.",
+    "Its filings showed signs of failure.",
+    "This was an early warning.",
+    "The bank will fail within a year.",
+    "It is going to fail.",
+    "You should withdraw your money now.",
+    "Depositors should move their savings elsewhere.",
+    "It is safe to deposit here.",
+    "I would recommend another bank.",
+])
+def test_prediction_or_advice_is_retried_then_rejected(svb, text):
+    memo = _memo((text, []))
+    client = FakeClient([memo, memo])
+    result = answer(svb, "Should I keep my money there?", client)
+    assert (result.ok, result.text, result.outcome) == (False, CANT_CHECK, "checker_failed")
+    assert len(client.calls) == 2
+    sent_back = client.calls[1]["messages"][-1]["content"]
+    assert "prediction language" in sent_back or "advice or a forecast" in sent_back
+
+
+def test_advice_then_plain_retry_passes(svb):
+    client = FakeClient([_memo(("You should move your deposits.", [])), _uninsured_memo(svb)])
+    result = answer(svb, "Q?", client)
+    assert (result.ok, result.outcome, result.calls) == (True, "answered", 2)
+
+
+@pytest.mark.parametrize("text", [
+    "The bank failed on its own; regulators closed it.",
+    "Uninsured deposits can leave quickly, because they are above the FDIC's insurance limit.",
+    "I can't tell from this bank's data whether it is safe.",
+])
+def test_plain_wording_is_not_mistaken_for_advice(svb, text):
+    assert answer(svb, "Q?", FakeClient([_memo((text, []))])).ok
+
+
+# ------------------------------------------------------------------------------------------- outcome categories
+
+def _no_text_message():
+    return SimpleNamespace(stop_reason="end_turn", stop_details=None, model=None,
+                           content=[SimpleNamespace(type="thinking", thinking="")],
+                           usage=SimpleNamespace(input_tokens=1000, output_tokens=500))
+
+
+@pytest.mark.parametrize("reply, outcome, calls, paid", [
+    (_uninsured_memo, "answered", 1, True),
+    (lambda _: fake_message("", stop_reason="refusal"), "refusal", 1, True),
+    (lambda _: fake_message('{"sections": [', stop_reason="max_tokens"), "truncated", 1, True),
+    (lambda _: "not json at all", "bad_json", 1, True),
+    (lambda _: "[1, 2]", "bad_json", 1, True),
+    (lambda _: _no_text_message(), "no_text", 1, True),
+    (lambda _: api_status_error("RateLimitError", 429), "api_error:RateLimitError", 0, False),
+])
+def test_every_result_has_an_outcome_and_its_cost(svb, reply, outcome, calls, paid):
+    result = answer(svb, "Q?", FakeClient([reply(svb)]))
+    assert (result.outcome, result.calls) == (outcome, calls)
+    assert (result.cost_usd > 0) == paid
+
+
+def test_checker_failure_counts_both_calls(svb):
+    bad = _uninsured_memo(svb, display="91.2%")
+    result = answer(svb, "Q?", FakeClient([bad, bad]))
+    assert (result.outcome, result.calls) == ("checker_failed", 2)
+    assert result.cost_usd == pytest.approx(2 * ask.cost_usd(ASK_MODEL, 1000, 500))
+
+
 def test_empty_answer_is_not_ok(svb):
     empty = {"sections": [{"key": "answer", "paragraphs": []}]}
     client = FakeClient([empty, empty])
@@ -163,7 +231,7 @@ def test_empty_answer_is_not_ok(svb):
 def test_request_uses_haiku_and_low_effort(svb):
     kw = build_request(svb, "How much of its deposits were uninsured?")
     assert kw["model"] == ASK_MODEL == "claude-haiku-5-5"
-    assert kw["max_tokens"] == 2000
+    assert kw["max_tokens"] == 4000  # Haiku 5.5 thinks by default and thinking counts against max_tokens
     assert kw["output_config"]["effort"] == "low"
     schema = kw["output_config"]["format"]["schema"]
     assert kw["output_config"]["format"]["type"] == "json_schema"
@@ -235,6 +303,18 @@ def test_daily_counter_resets_next_day():
 def test_daily_counter_default_limit():
     counter, today = DailyCounter(), date(2026, 11, 20)
     assert sum(counter.take(today) for _ in range(DAILY_LIMIT + 5)) == DAILY_LIMIT
+
+
+def test_daily_counter_tracks_spend_and_resets():
+    counter = DailyCounter(limit=5)
+    day1, day2 = date(2026, 11, 20), date(2026, 11, 21)
+    counter.take(day1)
+    counter.add_cost(day1, 0.002)
+    counter.take(day1)
+    counter.add_cost(day1, 0.003)
+    count, spent = counter.today(day1)
+    assert count == 2 and spent == pytest.approx(0.005)
+    assert counter.today(day2) == (0, 0.0)
 
 
 def test_daily_counter_is_thread_safe():
@@ -351,6 +431,39 @@ def test_askbox_answers_and_never_shows_the_key(monkeypatch, svb):
     assert "86.4%" in text and NOTE in text
     assert spy.keys == ["sk-test-not-real"] and len(spy.client.calls) == 1
     assert "sk-test-not-real" not in text
+
+
+class _Lines(logging.Handler):
+    def __init__(self) -> None:
+        super().__init__(logging.DEBUG)
+        self.lines: list[str] = []
+
+    def emit(self, record) -> None:
+        self.lines.append(record.getMessage())
+
+
+@pytest.fixture
+def ask_log():
+    handler = _Lines()
+    askbox.log.addHandler(handler)
+    yield handler.lines
+    askbox.log.removeHandler(handler)
+
+
+def test_askbox_logs_outcome_cost_and_todays_spend_only(monkeypatch, svb, ask_log):
+    question = "How much of its deposits were uninsured? (secret-question-words)"
+    spy = _Spy([_uninsured_memo(svb), fake_message('{"sections": [', stop_reason="max_tokens")])
+    monkeypatch.setattr(ask, "make_client", spy)
+    at = _ask(_bank(**ON), question)
+    _ask(at, question)
+    one = ask.cost_usd(ASK_MODEL, 1000, 500)
+    assert len(ask_log) == 2
+    assert "outcome=answered calls=1" in ask_log[0] and f"cost=${one:.5f}" in ask_log[0]
+    assert f"today 1/{DAILY_LIMIT} questions, ${one:.4f} spent" in ask_log[0]
+    assert "outcome=truncated calls=1" in ask_log[1] and f"today 2/{DAILY_LIMIT} questions, ${2 * one:.4f}" in ask_log[1]
+    logged = "\n".join(ask_log)
+    assert "secret-question-words" not in logged and "sk-test-not-real" not in logged
+    assert "86.4%" not in logged and "uninsured" not in logged
 
 
 def test_askbox_session_limit(monkeypatch, svb):
