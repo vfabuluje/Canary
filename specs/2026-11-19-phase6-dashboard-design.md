@@ -69,6 +69,9 @@ a non-technical viewer; the v6 two-screen design came from her feedback).
     **#23 Captain** (Caucasian, light-blue arm sleeve, light-blue sneakers), **the Referee**
     (black-and-white stripes, whistle) for the rule check, **Replay Review** (glasses, light-blue
     polo) for the fact checker.
+- **Phones (Victor asked):** a website, not an app; it works in a phone browser ≥ 360 px wide
+  with no sideways scrolling; the replay shrinks to fit and its side panel moves under the scene;
+  hover tips open on tap.
 - Bank names in titles are big and bold (v6 "Building Canary's report on / **Bank**").
 
 ## 5. Features

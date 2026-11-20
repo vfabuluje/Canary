@@ -25,6 +25,7 @@
 - Search: rapidfuzz; open directly if top score ≥ 90 and ≥ 10 points ahead of the next; else "Did you mean" up to 8 with name, state, status. Aliases: "svb"→24735, "signature"→57053, "first republic"/"frb"→59017.
 - Ask Canary: model `claude-haiku-5-5`; 5 questions per session; 300/day (process-wide counter, reset at UTC midnight); question ≤ 300 characters; key from `st.secrets["ANTHROPIC_API_KEY"]`; switch `st.secrets["ASK_ENABLED"]` (default off); answers must pass `check_memo`; one retry, then "I couldn't answer that with checked facts."; off/cap/error text "Ask Canary is resting for today."; nothing stored.
 - Showcase expansion: group `big_bank` with the 20 certs in spec §5.8, then `--watchlist-top 39`; existing notes are never redone; `--max-cost 7.00`; the paid run is not part of this plan.
+- **Phones (Victor):** it's a website, no app; every page works in a phone browser ≥ 360 px wide with no horizontal page scroll; columns and cards stack; the replay scales to the container width (scene scaled to fit) and the "Who's on now" panel moves under the scene below 700 px; every hover tip also opens on tap.
 - Tests run with `.venv.nosync/bin/python -m pytest` (plain `pytest` can't import `tests.*`). No network in tests.
 
 ## Review Focus
@@ -177,7 +178,7 @@
   - `test_app_never_reads_data_dir`: grep of `dashboard/` and `src/canary/dashboard/` (excluding `__main__.py`, `tables.py`, `cases.py`, `reports.py`) finds no `"data/"` path literal.
   - `test_only_ask_imports_anthropic`: only `src/canary/dashboard/ask.py` contains `import anthropic`.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Implement**, matching the mockup's look (hero, pixel canary drawn by a small inline canvas component, cards). **Step 4: Run** → PASS.
-- [ ] **Step 5: Look at it:** `.venv.nosync/bin/streamlit run dashboard/app.py`, screenshot Home in all three themes; compare with the mockup.
+- [ ] **Step 5: Look at it:** `.venv.nosync/bin/streamlit run dashboard/app.py`, screenshot Home in all three themes at desktop width and at 390 px; compare with the mockup; no horizontal scroll on the phone width.
 - [ ] **Step 6: Commit** `feat(dashboard): app shell, themes, Home and Why Canary`.
 
 ### Task 6: 2023 and Watchlist pages
@@ -216,9 +217,9 @@
 - `web/*`: the v6 engine (sprites, players, referee stripes, Replay Review, side panel, captions, progress, skip link, hoop shot, report screen with headline/cards/hover tips and "Watch how it was made") reading `window.CANARY` instead of hard-coded SVB text.
 - `how.py`: a bank picker over `report_certs()` (default 24735), the replay, then the four-step strip (public FDIC data · CODE → model ranks every bank · CODE → AI team writes reports · AI → every number checked · CODE).
 
-- [ ] **Step 1: Failing tests:** `test_six_scenes_in_order` (keys `numbers, rule, specialists, check, lead, done`); `test_peer_benched_when_no_peer`; `test_retry_notes_only_when_retried` (first-try trace → no note; analyst attempt 2 → scene 5 note "sent back once, fixed"); `test_html_has_no_svb_literal_for_other_bank` (replay_html for a fixture bank 91 doesn't contain "Silicon Valley"); `test_standard_theme_uses_detectives`.
+- [ ] **Step 1: Failing tests:** `test_replay_html_scales_and_stacks` (the HTML has a resize handler that scales the scene to its container and a `max-width:700px` rule that stacks the side panel); `test_tips_open_on_tap` (tip targets handle `click` as well as `mouseover`); `test_six_scenes_in_order` (keys `numbers, rule, specialists, check, lead, done`); `test_peer_benched_when_no_peer`; `test_retry_notes_only_when_retried` (first-try trace → no note; analyst attempt 2 → scene 5 note "sent back once, fixed"); `test_html_has_no_svb_literal_for_other_bank` (replay_html for a fixture bank 91 doesn't contain "Silicon Valley"); `test_standard_theme_uses_detectives`.
 - [ ] **Step 2: Run** → FAIL. **Step 3: Implement**, porting from `dashboard/design/report-replay-v6.html`. **Step 4: Run** → PASS.
-- [ ] **Step 5: Look at it:** run the app; watch SVB in all three themes and Comenity (57570); check the hoop shot and the bench; console has no errors.
+- [ ] **Step 5: Look at it:** run the app; watch SVB in all three themes and Comenity (57570), at desktop width and at 390 px; check the hoop shot, the bench, tap tips on the phone width; console has no errors.
 - [ ] **Step 6: Commit** `feat(dashboard): data-driven report replay and How it works`.
 
 ### Task 9: Docs and deploy files
