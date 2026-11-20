@@ -52,13 +52,21 @@ def test_banks_never_scored(analyst_ctx):
     assert list(export_banks(analyst_ctx, set()).columns) == [
         "cert", "name", "state", "city", "first_report", "last_report", "failure_date", "scored",
         "latest_report_date", "latest_rank", "latest_n", "latest_percentile", "latest_flagged",
-        "after_test_period", "has_report"]
+        "after_test_period", "has_report", "website"]
     assert b.loc[1, "last_report"] < pd.Timestamp("2016-03-31")
     assert not b.loc[1, "scored"]
     for col in ("latest_report_date", "latest_rank", "latest_n", "latest_percentile", "latest_flagged"):
         assert pd.isna(b.loc[1, col])
     assert not b.loc[1, "after_test_period"]
     assert b.loc[100, "scored"]
+
+
+def test_banks_website_column(analyst_ctx):
+    sites = pd.DataFrame({"cert": [100, 999], "website": ["bank100.com", "gone.com"]})
+    b = export_banks(analyst_ctx, set(), sites).set_index("cert")
+    assert b.loc[100, "website"] == "bank100.com"
+    assert pd.isna(b.loc[101, "website"])
+    assert export_banks(analyst_ctx, set())["website"].isna().all()
 
 
 def test_banks_after_test_period(analyst_ctx):

@@ -6,7 +6,7 @@ from typing import Literal
 import pandas as pd
 import streamlit as st
 
-from canary.dashboard import charts, data, theme
+from canary.dashboard import charts, data, icons, theme
 from canary.dashboard.askbox import render_askbox
 from canary.dashboard.copy import (BANK_AFTER_TEST, BANK_CONCENTRATION_NONE, BANK_CONCENTRATION_REASON,
                                    BANK_CONCENTRATION_TITLE, BANK_FAILED, BANK_FLAGGED, BANK_FULL_REPORT,
@@ -32,7 +32,8 @@ def note_markdown(note_md: str) -> str:
 def _header(bank: pd.Series, title: str | None = None) -> None:
     place = ", ".join(str(p) for p in (bank["city"], bank["state"]) if pd.notna(p) and p)
     failed = f' · {BANK_FAILED.format(date=bank["failure_date"].strftime("%B %d, %Y").replace(" 0", " "))}' if pd.notna(bank["failure_date"]) else ""
-    theme.html_block(f'<div class="bank-head"><h2 class="pix">{html.escape(str(bank["name"]).upper())}</h2>'
+    website = bank["website"] if "website" in bank.index and pd.notna(bank["website"]) else None
+    theme.html_block(f'<div class="bank-head"><h2 class="pix">{icons.badge(website)}{html.escape(str(bank["name"]).upper())}</h2>'
                      f'<div class="note">{html.escape(place)}{html.escape(failed)} · cert {int(bank["cert"])}</div></div>')
     if title:
         theme.html_block(f'<h3>{html.escape(title)}</h3>')

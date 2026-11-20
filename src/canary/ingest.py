@@ -1,4 +1,4 @@
-"""Command-line entry point: python -m canary.ingest {financials,specialty,concentration,failures}."""
+"""Command-line entry point: python -m canary.ingest {financials,specialty,concentration,failures,websites}."""
 import argparse
 import logging
 from pathlib import Path
@@ -8,6 +8,7 @@ from canary.ingest_concentration import run_concentration
 from canary.ingest_failures import run_failures
 from canary.ingest_financials import run_financials
 from canary.ingest_specialty import run_specialty
+from canary.ingest_websites import run_websites
 from canary.schema import SchemaError
 
 log = logging.getLogger(__name__)
@@ -27,6 +28,8 @@ def build_parser() -> argparse.ArgumentParser:
     conc.add_argument("--root", default="data/raw", help="raw data directory")
     fail = sub.add_parser("failures", help="pull the failed bank list")
     fail.add_argument("--root", default="data/raw", help="raw data directory")
+    web = sub.add_parser("websites", help="pull each bank's website address (for the dashboard's icons)")
+    web.add_argument("--root", default="data/raw", help="raw data directory")
     return parser
 
 
@@ -45,6 +48,8 @@ def main(argv: list[str] | None = None, client: FDICClient | None = None) -> int
             run_specialty(root, client, force=args.force)
         elif args.command == "concentration":
             run_concentration(root, client, force=args.force)
+        elif args.command == "websites":
+            run_websites(root, client)
         else:
             run_failures(root, client)
     except (FDICAPIError, SchemaError) as exc:

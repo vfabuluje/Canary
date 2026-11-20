@@ -8,6 +8,8 @@ import json
 import sys
 from pathlib import Path
 
+import pandas as pd
+
 from canary.analyst.context import load_context
 from canary.dashboard.cases import export_cases
 from canary.dashboard.reports import write_reports
@@ -26,12 +28,20 @@ def build_parser() -> argparse.ArgumentParser:
     exp.add_argument("--failures", default="data/raw/failures/failures.parquet")
     exp.add_argument("--notes", default="banks", help="analyst notes folder")
     exp.add_argument("--traces", default="data/analyst/traces", help="analyst trace folder")
+    exp.add_argument("--websites", default="data/raw/websites/websites.parquet",
+                     help="bank website addresses (python -m canary.ingest websites); icons are left out without it")
     return parser
 
 
 def write_all(ctx, args, out: Path, certs: set[int]) -> None:
     """Every export writer, in order. Add new writers here."""
-    write_tables(ctx, Path(args.model_dir), out, certs)
+    sites = Path(getattr(args, "websites", "") or "")
+    if sites.is_file():
+        websites = pd.read_parquet(sites)
+    else:
+        print(f"warning: {sites} not found; banks get no website icons", file=sys.stderr)
+        websites = None
+    write_tables(ctx, Path(args.model_dir), out, certs, websites)
     cases = export_cases(ctx, Path(args.model_dir) / "case_studies.csv")
     (out / "case_studies.json").write_text(json.dumps(cases))
     written = write_reports(ctx, Path(args.notes), Path(args.traces), out)
