@@ -106,7 +106,7 @@ One file per bank with a written, checked report (the same set as `banks.has_rep
 | `cert` | FDIC certificate number |
 | `name` | Bank name |
 | `as_of` | Quarter the report is about |
-| `outcome` | `failed`, `missed`, `alive` and similar outcome kind |
+| `outcome` | What happened to the bank: `caught` (failed, and was on the watchlist at least once before), `missed` (failed, never on the watchlist), `open_watchlist` (still reporting and on the watchlist at the latest quarter), `false_alarm` (flagged at `as_of` but did not fail; for banks whose later quarters are known), `quiet` (never flagged, did not fail; none in the current export) |
 | `failure_date` | Failure date, empty if none |
 | `rank`, `n_banks`, `percentile` | Position at `as_of` |
 | `flagged` | On the 2% watchlist at `as_of` |

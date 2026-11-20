@@ -158,6 +158,8 @@ def test_data_dictionary_covers_exports():
             keys[n] = set(j[0]) if isinstance(j, list) else set(j)
     report = json.loads(next((data / "reports").glob("*.json")).read_text())
     keys["reports/<cert>.json"] = set(report)
+    outcomes = {json.loads(f.read_text())["outcome"] for f in (data / "reports").glob("*.json")}
+    assert outcomes and all(f"`{o}`" in doc for o in outcomes), f"outcome values missing from the dictionary: {outcomes}"
     missing = [n for n in keys if f"`{n}`" not in doc]
     missing += [f"{n}:{k}" for n, ks in keys.items() for k in ks if f"`{k}`" not in doc]
     assert not missing, f"not in data-dictionary/dashboard-exports.md: {missing}"
