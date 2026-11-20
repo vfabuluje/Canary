@@ -4,6 +4,7 @@ import html
 import json
 from pathlib import Path
 
+import pyarrow as pa
 import pytest
 from streamlit.testing.v1 import AppTest
 
@@ -115,3 +116,15 @@ def test_watchlist_ten_percent_names_signature(fixture_data):
     texts = _texts(at)
     assert "25" in texts and "of 29" in texts and "Signature Bank would have been caught" in texts
     assert "SVB and First Republic still would not" in texts
+
+
+def test_cases_page_rule_follows_published_share(fixture_data, tmp_path):
+    """The watchlist line on the page is 100*(1 - published share), derived from the data, not the chart default."""
+    from canary.dashboard.watch import published_share
+    metrics = json.loads((REAL_DATA / "metrics.json").read_text())
+    expected = round(100 * (1 - published_share(metrics, THRESHOLD)), 6)
+    proto = _run("cases").get("vega_lite_chart")[0].proto
+    rule = next(layer for layer in json.loads(proto.spec)["layer"] if layer["mark"]["type"] == "rule")
+    dataset = next(d for d in proto.datasets if d.name == rule["data"]["name"])  # Streamlit ships data as Arrow
+    table = pa.ipc.open_stream(dataset.data.data).read_all()
+    assert table.column("pct").to_pylist() == [expected] == [98.0]

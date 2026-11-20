@@ -90,15 +90,28 @@ def test_home_lead_time_and_baseline_from_metrics(fixture_data):
     assert "scores 0.60" in next(t for t in _texts(at) if "FAILURES CAUGHT EARLY" in t)
 
 
+def _strings(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in list(value.keys()) + list(value.values()):
+            yield from _strings(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            yield from _strings(item)
+
+
 def _all_fixed_copy() -> str:
-    parts = [HOME_WHAT, HONEST_MISS]
-    parts += [text for pair in list(HOME_STATS.values()) + list(HOME_CARDS.values()) for text in pair]
-    parts += [text for pair in WHY_SECTIONS for text in pair]
-    return "\n".join(parts)
+    """Every string in every public constant of canary.dashboard.copy, so new copy is covered automatically."""
+    from canary.dashboard import copy
+    return "\n".join(t for name, v in vars(copy).items() if not name.startswith("_") and name not in CHECKED_ELSEWHERE for t in _strings(v))
 
 
 # Figures in fixed copy that are history or definitions, not results the data could contradict.
-FIXED_FIGURES = {"2008", "2015", "2016", "2020", "2021", "2022", "2023", "2024", "1.00", "250,000", "42", "10"}
+FIXED_FIGURES = {"2008", "2015", "2016", "2020", "2021", "2022", "2023", "2024", "1.00", "250,000", "42", "10",
+                 "1", "12", "30", "89", "4"}  # + failure dates (March 12, May 1), "#1 = riskiest", "30-89 days", "4 quarters" definitions
+# FLAGSHIP_CARDS quote a bank's own figures, checked against the exported reports in test_dashboard_reports.
+CHECKED_ELSEWHERE = {"FLAGSHIP_CARDS"}
 
 
 def test_fixed_copy_has_no_metric_figures():
