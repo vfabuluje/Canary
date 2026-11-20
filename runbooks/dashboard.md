@@ -28,7 +28,7 @@ To try Ask Canary locally, copy `.streamlit/secrets.toml.example` to `.streamlit
 3. Open **Advanced settings** and paste the secrets (below) into the Secrets box. Choose Python 3.12.
 4. Deploy. When it is live, put the address in the README where `<!-- LIVE_APP_URL -->` is, and update the roadmap.
 
-Pushing to the chosen branch redeploys the app. A refreshed export is just a new commit of `dashboard/data/`.
+Pushing to the chosen branch redeploys the app. A refreshed export is just a new commit of `dashboard/data/`. Cloud installs the `canary` package only once and keeps that copy, so `dashboard/app.py` loads `canary` from the repo's `src/` and reloads it when a push changes any file there (`dashboard/repo_source.py`). If a push still doesn't show up, use **Manage app → Reboot app**.
 
 ## Secrets
 Two values, set in the app's Secrets box (Settings, Secrets) and never in the repo:
