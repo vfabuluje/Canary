@@ -167,8 +167,8 @@ h2.pix { font-size:13px; line-height:1.6; margin:0 0 10px; padding:0; }
 .st-key-home-q [data-testid="stTextInputRootElement"], .st-key-find-search [data-testid="stTextInputRootElement"] { height:58px; }
 .st-key-home-q input, .st-key-find-search input { font-size:20px !important; padding:0 18px !important; height:100%; }
 .st-key-home-search [data-testid="stFormSubmitButton"] button { height:58px; padding:0 26px; }
-.st-key-home-themes { justify-content:center; }
-.st-key-home-themes .theme-label { font-family:var(--pix); font-size:10px; }
+.hero { padding-top:clamp(24px, 9vh, 96px); }
+.what.home-below { margin-top:clamp(56px, 22vh, 220px); }
 .what { padding:22px; margin:6px 0 22px; font-size:18px; }
 .stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; margin-bottom:8px; }
 @media (max-width:860px){ .stats { grid-template-columns:repeat(2,minmax(0,1fr)); } }
@@ -268,7 +268,7 @@ h1.page-title, h2.page-title, .st-key-how-picker label p { color:#fff; text-shad
 # Text that sits straight on the cork board or the court (not in a card) goes on a small paper tag, so it is
 # readable whatever is behind it. (White text with a navy shadow lost to Streamlit's own text colour.)
 PAPER_TAG_CSS = """
-.lede, .foot, .on-bg, .hero .tag, .st-key-home-themes .theme-label, .cs-head .note, .bank-head .note {
+.lede, .foot, .on-bg, .hero .tag, .cs-head .note, .bank-head .note {
   display:inline-block; background:var(--paper); color:var(--navy) !important; text-shadow:none !important;
   font-weight:600; padding:4px 10px; border:2px solid var(--navy); box-shadow:3px 3px 0 var(--navy); }
 .foot { display:table; margin:30px auto 0; }

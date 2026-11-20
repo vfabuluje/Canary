@@ -18,11 +18,9 @@ with st.form("home-search", border=False), st.container(key="home-search", horiz
     if st.form_submit_button("SEARCH", type="primary") and query.strip():
         st.switch_page("views/find.py", query_params={"q": query.strip()})
 
-with st.container(key="home-themes", horizontal=True, vertical_alignment="center"):
-    theme.html_block('<span class="theme-label">Theme:</span>')
-    theme.theme_buttons("theme-home")
-
-theme.html_block(f'<div class="box what">{theme.bold(HOME_WHAT)}</div>')
+# The first screen is the bird, the name, the tagline and the search box; the rest starts lower down.
+# (Themes are in the top-right menu.)
+theme.html_block(f'<div class="box what home-below">{theme.bold(HOME_WHAT)}</div>')
 
 
 BIG = {
