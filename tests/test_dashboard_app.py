@@ -184,7 +184,7 @@ def test_data_loaders_read_fixture(fixture_data):
     assert data.metrics()["banks_caught"] == 21
     assert len(data.threshold()) == 7
     assert set(data.cases()) == {"24735", "57053", "59017"}
-    assert set(data.banks()["cert"]) == {24735, 57053, 59017, 9, 14, 46}
+    assert set(data.banks()["cert"]) == {24735, 57053, 59017, 9, 35, 46}
     assert not data.scores_history().empty and not data.concentration().empty
 
 

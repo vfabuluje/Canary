@@ -339,7 +339,7 @@ def test_reports_written_for_every_note_with_trace(written):
 
     out, certs = written
     files = sorted((out / "reports").glob("*.json"))
-    assert len(files) == 61
+    assert len(files) == 100  # 61 showcase notes + 39 added 2026-11-20
     assert sorted(certs) == sorted(showcase_certs(NOTES, TRACES))
     assert {int(p.stem) for p in files} == set(certs)
 

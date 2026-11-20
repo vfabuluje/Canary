@@ -3,7 +3,7 @@
 Every value comes from the real export, so tests that check figures against it keep holding:
 the three case studies as exported, the seven watchlist sizes, the headline metrics, and these banks:
 SVB, Signature and First Republic (written reports), Union Trust (stopped reporting in 2007, never
-scored), State Street (latest score after the test period) and Merchants Bank of Alabama (scored,
+scored), Auburnbank (latest score after the test period) and Merchants Bank of Alabama (scored,
 no written report).
 """
 
@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 REAL_DATA = Path(__file__).resolve().parents[1] / "dashboard" / "data"
-FIXTURE_CERTS = [24735, 57053, 59017, 9, 14, 46]
+FIXTURE_CERTS = [24735, 57053, 59017, 9, 35, 46]
 REPORT_CERTS = [24735, 57053, 59017]
 
 
