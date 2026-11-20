@@ -4,7 +4,7 @@
 
 **Goal:** A public, read-only Streamlit dashboard for Canary in the approved v6 pixel style, with search, the 2023 replay, the watchlist slider, the animated report replay and report page, Why Canary, and a capped Ask Canary box; plus the code (not the paid run) to expand the showcase to 100 banks.
 
-**Architecture:** `python -m canary.dashboard export` reads the local pipeline data once and writes small committed files to `dashboard/data/`. The Streamlit app (`dashboard/app.py` + `dashboard/pages/`) reads only those files. Pure logic (export, cards, search, ask guards) lives in `src/canary/dashboard/` and is unit-tested; the pixel replay and report screens are the v6 engine, made data-driven, rendered with `st.components.v1.html`.
+**Architecture:** `python -m canary.dashboard export` reads the local pipeline data once and writes small committed files to `dashboard/data/`. The Streamlit app (`dashboard/app.py` + `dashboard/views/`) reads only those files. Pure logic (export, cards, search, ask guards) lives in `src/canary/dashboard/` and is unit-tested; the pixel replay and report screens are the v6 engine, made data-driven, rendered with `st.components.v1.html`.
 
 **Tech Stack:** Python 3.12, pandas, Streamlit ≥ 1.46 (`st.navigation(position="top")`, `st.popover`, `AppTest`), Altair 5, rapidfuzz 3, anthropic 1.17 (Ask Canary only), existing `canary.analyst` / `canary.model` code.
 
@@ -53,7 +53,7 @@
 | `src/canary/dashboard/theme.py` | theme CSS, nav, footer helpers for Streamlit pages |
 | `src/canary/dashboard/replay.py` + `web/replay.js`, `web/sprites.js`, `web/replay.css` | the v6 engine as a data-driven component |
 | `src/canary/dashboard/ask.py` | Ask Canary (guards, request, check, retry) |
-| `dashboard/app.py`, `dashboard/pages/{home,find,cases,watchlist,how,why}.py` | Streamlit app |
+| `dashboard/app.py`, `dashboard/views/{home,find,cases,watchlist,how,why}.py` | Streamlit app |
 | `dashboard/data/` | committed exports |
 | `requirements.txt` (repo root), `.streamlit/config.toml` | Streamlit Community Cloud deploy |
 | `src/canary/analyst/showcase.py`, `__main__.py` | `big_bank` group and `--skip-done` |
@@ -160,7 +160,7 @@
 ### Task 5: App shell, themes, Home and Why Canary
 
 **Files:**
-- Create: `src/canary/dashboard/data.py`, `src/canary/dashboard/theme.py`, `dashboard/app.py`, `dashboard/pages/home.py`, `dashboard/pages/why.py`, `tests/dashboard_fixtures.py`, `.streamlit/config.toml`
+- Create: `src/canary/dashboard/data.py`, `src/canary/dashboard/theme.py`, `dashboard/app.py`, `dashboard/views/home.py`, `dashboard/views/why.py`, `tests/dashboard_fixtures.py`, `.streamlit/config.toml`
 - Copy: mockup → `dashboard/design/dashboard-mockup.html`
 - Test: `tests/test_dashboard_app.py`
 
@@ -170,7 +170,7 @@
 - `app.py`: `st.navigation([...6 pages...], position="top")` in the Global Constraints order; calls `apply_theme()` and `theme_picker()`.
 - `tests/dashboard_fixtures.py`: `write_fixture_data(root: Path) -> Path` builds a tiny valid `dashboard/data` (5 banks incl. one never scored, one report for 24735, case studies, threshold, metrics).
 
-- [ ] **Step 1: Failing tests** (`AppTest.from_file("dashboard/pages/home.py")` with `CANARY_DASHBOARD_DATA` set to fixture data):
+- [ ] **Step 1: Failing tests** (`AppTest.from_file("dashboard/views/home.py")` with `CANARY_DASHBOARD_DATA` set to fixture data):
   - `test_home_hero`: page markdown contains "CANARY" and "Bank Failure Early-Warning System"; the honest-miss text appears after the four headline numbers.
   - `test_home_numbers_from_metrics`: changing fixture `metrics.json` `banks_caught` to 7 shows "7" in the first number card.
   - `test_why_has_no_student_line`: why page text lacks "student".
@@ -183,7 +183,7 @@
 
 ### Task 6: 2023 and Watchlist pages
 
-**Files:** Create `dashboard/pages/cases.py`, `dashboard/pages/watchlist.py`, `src/canary/dashboard/charts.py`; Test `tests/test_dashboard_charts.py`
+**Files:** Create `dashboard/views/cases.py`, `dashboard/views/watchlist.py`, `src/canary/dashboard/charts.py`; Test `tests/test_dashboard_charts.py`
 
 **Interfaces:**
 - `charts.py`: `score_chart(rows: list[dict], selected: int) -> alt.Chart` (y 0–100, rule at 98 labeled WATCHLIST, square points, tooltip quarter/percentile/rank); `weak_chart(rows, selected, title) -> alt.Chart`; `threshold_chart(table, selected) -> alt.Chart`. Each a single y-axis.
@@ -195,7 +195,7 @@
 
 ### Task 7: Find a bank and bank pages
 
-**Files:** Create `dashboard/pages/find.py`, `src/canary/dashboard/bankpage.py`; Test `tests/test_dashboard_find.py`
+**Files:** Create `dashboard/views/find.py`, `src/canary/dashboard/bankpage.py`; Test `tests/test_dashboard_find.py`
 
 **Interfaces:**
 - `bankpage.py`: `page_kind(bank: pd.Series) -> Literal["report", "scored", "unscored"]`; `render_bank(cert: int) -> None`.
@@ -210,7 +210,7 @@
 
 ### Task 8: Replay component, report screen and How it works
 
-**Files:** Create `src/canary/dashboard/replay.py`, `src/canary/dashboard/web/replay.js`, `web/sprites.js`, `web/replay.css`, `dashboard/pages/how.py`; Test `tests/test_dashboard_replay.py`
+**Files:** Create `src/canary/dashboard/replay.py`, `src/canary/dashboard/web/replay.js`, `web/sprites.js`, `web/replay.css`, `dashboard/views/how.py`; Test `tests/test_dashboard_replay.py`
 
 **Interfaces:**
 - `replay.py`: `scenes(report: dict) -> list[dict]` (6 scenes; each `{"key", "now", "who": {"detective": str, "basketball": str}, "active": [member ids], "note": str | None}`; scene 4 `note` lists Trend/Peer retries; scene 5 note for the lead's retry; scene 3 marks Peer benched when `agents.peer.ran` is False); `replay_html(report: dict, theme: str) -> str` (inlines `web/*` and a JSON payload; `standard` uses the detective cast and grey bg); `render_replay(report, theme, height=900) -> None`.
