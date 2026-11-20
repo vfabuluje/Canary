@@ -29,6 +29,8 @@ ANALYST_INSTRUCTION = (
     "fact ids for any number you use. If two sections genuinely point different ways, say so plainly in "
     "warning signs or the summary; never blend them into one statement."
 )
+SPAN_NOTE = ("Spelled time spans such as \"a year earlier\" count as figures: cite the fact that contains them "
+             "(for example the trend agent's year-over-year rating fact).")
 CONCENTRATION_NOTE = ("Its figures and dates are not in the fact sheet: refer to its result in words "
                       "(e.g. 'did not cross either line'); do not quote them.")
 
@@ -119,6 +121,7 @@ def _analyst_message(sheet: FactSheet, sections: list[Section], specialist_memos
                      + ", ".join(code_only) + ".")
         lines.append("")
     lines.append(ANALYST_INSTRUCTION)
+    lines.append(SPAN_NOTE)
     return "\n".join(lines)
 
 

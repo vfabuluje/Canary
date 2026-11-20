@@ -119,8 +119,11 @@ papering over something the data itself doesn't agree on.
 ### 6.1 Spending limit (Victor: $17)
 - `showcase --max-cost USD` (the showcase command's default for this run: 17.00). The run tracks
   actual spend (batch at half price, retries at full price).
-- Checked (a) before submitting round 2, re-estimating round 2 from round 1's actual spend per bank,
-  and (b) before every full-price retry. If the next step would push the total over the limit, the
+- Checked (a) **before submitting round 1** (controller ruling R3: priced from the built requests plus
+  the per-agent output constants plus the retry allowance; if over the limit the run stops before
+  submitting, nothing is paid, and the fix is to re-run with a higher limit, not to resume),
+  (b) before submitting round 2, re-estimating round 2 from round 1's actual spend per bank,
+  and (c) before every full-price call. If the next step would push the total over the limit, the
   run **stops cleanly**: everything finished is saved (notes, traces, report), banks not reached keep
   their current notes, the report and state say "stopped at spending limit" with the spend so far,
   and `--resume` can continue later (with the same or a new limit).

@@ -47,7 +47,15 @@ Every written-or-attempted memo saves `data/analyst/traces/<cert>_<as_of>.json` 
 `showcase --max-cost USD` (none by default; the owner set 17.00 for the paid run). It is checked **before round 2** (spent so far plus a projection from round 1's actual spend per request, scaled to the analyst's larger request, plus the analyst retry allowance) and **before every direct call** (spent so far plus that call's estimate). On a breach the run stops cleanly with "stopped at spending limit": finished notes, traces and the report are saved, and the same command with `--resume` continues, with the same or a new limit. A stop just before a retry can repeat up to two direct calls for that agent on resume, because a call that was not paid for is not recorded. The round 2 projection is neutral (neither padded nor trimmed), so set `--max-cost` **a few percent above the calibrated dry-run total**, or a normal run can stop just short of finishing.
 
 ## Cost per memo
-**To be filled from the Task 6 calibration memo.** The dry run estimates each round and each agent separately; the per-agent constants in `showcase.py` (output tokens, retry share, specialist text size in the analyst request) are placeholders until then. Placeholders, not measurements: 5,700 output tokens per call, 16% retry share, 6,000 characters of specialist text per section. Measured cost per memo and the calibrated numbers: TO BE FILLED.
+The dry run estimates each round and each agent separately; the per-agent constants in `showcase.py` come from the calibration memo.
+
+Calibration memo: SVB cert 24735 as of 2022-12-31, run 2026-11-19, $0.4061 (trend 1 attempt, peer 1, analyst 2). Measured: output tokens trend 2,143, peer 2,142, analyst 4,616 (first attempt) and 3,128 (retry); input tokens trend 4,724 (11,931 request characters), peer 5,299 (13,256), analyst 14,310 (35,095), so 2.45-2.53 characters per token; each specialist's text adds about 2,281 characters to the analyst request. The analyst's first attempt was rejected because its summary said "rated it safer than a year earlier" without citing the fact containing "a year".
+
+Constants chosen (calibrated 2026-11-19 on SVB 24735, about 10-15% above measured): `EST_OUTPUT_TOKENS_BY_AGENT = {"trend": 2400, "peer": 2400, "analyst": 5000}`, `EST_ANALYST_SPECIALIST_CHARS = 2600`, `RETRY_SHARE_BY_AGENT = {"trend": 0.16, "peer": 0.16, "analyst": 0.30}`, `CHARS_PER_TOKEN = 2.4` (measured 2.45-2.53; 2.4 slightly over-counts input, which is conservative). The retry shares are judgement from one memo (the analyst retried once in one memo), not a rate; the 0.16 for the specialists carries over from 5b.
+
+Cost for this memo: $0.41 including one analyst retry (trend $0.062, peer $0.064, analyst $0.150 plus $0.131 for the retry).
+
+Fix from the retry: `SPAN_NOTE` is now added to the analyst user message next to `ANALYST_INSTRUCTION`: "Spelled time spans such as \"a year earlier\" count as figures: cite the fact that contains them (for example the trend agent's year-over-year rating fact)."
 
 ## Limits (honest list)
 - Three calls cost more than one: the analyst re-reads the full sheet and the specialist text, and every agent has its own retry.

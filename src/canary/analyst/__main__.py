@@ -75,9 +75,9 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--resume", metavar="BATCH_ID", default=None,
                       help="continue an earlier run (either round's batch id, from the log or the .state.json file); finished rounds are not paid again")
     show.add_argument("--max-cost", type=_positive_usd, default=None, metavar="USD",
-                      help="spending limit in USD (default: none). Checked before round 2 (projected from round 1's "
-                           "actual spend) and before every full-price retry; on breach the run stops cleanly and "
-                           "can be resumed")
+                      help="spending limit in USD (default: none). Checked before round 1, before round 2 "
+                           "(projected from round 1's actual spend) and before every full-price call; on breach "
+                           "the run stops cleanly. A resume reuses the saved limit unless overridden here")
     show.add_argument("--watchlist-top", type=int, default=None, metavar="N",
                       help="only the N best-ranked banks of the latest-quarter watchlist (default: all); "
                            "used by --dry-run and the real run, ignored with --resume (the bank list comes "
@@ -177,12 +177,17 @@ def _showcase(args) -> int:
                               banks=banks, replay_dir=Path(args.replay_dir), resume=args.resume,
                               max_cost=args.max_cost)
     except RunStopped as exc:
-        st = read_state(Path(args.report)) or {}
-        rid = st.get("round1_batch_id") or st.get("batch_id") or "BATCH_ID"
-        print(f"error: stopped at spending limit (${exc.spent:.2f} spent of ${exc.limit:.2f}); everything "
-              f"finished is saved. Resume with: python -m canary.analyst showcase --resume {rid} "
-              f"--max-cost USD (higher than ${exc.limit:.2f}; without the flag the saved "
-              f"${exc.limit:.2f} limit applies again); report {args.report}", file=sys.stderr)
+        st = read_state(Path(args.report))
+        if st is None:
+            print(f"error: stopped at spending limit before round 1 was submitted (${exc.spent:.2f} spent of "
+                  f"${exc.limit:.2f}): nothing was paid and there is nothing to resume. RE-RUN (do not "
+                  f"--resume) with a higher --max-cost than ${exc.limit:.2f}", file=sys.stderr)
+        else:
+            rid = st.get("round1_batch_id") or st.get("batch_id") or "BATCH_ID"
+            print(f"error: stopped at spending limit (${exc.spent:.2f} spent of ${exc.limit:.2f}); everything "
+                  f"finished is saved. Resume with: python -m canary.analyst showcase --resume {rid} "
+                  f"--max-cost USD (higher than ${exc.limit:.2f}; without the flag the saved "
+                  f"${exc.limit:.2f} limit applies again); report {args.report}", file=sys.stderr)
         return 1
     except ResumeError as exc:
         print(f"error: {exc}", file=sys.stderr)

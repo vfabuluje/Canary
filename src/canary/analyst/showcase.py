@@ -36,14 +36,12 @@ from canary.model.train import CASE_STUDY_CERTS
 
 log = logging.getLogger(__name__)
 
-# Dry-run estimate (derivation in runbooks/analyst.md). Output tokens per call type; the old single-call
-# figure was 5,700 (Phase 5c live memo: 11,292 output over 2 calls, adaptive thinking included). Input is
-# estimated from the real request size; CHARS_PER_TOKEN is calibrated on the 5b SVB request (22,979 chars,
-# 22,571 measured input). The per-agent constants are placeholders until the calibration memo.
-EST_OUTPUT_TOKENS_BY_AGENT = {"trend": 5700, "peer": 5700, "analyst": 5700}  # calibrated in Task 6
-EST_ANALYST_SPECIALIST_CHARS = 6000  # calibrated in Task 6: placeholder text per specialist section in the analyst request
-RETRY_SHARE_BY_AGENT = {"trend": 0.16, "peer": 0.16, "analyst": 0.16}  # calibrated in Task 6 (5b: 10 of 61 memos retried)
-CHARS_PER_TOKEN = 2.4  # calibrated on the SVB 2022-03-31 request (22,979 chars); 3.5 would under-count ~30%
+# Dry-run estimate (derivation in runbooks/analyst.md). Output tokens per call type; input is estimated
+# from the real request size.
+EST_OUTPUT_TOKENS_BY_AGENT = {"trend": 2400, "peer": 2400, "analyst": 5000}  # calibrated 2026-11-19 on SVB 24735, ~10-15% above measured
+EST_ANALYST_SPECIALIST_CHARS = 2600  # calibrated 2026-11-19 on SVB 24735, ~10-15% above measured: specialist text per section in the analyst request
+RETRY_SHARE_BY_AGENT = {"trend": 0.16, "peer": 0.16, "analyst": 0.30}  # calibrated 2026-11-19 on SVB 24735, ~10-15% above measured
+CHARS_PER_TOKEN = 2.4  # measured 2.45-2.53 on the 5e requests; 2.4 slightly over-counts input, conservative
 RETRY_INPUT_FACTOR = 2.0  # a retry resends the request plus the rejected memo: about 2x the first input
 RETRY_TRIES = 5  # retrieve/results calls: tries before a transient API error is re-raised
 RETRY_BASE_SECONDS = 2.0  # backoff 2, 4, 8, 16 s

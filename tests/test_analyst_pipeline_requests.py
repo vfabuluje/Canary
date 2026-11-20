@@ -8,7 +8,7 @@ from canary.analyst.concentration import CONCENTRATION_KEY, LEAD, ConcentrationR
 from canary.analyst.facts import PERCENTILE_SCALE_LABEL, Fact, FactSheet
 from canary.analyst.outcome import Outcome
 from canary.analyst.pipeline import (
-    AGENT_SECTIONS, ANALYST_INSTRUCTION, agent_sections, agent_sheet, build_agent_request,
+    AGENT_SECTIONS, ANALYST_INSTRUCTION, SPAN_NOTE, agent_sections, agent_sheet, build_agent_request,
 )
 from canary.analyst.sections import sections_for
 from canary.analyst.writer import SYSTEM_PROMPT, SHARED_RULES
@@ -113,6 +113,7 @@ def test_analyst_request_contains_specialist_text_and_instruction():
     req = build_agent_request(s, "analyst", "m", specialist_memos={"trend": MEMO})
     msg = req["messages"][0]["content"]
     assert ANALYST_INSTRUCTION in msg
+    assert SPAN_NOTE in msg and "a year earlier" in SPAN_NOTE
     assert "The trend, peer and concentration sections are written by other agents or code" in msg
     assert "Equity changed by 1.5% over the year." in msg and "cites: T1" in msg.split("Equity changed")[1]
     assert "Trend agent's section (checked, do not rewrite)" in msg and "[cites" not in msg

@@ -116,9 +116,9 @@ def test_cli_watchlist_top_dry_run(analyst_ctx, tmp_model_dir, tmp_replay_dir, c
 
 def test_estimate_constants_and_calibration():
     from canary.analyst import showcase
-    assert showcase.EST_OUTPUT_TOKENS_BY_AGENT == {"trend": 5700, "peer": 5700, "analyst": 5700}
-    assert showcase.EST_ANALYST_SPECIALIST_CHARS == 6000
-    assert showcase.RETRY_SHARE_BY_AGENT == {"trend": 0.16, "peer": 0.16, "analyst": 0.16}
+    assert showcase.EST_OUTPUT_TOKENS_BY_AGENT == {"trend": 2400, "peer": 2400, "analyst": 5000}
+    assert showcase.EST_ANALYST_SPECIALIST_CHARS == 2600
+    assert showcase.RETRY_SHARE_BY_AGENT == {"trend": 0.16, "peer": 0.16, "analyst": 0.30}
     assert showcase.CHARS_PER_TOKEN == 2.4 and showcase.RETRY_INPUT_FACTOR == 2.0
     assert not hasattr(showcase, "EST_INPUT_TOKENS") and not hasattr(showcase, "EST_OUTPUT_TOKENS")
     # the SVB request (22,979 chars) maps to about 9,570 input tokens
@@ -136,13 +136,13 @@ def test_estimate_run_per_round_and_call_type(analyst_ctx, tmp_replay_dir):
     r1, r2 = est["rounds"][1], est["rounds"][2]
     assert set(r1["by_agent"]) == {"trend", "peer"} and set(r2["by_agent"]) == {"analyst"}
     assert r1["requests"] == n_spec and r2["requests"] == 2
-    assert r1["output"] == n_spec * 5700 and r2["output"] == 2 * 5700
+    assert r1["output"] == n_spec * 2400 and r2["output"] == 2 * 5000
     assert r1["cost"] == pytest.approx(cost_usd("claude-opus-5-5", r1["input"], r1["output"]) / 2)
     assert r2["cost"] == pytest.approx(cost_usd("claude-opus-5-5", r2["input"], r2["output"]) / 2)
     # the analyst request carries placeholder specialist text, so it is larger than a specialist request
     assert r2["input"] / 2 > r1["input"] / max(n_spec, 1)
     ret = est["retries"]
-    assert {a: ret[a]["calls"] for a in ret} == {"trend": 0, "peer": 0, "analyst": 0}  # round(0.16 * 2)
+    assert {a: ret[a]["calls"] for a in ret} == {"trend": 0, "peer": 0, "analyst": 1}  # round(0.16 * 2), round(0.30 * 2)
     assert est["total"] == pytest.approx(r1["cost"] + r2["cost"] + est["retry_cost"])
 
 
@@ -157,9 +157,9 @@ def test_estimate_run_retry_allowance_per_agent(analyst_ctx, tmp_replay_dir):
         if not a["requests"]:  # a code-only specialist for this bank
             assert r["calls"] == 0
             continue
-        assert a["requests"] == 25 and r["calls"] == 4  # round(0.16 * 25)
-        assert r["output"] == 4 * 5700
-        assert r["input"] == round(2.0 * a["input"] / 25 * 4)
+        assert a["requests"] == 25 and r["calls"] == round(showcase.RETRY_SHARE_BY_AGENT[agent] * 25)
+        assert r["output"] == r["calls"] * showcase.EST_OUTPUT_TOKENS_BY_AGENT[agent]
+        assert r["input"] == round(2.0 * a["input"] / 25 * r["calls"])
         assert r["cost"] == pytest.approx(cost_usd("claude-opus-5-5", r["input"], r["output"]))
     assert est["retry_cost"] == pytest.approx(sum(r["cost"] for r in est["retries"].values()))
 
@@ -1248,9 +1248,9 @@ def test_round1_over_limit_stops_before_create(analyst_ctx, tmp_path, capsys):
 
     client = BatchClient(analyst_ctx, tmp_path)
     with pytest.raises(RunStopped) as ei:
-        _run(analyst_ctx, tmp_path, client, max_cost=0.5)  # 8 real-size requests are priced well above this
+        _run(analyst_ctx, tmp_path, client, max_cost=0.05)  # 8 real-size requests are priced well above this
     assert client.created == [] and client.calls == [] and "round 1" in str(ei.value)
-    assert ei.value.spent == 0.0 and ei.value.limit == 0.5
+    assert ei.value.spent == 0.0 and ei.value.limit == 0.05
     assert not (tmp_path / "report.state.json").exists()
     rep = json.loads((tmp_path / "report.json").read_text())
     assert rep["stopped"] == "spending limit" and rep["cost_usd"] == 0.0
@@ -1337,3 +1337,26 @@ def test_batch_create_has_sdk_retries_off(analyst_ctx, tmp_path):
     client.with_options = lambda **kw: (opts.append(kw), SimpleNamespace(messages=client.messages))[1]
     _run(analyst_ctx, tmp_path, client)
     assert len(client.created) == 2 and opts == [{"max_retries": 0}] * 2
+
+
+def test_calibrated_constants():
+    from canary.analyst import showcase
+    assert showcase.EST_ANALYST_SPECIALIST_CHARS == 2600
+    assert showcase.RETRY_SHARE_BY_AGENT == {"trend": 0.16, "peer": 0.16, "analyst": 0.30}
+    assert showcase.CHARS_PER_TOKEN == 2.4
+
+
+def test_cli_round1_stop_says_rerun_not_resume(analyst_ctx, tmp_model_dir, tmp_replay_dir, monkeypatch,
+                                               tmp_path, capsys):
+    from canary.analyst.showcase import RunStopped
+
+    def fake_run(*a, **k):
+        raise RunStopped("limit", spent=0.0, limit=1.0)
+
+    monkeypatch.setattr(cli, "load_context", lambda *a, **k: analyst_ctx)
+    monkeypatch.setattr(cli, "make_client", lambda: object())
+    monkeypatch.setattr("canary.analyst.showcase.run_showcase", fake_run)
+    rc = cli.main(["showcase", "--model-dir", str(tmp_model_dir), "--replay-dir", str(tmp_replay_dir.path),
+                   "--report", str(tmp_path / "rep.json"), "--max-cost", "1"])
+    err = capsys.readouterr().err
+    assert rc == 1 and "nothing was paid" in err and "RE-RUN" in err and "--resume BATCH_ID" not in err
