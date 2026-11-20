@@ -129,3 +129,16 @@ def test_concentration_reason_is_shown(fixture_data):
     frame.to_parquet(path)
     text = _text(_find(cert=str(NO_REPORT)))
     assert "can't be applied" in text and "can't be checked" in text and "0.0%" not in text
+
+
+def test_full_report_dollars_are_not_maths(fixture_data):
+    """Two dollar amounts in one paragraph ("$100 million to $1 billion") must not render as LaTeX."""
+    import json
+    path = fixture_data / "reports" / "24735.json"
+    report = json.loads(path.read_text())
+    report["note_md"] += "\n\nIts size band ($100 million to $1 billion) is shown for context."
+    path.write_text(json.dumps(report))
+    at = _find(cert="24735")
+    [note] = [m.value for m in at.expander[0].markdown if "size band" in m.value]
+    assert r"(\$100 million to \$1 billion)" in note
+    assert "$" not in note.replace(r"\$", "")

@@ -23,6 +23,12 @@ def page_kind(bank: pd.Series) -> Kind:
     return "scored" if bool(bank["scored"]) else "unscored"
 
 
+def note_markdown(note_md: str) -> str:
+    """The written report for st.markdown: every "$" is escaped, or text between two dollar amounts
+    ("$100 million to $1 billion") would render as LaTeX maths."""
+    return note_md.replace("$", "\\$")
+
+
 def _header(bank: pd.Series, title: str | None = None) -> None:
     place = ", ".join(str(p) for p in (bank["city"], bank["state"]) if pd.notna(p) and p)
     failed = f' · {BANK_FAILED.format(date=bank["failure_date"].strftime("%B %d, %Y").replace(" 0", " "))}' if pd.notna(bank["failure_date"]) else ""
@@ -38,7 +44,7 @@ def _render_report(bank: pd.Series) -> None:
         with st.container(key="replay-slot"):
             render_replay(report, theme.current_theme())
         with st.expander(BANK_FULL_REPORT):
-            st.markdown(report["note_md"])
+            st.markdown(note_markdown(report["note_md"]))
         render_askbox(report)
 
 
