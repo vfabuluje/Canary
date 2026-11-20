@@ -138,3 +138,26 @@ def test_export_cli_small_ok(analyst_ctx, tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(cli, "write_all", lambda *a, **k: None)
     assert cli.main(["export", "--out", str(out)]) == 0
     assert "a.txt" in capsys.readouterr().out
+
+
+def test_data_dictionary_covers_exports():
+    """Every file the export writes, and every column / top-level key in it, is in the data dictionary."""
+    doc = Path("data-dictionary/dashboard-exports.md").read_text()
+    data = Path("dashboard/data")
+    names = sorted(p.name for p in data.iterdir() if p.is_file())
+    assert names == ["banks.parquet", "case_studies.json", "concentration.parquet", "metrics.json",
+                     "scores_history.parquet", "threshold.json"]
+    keys = {}
+    for n in names:
+        if n.endswith(".parquet"):
+            keys[n] = set(pd.read_parquet(data / n).columns)
+        else:
+            j = json.loads((data / n).read_text())
+            if n == "case_studies.json":  # {cert: [quarter rows]}: document the row keys
+                j = next(iter(j.values()))
+            keys[n] = set(j[0]) if isinstance(j, list) else set(j)
+    report = json.loads(next((data / "reports").glob("*.json")).read_text())
+    keys["reports/<cert>.json"] = set(report)
+    missing = [n for n in keys if f"`{n}`" not in doc]
+    missing += [f"{n}:{k}" for n, ks in keys.items() for k in ks if f"`{k}`" not in doc]
+    assert not missing, f"not in data-dictionary/dashboard-exports.md: {missing}"
