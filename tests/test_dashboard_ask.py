@@ -174,6 +174,8 @@ def test_answer_html_cannot_escape_into_markdown():
     "Depositors should move their savings elsewhere.",
     "Withdraw your money while you can.",
     "It is safe to deposit here.",
+    "I can't tell whether it will fail, but it will fail soon.",
+    "Nobody knows whether it is safe, but you should move your money.",
     "I would recommend another bank.",
 ])
 def test_prediction_or_advice_is_retried_then_rejected(svb, text):
@@ -196,6 +198,9 @@ def test_advice_then_plain_retry_passes(svb):
     "The bank failed on its own; regulators closed it.",
     "Uninsured deposits can leave quickly, because they are above the FDIC's insurance limit.",
     "I can't tell from this bank's data whether it is safe.",
+    "I can't tell from this bank's data whether it will fail, and I can't advise you on moving your money.",
+    "Canary does not say whether Silicon Valley Bank will ever fail.",
+    "The data cannot show whether your deposits are safe.",
     "Canary's score is not a prediction; it ranks banks by risk.",
     "Canary is not a forecast of what will happen.",
     "The model cannot predict a run on deposits.",
