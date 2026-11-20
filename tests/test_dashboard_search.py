@@ -43,7 +43,7 @@ def test_one_letter():
 
 
 def test_punctuation():
-    r = search("M&T", BANKS)
+    r = search("Manufacturers & Traders", BANKS)
     assert 1 in [s["cert"] for s in r.suggestions]
 
 
