@@ -473,7 +473,7 @@ BANK_AFTER_TEST = "This quarter is after the test period, so it was not part of 
 BANK_FLAGGED = "On the watchlist that quarter."
 BANK_HISTORY_TITLE = "Risk rating by quarter (higher = riskier)"
 BANK_CONCENTRATION_TITLE = "Commercial real estate check"
-BANK_CONCENTRATION_REASON = "This check could not be run for the latest quarter: {reason}."
+BANK_CONCENTRATION_REASON = "The check can't be applied for the latest quarter: {reason}."
 BANK_CONCENTRATION_NONE = "No commercial real estate check is available for this bank."
 BANK_UNSCORED = ("Canary only scores banks from 2016 on; this bank stopped reporting in {year}, before that. "
                  "Earlier years were used to train the model, so scoring them would not be a fair test.")

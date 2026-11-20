@@ -42,7 +42,7 @@ def _render_report(bank: pd.Series) -> None:
 def _render_scored(bank: pd.Series) -> None:
     quarter = charts.quarter_label(str(bank["latest_report_date"].date()))
     with st.container(key="box-bank-latest"):
-        theme.html_block(f'<h3>{html.escape(BANK_NO_REPORT)}</h3><p class="note">{html.escape(BANK_NO_REPORT_NOTE)}</p>')
+        theme.html_block(f'<h2 class="pix">{html.escape(BANK_NO_REPORT)}</h2><p class="note">{html.escape(BANK_NO_REPORT_NOTE)}</p>')
         st.markdown(BANK_LATEST.format(quarter=quarter, rank=int(bank["latest_rank"]), n=int(bank["latest_n"]),
                                        rating=float(bank["latest_percentile"]), scale=100))
         if bool(bank["after_test_period"]):
@@ -60,11 +60,11 @@ def _render_scored(bank: pd.Series) -> None:
         rows = data.concentration()
         rows = rows[rows["cert"] == int(bank["cert"])]
         row = rows.iloc[0] if len(rows) else None
+        if row is not None and not pd.isna(row["reason"]):
+            st.markdown(BANK_CONCENTRATION_REASON.format(reason=row["reason"]))
         if row is not None and not pd.isna(row["lines"]):
             st.markdown(row["lines"])
-        elif row is not None and not pd.isna(row["reason"]):
-            st.markdown(BANK_CONCENTRATION_REASON.format(reason=row["reason"]))
-        else:
+        elif row is None:
             st.markdown(BANK_CONCENTRATION_NONE)
 
 

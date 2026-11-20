@@ -120,6 +120,11 @@ header[data-testid="stHeader"] { background:var(--nav); border-bottom:4px solid 
 .stApp button[data-testid^="stBaseButton-primary"]:hover { background:#2d3363; color:#fff; }
 .stApp button[data-testid^="stBaseButton"]:active { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--navy); }
 .stApp button[data-testid^="stBaseButton"]:focus:not(:active) { border-color:var(--navy); color:inherit; }
+/* search suggestions: body font, left-aligned, name bold with state and status smaller below */
+[class*="st-key-pick-"] button { width:100%; justify-content:flex-start !important; text-align:left; padding:10px 14px; }
+[class*="st-key-pick-"] button > div, [class*="st-key-pick-"] button [data-testid="stMarkdownContainer"] { text-align:left !important; width:100%; }
+[class*="st-key-pick-"] button p { font-family:inherit !important; font-size:16px !important; line-height:1.35; text-align:left !important; margin:0; }
+[class*="st-key-pick-"] button p:last-child { font-size:13px !important; color:var(--muted); }
 [data-testid="stTextInputRootElement"] { border:3px solid var(--navy) !important; border-radius:0; box-shadow:3px 3px 0 var(--navy); background:#fff; }
 [data-testid="stTextInputRootElement"] input { font-size:17px; color:var(--navy); background:#fff; }
 [data-testid="stForm"] { border:0; padding:0; }

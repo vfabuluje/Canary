@@ -17,6 +17,7 @@ def _open(cert: int) -> None:
 
 def _search_again() -> None:
     st.query_params.pop("cert", None)
+    st.query_params.pop("q", None)  # otherwise the same query would reopen the same bank
 
 
 typed = st.text_input(FIND_LABEL, value=params.get("q", ""), placeholder=FIND_PLACEHOLDER, label_visibility="collapsed").strip()
@@ -42,7 +43,7 @@ if result.direct is not None:
 elif result.suggestions:
     st.markdown(f"**{FIND_DID_YOU_MEAN}**")
     for s in result.suggestions:
-        st.button(f'{s["label"]} · {s["state"]} · {s["status"]}', key=f'pick-{s["cert"]}', on_click=_open, args=(s["cert"],))
+        st.button(f'**{s["label"]}**\n\n:small[{s["state"]} · {s["status"]}]', key=f'pick-{s["cert"]}', on_click=_open, args=(s["cert"],), width="stretch")
 else:
     if typed:
         st.markdown(FIND_NONE)

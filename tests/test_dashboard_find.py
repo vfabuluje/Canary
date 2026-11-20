@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from streamlit.testing.v1 import AppTest
 
@@ -13,7 +14,9 @@ UNSCORED, AFTER_TEST, NO_REPORT = 9, 14, 46
 
 @pytest.fixture(autouse=True)
 def fixture_data(tmp_path, monkeypatch):
-    monkeypatch.setenv("CANARY_DASHBOARD_DATA", str(write_fixture_data(tmp_path)))
+    path = write_fixture_data(tmp_path)
+    monkeypatch.setenv("CANARY_DASHBOARD_DATA", str(path))
+    return path
 
 
 def _find(**params) -> AppTest:
@@ -72,3 +75,22 @@ def test_bad_cert_param(cert):
 
 def test_empty_search_shows_hint():
     assert "Try “SVB”" in _text(_find())
+
+
+def test_search_again_leaves_the_bank_after_a_direct_match():
+    at = _find(q="SVB")
+    assert "SILICON VALLEY BANK" in _text(at)
+    at.button(key="find-back").click().run()
+    assert not at.exception, at.exception
+    assert "SILICON VALLEY BANK" not in _text(at)
+    assert "cert" not in at.query_params and not at.query_params.get("q")
+
+
+def test_concentration_reason_is_shown(fixture_data):
+    path = fixture_data / "concentration.parquet"
+    frame = pd.read_parquet(path)
+    frame.loc[frame["cert"] == NO_REPORT, "reason"] = "the bank's capital was zero or negative this quarter"
+    frame.loc[frame["cert"] == NO_REPORT, "lines"] = "The construction line can't be checked: capital was zero or negative.\n\n| Test | Bank |\n|---|---|\n| x | n/a |"
+    frame.to_parquet(path)
+    text = _text(_find(cert=str(NO_REPORT)))
+    assert "can't be applied" in text and "can't be checked" in text and "0.0%" not in text
