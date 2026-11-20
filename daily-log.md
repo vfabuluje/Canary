@@ -185,3 +185,10 @@
 - In progress: Task 6 (2023 + Watchlist pages) — partial work uncommitted; resume from the SDD ledger at .superpowers/sdd/2026-11-20-phase6-dashboard/progress.md.
 - Next: Tasks 6–12 (bank pages, replay component, docs/deploy, Ask Canary with Haiku, 39-bank expansion code + dry run, whole-app check).
 - Open: Victor to approve the SVB/Signature/First Republic card wording before merge; paid 39-bank run (~$6.24) and Ask Canary smoke test need his go-ahead; PR #14 still open.
+
+## 2026-11-20 (later) — Phase 6 dashboard built
+- All 12 plan tasks built and reviewed; final whole-branch review + one fix wave done. 856 tests pass. Branch phase6-dashboard (based on showcase-5e / PR #14).
+- Built: exports in dashboard/data (11 MB), Home/Find/2023/Watchlist/How it works/Why Canary, pixel replay + report page for 61 banks, three themes, phone layout, Ask Canary (Haiku 5.5, off by default), 39-bank expansion code with pay-again/overwrite refusals, decision 0023, data dictionary, runbooks.
+- Waiting on Victor: approve SVB/Signature/First Republic card wording (+ "building-loan rule" → "real-estate rule"?); decide the 39-bank run (dry run $9.02 worst case vs $8.06 balance); merge order (PR #14 first).
+- Before Ask Canary is switched on: narrower forecast/advice wording rule (parked), one paid smoke test with Victor's OK.
+- Not deployed yet (Streamlit Community Cloud steps in runbooks/dashboard.md).
