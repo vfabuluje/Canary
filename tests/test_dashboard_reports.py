@@ -241,6 +241,61 @@ def test_numbers_match_cited_facts(ctx):
 
 
 @pytest.mark.data
+def test_picked_sentences_are_findings(ctx):
+    """Across all showcase traces: no picked sentence cites only trend method facts (ratio counts, windows),
+    points at the note's table, or is an uncited log-odds definition; every trend card has a sentence
+    citing one of the ratio values, ranges or contributions."""
+    from canary.analyst.facts import build_fact_sheet
+    from canary.dashboard.cards import CARD_SECTIONS
+
+    method = {"trend_count_checked", "trend_count_outside", "trend_count_shown", "trend_window_pit",
+              "trend_window_ytd"}
+    ratio = {"trend_value", "trend_lo", "trend_hi", "trend_contribution"}
+    for path in sorted(TRACES.glob("*.json")):
+        trace = json.loads(path.read_text())
+        sheet = build_fact_sheet(ctx, trace["cert"], date.fromisoformat(trace["as_of"]))
+        facts = {f.id: f for f in sheet.facts}
+        for agent, key in CARD_SECTIONS:
+            if not any(c["agent"] == agent for c in trace["calls"]):
+                continue
+            section = _last_section(trace, agent, key)
+            cites = {s["text"]: s["cites"] for p in section["paragraphs"] for s in p["sentences"]}
+            picked = pick_sentences(section, facts)
+            kinds = [{facts[c].kind for c in cites[s["text"]]} for s in picked]
+            for s, k in zip(picked, kinds):
+                assert not (k and k <= method), (path.name, s["text"])
+                assert "the table" not in s["text"].lower(), (path.name, s["text"])
+                assert k or "log-odds" not in s["text"], (path.name, s["text"])
+                assert k or key != "peers", (path.name, s["text"])  # uncited peer text: lead-in or definition
+            if agent == "trend":
+                assert any(k & ratio for k in kinds), (path.name, [s["text"] for s in picked])
+
+
+def test_pick_sentences_skips_method_text():
+    facts = {
+        "F136": _fact("F136", "Trend: ratios outside their own prior range", ["11"], kind="trend_count_outside"),
+        "F139": _fact("F139", "Comparison window for most ratios: the prior 12 quarters", ["12"],
+                      kind="trend_window_pit"),
+        "F95": _fact("F95", "Trend: interest expense, value at the as-of quarter", ["0.5%"],
+                     feature="interest_expense_to_assets_ann", kind="trend_value"),
+    }
+    section = {"key": "trends", "paragraphs": [{"sentences": [
+        {"text": "Over the prior 12 quarters, 11 ratios were outside their range.", "cites": ["F139", "F136"]},
+        {"text": "Contributions are in model log-odds units, where positive pushes the score up.", "cites": []},
+        {"text": "The table shows the furthest ones.", "cites": []},
+        {"text": "Interest expense was 0.5% of assets.", "cites": ["F95"]},
+        {"text": "In short, none of them pushed the score up.", "cites": []},
+    ]}]}
+    assert [s["text"] for s in pick_sentences(section, facts)] == [
+        "Interest expense was 0.5% of assets.", "In short, none of them pushed the score up."]
+    peers = {"key": "peers", "paragraphs": [{"sentences": [
+        {"text": "The Texas ratio compares troubled loans with capital.", "cites": []},
+        {"text": "Interest expense was 0.5% of assets.", "cites": ["F95"]},
+    ]}]}
+    assert [s["text"] for s in pick_sentences(peers, facts)] == ["Interest expense was 0.5% of assets."]
+
+
+@pytest.mark.data
 def test_build_report_rejects_fact_drift(ctx):
     from canary.dashboard.reports import build_report
 

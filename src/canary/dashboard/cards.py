@@ -12,6 +12,7 @@ from canary.analyst.concentration import (
     render_concentration,
 )
 from canary.analyst.facts import Fact, date_forms
+from canary.analyst.peers import PEER_KEY
 from canary.analyst.pipeline import AGENTS, IDENTITY_LABELS
 from canary.dashboard.copy import GLOSSARY, HEADLINES
 
@@ -25,9 +26,16 @@ _RULE_ROWS = {ROW_CONSTRUCTION: "construction_concentration", ROW_CRE: "cre_conc
 CONTEXT_LABELS: frozenset[str] = frozenset(IDENTITY_LABELS) | {
     "State", "Model score", "Watchlist share of banks", "Banks on the watchlist that quarter", "Bank: total assets",
 }
+# Trend method facts (how many ratios were checked / outside / shown, the comparison windows) describe how
+# the check works, not what it found (ruling R11).
 CONTEXT_KINDS: frozenset[str] = frozenset({
     "trend_prior_percentile", "trend_rank_phrase", "peer_specialty", "peer_tier", "peer_basis", "peer_count",
+    "trend_count_checked", "trend_count_outside", "trend_count_shown", "trend_window_pit", "trend_window_ytd",
 })
+# Method text a card can't stand behind: the note's table (not shown on the card), and the uncited
+# definitions of the model's log-odds units.
+_TABLE_REF = re.compile(r"\bthe table\b", re.IGNORECASE)
+_LOG_ODDS = re.compile(r"\blog-odds\b", re.IGNORECASE)
 _FEATURE_SOURCE = re.compile(r"fct_bank_features\.parquet: (\w+)|scores\.parquet: feature (\w+) contribution")
 
 
@@ -87,15 +95,26 @@ def is_context(fact: Fact) -> bool:
     return fact.label in CONTEXT_LABELS or fact.kind in CONTEXT_KINDS
 
 
+def is_finding(text: str, cited: list[Fact], section_key: str | None = None) -> bool:
+    """False for a sentence whose cites only restate the bank's identity, rank, peer group or the trend
+    check's method; for one that points at the note's table; for an uncited sentence about log-odds
+    units (a definition); and for any uncited sentence in the peer section (there they are lead-ins or
+    definitions; every peer finding carries its ratio). Other uncited sentences have no numbers (the
+    checker requires a cite for any number) and are kept: they state a finding in words."""
+    if _TABLE_REF.search(text):
+        return False
+    if not cited:
+        return section_key != PEER_KEY and not _LOG_ODDS.search(text)
+    return not all(is_context(f) for f in cited)
+
+
 def pick_sentences(memo_section: dict, facts: dict[str, Fact], n: int = 2) -> list[dict]:
-    """The first n sentences that are findings, with their numbers: a sentence is skipped when every fact
-    it cites only restates the bank's identity, rank or peer group. A sentence with no cites has no
-    numbers (the checker requires a cite for any number) and is kept: it states a finding in words."""
+    """The first n finding sentences (see is_finding), with their numbers."""
     out = []
     for para in memo_section.get("paragraphs", []):
         for sent in para.get("sentences", []):
             cited = [facts[c] for c in sent.get("cites") or []]
-            if cited and all(is_context(f) for f in cited):
+            if not is_finding(sent["text"], cited, memo_section.get("key")):
                 continue
             out.append({"text": sent["text"], "numbers": numbers_in(sent["text"], cited)})
             if len(out) == n:
