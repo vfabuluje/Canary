@@ -92,7 +92,7 @@ class _Builder:
         )
 
 
-def _ordinal(n: int) -> str:
+def ordinal(n: int) -> str:
     suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
     return f"{n}{suffix}"
 
@@ -104,8 +104,12 @@ def decimal_ordinal_forms(p: float) -> list[str]:
     return list(dict.fromkeys([f"{s}th", f"{s}{suffix}"]))
 
 
-def _count_forms(n: int) -> list[str]:
+def count_forms(n: int) -> list[str]:
     return [f"{n:,}", str(n)]
+
+
+_ordinal = ordinal  # private names kept for existing callers
+_count_forms = count_forms
 
 
 def _history(rows: pd.DataFrame) -> pd.DataFrame:
