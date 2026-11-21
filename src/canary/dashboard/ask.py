@@ -136,7 +136,11 @@ _CAVEAT = re.compile(
     # "not a prediction that any bank will fail": the disclaimer whole, before its shorter "not a prediction"
     r"\b(?:(?:is|are|was)\s+)?not\s+an?\s+(?:prediction|forecast)\s+that\s+(?:any|a|the|this|that)\s+banks?"
     r"\s+will\s+fail\b(?=\s*[.!]?\s*$)"  # only as the sentence's end: nothing after it to swallow
-    r"|\b(?:is|are|was)\s+not\s+an?\s+(?:prediction|forecast)\b|\bnot\s+an?\s+(?:prediction|forecast)\b"
+    r"|\b(?:(?:is|are|was)\s+)?not\s+an?\s+(?:prediction|forecast)(?:\s+or\s+(?:an?\s+)?(?:prediction|forecast))?\b"
+    r"|\b(?:does\s+not|doesn't|do\s+not|don't|cannot|can't|won't)\s+(?:make|give|offer)\s+(?:any\s+)?"
+    r"(?:predictions|forecasts)\b"
+    r"|\b(?:cannot|can't|can\s+not|won't)\s+advise\s+(?:you\s+)?(?:on\s+)?(?:whether\s+to\s+)?(?:move|moving)\s+"
+    r"your\s+money\b"
     r"|\b(?:does\s+not|doesn't|did\s+not|didn't|cannot|can't|can\s+not|could\s+not|couldn't)\s+"
     r"(?:predict|forecast|foresee)\b"
     r"|\bwarning\s+(?:signs?|signals?|lights?|flags?)\b(?!\s+of\s+(?:coming\s+|impending\s+)?fail)"

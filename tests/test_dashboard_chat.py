@@ -638,3 +638,68 @@ def test_prompt_horizon_wording_passes_with_the_horizon_fact(real_data):
     horizon = _by_label(led, "Score horizon: failing within the next four quarters")
     assert chat._check(_memo(("Canary ranks every bank by its risk of failing within the next four quarters.",
                               [horizon])), led) == []
+
+
+# ---- fix round 3 (paid smoke run 2): real sentences the checks rejected --------------------------------------------
+
+def _ok(led, text, cites=()):
+    return chat._check(_memo((text, list(cites))), led)
+
+
+def _svb_case(led, label):
+    return _by_label(led, f"Last score: {label}", SVB)
+
+
+@pytest.mark.parametrize("text, which", [
+    ("Rank 1 is the highest score.", "rank"),  # Q6
+    ("A percentile of 100 means the highest risk.", "pct"),  # Q6
+    ("The rank and percentile are a ranking, not a probability, with rank 1 as the highest score.", "rank"),  # Q6
+    ("Its last percentile was 26.8% (100 means highest risk).", "pct"),
+])
+def test_scale_explanations_pass(real_data, text, which):
+    from canary.dashboard.chat_facts import canary_facts
+    led = FactLedger(); canary_facts(led)
+    label = "national rank (1 = highest score)" if which == "rank" else "percentile (100 = highest risk)"
+    assert _ok(led, text, [_svb_case(led, label)]) == []
+
+
+def test_q3_rank_with_its_scale_passes(real_data):
+    from canary.dashboard.chat_facts import watchlist
+    led = FactLedger(); out = watchlist(led, state="TX")
+    ids = [out["rows"][0]["fact_ids"][2], _by_label(led, "Banks ranked that quarter")]
+    assert _ok(led, "It ranks sixth out of 4,313 banks ranked that quarter, with 1 meaning the highest score.",
+               ids) == []
+
+
+def test_a_wrong_number_left_after_the_scale_still_fails(real_data):
+    from canary.dashboard.chat_facts import bank_profile, watchlist
+    led = FactLedger(); out = watchlist(led, state="TX")
+    r = out["rows"][0]
+    n = _by_label(led, "Banks ranked that quarter")
+    assert _ok(led, "Transpecos Banks Ssb ranked 1 of 4,313 banks that quarter.", [r["fact_ids"][0], r["fact_ids"][2], n])
+    assert _ok(led, "Transpecos Banks Ssb's rank 1 means the highest score.", [r["fact_ids"][0], r["fact_ids"][2]])
+    led = FactLedger(); bank_profile(led, SVB)
+    rank = _by_label(led, "Latest National rank (1 = highest score)")
+    pct = _by_label(led, "Latest Percentile (100 = highest risk)")
+    assert _ok(led, "SVB was rank 1, and rank 1 is the highest score.", [rank])
+    assert _ok(led, "Its percentile was 100, and a percentile of 100 means the highest risk.", [pct])
+    assert _ok(led, "It ranked 1 as the highest score.", [rank])
+
+
+@pytest.mark.parametrize("text", [
+    "I can show a bank's Canary rank each quarter and its rank history.",
+    "Canary ranks every bank once a quarter.",
+    "I can show the watchlist of banks Canary flagged in a quarter and how well its score tested.",
+    "Its rank changes quarter by quarter.",
+])
+def test_frequency_phrases_are_not_numbers(text):
+    assert _ok(FactLedger(), text) == []
+
+
+def test_a_spelled_span_claim_still_needs_a_fact():
+    assert _ok(FactLedger(), "It was flagged one quarter before it failed.")
+    assert _ok(FactLedger(), "Its rank fell 500 places in a quarter.")
+
+
+def test_system_prompt_no_numbers_in_capabilities():
+    assert "When describing what you can help with, don't mention years, numbers or time spans" in chat.SYSTEM_PROMPT

@@ -242,3 +242,29 @@ def test_daily_counter_is_thread_safe():
     for t in threads:
         t.join()
     assert sum(results) == 50
+
+
+# ---- fix round 3: honest disclaimers and refusals from the second paid smoke run --------------------------------
+
+@pytest.mark.parametrize("text", [
+    "The score is a ranking tool and not a prediction or forecast of any specific bank's failure.",
+    "I can't tell from Canary's data whether Wells Fargo will fail, and Canary does not make predictions about any "
+    "bank.",
+    "I also can't advise you on whether to move your money; that is outside what Canary covers.",
+    "Canary doesn't give forecasts.",
+    "I cannot advise moving your money.",
+])
+def test_round3_disclaimers_pass(text):
+    assert wording_errors(_memo((text, []))) == []
+
+
+@pytest.mark.parametrize("text", [
+    "Canary makes predictions: this bank will fail.",
+    "You should move your money.",
+    "I can't advise you, but you should move your money.",
+    "Canary does not make predictions, but this bank will fail.",
+    "It is not a prediction or forecast; it is doomed.",
+    "I can't advise on whether to move your money, so move your money now.",
+])
+def test_round3_forecasts_and_advice_still_fail(text):
+    assert wording_errors(_memo((text, [])))

@@ -87,17 +87,27 @@ any bank will fail, survive or is safe, and never say that Canary or its data pr
 of anything. You may repeat Canary's own caveats, such as "not a prediction" or "warning signs".
 11. Small talk (hello, thanks) gets one short sentence, then steer back to what you can look up. Anything \
 outside Canary's data (credit unions, stock picks, news, other topics) gets "{OUTSIDE}," plus what you can \
-help with: US banks' Canary ranks, failures, the watchlist and how well Canary's score tested.
+help with: US banks' Canary ranks, failures, the watchlist and how well Canary's score tested. When describing \
+what you can help with, don't mention years, numbers or time spans.
 12. Always finish by calling {SUBMIT} exactly once with the whole answer: one section with key "answer". \
 Do not write the answer as plain text."""
 
-# The scales' own anchors, beside a rank or percentile: "(100 is highest risk)", "where 100 means the highest risk",
-# "where 1 is the highest score". They describe the scale, not the bank, so the answer check removes exactly these
-# phrases before the citation checker reads the numbers (a bare "1" or "100" still needs a fact that holds it).
-ANCHOR = re.compile(
-    r"(?:,?\s*\(|,?\s*\b(?:where|with)\s+)"
-    r"(?:100\s+(?:is|=|means)\s+(?:the\s+)?highest\s+(?:risk|value)|1\s+(?:is|=|means)\s+(?:the\s+)?highest\s+score)"
-    r"\)?", re.IGNORECASE)
+# The scales' own anchors: "(100 is highest risk)", "where 100 means the highest risk", "with 1 meaning the highest
+# score", "with rank 1 as the highest score", or a sentence that opens with one ("Rank 1 is the highest score.", "A
+# percentile of 100 means the highest risk."). They describe the scale, not the bank, so the answer check removes
+# exactly these phrases before the citation checker reads the numbers. An anchor counts only at the start of the
+# sentence or after "(", "where" or "with", so "SVB's rank 1 means the highest score" is still read as a rank, and
+# any other "1" or "100" in the sentence still needs a fact that holds it.
+_IS = r"\s+(?:is|=|means|meaning|as|being)\s+(?:the\s+)?highest\s+"
+_RANK_1 = rf"(?:(?:a|the)\s+)?(?:(?:national\s+)?rank\s+(?:of\s+)?)?1{_IS}(?:score|risk)"
+_PCT_100 = rf"(?:(?:a|the)\s+)?(?:percentile\s+(?:of\s+)?)?100{_IS}(?:risk|value)"
+ANCHOR = re.compile(rf"(?:^\s*|,?\s*\(\s*|,?\s*\b(?:where|with)\s+)(?:{_RANK_1}|{_PCT_100})\s*\)?", re.IGNORECASE)
+# How often, not how long: "each quarter", "once a quarter", "flagged in a quarter". Only these exact phrases are
+# removed; "one quarter early" or "in a quarter" after any other word is still a span the checker reads.
+FREQUENCY = re.compile(
+    r"\b(?:each|every|per)\s+quarter\b|\bonce\s+a\s+quarter\b|\bquarter\s+by\s+quarter\b|\bby\s+quarter\b"
+    r"|(?:(?<=\bflagged\s)|(?<=\bscored\s)|(?<=\branked\s)|(?<=\blisted\s))in\s+a\s+(?:given\s+)?quarter\b",
+    re.IGNORECASE)
 
 SUBMIT_TOOL: dict = {
     "name": SUBMIT,
@@ -272,7 +282,7 @@ def _run_lookups(uses: list, ledger: FactLedger, tot: _Totals) -> list[dict]:
 
 
 def _without_anchors(memo: dict) -> tuple[dict, dict[str, str]]:
-    """The memo with each sentence's scale-anchor phrases removed, and {quoted stripped text: quoted original}
+    """The memo with each sentence's scale-anchor and frequency phrases removed, and {quoted stripped text: quoted original}
     so the checker's errors can still quote what the model wrote."""
     quoted: dict[str, str] = {}
     sections = []
@@ -282,7 +292,7 @@ def _without_anchors(memo: dict) -> tuple[dict, dict[str, str]]:
             sents = []
             for st in p.get("sentences", []):
                 text = st.get("text", "")
-                bare = ANCHOR.sub("", text) if isinstance(text, str) else text
+                bare = FREQUENCY.sub(" ", ANCHOR.sub("", text)) if isinstance(text, str) else text
                 if bare != text:
                     quoted[f'sentence "{_clip(bare)}"'] = f'sentence "{_clip(text)}"'
                 sents.append({**st, "text": bare})

@@ -197,6 +197,11 @@ def _flag_rule(led: FactLedger) -> Fact:
                    "canary.model.metrics: WATCHLIST_SHARE (fixed)")
 
 
+def _shown(led: FactLedger, label: str, n: int, source: str, quarter=None) -> Fact:
+    """How many rows a capped list shows (the total is a separate fact)."""
+    return led.add(label, n, f"{n:,}", count_forms(n), f"{_SRC}/{source}", quarter)
+
+
 def _span_fact(led: FactLedger, label: str, span: tuple[int, int], source: str) -> Fact:
     a, b = span
     return led.add(label, f"{a}-{b}", f"{a}-{b}", [str(a), str(b), f"{a}-{b}", f"{a} to {b}"], source)
@@ -245,6 +250,7 @@ def find_bank(ledger: FactLedger, query: str, state: str | None = None) -> dict:
         facts += _status_facts(ledger, row, kw)
         matches.append({"cert": cert, "name": name, "city": row["city"], "state": row["state"], "status": status,
                         "has_report": bool(row["has_report"])})
+    facts.append(_shown(ledger, "Matches shown in this list", len(matches), "banks.parquet: name (search)"))
     out = {"matches": matches, "facts": ledger.slim(facts)}
     if not matches:
         out["note"] = "No bank matched that name."
@@ -338,6 +344,7 @@ def failures(ledger: FactLedger, year: int | None = None, state: str | None = No
                         f"{_SRC}/banks.parquet: failure_date")]
     if year is not None:
         facts.append(ledger.add("Year shown", year, str(year), [str(year)], f"{_SRC}/banks.parquet: failure_date"))
+    facts.append(_shown(ledger, "Failures shown in this list", len(shown), "banks.parquet: failure_date"))
     rows = []
     for r in shown.itertuples():
         d = _day(r.failure_date)
@@ -389,6 +396,7 @@ def watchlist(ledger: FactLedger, quarter: str | None = None, state: str | None 
         facts += fs
         out_rows.append({"cert": int(r.cert), "name": r.name, "state": r.state, "rank": int(r.rank),
                          "n_banks": int(r.n_banks), "fact_ids": [f.id for f in fs]})
+    facts.append(_shown(ledger, "Banks shown in this list", len(out_rows), "scores_history.parquet: flagged", qd))
     out = {"quarter": qd.isoformat(), "total": total, "rows": out_rows, "facts": ledger.slim(facts)}
     if total > len(out_rows):
         out["note"] = f"Showing the {len(out_rows)} highest-ranked of {total}."
@@ -488,7 +496,8 @@ TOOL_SPECS: list[dict] = [
           "year in the data.",
           {"year": {**_INT_OPT, "description": "Failure year, or null."},
            "state": {**_STR_OPT, "description": "Two-letter state code, or null."}}),
-    _spec("watchlist", "Banks Canary flagged in a quarter (its riskiest 2%), by rank, at most 25 plus the total.",
+    _spec("watchlist", "Banks Canary flagged in the chosen quarter (its riskiest 2%), by rank, at most 25 plus the "
+          "total.",
           {"quarter": {**_STR_OPT, "description": "2022-12-31 or Q4 2022; null for the latest quarter."},
            "state": {**_STR_OPT, "description": "Two-letter state code, or null."}}),
     _spec("canary_facts", "Canary's headline results, the flag rule, the SVB, Signature and First Republic case "

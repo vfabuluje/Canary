@@ -327,3 +327,25 @@ def test_watchlist_issues_the_flag_rule(real_data):
     assert "2" not in rule.forms  # "2%" only: a bare 2 would pass as a rank
     assert _check(led, "The watchlist covers the riskiest 2% of banks Canary ranks, so it is a list of banks flagged "
                        "for closer attention, not a prediction that any bank will fail.", [rule.id]) == []
+
+
+# ---- fix round 3: the number of rows a capped list shows is a fact --------------------------------------------------
+
+def test_failures_rows_shown_is_a_fact(real_data):
+    """Q7 of the second paid smoke run."""
+    led = FactLedger(); out = failures(led, year=2010)
+    assert (out["total"], len(out["rows"])) == (157, 25)
+    first, last = out["rows"][0]["fact_ids"][2], out["rows"][-1]["fact_ids"][2]
+    ids = [_label_id(led, "Number of failed banks in this list"), _label_id(led, "Failures shown in this list"),
+           first, last]
+    assert _check(led, "The list shows 25 of those failures, sorted by date, from October 22, 2010 to December 17, "
+                       "2010.", ids) == []
+
+
+def test_watchlist_and_find_bank_rows_shown_are_facts(real_data):
+    led = FactLedger(); out = watchlist(led)
+    shown = led.facts[_label_id(led, "Banks shown in this list")]
+    assert shown.value == len(out["rows"])
+    led = FactLedger(); out = find_bank(led, "first")
+    shown = led.facts[_label_id(led, "Matches shown in this list")]
+    assert shown.value == len(out["matches"])
