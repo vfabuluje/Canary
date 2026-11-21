@@ -92,3 +92,54 @@ def test_tool_specs_are_strict_and_closed():
         sch = t["input_schema"]
         assert t["strict"] and sch["additionalProperties"] is False
         assert set(sch["required"]) == set(sch["properties"])
+
+
+# ---- the answer checker accepts natural sentences built from tool facts -----------------------------------------
+
+def _check(led, text, ids):
+    from canary.analyst.checker import _check_sentence
+    from canary.analyst.sections import Section
+    spec = Section("outcome", "Outcome", "hindsight", "", True)
+    return _check_sentence("outcome", spec, {"text": text, "cites": ids}, led.facts)
+
+
+def _ids(led, out, label=None):
+    return [f["id"] for f in out["facts"] if label is None or f["label"] == label]
+
+
+@pytest.mark.parametrize("text", [
+    "Silicon Valley Bank failed on March 10, 2023.",
+    "Silicon Valley Bank failed on Mar 10, 2023.",
+    "Silicon Valley Bank failed in March 2023.",
+])
+def test_failure_date_spellings_pass_after_find_bank_and_profile(real_data, text):
+    led = FactLedger()
+    assert _check(led, text, _ids(led, find_bank(led, "silicon valley"))) == []
+    led = FactLedger()
+    assert _check(led, text, _ids(led, bank_profile(led, 24735))) == []
+
+
+def test_stopped_reporting_year_is_checkable(fixture_data):
+    led = FactLedger()
+    out = bank_profile(led, UNSCORED)
+    assert _check(led, "Union Trust stopped reporting in 2007.", _ids(led, out, "Status")) == []
+
+
+def test_watchlist_n_of_m_passes(real_data):
+    led = FactLedger(); out = watchlist(led)
+    r = out["rows"][0]
+    text = f"{r['name']} ranked {r['rank']:,} of {r['n_banks']:,} banks."
+    assert _check(led, text, r["fact_ids"] + _ids(led, out, "Banks ranked that quarter")) == []
+
+
+def test_three_years_concentration_passes_and_unsupported_fails(real_data):
+    led = FactLedger(); out = bank_profile(led, 24735)
+    ids = _ids(led, out, "Loan growth over three years, %")
+    assert _check(led, "Loans grew 953.0% over three years.", ids) == []
+    assert _check(led, "Loans grew 777.0% over three years.", ids) != []
+
+
+def test_bad_range_errors_before_issuing_facts(real_data):
+    led = FactLedger()
+    assert "error" in bank_profile(led, 24735, start="soon")
+    assert not led.facts

@@ -11,7 +11,7 @@ from datetime import date
 
 import pandas as pd
 
-from canary.analyst.facts import Fact, count_forms, date_forms, decimal_ordinal_forms, ordinal
+from canary.analyst.facts import Fact, count_forms, date_forms, decimal_ordinal_forms, label_forms, ordinal
 from canary.dashboard import copy, data
 from canary.dashboard.search import _status, search
 
@@ -40,7 +40,7 @@ class FactLedger:
         return f"F{len(self.facts) + 1}"
 
     def add(self, label, value, display, forms, source, quarter=None, hindsight=False, cert=None, bank=None) -> Fact:
-        forms = list(forms) + (date_forms(quarter) if quarter else [])
+        forms = list(forms) + (date_forms(quarter) if quarter else []) + label_forms(label)
         fact = Fact(self._next_id(), label, quarter, value, display, list(dict.fromkeys(forms)), hindsight, source)
         self.facts[fact.id] = fact
         if cert is not None:
@@ -100,7 +100,7 @@ def _pct_forms(p: float) -> list[str]:
 
 
 def _full_date_forms(d: date) -> list[str]:
-    return [d.isoformat(), f"{d:%B} {d.day}, {d.year}", str(d.year)]
+    return [d.isoformat(), f"{d:%B} {d.day}, {d.year}", f"{d:%b} {d.day}, {d.year}", f"{d:%B %Y}", str(d.year)]
 
 
 def _day(ts) -> date:
@@ -137,24 +137,31 @@ def _bank_row(cert) -> pd.Series | None:
     return hit.iloc[0] if len(hit) else None
 
 
+def _status_facts(led: FactLedger, row: pd.Series, kw: dict) -> list[Fact]:
+    """Status plus its date as checkable facts: the failure date, or the last quarter for a bank that stopped."""
+    status = _status(row, data.banks()["last_report"].max())
+    src = f"{_SRC}/banks.parquet: failure_date, last_report"
+    if pd.notna(row["failure_date"]):
+        d = _day(row["failure_date"])
+        return [led.add("Status", status, status, [status], src, d, **kw),
+                led.add("Failure date", d.isoformat(), f"{d:%B} {d.day}, {d.year}", _full_date_forms(d),
+                        f"{_SRC}/banks.parquet: failure_date", d, **kw)]
+    q = _day(row["last_report"]) if status.startswith("Stopped") else None
+    return [led.add("Status", status, status, [status], src, q, **kw)]
+
+
 def _identity(led: FactLedger, row: pd.Series) -> list[Fact]:
     cert, name = int(row["cert"]), row["name"]
     kw = dict(cert=cert, bank=name)
-    latest = data.banks()["last_report"].max()
-    status = _status(row, latest)
     out = [
         led.add("Bank name", name, name, [name], f"{_SRC}/banks.parquet: name", **kw),
         led.add("Certificate number", cert, str(cert), [str(cert)], f"{_SRC}/banks.parquet: cert", **kw),
         led.add("City", row["city"], str(row["city"]), [str(row["city"])], f"{_SRC}/banks.parquet: city", **kw),
         led.add("State", row["state"], str(row["state"]), [str(row["state"])], f"{_SRC}/banks.parquet: state", **kw),
-        led.add("Status", status, status, [status], f"{_SRC}/banks.parquet: failure_date, last_report", **kw),
         led.add("Last quarter reported", _day(row["last_report"]).isoformat(), _day(row["last_report"]).isoformat(),
                 [], f"{_SRC}/banks.parquet: last_report", _day(row["last_report"]), **kw),
     ]
-    if pd.notna(row["failure_date"]):
-        d = _day(row["failure_date"])
-        out.append(led.add("Failure date", d.isoformat(), f"{d:%B} {d.day}, {d.year}", _full_date_forms(d),
-                           f"{_SRC}/banks.parquet: failure_date", **kw))
+    out += _status_facts(led, row, kw)
     return out
 
 
@@ -197,8 +204,8 @@ def find_bank(ledger: FactLedger, query: str, state: str | None = None) -> dict:
             ledger.add("Bank name", name, name, [name], f"{_SRC}/banks.parquet: name", **kw),
             ledger.add("Certificate number", cert, str(cert), [str(cert)], f"{_SRC}/banks.parquet: cert", **kw),
             ledger.add("City", row["city"], str(row["city"]), [str(row["city"])], f"{_SRC}/banks.parquet: city", **kw),
-            ledger.add("Status", status, status, [status], f"{_SRC}/banks.parquet: failure_date, last_report", **kw),
         ]
+        facts += _status_facts(ledger, row, kw)
         matches.append({"cert": cert, "name": name, "city": row["city"], "state": row["state"], "status": status,
                         "has_report": bool(row["has_report"])})
     out = {"matches": matches, "facts": ledger.slim(facts)}
@@ -213,6 +220,10 @@ def bank_profile(ledger: FactLedger, cert: int, start: str | None = None, end: s
     row = _bank_row(cert)
     if row is None:
         return {"error": f"No bank with certificate number {cert!r}."}
+    lo = _parse_quarter(start) if start else None
+    hi = _parse_quarter(end) if end else None
+    if (start and lo is None) or (end and hi is None):
+        return {"error": "start and end must look like 2022-12-31 or Q4 2022."}
     c, name = int(row["cert"]), row["name"]
     kw = dict(cert=c, bank=name)
     facts = _identity(ledger, row)
@@ -221,14 +232,6 @@ def bank_profile(ledger: FactLedger, cert: int, start: str | None = None, end: s
         out["note"] = copy.BANK_UNSCORED.format(year=_day(row["last_report"]).year)
         out["facts"] = ledger.slim(facts)
         return out
-
-    lo = hi = None
-    if start:
-        lo = _parse_quarter(start)
-    if end:
-        hi = _parse_quarter(end)
-    if (start and lo is None) or (end and hi is None):
-        return {"error": "start and end must look like 2022-12-31 or Q4 2022."}
 
     facts += _score_facts(ledger, kw, _day(row["latest_report_date"]), int(row["latest_rank"]), int(row["latest_n"]),
                           float(row["latest_percentile"]), bool(row["latest_flagged"]), "Latest ")
@@ -303,8 +306,9 @@ def failures(ledger: FactLedger, year: int | None = None, state: str | None = No
         d = _day(r.failure_date)
         kw = dict(cert=r.cert, bank=r.name)
         fs = [ledger.add("Bank name", r.name, r.name, [r.name], f"{_SRC}/banks.parquet: name", **kw),
+              ledger.add("Certificate number", int(r.cert), str(r.cert), [str(r.cert)], f"{_SRC}/banks.parquet: cert", **kw),
               ledger.add("Failure date", d.isoformat(), f"{d:%B} {d.day}, {d.year}", _full_date_forms(d),
-                         f"{_SRC}/banks.parquet: failure_date", **kw)]
+                         f"{_SRC}/banks.parquet: failure_date", d, **kw)]
         facts += fs
         rows.append({"cert": int(r.cert), "name": r.name, "city": r.city, "state": r.state,
                      "failure_date": d.isoformat(), "fact_ids": [f.id for f in fs]})
@@ -334,10 +338,14 @@ def watchlist(ledger: FactLedger, quarter: str | None = None, state: str | None 
     total, qd = len(rows), _day(q)
     facts = [ledger.add("Banks on the watchlist in this list", total, f"{total:,}", count_forms(total),
                         f"{_SRC}/scores_history.parquet: flagged", qd)]
+    n_q = int(hist.loc[hist["report_date"] == q, "n_banks"].iloc[0])
+    facts.append(ledger.add("Banks ranked that quarter", n_q, f"{n_q:,}", count_forms(n_q),
+                            f"{_SRC}/scores_history.parquet: n_banks", qd))
     out_rows = []
     for r in rows.head(MAX_ROWS).itertuples():
         kw = dict(cert=r.cert, bank=r.name)
         fs = [ledger.add("Bank name", r.name, r.name, [r.name], f"{_SRC}/banks.parquet: name", **kw),
+              ledger.add("Certificate number", int(r.cert), str(r.cert), [str(r.cert)], f"{_SRC}/banks.parquet: cert", **kw),
               ledger.add("National rank (1 = highest score)", int(r.rank), f"{int(r.rank):,}", _num_forms(int(r.rank)),
                          f"{_SRC}/scores_history.parquet: rank", qd, **kw)]
         facts += fs

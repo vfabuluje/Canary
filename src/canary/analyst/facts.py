@@ -80,13 +80,18 @@ def _dedupe(forms: list[str]) -> list[str]:
     return list(dict.fromkeys(forms))
 
 
+def label_forms(label: str) -> list[str]:
+    """Spelled spans in a label ("four quarters") as forms, so a label's own wording is citable."""
+    return [spelled_norm(m["sw"], m["su"]) for m in SPELLED_SPAN.finditer(label)]
+
+
 class _Builder:
     def __init__(self) -> None:
         self.facts: list[Fact] = []
 
     def add(self, label, value, display, forms, source, quarter=None, hindsight=False) -> None:
         forms = list(forms) + (date_forms(quarter) if quarter else [])
-        forms += [spelled_norm(m["sw"], m["su"]) for m in SPELLED_SPAN.finditer(label)]
+        forms += label_forms(label)
         self.facts.append(
             Fact(f"F{len(self.facts) + 1}", label, quarter, value, display, _dedupe(forms), hindsight, source)
         )
