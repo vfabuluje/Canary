@@ -324,11 +324,48 @@ def test_make_client_builds_without_calling():
 
 
 def test_limits():
-    assert (SESSION_LIMIT, DAILY_LIMIT, MAX_CHARS) == (5, 300, 300)
+    assert (SESSION_LIMIT, DAILY_LIMIT, MAX_CHARS) == (5, 100, 300)
     assert RESTING == "Ask Canary is resting for today."
 
 
 # ------------------------------------------------------------------------------------------- DailyCounter
+
+def test_daily_limit_is_100():
+    assert ask.DAILY_LIMIT == 100
+
+
+def test_dollar_limit_blocks_at_one_dollar():
+    c = ask.DailyCounter(limit=100, usd_limit=1.00)
+    d = date(2026, 11, 21)
+    c.add_cost(d, 0.9999)
+    assert c.available(d)
+    c.add_cost(d, 0.0001)
+    assert not c.available(d)
+    assert c.available(date(2026, 11, 22))  # new UTC day resets
+
+
+def test_take_is_atomic_at_the_limit():
+    c = ask.DailyCounter(limit=1)
+    d = date(2026, 11, 21)
+    results = []
+    ts = [threading.Thread(target=lambda: results.append(c.take(d))) for _ in range(8)]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert results.count(True) == 1
+
+
+def test_public_checks_keep_old_behaviour():
+    memo = {"sections": [{"key": "answer", "paragraphs": [{"sentences": [
+        {"text": "It is likely to fail.", "cites": []}]}]}]}
+    assert ask.wording_errors(memo)
+    ok = {"sections": [{"key": "answer", "paragraphs": [{"sentences": [
+        {"text": "I can't tell from the data whether it will fail.", "cites": []}]}]}]}
+    assert ask.wording_errors(ok) == []
+    assert ask.link_errors({"sections": [{"paragraphs": [{"sentences": [{"text": "see https://x.com"}]}]}]})
+
+
+def test_new_outcome_constants():
+    assert (ask.TURN_LIMIT, ask.TOKEN_CEILING_HIT, ask.NO_SUBMIT) == ("turn_limit", "token_ceiling", "no_submit")
 
 def test_daily_counter_stops_at_limit():
     counter, today = DailyCounter(limit=3), date(2026, 11, 20)

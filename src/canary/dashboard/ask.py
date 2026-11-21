@@ -29,7 +29,8 @@ from canary.dashboard.copy import ASK_CANT_CHECK, ASK_RESTING
 
 ASK_MODEL = "claude-haiku-5-5"
 SESSION_LIMIT = 5  # questions per visitor session
-DAILY_LIMIT = 300  # questions per UTC day, whole app (about $0.60 at about $0.002 a question; a retry doubles it)
+DAILY_LIMIT = 100  # questions per UTC day, whole app (about $1 at about $0.01 a question)
+DAILY_USD_LIMIT = 1.00  # dollars per UTC day, whole app; the counter also stops at this
 MAX_CHARS = 300  # longest question accepted
 # Haiku 5.5 thinks by default (adaptive) and thinking counts against max_tokens, so leave room beyond the short
 # answer itself; a reply that still runs out is logged as "truncated".
@@ -85,6 +86,9 @@ REFUSAL = "refusal"
 TRUNCATED = "truncated"  # stop_reason max_tokens
 NO_TEXT = "no_text"
 BAD_JSON = "bad_json"  # not JSON, or JSON that isn't the answer shape
+TURN_LIMIT = "turn_limit"  # the chat ran out of model turns
+TOKEN_CEILING_HIT = "token_ceiling"  # the chat hit its token ceiling
+NO_SUBMIT = "no_submit"  # the chat ended without submitting an answer
 API_ERROR = "api_error"  # followed by ":" and the exception type, e.g. "api_error:RateLimitError"
 
 
@@ -101,8 +105,9 @@ class DailyCounter:
     """Questions sent today across every visitor session (the process), and what they cost. Resets on a new
     UTC date. It lives in memory, so a reboot, redeploy or app sleep also starts it again from zero."""
 
-    def __init__(self, limit: int = DAILY_LIMIT) -> None:
+    def __init__(self, limit: int = DAILY_LIMIT, usd_limit: float = DAILY_USD_LIMIT) -> None:
         self.limit = limit
+        self.usd_limit = usd_limit
         self._lock = threading.Lock()
         self._day: date | None = None
         self._count = 0
@@ -126,7 +131,7 @@ class DailyCounter:
     def available(self, today: date) -> bool:
         with self._lock:
             self._roll(today)
-            return self._count < self.limit
+            return self._count < self.limit and self._spent < self.usd_limit
 
     def take(self, today: date) -> bool:
         """Use one of today's questions; False (and nothing used) once the day's limit is reached."""
@@ -195,7 +200,7 @@ def _sheet(report: dict) -> SimpleNamespace:
 _LINK = re.compile(r"https?://|\bwww\.|!\[|\]\s*\(", re.IGNORECASE)
 
 
-def _link_errors(memo: dict) -> list[str]:
+def link_errors(memo: dict) -> list[str]:
     return [f"section 'answer', sentence \"{s.get('text', '')[:100]}\": contains a link or web address; "
             "answer in plain sentences without links"
             for sec in memo.get("sections", []) for p in sec.get("paragraphs", []) for s in p.get("sentences", [])
@@ -248,7 +253,7 @@ def _sentences(memo: dict):
                 yield str(s.get("text", ""))
 
 
-def _wording_errors(memo: dict) -> list[str]:
+def wording_errors(memo: dict) -> list[str]:
     """Ask's forecast/advice rule, applied to every sentence after removing the reports' allowed caveats."""
     errors = []
     for text in _sentences(memo):
@@ -264,7 +269,7 @@ def _check(memo, sheet) -> list[str]:
     if not isinstance(memo, dict):
         raise _Malformed("answer is not a JSON object")
     try:
-        errors = check_memo(memo, sheet, [ANSWER_SECTION]) + _link_errors(memo) + _wording_errors(memo)
+        errors = check_memo(memo, sheet, [ANSWER_SECTION]) + link_errors(memo) + wording_errors(memo)
     except (AttributeError, TypeError) as exc:
         raise _Malformed(f"answer has the wrong shape ({type(exc).__name__})") from exc
     if not errors and not _text(memo):
