@@ -4,7 +4,7 @@
 **Status:** Accepted (design approved by the owner; built and smoke-tested on branch `ask-canary-chat`; PR open, merge still to do)
 
 ## Decision
-The old Ask box, which sat on the 100 written-report pages and knew one bank, is replaced by **one Ask Canary for the whole site**. It is a small pixel canary in the bottom-right corner of every page. Click it and a chat opens. It can answer questions about anything in Canary's exported data. In plain English:
+The old Ask box, which sat on the 100 written-report pages and knew one bank, is replaced by **one Ask Canary for the whole site**. It is a small pixel canary in the bottom-left corner of every page. Click it and a chat opens. It can answer questions about anything in Canary's exported data. In plain English:
 
 - **Six lookup tools, all read-only.** The AI model (Claude Haiku 5.5, low effort) does not get a fixed fact sheet. It gets six tools over `dashboard/data/` and decides what to look up: `find_bank`, `bank_profile`, `bank_report` (a slim fact list, no report text), `failures`, `watchlist` and `canary_facts`. Lists are capped (25 rows, 12 quarters, 8 search matches). Each tool returns numbered facts.
 - **Every number is checked.** The answer must pass the same citation checker as the reports, against the facts looked up in this visit. It must also pass the link rule and the forecast and advice rule (it allows "not a prediction" and "warning signs", and rejects "likely to fail" and "you should withdraw"). If the check fails, the model gets **one retry**. If that fails too, the visitor sees "I couldn't answer that with checked facts."
