@@ -39,13 +39,13 @@ ASK_ENABLED = "false"
 A placeholder copy is `.streamlit/secrets.toml.example`. `.streamlit/secrets.toml` is git-ignored. Never paste a real key into a file in the repo, a commit, an issue or a chat.
 
 ## Ask Canary: turn it on and off
-Ask Canary is a small pixel canary in the bottom-right corner of every page. It opens a chat that answers questions about anything in the exported data, using Claude Haiku 5.5 with six read-only lookup tools. Why: [[decisions/0024-ask-canary-chat]]. Its limits: 5 questions per visitor (follow-ups count), 100 a day and $1.00 a day for the whole app, questions up to 300 characters, 4 model calls per attempt, one retry, and 80,000 input tokens per question. Answers are fact-checked against what was looked up in the visit (same citation checker as the reports, plus the link and forecast/advice rules). Nothing is stored. It is **off unless switched on**.
+Ask Canary is a small pixel canary in the bottom-right corner of every page. It opens a chat that answers questions about anything in the exported data, using Claude Haiku 5.5 with six read-only lookup tools. Why: [[decisions/0024-ask-canary-chat]]. Its limits: 5 questions per visitor (follow-ups count), 100 a day and $1.00 a day for the whole app, questions up to 300 characters, 4 model calls per attempt and one retry, at most 4 lookups per model reply and 3 written reports per question, and a token ceiling checked before every call: a call is not sent if it would take the question past 80,000 input tokens in all (the retry included) or is over 100,000 by itself (above that Haiku bills a higher long-prompt rate). Answers are fact-checked against what was looked up in the visit (same citation checker as the reports, plus the link and forecast/advice rules). Nothing is stored. It is **off unless switched on**.
 - **On:** set `ASK_ENABLED = "true"` in Secrets and save. The app restarts and the corner bird appears. **Note:** it is currently `true` on the live site, so merging the chat branch switches the live site to the chat at once.
 - **Off:** set `ASK_ENABLED = "false"` (or delete the line). The bird disappears and the rest of the app is unaffected.
-- **The bird sleeps** (eye closed, z's, "RESTING") when the day's question or dollar limit is reached, or after an API or unexpected error for that visitor. A visitor's own 5-question limit does not put it to sleep.
+- **The bird sleeps** (eye closed, z's, "RESTING", "Ask Canary is resting for today.") when the day's question or dollar limit is reached, for the rest of the UTC day after a key, permission or credit-balance error (every visitor), or after any other API or unexpected error for that visitor. A question that fails on its own (a refusal, a cut-off or malformed reply, no answer submitted, the turn limit or the token ceiling) leaves the bird awake and says "I couldn't answer that one. Try asking it another way." A visitor's own 5-question limit does not put it to sleep either.
 - **Cost per question:** an estimate for now, under about $0.01 typical and about $0.03 worst case. It is to be measured in a paid smoke test before merge. At 100 questions a day that is about $1 to $3 if the cap is hit daily.
 - **The caps are soft:** the daily counts and dollars are kept in the app's memory, so a **reboot, a redeploy or the app going to sleep resets them to zero**; the 5-per-visitor limit resets when the visitor reloads the page.
-- **A deploy that changes the bird needs a reboot.** The corner component is registered once per server process, so a change to `chatbird.js` or `chatbird.css` shows up only after Manage app, **Reboot app**. A reboot also resets the daily counters.
+- **A deploy that changes the bird does not need a reboot.** `chatbird.js` and `chatbird.css` live under `src/`, so a push that changes them makes the app drop and re-import the `canary` modules on the next run (`dashboard/repo_source.py`), and the re-imported `chatbird` registers the component again, replacing the old JS and CSS (Streamlit logs "Component canary_chatbird is already registered. Overwriting previous definition", which is expected). Visitors see the new bird after reloading the page. Any push that changes `src/` also starts the daily counters from zero, like a reboot. If the old bird still shows after a reload, use Manage app, **Reboot app**.
 - **Spending can never pass the prepaid balance:** keep **auto-reload off** on the Anthropic account, so when the balance is used up the bird rests and nothing more is charged. If a key ever leaks, delete it in the Anthropic console and put a new one in Secrets.
 
 ## Ask Canary in the logs
@@ -58,15 +58,14 @@ Ask Canary: outcome=answered calls=3 tools=2 cost=$0.00410; today 12/100 questio
 - `checker_failed` (both tries broke a rule)
 - `refusal`
 - `truncated` (the reply ran out of tokens)
-- `no_text`
-- `bad_json`, or `bad_json:<type>` (a reply that broke in some other way, for example `bad_json:KeyError`)
-- `turn_limit` (the model used its 4 calls without finishing)
-- `token_ceiling` (the question hit 80,000 input tokens)
-- `no_submit` (the model ended without submitting an answer)
-- `api_error:<type>` (for example `api_error:RateLimitError`; a low balance shows as an API error)
+- `bad_json` (the submitted answer was not in the answer shape)
+- `turn_limit` (the model used its 4 calls without finishing; the lookups asked for in the 4th are not run)
+- `token_ceiling` (the next call was not sent: projected from the last call's size plus the new lookup results, it would have taken the question past 80,000 input tokens or been over 100,000 by itself)
+- `no_submit` (the model ended without submitting an answer, twice)
+- `api_error:<type>` (for example `api_error:RateLimitError`), or `api_error:<type>:account` for a bad key, missing permission or a used-up credit balance (for example `api_error:AuthenticationError:account`)
 - `error:<type>` (any other unexpected error)
 
-`api_error:` and `error:` put that visitor's bird to sleep. Questions stopped before any call (a guard, or `daily_limit` when the day's cap is reached) are not logged. The day's spend is counted in memory, so it also restarts at zero after a reboot; the Anthropic console has the real total.
+`refusal`, `truncated`, `bad_json`, `no_submit`, `turn_limit` and `token_ceiling` show "I couldn't answer that one. Try asking it another way." and leave the bird awake; `checker_failed` shows "I couldn't answer that with checked facts." `api_error:` and `error:` put that visitor's bird to sleep; `:account` puts every visitor's bird to sleep until the next UTC day (or a reboot). A lookup tool that breaks logs its own warning line, `Ask Canary tool <name> failed: <error type>`. Questions stopped before any call (a guard, or `daily_limit` when the day's cap is reached) are not logged. The day's spend is counted in memory, so it also restarts at zero after a reboot; the Anthropic console has the real total.
 
 ## Expanding the showcase
 The paid step that writes more reports is in [[runbooks/analyst]], "Expanding the showcase". Never run it without the owner's yes on a fresh dry-run estimate.

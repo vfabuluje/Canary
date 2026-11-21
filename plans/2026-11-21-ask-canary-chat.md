@@ -34,7 +34,7 @@
 
 ### Task 0: Spike: a floating v2 component with a round trip (throwaway, not committed)
 
-**Files:** scratch only, in `/private/tmp/claude-501/-Users-vfabuluje/434e25f3-c6de-415c-bba4-4602450dd40a/scratchpad/spike_chat/` (`app.py`, a 20-line JS/CSS component). Nothing goes in the repo.
+**Files:** scratch only, in a scratch folder outside the repo (`app.py`, a 20-line JS/CSS component). Nothing goes in the repo.
 
 - [ ] **Step 1:** Write a v2 component (`st.components.v2.component(name, html=..., css=..., js=..., isolate_styles=True)`) that draws a `position: fixed; right: 16px; bottom: 16px` button and, on click, sends `setTriggerValue("question", "hello")` (use the names in `streamlit/components/v2/__init__.py` and `bidi_component/`). Python mounts it and passes back `data={"answer": "echo: hello"}` on the rerun; the JS shows it.
 - [ ] **Step 2:** Run `streamlit run app.py` with the repo's `.venv`. Check in the browser on a long scrolling page, with `layout="wide"` and a top nav like the app's:
