@@ -2,6 +2,7 @@
 
 ## 2026-11-21 (later) — Ask Canary chat built and smoke-tested
 **Done**
+- README: a row of three screenshots under the title (Home, SVB's report, the chat answering "Why wasn't Silicon Valley Bank flagged?") and an animation of the agents building SVB's report; files in `docs/screenshots/`. Taken from a local run; the chat shot cost one question (about $0.002).
 - PR #29 merged (chat live). The corner canary moved to the bottom-left: Streamlit Cloud's own "Manage app" button covers the bottom-right for the app owner (and would show in the demo video).
 - **Ask Canary is now one site-wide chat** (branch `ask-canary-chat`, PR open, not merged): a small pixel canary in the bottom-right corner of every page opens a chat about anything in the dashboard data. It replaces the per-bank box on report pages. Design: [[specs/2026-11-21-ask-canary-chat-design]]; decision [[decisions/0024-ask-canary-chat]].
 - Six read-only lookup tools (`find_bank`, `bank_profile`, `bank_report`, `failures`, `watchlist`, `canary_facts`). Every number is checked against facts looked up in the visit, plus the link and forecast/advice rules; one retry, otherwise "I couldn't answer that one. Try asking it another way."

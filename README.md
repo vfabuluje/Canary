@@ -4,6 +4,21 @@
 
 **Research tool, not financial advice.**
 
+**Try it live: [canarybank.streamlit.app](https://canarybank.streamlit.app)**
+
+<p>
+  <a href="docs/screenshots/home.png"><img src="docs/screenshots/home.png" width="32%" alt="Home page: the pixel canary, the CANARY title and a bank search box"></a>
+  <a href="docs/screenshots/svb-report.png"><img src="docs/screenshots/svb-report.png" width="32%" alt="Silicon Valley Bank's page: three pixel agents finished building its report, with the list of AI helpers and rule checks"></a>
+  <a href="docs/screenshots/ask-canary.png"><img src="docs/screenshots/ask-canary.png" width="32%" alt="Ask Canary chat open on Silicon Valley Bank's page, explaining with checked numbers why Canary did not flag it"></a>
+</p>
+
+<sub><i>Left to right: Home, Canary's report on Silicon Valley Bank, and the Ask Canary chat answering "Why wasn't Silicon Valley Bank flagged?"</i></sub>
+
+<p align="center">
+  <img src="docs/screenshots/replay.gif" width="720" alt="Animation: Canary's AI agents and rule checks building the report on Silicon Valley Bank, step by step">
+  <br><sub><i>The agents at work: a rule check looks at real-estate lending, two AI detectives study the bank's trends and its peers, a fact checker verifies every number, and the lead detective writes the report.</i></sub>
+</p>
+
 ## What Canary is
 Canary is an early-warning system for US banks. Every quarter, each FDIC-insured bank (about 4,300 today, nearly 10,000 in 2001) publishes its financial results. Canary reads all of them and ranks every bank by how likely it is to fail within the next year. The big test: would it have warned about Silicon Valley Bank, Signature Bank and First Republic before they collapsed in 2023?
 
