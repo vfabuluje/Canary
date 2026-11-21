@@ -1,0 +1,108 @@
+/* Ask Canary: the corner canary (option A1) and its chat panel. Fixed v6 colours: the site themes never change it. */
+.cb {
+  --navy:#1e2240; --yellow:#ffe066; --paper:#ffffff; --soft:#f1f3f5; --muted:#5c6178; --cream:#fff8db; --orange:#e8590c;
+  --pix:"Press Start 2P", ui-monospace, monospace;
+  --body:"Source Sans", "Source Sans 3", "Source Sans Pro", system-ui, -apple-system, sans-serif;
+  --inset-r:calc(16px + env(safe-area-inset-right, 0px));
+  --inset-b:calc(16px + env(safe-area-inset-bottom, 0px));
+  position:fixed; right:var(--inset-r); bottom:var(--inset-b);
+  z-index:999980; /* under Streamlit's header (999990), theme picker and menus */
+  color:var(--navy); font-family:var(--body); font-size:15px; line-height:1.45;
+}
+.cb *, .cb *::before, .cb *::after { box-sizing:border-box; }
+.cb button { font:inherit; color:inherit; cursor:pointer; }
+.cb :focus-visible { outline:3px solid var(--orange); outline-offset:3px; }
+.cb .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* ---- the corner button: yellow bubble + perched bird ---- */
+.launch { display:flex; align-items:flex-end; gap:6px; min-height:44px; padding:0; margin:0; background:none; border:0; }
+.bubble { position:relative; display:flex; align-items:center; gap:7px; margin-bottom:6px; white-space:nowrap;
+  font-family:var(--pix); font-size:8px; line-height:1.5; background:var(--yellow); border:2px solid var(--navy);
+  box-shadow:3px 3px 0 var(--navy); padding:6px 7px; }
+.bubble::after { content:""; position:absolute; right:-8px; bottom:8px; border:4px solid transparent;
+  border-left-color:var(--navy); border-top-color:var(--navy); }
+.word-phone { display:none; }
+.dot { width:6px; height:6px; flex:none; background:var(--orange); border:2px solid var(--navy); animation:cb-blink 1.6s steps(1) infinite; }
+.bird { position:relative; display:inline-block; line-height:0; }
+.sprite, .sprite svg { display:block; width:39px; height:33px; }
+.launch:hover .bubble { background:#ffd43b; }
+
+.tweet { position:absolute; right:22px; bottom:52px; font-family:var(--pix); font-size:7px; color:var(--orange);
+  opacity:0; pointer-events:none; }
+.cb.hop .sprite { animation:cb-hop 1s steps(1); }
+.cb.hop .tweet { animation:cb-chirp 1s steps(1); }
+@keyframes cb-hop { 0%,100% { transform:translateY(0); } 15% { transform:translateY(-6px); } 35% { transform:translateY(0); }
+  55% { transform:translateY(-4px); } 75% { transform:translateY(0); } }
+@keyframes cb-chirp { 0%,10% { opacity:0; } 12%,88% { opacity:1; } 90%,100% { opacity:0; } }
+@keyframes cb-blink { 50% { opacity:.2; } }
+
+/* ---- asleep: closed eye (drawn by JS), rising z's, no dot, no hop ---- */
+.zs { display:none; }
+.cb[data-state="asleep"] .dot, .cb[data-state="asleep"] .tweet { display:none; }
+.cb[data-state="asleep"] .zs { display:block; position:absolute; inset:0; pointer-events:none; }
+.zs i { position:absolute; font-style:normal; font-family:var(--pix); color:var(--navy); line-height:1; opacity:0;
+  animation:cb-z 3s linear infinite; }
+.zs .z1 { left:30%; top:12%; font-size:6px; }
+.zs .z2 { left:14%; top:-12%; font-size:8px; animation-delay:1s; }
+.zs .z3 { left:-6%; top:-40%; font-size:10px; animation-delay:2s; }
+@keyframes cb-z { 0% { opacity:0; transform:translate(4px, 8px) scale(.6); } 20% { opacity:1; }
+  80% { opacity:1; } 100% { opacity:0; transform:translate(-4px, -8px) scale(1.15); } }
+
+/* ---- the panel ---- */
+.panel { position:fixed; right:var(--inset-r); bottom:calc(var(--inset-b) + 58px); width:min(400px, calc(100vw - 32px));
+  max-height:min(620px, calc(100vh - 150px)); display:flex; flex-direction:column; background:var(--paper);
+  border:3px solid var(--navy); box-shadow:6px 6px 0 var(--navy); }
+.panel[hidden] { display:none; }
+.head { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--navy); color:var(--yellow); flex:none; }
+.hbird, .hbird svg { display:block; width:26px; height:22px; flex:none; }
+.title { flex:1; margin:0; font-family:var(--pix); font-weight:400; font-size:11px; line-height:1.6; color:var(--yellow); }
+.cb .x { font-family:var(--pix); font-size:10px; color:var(--paper); background:none; border:2px solid var(--paper);
+  min-width:32px; min-height:32px; padding:3px 6px; }
+.msgs { flex:1 1 auto; min-height:120px; overflow:auto; overscroll-behavior:contain; padding:14px; display:grid; gap:12px;
+  align-content:start; background:var(--soft); }
+.msg { display:flex; gap:8px; align-items:flex-start; min-width:0; }
+.msg.me { justify-content:flex-end; }
+.av, .av svg { display:block; width:26px; height:22px; flex:none; }
+.text { min-width:0; max-width:calc(100% - 34px); background:var(--paper); border:2px solid var(--navy); padding:8px 10px;
+  font-size:14px; overflow-wrap:anywhere; }
+.msg.me .text { background:var(--yellow); }
+.body { margin:0; white-space:pre-line; }
+.cite, .looked { display:block; margin-top:6px; font-size:12px; line-height:1.4; color:var(--muted); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.cb .chip { font-family:var(--body); font-size:12px; text-align:left; background:var(--paper); border:2px solid var(--navy);
+  padding:4px 8px; color:var(--navy); }
+.chip:hover { background:var(--cream); }
+.msg.wait .body { font-family:var(--pix); font-size:12px; letter-spacing:2px; }
+.cb.thinking .msg.wait .av svg, .cb.thinking .hbird svg { animation:cb-think .8s steps(1) infinite; }
+@keyframes cb-think { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-3px); } }
+.ask { display:flex; gap:8px; padding:10px 12px; margin:0; border-top:3px solid var(--navy); flex:none; }
+.ask input { flex:1; min-width:0; font:inherit; font-size:16px; color:var(--navy); background:var(--paper);
+  border:2px solid var(--navy); border-radius:0; padding:8px; }
+.ask input:disabled { background:var(--soft); }
+.cb .send { font-family:var(--pix); font-size:9px; min-height:40px; background:var(--yellow); border:2px solid var(--navy);
+  box-shadow:3px 3px 0 var(--navy); padding:0 12px; }
+.send:disabled { opacity:.5; cursor:default; }
+.foot { margin:0; padding:0 12px 10px; font-size:11px; color:var(--muted); flex:none; }
+
+/* phones: small bird, "ASK", the panel as a sheet from the bottom */
+@media (max-width: 599px) {
+  .sprite, .sprite svg { width:26px; height:22px; }
+  .bubble { font-size:7px; padding:5px 6px; gap:5px; box-shadow:2px 2px 0 var(--navy); margin-bottom:4px; }
+  .dot { width:5px; height:5px; border-width:1px; }
+  .word { display:none; }
+  .word-phone { display:inline; }
+  .tweet { bottom:36px; right:14px; }
+  .zs .z1 { font-size:5px; }
+  .zs .z2 { font-size:6px; }
+  .zs .z3 { font-size:8px; }
+  .panel { left:0; right:0; bottom:0; width:100%; max-height:80vh; max-height:80dvh; border-width:3px 0 0;
+    box-shadow:none; padding-bottom:env(safe-area-inset-bottom, 0px); }
+  .cb.open .launch { visibility:hidden; }
+}
+
+/* reduce motion: no hop, no tweet, no blink, no thinking bounce; the z's stay still */
+@media (prefers-reduced-motion: reduce) {
+  .cb.hop .sprite, .cb.hop .tweet, .dot, .cb.thinking .msg.wait .av svg, .cb.thinking .hbird svg { animation:none; }
+  .cb.hop .tweet { opacity:0; }
+  .zs i { animation:none; opacity:1; }
+}

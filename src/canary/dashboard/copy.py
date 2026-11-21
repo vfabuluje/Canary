@@ -500,6 +500,31 @@ ASK_TOO_LONG = "That question is {count:,} characters long. Please keep it to {l
 ASK_LEFT = "Questions left this visit: {left} of {limit}."
 ASK_SESSION_DONE = "You've asked all {limit} questions for this visit. Thanks for trying Ask Canary!"
 
+# Ask Canary chat (the corner canary on every page). Limits are filled in from canary.dashboard.ask.
+CHAT_BUBBLE = "ASK CANARY"
+CHAT_BUBBLE_PHONE = "ASK"
+CHAT_ASLEEP = "RESTING"
+CHAT_ASLEEP_PHONE = "ZZZ"
+CHAT_TITLE = "ASK CANARY"
+CHAT_OPEN = "Open Ask Canary"
+CHAT_CLOSE = "Close Ask Canary"
+CHAT_TWEET = "tweet!"
+# {report_count} is the number of exported written reports (filled in by chatbird, like the Home cards).
+CHAT_GREETING = ("Tweet! I know every FDIC bank's risk rank since 2016 and the written reports for {report_count} "
+                 "banks. What do you want to know?")
+CHAT_PLACEHOLDER = "Ask about any bank..."
+CHAT_LABEL = "Your question"
+CHAT_BUTTON = "ASK"
+CHAT_FOOTER = "{left} questions left this visit · Research tool, not financial advice."
+CHAT_SESSION_DONE = "You've used this visit's {limit} questions. Thanks for trying Ask Canary!"
+CHAT_EMPTY = "Type a question first."
+CHAT_TOO_LONG = "That question is {count:,} characters long. Please keep it to {limit:,} characters or fewer."
+CHAT_LOOKED_UP = "What I looked up"
+CHAT_THINKING = "…"
+CHAT_STARTERS_GENERAL = ["Why didn't Canary flag SVB?", "Who's on the watchlist now?", "How does the score work?"]
+CHAT_STARTER_BANK = "Why wasn't {name} flagged?"
+CHAT_STARTER_BANK_FLAGGED = "How has {name}'s rank changed?"
+
 HOW_TITLE = "HOW IT WORKS"
 HOW_LEDE = ("Watch Canary's AI team build a real report, one step at a time. Then see how the whole system fits "
             "together, from public data to checked numbers.")
