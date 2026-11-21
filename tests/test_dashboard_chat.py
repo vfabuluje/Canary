@@ -9,6 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from canary.analyst.writer import memo_schema
 from canary.dashboard import ask, chat
 from canary.dashboard.chat import (MAX_TURNS, SUBMIT_TOOL, TOKEN_CEILING, ChatResult, Conversation, PageContext,
                                    Turn, build_messages, lookup_label)
@@ -287,7 +288,7 @@ def test_tools_offered_and_no_forced_choice():
     assert (kw["model"], kw["max_tokens"], kw["output_config"], kw["system"]) == (
         ask.ASK_MODEL, ask.MAX_TOKENS, {"effort": ask.EFFORT}, chat.SYSTEM_PROMPT)
     assert SUBMIT_TOOL["strict"] is True
-    assert SUBMIT_TOOL["input_schema"] == ask.memo_schema([ask.ANSWER_SECTION])
+    assert SUBMIT_TOOL["input_schema"] == memo_schema([ask.ANSWER_SECTION])
 
 
 def test_system_prompt_rules():

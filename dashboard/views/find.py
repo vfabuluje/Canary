@@ -20,11 +20,6 @@ def _open(cert: int) -> None:
     st.query_params["cert"] = str(cert)
 
 
-def _cert(raw: str) -> int | None:
-    """A cert from the address bar: ASCII digits only ("²" passes str.isdigit but not int), at most 10 of them."""
-    return int(raw) if re.fullmatch(r"[0-9]{1,10}", raw) else None
-
-
 def _plain(text: str) -> str:
     """Bank names as literal text on a Markdown button label: every ASCII punctuation mark is backslash-escaped
     (so "E*Trade" keeps its star instead of starting italics)."""
@@ -65,32 +60,35 @@ if typed != params.get("q", ""):  # a new search replaces any open bank
     st.query_params.pop("cert", None)
     st.rerun()
 
+def _results() -> None:
+    """The search results, or the starter banks when nothing is typed."""
+    result = search.search(typed, banks)
+    if result.direct is not None:
+        _open(result.direct)
+        st.rerun()
+    elif result.suggestions:
+        theme.on_background(FIND_DID_YOU_MEAN if result.close else FIND_NOT_CLOSE, bold=True)
+        if css := icons.results_css(result.suggestions):
+            theme.html_block(css)
+        for s in result.suggestions:
+            where = " · ".join(str(p) for p in (s["state"], s["status"]) if pd.notna(p) and p)
+            _pick_button(s["cert"], s["label"], where)
+    elif typed:
+        theme.on_background(FIND_NONE)
+        theme.on_background(FIND_HINT)
+    else:
+        theme.on_background(FIND_HINT)
+        _starters()
+
+
+# No st.stop() here: it would end the whole app run before app.py mounts the corner canary.
 raw = params.get("cert")
-if raw is not None:
-    cert = _cert(raw)
-    if cert is not None and (banks["cert"] == cert).any():
-        st.button(FIND_BACK, on_click=_search_again, key="find-back")
-        bankpage.render_bank(cert)
-        theme.footer()
-        st.stop()
-    st.warning(FIND_BAD_CERT)
-
-result = search.search(typed, banks)
-if result.direct is not None:
-    _open(result.direct)
-    st.rerun()
-elif result.suggestions:
-    theme.on_background(FIND_DID_YOU_MEAN if result.close else FIND_NOT_CLOSE, bold=True)
-    if css := icons.results_css(result.suggestions):
-        theme.html_block(css)
-    for s in result.suggestions:
-        where = " · ".join(str(p) for p in (s["state"], s["status"]) if pd.notna(p) and p)
-        _pick_button(s["cert"], s["label"], where)
-elif typed:
-    theme.on_background(FIND_NONE)
-    theme.on_background(FIND_HINT)
+cert = search.parse_cert(raw) if raw is not None else None
+if cert is not None and (banks["cert"] == cert).any():
+    st.button(FIND_BACK, on_click=_search_again, key="find-back")
+    bankpage.render_bank(cert)
 else:
-    theme.on_background(FIND_HINT)
-    _starters()
-
+    if raw is not None:
+        st.warning(FIND_BAD_CERT)
+    _results()
 theme.footer()

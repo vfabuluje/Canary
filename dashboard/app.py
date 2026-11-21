@@ -14,7 +14,7 @@ from repo_source import use_repo_source  # noqa: E402
 
 use_repo_source(HERE.parent / "src")
 
-from canary.dashboard import theme  # noqa: E402
+from canary.dashboard import chatbird, theme  # noqa: E402
 from canary.dashboard.data import DATA_ENV  # noqa: E402
 
 # The exported data sits beside this file. Pinning it here means the app finds it however the package was
@@ -35,4 +35,6 @@ PAGES = [
 
 theme.apply_theme()
 theme.theme_picker()
-st.navigation(PAGES, position="top").run()
+page = st.navigation(PAGES, position="top")
+page.run()
+chatbird.render_chat(chatbird.page_context(page))  # the corner canary, after the page; draws nothing while Ask is off

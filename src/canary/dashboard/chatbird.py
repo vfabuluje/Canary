@@ -25,7 +25,7 @@ from typing import Literal
 import streamlit as st
 from streamlit.logger import get_logger
 
-from canary.dashboard import ask, chat, data, theme
+from canary.dashboard import ask, chat, data, search, theme
 from canary.dashboard.ask import API_ERROR, MAX_CHARS, RESTING, SESSION_LIMIT
 from canary.dashboard.chat import ChatResult, Conversation, PageContext
 from canary.dashboard.chat_facts import FactLedger
@@ -301,6 +301,28 @@ def _asked() -> None:
         question = value.get("question")
     if question is not None:
         st.session_state[PENDING_KEY] = str(question)
+
+
+def page_context(page) -> PageContext:
+    """Where the visitor is, from `st.navigation`'s page (its `url_path` is "" for Home). On Find a bank with a
+    valid `?cert=N` that names a bank in the data (the same rule views/find.py uses to open it) the page is
+    "bank", with the bank's name."""
+    path = getattr(page, "url_path", "") or ""
+    if path == "":
+        return PageContext("home")
+    if path != "find":
+        return PageContext(path)
+    raw = st.query_params.get("cert")
+    cert = search.parse_cert(raw) if isinstance(raw, str) else None
+    if cert is not None:
+        try:
+            banks = data.banks()
+            match = banks.loc[banks["cert"] == cert, "name"]
+        except Exception:  # the bird never breaks the page
+            match = []
+        if len(match):
+            return PageContext("bank", cert, str(match.iloc[0]))
+    return PageContext("find")
 
 
 def render_chat(page: PageContext) -> None:

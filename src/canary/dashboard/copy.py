@@ -486,19 +486,9 @@ BANK_UNSCORED = ("Canary only scores banks from 2016 on; this bank stopped repor
 BANK_FULL_REPORT = "Read the full report"
 BANK_FAILED = "Failed {date}"
 
-# Ask Canary (the box on each written-report page). Limits are filled in from canary.dashboard.ask.
-ASK_TITLE = "Ask Canary about this bank"
-ASK_LABEL = "Your question"
-ASK_PLACEHOLDER = "e.g. How much of its deposits were uninsured?"
-ASK_BUTTON = "ASK"
-ASK_THINKING = "Reading this bank's facts and checking the answer..."
-ASK_NOTE = "Answers are written by AI from this bank's public data, fact-checked, and not financial advice."
+# Ask Canary's two shared lines (ask.py re-exports them). The chat copy is CHAT_* below.
 ASK_RESTING = "Ask Canary is resting for today."
 ASK_CANT_CHECK = "I couldn't answer that with checked facts."
-ASK_EMPTY = "Type a question first."
-ASK_TOO_LONG = "That question is {count:,} characters long. Please keep it to {limit:,} characters or fewer."
-ASK_LEFT = "Questions left this visit: {left} of {limit}."
-ASK_SESSION_DONE = "You've asked all {limit} questions for this visit. Thanks for trying Ask Canary!"
 
 # Ask Canary chat (the corner canary on every page). Limits are filled in from canary.dashboard.ask.
 CHAT_BUBBLE = "ASK CANARY"

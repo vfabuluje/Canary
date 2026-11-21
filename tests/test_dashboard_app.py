@@ -2,11 +2,13 @@
 
 import re
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from streamlit.testing.v1 import AppTest
 
 from canary.dashboard import data
+from canary.dashboard.chat import PageContext
 from canary.dashboard.copy import HOME_CARDS, HOME_STATS, HOME_WHAT, HONEST_MISS, WHY_SECTIONS
 from tests.dashboard_fixtures import REPORT_CERTS, set_metric, write_fixture_data
 
@@ -256,3 +258,75 @@ def test_selected_chip_css_matches_streamlit_markup(fixture_data):
     rule = re.search(re.escape(chosen) + r"\s*\{([^}]*)\}", css)
     assert rule and "background:var(--navy)" in rule.group(1) and "color:#fff" in rule.group(1)
     assert "stBaseButton-segmented_control" not in css
+
+
+# ---- the corner canary on every page (Ask Canary chat) -----------------------------------------------------
+
+ON = {"ASK_ENABLED": "true", "ANTHROPIC_API_KEY": "sk-ant-test"}
+
+
+@pytest.fixture
+def chat_spy(fixture_data, monkeypatch):
+    """Replace the component and render_chat's page with recorders (no browser, no API call)."""
+    from canary.dashboard import chatbird
+    mounts, pages = [], []
+    monkeypatch.setattr(chatbird, "_component", lambda: lambda **kw: mounts.append(kw))
+    real = chatbird.render_chat
+    monkeypatch.setattr(chatbird, "render_chat", lambda page: (pages.append(page), real(page))[1])
+    return SimpleNamespace(mounts=mounts, pages=pages)
+
+
+def _chat_run(page: str = "home", query: dict | None = None, **secrets) -> AppTest:
+    at = AppTest.from_file(APP, default_timeout=30)
+    for k, v in secrets.items():
+        at.secrets[k] = v
+    at.run()
+    if page != "home":
+        at.switch_page(f"views/{page}.py")
+        for k, v in (query or {}).items():
+            at.query_params[k] = v
+        at.run()
+    assert not at.exception, at.exception
+    return at
+
+
+@pytest.mark.parametrize("page", PAGES)
+def test_chat_bird_on_every_page_when_enabled(chat_spy, page):
+    _chat_run(page, **ON)
+    assert chat_spy.mounts and chat_spy.mounts[-1]["data"]["state"] == "awake"
+    assert chat_spy.pages[-1].page == page
+
+
+@pytest.mark.parametrize("secrets", [{}, {"ASK_ENABLED": "true"}, {"ASK_ENABLED": "false", "ANTHROPIC_API_KEY": "k"},
+                                     {"ASK_ENABLED": "true", "ANTHROPIC_API_KEY": "  "}])
+def test_chat_hidden_when_off_or_no_key(chat_spy, secrets):
+    _chat_run("find", **secrets)
+    assert chat_spy.mounts == []
+
+
+def test_report_page_has_no_ask_box(chat_spy):
+    at = _chat_run("find", {"cert": "24735"}, **ON)
+    assert not any(t.key in ("ask-question", "ask-send") for t in list(at.text_input) + list(at.button))
+    assert not any("Ask Canary about this bank" in m.value for m in at.markdown)
+    assert "Ask Canary about this bank" not in "".join(str(e.value) for e in at.get("html"))
+
+
+def test_page_context_on_bank_page(chat_spy):
+    _chat_run("find", {"cert": "24735"}, **ON)
+    assert chat_spy.pages[-1] == PageContext("bank", 24735, "Silicon Valley Bank")
+    assert "Silicon Valley Bank" in chat_spy.mounts[-1]["data"]["starters"][0]
+
+
+@pytest.mark.parametrize("query", [{}, {"cert": "²"}, {"cert": "999999"}, {"cert": "12345678901"}, {"q": "zzzzqq"}])
+def test_page_context_on_find_without_a_bank(chat_spy, query):
+    _chat_run("find", query, **ON)
+    assert chat_spy.pages[-1] == PageContext("find")
+
+
+def test_state_survives_page_switch(chat_spy):
+    at = _chat_run("home", **ON)
+    at.session_state["chat"] = {"used": 1, "conv": {}, "nonce": 1}
+    at.switch_page("views/how.py").run()
+    assert not at.exception
+    assert at.session_state["chat"]["used"] == 1
+    assert chat_spy.mounts[-1]["data"]["left"] == 4

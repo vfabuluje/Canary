@@ -48,6 +48,11 @@ class SearchResult(NamedTuple):
     close: bool = True  # False when no name is a close match: the suggestions are only the nearest names
 
 
+def parse_cert(raw: str) -> int | None:
+    """A cert from the address bar: ASCII digits only ("²" passes str.isdigit but not int), at most 10 of them."""
+    return int(raw) if re.fullmatch(r"[0-9]{1,10}", raw) else None
+
+
 def _normalize(text: str) -> str:
     """Lower-case and turn punctuation into spaces so "M&T" and "m t" compare alike."""
     return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())

@@ -7,7 +7,6 @@ import pandas as pd
 import streamlit as st
 
 from canary.dashboard import charts, data, icons, theme
-from canary.dashboard.askbox import render_askbox
 from canary.dashboard.copy import (BANK_AFTER_TEST, BANK_CONCENTRATION_NONE, BANK_CONCENTRATION_REASON,
                                    BANK_CONCENTRATION_TITLE, BANK_FAILED, BANK_FLAGGED, BANK_FULL_REPORT,
                                    BANK_HISTORY_TITLE, BANK_LATEST, BANK_NO_REPORT, BANK_NO_REPORT_NOTE,
@@ -46,7 +45,6 @@ def _render_report(bank: pd.Series) -> None:
             render_replay(report, theme.current_theme())
         with st.expander(BANK_FULL_REPORT):
             st.markdown(note_markdown(report["note_md"]))
-        render_askbox(report)
 
 
 def _render_scored(bank: pd.Series) -> None:
