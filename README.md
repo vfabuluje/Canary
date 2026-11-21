@@ -236,7 +236,7 @@ One-time AWS setup (bucket, Athena, budget, limited IAM user): [runbooks/aws-set
 Each refresh, in order: `canary.ingest`, `canary.upload`, `canary.athena_ddl`, then `dbt build --no-partial-parse` from `warehouse/`. Details and what to do if a step fails: [runbooks/warehouse-refresh.md](runbooks/warehouse-refresh.md). Features, training and the one-time test: [runbooks/model-training.md](runbooks/model-training.md). To re-run only the dbt tests (read-only): `dbt test --no-partial-parse --profiles-dir .` from `warehouse/`.
 
 ## Dashboard
-A Streamlit web app, in `dashboard/`, to look up any bank's risk rank over time, read the 2023 stories, see how a bigger or smaller watchlist trades failures caught against false alarms, and, for banks with a written report, watch the three AI agents build it and read it. It is read-only, reads a small folder of exported files (`dashboard/data/`) and not the warehouse, and offers three themes. **Ask Canary**, a question box on each written-report page, uses Claude Haiku 5.5 with hard spending caps (5 questions per visitor, 300 a day) and is off unless switched on. **Research tool, not financial advice.**
+A Streamlit web app, in `dashboard/`, to look up any bank's risk rank over time, read the 2023 stories, see how a bigger or smaller watchlist trades failures caught against false alarms, and, for banks with a written report, watch the three AI agents build it and read it. It is read-only, reads a small folder of exported files (`dashboard/data/`) and not the warehouse, and offers three themes. **Ask Canary** is a small pixel canary in the bottom-right corner of every page. It opens a chat that answers questions about Canary's data (look up a bank, its score history, the 2023 failures, the watchlist by state, how the model works) using Claude Haiku 5.5 and six read-only lookup tools. Every number is checked against the facts it looked up. It cannot answer bank sizes, credit unions, news, stock advice or forecasts. Limits: 5 questions per visit, 100 a day and $1.00 a day for the whole app. It is off unless switched on. **Research tool, not financial advice.**
 
 **Live app:** [canarybank.streamlit.app](https://canarybank.streamlit.app)
 
@@ -254,7 +254,7 @@ Run it locally with `streamlit run dashboard/app.py` after `pip install -e ".[da
 3. **(done) Features and model.** 31 CAMELS-style ratios per bank per quarter, an XGBoost model trained on report dates 2001-2014 and tested once on 2016-2024 (time-based only). Results are above.
 4. **(done) SVB / Signature / First Republic replay; error analysis.** The training-era failure mix, a what-if test of the model, a post-hoc run-risk check and a corrected baseline. See the post-hoc section above and [analysis/phase4-replay.md](analysis/phase4-replay.md).
 5. **(5a-5e done)** Three AI agents (trend, peer, risk analyst) and a code-written real-estate concentration section write cited risk memos per bank (see above). 100 notes are written.
-6. **(dashboard live)** Streamlit dashboard at [canarybank.streamlit.app](https://canarybank.streamlit.app), with Ask Canary built but switched off. Still to do: demo video.
+6. **(dashboard live)** Streamlit dashboard at [canarybank.streamlit.app](https://canarybank.streamlit.app), with the Ask Canary chat built (paid smoke test and merge pending). Still to do: demo video.
 
 ## Reference
 - [RESULTS.md](RESULTS.md): full case-study tables with the signals behind each score, and the full analysis of the misses.

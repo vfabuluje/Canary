@@ -1,5 +1,20 @@
 # Daily Log
 
+## 2026-11-21 (later) — Ask Canary chat built
+**Done**
+- **Ask Canary is now one site-wide chat** (branch `ask-canary-chat`, not merged): a small pixel canary in the bottom-right corner of every page opens a chat about anything in the dashboard data. It replaces the per-bank box on report pages. Design: [[specs/2026-11-21-ask-canary-chat-design]]; decision [[decisions/0024-ask-canary-chat]].
+- Six read-only lookup tools (`find_bank`, `bank_profile`, `bank_report`, `failures`, `watchlist`, `canary_facts`). Every number is checked against facts looked up in the visit, plus the link and forecast/advice rules; one retry, otherwise "I couldn't answer that with checked facts."
+- Limits: 5 questions per visit, 100 a day and $1.00 a day for the whole app, 300 characters, 4 model calls per attempt, 80,000 input tokens per question. The bird sleeps when the day's limit is hit or after an error.
+- New log outcomes `turn_limit`, `token_ceiling`, `no_submit`, `error:<Type>`; new log line with tool count and dollars. Runbook, README and decision 0023 updated.
+- **Cost:** $0 (docs only). Estimate under about $0.01 a typical question, about $0.03 worst case; not yet measured. README Claude API total unchanged ($37.89).
+
+**Next**
+- Paid smoke test (about 10 questions, expected under $0.30), needs Victor's OK on the estimate. Put the measured cost in decision 0024 and the README.
+- Then merge. `ASK_ENABLED` is already true on the live site, so merging switches it to the chat at once. After a deploy that changes `chatbird.js` or `.css`, use Manage app, Reboot app (this resets the daily counters).
+
+**Open questions**
+- Is the measured typical cost under the $0.02 merge bar? If not, come back to Victor before merging.
+
 ## 2026-11-21 — housekeeping and README
 **Done**
 - Log order fixed: the 2026-11-20 entries had been added at the bottom of this newest-first file; they are now at the top. Added the missing PRs #24–#27.
