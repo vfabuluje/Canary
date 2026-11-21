@@ -12,7 +12,9 @@ from datetime import date
 
 import pandas as pd
 
-from canary.analyst.facts import Fact, count_forms, date_forms, decimal_ordinal_forms, label_forms, ordinal
+from canary.analyst.checker import extract_tokens
+from canary.analyst.facts import (POSTHOC_LABEL, Fact, count_forms, date_forms, decimal_ordinal_forms, label_forms,
+                                  ordinal)
 from canary.dashboard import copy, data
 from canary.dashboard.search import _status, search
 
@@ -22,9 +24,24 @@ MAX_ROWS = 25
 MAX_QUARTERS = 12
 MAX_MATCHES = 8
 WATCHLIST_SHARE_PCT = 2  # the flag rule: top 2% of banks each quarter (canary.model.metrics.WATCHLIST_SHARE)
+FLAG_RULE_LABEL = "Flag rule: share of banks flagged each quarter"
+# The years canary_facts' own story uses (canary.model.dataset: TRAIN_END, TEST_START, TEST_END).
+TRAIN_REPORT_YEARS = (2001, 2014)
+TEST_YEARS = (2016, 2024)
+CRISIS_YEARS = (2008, 2012)  # most training-era failures (2008-2012: 465 of the 539 failures in 2001-2015)
+MISSED_YEAR = 2023  # the three large failures Canary did not flag in time (copy.HONEST_MISS)
+HORIZON_QUARTERS = 4  # the score's horizon: failing within the next four quarters ("within a year")
 _SRC = "dashboard/data"
 _QUARTER = re.compile(r"^\s*Q([1-4])\s+(\d{4})\s*$", re.IGNORECASE)
 _SLIM_KEYS = ("id", "label", "quarter", "display", "hindsight")
+_PHASE = re.compile(r"\bPhase\s+\d+[a-z]?\b", re.IGNORECASE)
+
+
+def label_number_forms(label: str) -> list[str]:
+    """Numbers written in a fact's own label, as the checker reads them ("1 = highest score" -> "1", "2016-2024"
+    -> "2016", "2024", "four quarters"), so a sentence citing the fact may repeat its scale anchor or years.
+    Project phase names ("Phase 3") and the post-hoc label (which names 2023) are wording, not figures."""
+    return extract_tokens(_PHASE.sub(" ", label.replace(POSTHOC_LABEL, " ")))
 
 
 def _iso(d) -> str | None:
@@ -43,7 +60,7 @@ class FactLedger:
         return f"F{len(self.facts) + 1}"
 
     def add(self, label, value, display, forms, source, quarter=None, hindsight=False, cert=None, bank=None) -> Fact:
-        forms = list(forms) + (date_forms(quarter) if quarter else []) + label_forms(label)
+        forms = list(forms) + (date_forms(quarter) if quarter else []) + label_forms(label) + label_number_forms(label)
         fact = Fact(self._next_id(), label, quarter, value, display, list(dict.fromkeys(forms)), hindsight, source)
         self.facts[fact.id] = fact
         if cert is not None:
@@ -56,8 +73,9 @@ class FactLedger:
         cert, name = int(report["cert"]), report.get("name", "")
         for f in report["facts"]:
             q = f.get("quarter")
+            forms = list(dict.fromkeys(list(f["forms"]) + label_number_forms(f["label"])))
             fact = Fact(self._next_id(), f["label"], date.fromisoformat(q) if q else None, f["value"], f["display"],
-                        list(f["forms"]), bool(f["hindsight"]), f["source"], f.get("feature"), f.get("kind"))
+                        forms, bool(f["hindsight"]), f["source"], f.get("feature"), f.get("kind"))
             self.facts[fact.id] = fact
             self.bank_of[fact.id] = (cert, name)
             self.report_ids[fact.id] = f["id"]
@@ -166,6 +184,17 @@ def _identity(led: FactLedger, row: pd.Series) -> list[Fact]:
     ]
     out += _status_facts(led, row, kw)
     return out
+
+
+def _flag_rule(led: FactLedger) -> Fact:
+    return led.add(FLAG_RULE_LABEL, WATCHLIST_SHARE_PCT, f"{WATCHLIST_SHARE_PCT}%",
+                   [f"{WATCHLIST_SHARE_PCT}%", str(WATCHLIST_SHARE_PCT), "two percent"],
+                   "canary.model.metrics: WATCHLIST_SHARE (fixed)")
+
+
+def _span_fact(led: FactLedger, label: str, span: tuple[int, int], source: str) -> Fact:
+    a, b = span
+    return led.add(label, f"{a}-{b}", f"{a}-{b}", [str(a), str(b), f"{a}-{b}", f"{a} to {b}"], source)
 
 
 def _score_facts(led: FactLedger, kw: dict, q: date, rank: int, n: int, pct: float, flagged: bool,
@@ -344,6 +373,7 @@ def watchlist(ledger: FactLedger, quarter: str | None = None, state: str | None 
     n_q = int(hist.loc[hist["report_date"] == q, "n_banks"].iloc[0])
     facts.append(ledger.add("Banks ranked that quarter", n_q, f"{n_q:,}", count_forms(n_q),
                             f"{_SRC}/scores_history.parquet: n_banks", qd))
+    facts.append(_flag_rule(ledger))
     out_rows = []
     for r in rows.head(MAX_ROWS).itertuples():
         kw = dict(cert=r.cert, bank=r.name)
@@ -386,9 +416,19 @@ def canary_facts(ledger: FactLedger) -> dict:
         ledger.add("Median lead time, in quarters", lead, f"{lead:g}", lead_forms, f"{src}: lead_time_median"),
         pct("False-alarm rate: share of flagged banks that did not fail", m["false_alarm_rate"], "false_alarm_rate"),
         dec("Texas-ratio baseline ranking score (AUC)", m["baseline"]["auc"], "baseline.auc"),
-        ledger.add("Flag rule: share of banks flagged each quarter", WATCHLIST_SHARE_PCT, f"{WATCHLIST_SHARE_PCT}%",
-                   [f"{WATCHLIST_SHARE_PCT}%", str(WATCHLIST_SHARE_PCT), "two percent"],
-                   "canary.model.metrics: WATCHLIST_SHARE (fixed)"),
+        _flag_rule(ledger),
+        # The years and span in the story below (why_2023_missed, how_it_works), so an answer can cite them.
+        ledger.add("Year the three large US banks Canary did not flag in time collapsed", MISSED_YEAR,
+                   str(MISSED_YEAR), [str(MISSED_YEAR)], "dashboard copy: HONEST_MISS"),
+        _span_fact(ledger, "Years most training failures came from (the 2008 crisis)", CRISIS_YEARS,
+                   f"{_SRC}/banks.parquet: failure_date (2001-2015 failures by year)"),
+        _span_fact(ledger, "Training data: bank reports from these years", TRAIN_REPORT_YEARS,
+                   "canary.model.dataset: TRAIN_END"),
+        _span_fact(ledger, "Test years: failures and reports scored", TEST_YEARS,
+                   "canary.model.dataset: TEST_START, TEST_END"),
+        ledger.add("Score horizon: failing within the next four quarters", HORIZON_QUARTERS,
+                   f"{HORIZON_QUARTERS} quarters", [str(HORIZON_QUARTERS), f"{HORIZON_QUARTERS} quarters", "a year",
+                                                    "one year"], "canary.model.dataset: fails_within_4q"),
     ]
     banks = data.banks().set_index("cert")
     case_lines = []

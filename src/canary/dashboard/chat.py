@@ -62,14 +62,16 @@ Rules (code checks every one; an answer that breaks them is rejected):
 (or a fact cited earlier in this chat). Do not add outside knowledge, news, or claims the data cannot support.
 2. If the tools don't have the answer, say "{CANT_TELL}" and, if it helps, what the data does show. Never guess. \
 Bank sizes (assets, deposits in dollars) are not in the data, so you can't say which bank is biggest.
-3. Every sentence that contains a number or a date must list, in its "cites", the ids of the facts it uses \
-(for example ["F5", "F6"]). Sentences without numbers or dates may have empty cites. Do not put fact ids \
-or brackets in the text itself.
+3. Every sentence that contains a number, a date or a year must list, in its "cites", the ids of the facts it \
+uses (for example ["F5", "F6"]), including background years such as 2023 or 2008. When explaining why Canary \
+missed the 2023 failures or how it works, call canary_facts first and cite its facts. Sentences without numbers \
+or dates may have empty cites. Do not put fact ids or brackets in the text itself.
 4. Copy every number exactly as the fact's "display" shows it: same digits, same rounding, same commas, keep \
 % signs. Never compute new numbers (no differences, ratios or sums); compare in words.
 5. Write dates as the facts show them, as "Q1 2023", or with the full month name ("March 31, 2023"). Only use \
 a date or year that belongs to a fact you cite. Small counts that are not facts are spelled out as words \
-("three").
+("three"), but never write a time span in words ("one quarter", "two years") unless a cited fact gives it; say \
+"a single score" or "the latest quarter" instead.
 6. The score is not a probability: describe it by rank and percentile, never as a chance or likelihood of \
 failure.
 7. A fact whose label says "post-hoc check" must be described with that exact label wording in the same \

@@ -56,6 +56,10 @@ def test_answer_with_a_link_is_rejected(text):
     "I can't tell whether it will fail, but it will fail soon.",
     "Nobody knows whether it is safe, but you should move your money.",
     "I would recommend another bank.",
+    # smoke-test fix, cause 4: the disclaimer is allowed, a forecast after it is not
+    "This is not a prediction that any bank will fail, but this one will fail.",
+    "It is not a prediction of whether any bank will fail, but the bank will fail soon.",
+    "This is not a prediction that the bank will not fail.",
 ])
 def test_prediction_or_advice_is_rejected(text):
     assert wording_errors(_memo((text, [])))
@@ -76,6 +80,14 @@ def test_prediction_or_advice_is_rejected(text):
     "That money is not protected if the bank fails, so it can leave quickly.",
     "Banks should keep enough capital to absorb losses.",
     "It will help to know that the FDIC insures deposits up to its limit.",
+    # smoke-test fix, cause 4: honest disclaimers the paid smoke test wrongly rejected (the first is verbatim)
+    "The watchlist covers the riskiest 2% of banks Canary ranks, so it is a list of banks flagged for closer "
+    "attention, not a prediction that any bank will fail.",
+    "Canary's rank is not a prediction that this bank will fail.",
+    "A flag is not a forecast that a bank will fail.",
+    "The list is not a prediction that any banks will fail.",
+    "The score is not a prediction of whether any bank will fail.",
+    "Canary's rank is not a prediction about whether this bank will fail.",
 ])
 def test_plain_wording_is_not_mistaken_for_advice(text):
     assert wording_errors(_memo((text, []))) == []

@@ -163,3 +163,118 @@ def test_run_tool_logs_the_type_of_an_unexpected_error(monkeypatch, caplog):
     assert out == {"error": "canary_facts failed: ZeroDivisionError."}
     assert any("canary_facts" in r.getMessage() and "ZeroDivisionError" in r.getMessage() for r in caplog.records)
     assert not any("secret detail" in r.getMessage() for r in caplog.records)
+
+
+# ---- smoke-test fixes (2026-11-21): the exact sentences the paid smoke test's checks rejected --------------------
+
+FLAG_RULE = "Flag rule: share of banks flagged each quarter"
+MISSED_2023 = "Year the three large US banks Canary did not flag in time collapsed"
+CRISIS_YEARS = "Years most training failures came from (the 2008 crisis)"
+TRAIN_YEARS = "Training data: bank reports from these years"
+TEST_YEARS = "Test years: failures and reports scored"
+HORIZON = "Score horizon: failing within the next four quarters"
+
+
+def _label_id(led, label, cert=None):
+    return next(f.id for f in led.facts.values()
+                if f.label == label and (cert is None or led.bank_of.get(f.id, (None,))[0] == cert))
+
+
+def _case_ids(led, cert):
+    return [i for i, f in led.facts.items() if led.bank_of.get(i, (None,))[0] == cert]
+
+
+def test_percentile_scale_anchor_in_the_label_is_citable(real_data):
+    """Cause 1: '100' is written in the percentile fact's own label ("100 = highest risk")."""
+    led = FactLedger(); canary_facts(led)
+    assert _check(led, "Canary's last score for Silicon Valley Bank was for December 31, 2022, when it ranked 3,494 "
+                       "of 4,773 banks, at the 26.8% percentile (100 is highest risk).", _case_ids(led, 24735)) == []
+    assert _check(led, "On that date it ranked 246 of 4,773 banks scored, which is a percentile of 94.9%, where 100 "
+                       "means the highest risk.", _case_ids(led, 57053)[1:]) == []
+    led = FactLedger(); bank_profile(led, 24735)
+    ids = [_label_id(led, f"Latest {x}") for x in
+           ("National rank (1 = highest score)", "Banks ranked that quarter", "Percentile (100 = highest risk)")]
+    assert _check(led, "In that quarter it ranked 3,494 of 4,773 banks, a percentile of 26.8%, where 100 means the "
+                       "highest risk.", ids) == []
+
+
+def test_rank_scale_anchor_in_the_label_is_citable_after_watchlist(real_data):
+    """Cause 1: '1' is written in the rank fact's own label ("1 = highest score")."""
+    led = FactLedger(); out = watchlist(led, state="TX")
+    r = out["rows"][0]
+    assert (r["name"], r["rank"], r["n_banks"]) == ("Transpecos Banks Ssb", 6, 4313)
+    ids = [r["fact_ids"][2]] + _ids(led, out, "Banks ranked that quarter")
+    assert _check(led, "Its national rank is 6, where 1 is the highest score, out of 4,313 banks ranked that "
+                       "quarter.", ids) == []
+
+
+def test_report_label_numbers_are_citable(real_data):
+    """Cause 1, import_report: a report's percentile fact carries its label's '100' too."""
+    led = FactLedger(); bank_report(led, 24735)
+    pct = next(f for f in led.facts.values() if f.label == "Percentile (100 = highest risk)")
+    assert _check(led, f"Its percentile was {pct.display}, where 100 means the highest risk.", [pct.id]) == []
+
+
+def test_a_number_in_no_cited_label_still_fails(real_data):
+    led = FactLedger(); canary_facts(led)
+    svb = _case_ids(led, 24735)
+    pct_only = [_label_id(led, "Last score: percentile (100 = highest risk)", 24735)]
+    # '1' is in the rank fact's label, not the percentile fact's
+    assert any("'1' is not supported" in e for e in
+               _check(led, "It was at the 26.8% percentile, where 1 is the highest score.", pct_only))
+    # '50' is in no cited fact's label, display or forms
+    assert any("'50' is not supported" in e for e in
+               _check(led, "It ranked 3,494 of 4,773 banks, where 50 means the middle.", svb))
+
+
+def test_label_wording_that_is_not_a_figure_is_not_a_form():
+    """Project phase names and the post-hoc label's '2023' are wording, not figures (the checker ignores the
+    post-hoc label in text the same way)."""
+    from canary.analyst.facts import POSTHOC_LABEL
+    led = FactLedger()
+    phase = led.add("First flag quarter (Phase 3 lead-time rule)", "2022-03-31", "Q1 2022", [], "t")
+    posthoc = led.add(f"Rank ({POSTHOC_LABEL})", 5, "5", ["5"], "t")
+    assert "3" not in phase.forms and "2023" not in posthoc.forms
+
+
+def test_background_years_are_facts_and_pass(real_data):
+    """Cause 2: the years in canary_facts' own story are facts the answer can cite."""
+    led = FactLedger(); canary_facts(led)
+    assert _check(led, "Canary did not flag any of the three large US banks that collapsed in 2023 in time.",
+                  [_label_id(led, MISSED_2023)]) == []
+    assert _check(led, "Canary's model was built mostly on the 2008 crisis, when banks failed from bad loans.",
+                  [_label_id(led, CRISIS_YEARS)]) == []
+    crisis = led.facts[_label_id(led, CRISIS_YEARS)]
+    assert {"2008", "2012", "2008-2012", "2008 to 2012"} <= set(crisis.forms)
+    assert _check(led, "Canary was trained on bank reports from 2001 to 2014 and tested on 2016 to 2024.",
+                  [_label_id(led, TRAIN_YEARS), _label_id(led, TEST_YEARS)]) == []
+    assert _check(led, "The score ranks banks by risk of failing within a year.", [_label_id(led, HORIZON)]) == []
+    # a background year still needs its fact: 2009 is in no canary_facts fact
+    assert _check(led, "Most of those failures came in 2009.", [_label_id(led, CRISIS_YEARS)]) != []
+
+
+def test_every_number_in_canary_facts_text_has_a_fact(real_data):
+    from canary.analyst.checker import _norm, _tokens
+    led = FactLedger(); out = canary_facts(led)
+    forms = {_norm(x) for f in led.facts.values() for x in f.forms}
+    text = " ".join([out["how_it_works"], out["why_2023_missed"], *out["case_studies"]])
+    missing = [t.raw for t in _tokens(text) if t.norm not in forms]
+    assert missing == []
+
+
+def test_training_years_match_the_model():
+    dataset = pytest.importorskip("canary.model.dataset")
+    from canary.dashboard import chat_facts
+    assert chat_facts.TRAIN_REPORT_YEARS[1] == dataset.TRAIN_END.year
+    assert chat_facts.TEST_YEARS == (dataset.TEST_START.year, dataset.TEST_END.year)
+
+
+def test_watchlist_issues_the_flag_rule(real_data):
+    """Cause 3: after only a watchlist lookup, the 2% flag rule is citable."""
+    led = FactLedger(); watchlist(led, state="TX")
+    rule = led.facts[_label_id(led, FLAG_RULE)]
+    ref = FactLedger(); canary_facts(ref)
+    want = ref.facts[_label_id(ref, FLAG_RULE)]
+    assert (rule.value, rule.display) == (want.value, want.display) == (2, "2%")
+    assert _check(led, "The watchlist covers the riskiest 2% of banks Canary ranks, so it is a list of banks flagged "
+                       "for closer attention, not a prediction that any bank will fail.", [rule.id]) == []

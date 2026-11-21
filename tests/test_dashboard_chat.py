@@ -534,3 +534,97 @@ def test_conversation_round_trips_state():
 def test_chat_result_shape():
     assert list(ChatResult.__dataclass_fields__) == ["ok", "text", "cited", "lookups", "cost_usd", "outcome", "calls",
                                                      "tool_calls", "input_tokens"]
+
+
+# ---- smoke-test fixes (2026-11-21): the smoke test's rejected answers now pass, re-cited to the new facts ---------
+
+def _by_label(led: FactLedger, label: str, cert: int | None = None) -> str:
+    return next(f.id for f in led.facts.values()
+                if f.label == label and (cert is None or led.bank_of.get(f.id, (None,))[0] == cert))
+
+
+def _cited_submit(*sentences):
+    """A submit whose sentences cite facts by (label, cert) pairs, resolved against the ledger at call time."""
+    return lambda led: submit(_memo(*[(t, [_by_label(led, *c) for c in cs]) for t, cs in sentences]))
+
+
+FLAG = ("Flag rule: share of banks flagged each quarter",)
+SVB_LAST = [("Bank name", SVB), ("Last score: national rank (1 = highest score)", SVB),
+            ("Last score: banks ranked that quarter", SVB), ("Last score: percentile (100 = highest risk)", SVB)]
+
+
+def test_smoke_q1_svb_miss_answer_passes(real_data):
+    conv = Conversation([], FactLedger())
+    client = Script([tool_use("canary_facts", {}), _cited_submit(
+        ("Canary's last score for Silicon Valley Bank was for December 31, 2022, when it ranked 3,494 of 4,773 "
+         "banks, at the 26.8% percentile (100 is highest risk).", SVB_LAST),
+        ("Canary flags only the riskiest 2% of banks each quarter, and that bank sat well outside that group in its "
+         "ranking.", [FLAG, SVB_LAST[1]]),
+        ("Canary did not flag any of the three large US banks that collapsed in 2023 in time.",
+         [("Year the three large US banks Canary did not flag in time collapsed",)]),
+        ("Canary's explanation is that its model learned mostly from earlier bank failures caused by bad loans, "
+         "while these banks lost value on investments and loans as interest rates rose, and nervous customers "
+         "pulled their money out quickly.", []),
+        ("Canary's test of its score is about how well it ranks banks, and it is not a prediction of any single "
+         "bank's failure.", [("Ranking score (AUC), 2016-2024 test",)]),
+    )], conv.ledger)
+    r = chat.ask(conv, PageContext("cases"), "Why didn't Canary flag SVB?", client)
+    assert (r.ok, r.outcome, r.calls) == (True, "answered", 2), r
+
+
+def test_smoke_q3_texas_watchlist_answer_passes(real_data):
+    conv = Conversation([], FactLedger())
+    tp = 11178
+    client = Script([tool_use("watchlist", {"quarter": None, "state": "TX"}), _cited_submit(
+        ("For the latest quarter in Canary's data, which is Q2 2026 (June 30, 2026), one Texas bank is on the "
+         "watchlist: Transpecos Banks Ssb (certificate number 11178).",
+         [("Banks on the watchlist in this list",), ("Bank name", tp), ("Certificate number", tp),
+          ("National rank (1 = highest score)", tp)]),
+        ("Its national rank is 6, where 1 is the highest score, out of 4,313 banks ranked that quarter.",
+         [("National rank (1 = highest score)", tp), ("Banks ranked that quarter",)]),
+        ("The watchlist covers the riskiest 2% of banks Canary ranks, so it is a list of banks flagged for closer "
+         "attention, not a prediction that any bank will fail.", [FLAG]),
+    )], conv.ledger)
+    r = chat.ask(conv, PageContext("watchlist"), "Which Texas banks are on the watchlist?", client)
+    assert (r.ok, r.outcome, r.calls) == (True, "answered", 2), r
+
+
+def test_smoke_q4_svb_answer_passes(real_data):
+    latest = [(f"Latest {x}", SVB) for x in
+              ("National rank (1 = highest score)", "Banks ranked that quarter", "Percentile (100 = highest risk)")]
+    conv = Conversation([], FactLedger())
+    client = Script([tool_use("canary_facts", {}), tool_use("bank_profile", {"cert": SVB, "start": None, "end": None}),
+                     _cited_submit(
+        ("Silicon Valley Bank was not on Canary's watchlist in its last scored quarter, which ended December 31, "
+         "2022.", [("Latest On the watchlist", SVB), ("Bank name", SVB)]),
+        ("In that quarter it ranked 3,494 of 4,773 banks, a percentile of 26.8%, where 100 means the highest risk.",
+         latest),
+        ("Canary flags only the riskiest 2% of banks each quarter, so a bank at that rank fell outside the flag "
+         "zone.", [FLAG]),
+        ("The bank failed on March 10, 2023, and Canary did not flag the large bank collapses of that period in "
+         "time.", [("Failure date", SVB)]),
+        ("Canary's model was built mostly on the 2008 crisis, when banks failed from bad loans.",
+         [("Years most training failures came from (the 2008 crisis)",)]),
+        ("Silicon Valley Bank failed differently: its investments and loans lost value as interest rates rose, and "
+         "nervous customers pulled their money out fast, which the model was not built to catch.", []),
+        ("The score is a ranking of relative risk, not a prediction, and a rank from a single quarter does not show "
+         "whether a bank will fail.", []),
+    )], conv.ledger)
+    r = chat.ask(conv, PageContext("home"), "Did Canary flag SVB?", client)
+    assert (r.ok, r.outcome, r.calls) == (True, "answered", 3), r
+
+
+def test_spelled_time_span_without_a_fact_still_fails():
+    """Cause 5 is a prompt fix only: the checker still rejects an uncited spelled span."""
+    errs = chat._check(_memo(("The score is a ranking of relative risk, not a prediction, and one quarter's rank "
+                              "does not show whether a bank will fail.", [])), FactLedger())
+    assert errs and "one quarter" in errs[0]
+
+
+def test_system_prompt_smoke_fix_rules():
+    p = chat.SYSTEM_PROMPT
+    # cause 2: background years need their fact, and canary_facts is the place to find them
+    assert "background years such as 2023 or 2008" in p
+    assert "call canary_facts first" in p
+    # cause 5: no spelled spans without a fact
+    assert '"one quarter"' in p and '"a single score"' in p
