@@ -149,7 +149,10 @@ _CAVEAT = re.compile(
     r"|\bwhether\s+(?:(?!\b(?:and|but|so)\b)[\w']+\s+){0,4}?(?:will|could|might|may|would|is going to|is likely to)"
     r"\s+(?:(?:still|ever|not|eventually)\s+)*(?:fail|collapse|go under|be closed|survive)\b"
     r"|\bwhether\s+(?:the bank|this bank|it|its deposits|your (?:money|deposits|savings))\s+"
-    r"(?:is|are|looks|seems|remains|stays)\s+(?:\w+\s+)?(?:safe|safer|sound|healthy|secure)\b",
+    r"(?:is|are|looks|seems|remains|stays)\s+(?:\w+\s+)?(?:safe|safer|sound|healthy|secure)\b"
+    # the score's horizon or catch rule, as a condition: "if the bank fails within", "the risk that it fails within"
+    r"|\b(?:if|when|unless|whether|(?<=\brisk\s)that)\s+(?:(?:the|a|this|that|any)\s+)?(?:bank|it)\s+"
+    r"(?:fails|collapses)\s+within\b",
     re.IGNORECASE)
 _FORECAST = re.compile(
     r"\bpredict\w*|\bforecast\w*|\bforesaw\b|\bforesee\w*|\bforeshadow\w*"
@@ -160,10 +163,10 @@ _FORECAST = re.compile(
     r"|(?:is|are)\s+(?:bound|sure|certain)\s+to)"
     r"\s+(?:(?:likely|probably|soon|eventually|still|not|never|definitely|certainly|surely)\s+)*"
     r"(?:fail|collapse|go under|be closed|survive)\b"
-    # certainty about a failure: "doomed", "it is (almost) certain that this bank fails", "certainly fail"
     # present-tense forecasts: "goes under in March", "fails next quarter", "collapses within a year"
     r"|\bgoes\s+under\s+(?:soon|next|in|within)\b"
     r"|\b(?:fails|collapses)\s+(?:soon|next\s+(?:week|month|quarter|year)|within)\b"
+    # certainty about a failure: "doomed", "it is (almost) certain that this bank fails", "certainly fail"
     r"|\bdoomed\b|\bcertain\s+(?:that|to)\b[^.;]*?\b(?:fail|collaps)\w*|\bcertainly\s+(?:fail|collapse)\w*"
     r"|(?<!whether )(?<!if )\b(?:the bank|this bank|it|its deposits|your (?:money|deposits|savings))"
     r"\s+(?:is|are|looks|seems|remains|stays)\s+(?:\w+\s+)?(?:safe|safer|sound|healthy|secure)\b"
@@ -173,7 +176,9 @@ _ADVICE = re.compile(
     r"\b(?:you|depositors|customers|savers|investors|people|anyone|everyone)\s+"
     r"(?:should|must|need\s+to|ought\s+to|may\s+want\s+to|might\s+want\s+to)\b"
     r"|\bI\s+(?:would\s+)?(?:recommend|advise|suggest)\b"
-    r"|\bmove\s+it(?:\s+out)?\b(?!\s+(?:up|down|higher|lower)\b)"
+    # "move it" as a command only (sentence start, or after ", so" / "so" / "then" / "just"); "a higher score would
+    # move it onto the watchlist" describes the ranking
+    r"|(?:^\s*|[,;:]\s*(?:(?:so|and|then|just)\s+)?|\b(?:so|then|just)\s+)move\s+it\b"
     r"|\bwithdrawing\s+(?:all\s+)?(?:your|their)\s+(?:money|savings|deposits)\b"
     r"|\b(?:withdraw|move|pull|sell|buy|transfer)\s+(?:all\s+)?(?:your|their)\s+"
     r"(?:money|deposits|savings|funds|shares|stock)\b",

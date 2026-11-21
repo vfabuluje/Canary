@@ -296,3 +296,32 @@ def test_round4_forecasts_and_advice_fail(text):
 ])
 def test_round4_history_and_refusals_pass(text):
     assert wording_errors(_memo((text, []))) == []
+
+
+# ---- fix round 5: definitions of the horizon and ranking descriptions are not forecasts or advice -----------------
+
+@pytest.mark.parametrize("text", [
+    "Canary ranks every bank by the risk that it fails within the next four quarters.",
+    "A flag counts only if the bank fails within the next four quarters.",
+    "A bank counts as caught when it fails within four quarters of being flagged.",
+    "A higher score would move it onto the watchlist.",
+    "A higher score would move it into the riskiest 2%.",
+    "A higher score would move it toward the top of the ranking.",
+])
+def test_round5_definitions_pass(text):
+    assert wording_errors(_memo((text, []))) == []
+
+
+@pytest.mark.parametrize("text", [
+    "The bank fails within a year.",
+    "Wells Fargo collapses within four quarters.",
+    "It fails soon.",
+    "It is certain that it fails within a year.",
+    "Move it out now.",
+    "Your deposits are at risk, so move it.",
+    "Move it elsewhere.",
+    "move it out now",
+    "Move it into a safer bank.",
+])
+def test_round5_forecasts_and_commands_still_fail(text):
+    assert wording_errors(_memo((text, [])))
