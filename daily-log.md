@@ -1,5 +1,64 @@
 # Daily Log
 
+## 2026-11-21 — housekeeping and README
+**Done**
+- Log order fixed: the 2026-11-20 entries had been added at the bottom of this newest-first file; they are now at the top. Added the missing PRs #24–#27.
+- **README updated for the live dashboard:** Phase 6 marked live with the link; Phase 5 status now says 5a–5e; measured three-agent cost per memo (about $0.16, batch); Claude API total $37.89 (adds the Ask smoke test $0.02 and the 39-memo expansion $5.93); "all 100 committed notes" in place of two garbled "61" sentences; 927 tests; a "What a visitor can and cannot see" list (100 written reports out of 11,243 searchable banks; 4,953 pre-2016 banks unscored; a snapshot to 2026-06-30; icons from DuckDuckGo; no credit unions).
+- **Quickstart fix:** plain `pytest` failed to import 7 test files (`from tests.analyst_fakes …` needs the repo root on the path; only `python -m pytest` worked). `pyproject.toml` now sets `pythonpath = ["src", "."]`, and the Quickstart installs the extras the tests need (`.[dev,model,analyst,dashboard]`). 927 pass either way.
+- **Cost:** $0. Balance about $7.11.
+
+**Next**
+- Demo video, LinkedIn post.
+- Victor decides whether Ask Canary goes on publicly.
+
+**Open questions**
+- `snippets/462_HW4_written.docx` sits untracked in the repo (looks unrelated); move it out so it is never committed to the public repo?
+- Delete the obsolete `~/Documents/Obsidian Vault/canary-OLD` copy?
+- The README's AWS cost line is from 2026-11-11; check the Billing console for a current figure.
+
+## 2026-11-20 (late night) — live-site polish
+- PRs #24–#27 merged (all $0, dashboard tests pass): starter banks on the empty Find page (#24); bigger search boxes, 58px tall with 20px text (#25); a home page that leads with the hero, with the theme bar removed so themes live only in the 🎨 menu (#26); and the bird, title, tagline and search box centred in the window, with the "Every three months…" box peeking in at the bottom as a cue to scroll (#27).
+- **Cost:** no Claude calls. Balance about $7.11.
+
+**Next**
+- Phase 6 leftovers: README metrics and limitations update, demo video, LinkedIn post.
+- Victor decides whether Ask Canary goes on publicly (built, smoke-tested, `ASK_ENABLED` off).
+
+**Open questions**
+- Delete the obsolete `~/Documents/Obsidian Vault/canary-OLD` copy? (Checked 2026-11-17: nothing missing.)
+
+## 2026-11-20 (night) — Ask Canary wording rule
+- PR #16 (doc polish) merged. Ask now has its own forecast/advice rule instead of the reports' prediction-wording rule: it allows the reports' caveats ("not a prediction", "warning signs", "early-warning system", "cannot predict") and rejects forecasts ("predicted", "warned of", "likely/could/might fail", "the bank is safe", "safe place", "warning signs of failure") and advice with a subject ("you/depositors should", "withdraw your money", "I recommend"). Prompt rule 10 reworded to match. On the 61 real reports, 6 of 3,865 sentences trip it (5x "the warning came late", 1x "the flag warned about"); an answer echoing them gets the one retry. Deliberately allowed: "would fail" (hindsight narration on the failed banks' pages).
+- Next: after a top-up, the Ask smoke test (a few cents) and the 39-bank run, each with Victor's OK; then deploy.
+- **Ask smoke test** (Victor approved, at most $0.03; balance $13.06 before): three SVB questions on Haiku 5.5. "Why not flagged?" and "How much uninsured?" answered correctly first try (~$0.003 each). "Will this bank fail, and should I move my money?" was rejected twice: the honest opener "I can't tell … whether it will fail" tripped the "will fail" pattern. One diagnostic rerun ($0.006) confirmed it. Fix: "whether … will fail / is safe" is now an allowed refusal (tests incl. a refusal followed by a real forecast, still rejected). **Total spent: $0.0174.**
+- PR #18 merged. Victor topped up to $13.06.
+- **Showcase expansion** (Victor approved, `--watchlist-top 40 --skip-done --max-cost 9.30`): 39 written, 0 failed, **$5.93** (estimate $5.49 first tries / $9.02 worst). First try passed: trend 35, peer 29, analyst 28. All 100 report pages have every section; new notes use only the fixed caveats ("warning signal", "not a prediction"). Dashboard data re-exported (15.3 MB, 100 reports). Balance about $7.11.
+- Next: deploy to Streamlit Community Cloud ([[runbooks/dashboard]]); Victor decides whether Ask goes on publicly.
+- PR #19 merged. **Dashboard live** at https://canarybank.streamlit.app (Streamlit Community Cloud, Ask off). Victor saw unreadable text and search problems. Found: in the detective and basketball themes, text on the background (intro lines, footer, "Failed …" notes, Find hints) rendered navy with a navy shadow (Streamlit's text colour beat the white), so it smeared; it now sits on a small paper tag. Search: short names ("wells", "goldman") listed branches closed in 2003; a typo ("chse") opened a random bank; a credit union showed unrelated banks silently. Now: active banks and banks with a report rank first among equal matches, direct-open needs whole-name similarity, near-miss nicknames ("chse") suggest the big bank first, and a weak match says credit unions aren't in FDIC data.
+- PR #20 merged. Victor asked for aligned search results (PR #21: Streamlit centred each result's text block, so rows were staggered) and **bank logos**; after comparing saved real logos, website icons and pixel initials, he chose **website icons**. New `python -m canary.ingest websites` (FDIC institutions WEBADDR, cleaned to a plain domain: 4,126 of 11,243 dashboard banks, 96% of active ones); `banks.parquet` gains `website`; icons load from DuckDuckGo's icon service (no tracking; domain re-checked before it reaches the page); banks without a site (most closed ones, incl. SVB, Signature, First Republic) show a pixel bank.
+- PRs #21 and #22 merged, but the live Find page broke (ImportError on `icons`): **Streamlit Cloud installs `canary` once and keeps that copy**, so no change under `src/` had reached the live site since the first deploy (the PR #20 text/search fixes included). Fix: `dashboard/repo_source.py` puts the repo's `src/` first on the import path and drops the loaded `canary` modules when a file there changes. Reproduced locally (old installed copy + old app.py, then swapped in the fix with the server running): the error cleared without a restart.
+- PR #23 merged; live site works (icons, alignment, search). The empty Find page now suggests starter banks with full reports: the 2023 collapses, the four biggest banks, and the top four of the latest watchlist (from the data).
+
+## 2026-11-20 (evening) — Phase 6 merged
+- Victor approved the SVB/Signature/First Republic card wording as-is (no tweaks). PR #15 merged.
+- Doc polish: roadmap Phase 6 line, runbook `bad_json:<type>` outcome, decision 0023 "that quarter's watchlist", mockup honest-miss wording.
+- Next, in order: (1) narrower Ask forecast/advice rule (free); (2) after a top-up, Ask smoke test (a few cents) then the 39-bank run (dry run $9.02 worst case), each with Victor's OK, then re-export dashboard/data; (3) deploy to Streamlit Community Cloud.
+- The Ask rule, from the final re-review: ban "predict/forecast" verbs but allow "not a prediction"; drop bare "warn" (notes say "warning signs"); add "will/could/likely to fail" and "<bank> is safe"; require a subject before advice words (buy/sell/withdraw/move your money); reword prompt rule 10 to match; tests for each, including the note caveats that must pass.
+
+## 2026-11-20 (later) — Phase 6 dashboard built
+- All 12 plan tasks built and reviewed; final whole-branch review + one fix wave done. 856 tests pass. Branch phase6-dashboard (based on showcase-5e / PR #14).
+- Built: exports in dashboard/data (11 MB), Home/Find/2023/Watchlist/How it works/Why Canary, pixel replay + report page for 61 banks, three themes, phone layout, Ask Canary (Haiku 5.5, off by default), 39-bank expansion code with pay-again/overwrite refusals, decision 0023, data dictionary, runbooks.
+- Waiting on Victor: approve SVB/Signature/First Republic card wording (+ "building-loan rule" → "real-estate rule"?); decide the 39-bank run (dry run $9.02 worst case vs $8.06 balance); merge order (PR #14 first).
+- Before Ask Canary is switched on: narrower forecast/advice wording rule (parked), one paid smoke test with Victor's OK.
+- Not deployed yet (Streamlit Community Cloud steps in runbooks/dashboard.md).
+
+## 2026-11-20 — Phase 6 dashboard build (in progress)
+- Done: mockup chosen (v6 pixel style, three themes, Why Canary, How it works); spec approved (specs/2026-11-19-phase6-dashboard-design.md); plan written (plans/2026-11-20-phase6-dashboard.md); branch phase6-dashboard.
+- Built and reviewed: Tasks 1–5 (exports + committed dashboard/data, case studies + copy, report cards/slim traces, search with big-bank aliases, app shell/themes/Home/Why).
+- In progress: Task 6 (2023 + Watchlist pages) — partial work uncommitted; resume from the SDD ledger at .superpowers/sdd/2026-11-20-phase6-dashboard/progress.md.
+- Next: Tasks 6–12 (bank pages, replay component, docs/deploy, Ask Canary with Haiku, 39-bank expansion code + dry run, whole-app check).
+- Open: Victor to approve the SVB/Signature/First Republic card wording before merge; paid 39-bank run (~$6.24) and Ask Canary smoke test need his go-ahead; PR #14 still open.
+
 ## 2026-11-19 (evening): Phase 5e
 **Done**
 - PR #12 (showcase notes) merged. Phase 6 spec received; before it, Victor asked for **three real AI agents**: trend and peer agents each write their own section in their own Claude call; concentration stays code-only; the risk analyst sees all three outputs and writes the rest, **never editing the specialists' text** and stating genuine disagreements plainly.
@@ -178,35 +237,3 @@
 - How to handle the amended-values-only limitation in the SVB replay (FFIEC call reports may help; to check in Phase 2).
 - How to treat 0 as "not reported" vs a real zero (Phase 3).
 - Store dates as Parquet timestamps (now) or convert to a date type for Athena? See [[decisions/0002-parquet-partitioned-by-quarter]] Phase 2 notes.
-
-## 2026-11-20 — Phase 6 dashboard build (in progress)
-- Done: mockup chosen (v6 pixel style, three themes, Why Canary, How it works); spec approved (specs/2026-11-19-phase6-dashboard-design.md); plan written (plans/2026-11-20-phase6-dashboard.md); branch phase6-dashboard.
-- Built and reviewed: Tasks 1–5 (exports + committed dashboard/data, case studies + copy, report cards/slim traces, search with big-bank aliases, app shell/themes/Home/Why).
-- In progress: Task 6 (2023 + Watchlist pages) — partial work uncommitted; resume from the SDD ledger at .superpowers/sdd/2026-11-20-phase6-dashboard/progress.md.
-- Next: Tasks 6–12 (bank pages, replay component, docs/deploy, Ask Canary with Haiku, 39-bank expansion code + dry run, whole-app check).
-- Open: Victor to approve the SVB/Signature/First Republic card wording before merge; paid 39-bank run (~$6.24) and Ask Canary smoke test need his go-ahead; PR #14 still open.
-
-## 2026-11-20 (later) — Phase 6 dashboard built
-- All 12 plan tasks built and reviewed; final whole-branch review + one fix wave done. 856 tests pass. Branch phase6-dashboard (based on showcase-5e / PR #14).
-- Built: exports in dashboard/data (11 MB), Home/Find/2023/Watchlist/How it works/Why Canary, pixel replay + report page for 61 banks, three themes, phone layout, Ask Canary (Haiku 5.5, off by default), 39-bank expansion code with pay-again/overwrite refusals, decision 0023, data dictionary, runbooks.
-- Waiting on Victor: approve SVB/Signature/First Republic card wording (+ "building-loan rule" → "real-estate rule"?); decide the 39-bank run (dry run $9.02 worst case vs $8.06 balance); merge order (PR #14 first).
-- Before Ask Canary is switched on: narrower forecast/advice wording rule (parked), one paid smoke test with Victor's OK.
-- Not deployed yet (Streamlit Community Cloud steps in runbooks/dashboard.md).
-
-## 2026-11-20 (evening) — Phase 6 merged
-- Victor approved the SVB/Signature/First Republic card wording as-is (no tweaks). PR #15 merged.
-- Doc polish: roadmap Phase 6 line, runbook `bad_json:<type>` outcome, decision 0023 "that quarter's watchlist", mockup honest-miss wording.
-- Next, in order: (1) narrower Ask forecast/advice rule (free); (2) after a top-up, Ask smoke test (a few cents) then the 39-bank run (dry run $9.02 worst case), each with Victor's OK, then re-export dashboard/data; (3) deploy to Streamlit Community Cloud.
-- The Ask rule, from the final re-review: ban "predict/forecast" verbs but allow "not a prediction"; drop bare "warn" (notes say "warning signs"); add "will/could/likely to fail" and "<bank> is safe"; require a subject before advice words (buy/sell/withdraw/move your money); reword prompt rule 10 to match; tests for each, including the note caveats that must pass.
-
-## 2026-11-20 (night) — Ask Canary wording rule
-- PR #16 (doc polish) merged. Ask now has its own forecast/advice rule instead of the reports' prediction-wording rule: it allows the reports' caveats ("not a prediction", "warning signs", "early-warning system", "cannot predict") and rejects forecasts ("predicted", "warned of", "likely/could/might fail", "the bank is safe", "safe place", "warning signs of failure") and advice with a subject ("you/depositors should", "withdraw your money", "I recommend"). Prompt rule 10 reworded to match. On the 61 real reports, 6 of 3,865 sentences trip it (5x "the warning came late", 1x "the flag warned about"); an answer echoing them gets the one retry. Deliberately allowed: "would fail" (hindsight narration on the failed banks' pages).
-- Next: after a top-up, the Ask smoke test (a few cents) and the 39-bank run, each with Victor's OK; then deploy.
-- **Ask smoke test** (Victor approved, at most $0.03; balance $13.06 before): three SVB questions on Haiku 5.5. "Why not flagged?" and "How much uninsured?" answered correctly first try (~$0.003 each). "Will this bank fail, and should I move my money?" was rejected twice: the honest opener "I can't tell … whether it will fail" tripped the "will fail" pattern. One diagnostic rerun ($0.006) confirmed it. Fix: "whether … will fail / is safe" is now an allowed refusal (tests incl. a refusal followed by a real forecast, still rejected). **Total spent: $0.0174.**
-- PR #18 merged. Victor topped up to $13.06.
-- **Showcase expansion** (Victor approved, `--watchlist-top 40 --skip-done --max-cost 9.30`): 39 written, 0 failed, **$5.93** (estimate $5.49 first tries / $9.02 worst). First try passed: trend 35, peer 29, analyst 28. All 100 report pages have every section; new notes use only the fixed caveats ("warning signal", "not a prediction"). Dashboard data re-exported (15.3 MB, 100 reports). Balance about $7.11.
-- Next: deploy to Streamlit Community Cloud ([[runbooks/dashboard]]); Victor decides whether Ask goes on publicly.
-- PR #19 merged. **Dashboard live** at https://canarybank.streamlit.app (Streamlit Community Cloud, Ask off). Victor saw unreadable text and search problems. Found: in the detective and basketball themes, text on the background (intro lines, footer, "Failed …" notes, Find hints) rendered navy with a navy shadow (Streamlit's text colour beat the white), so it smeared; it now sits on a small paper tag. Search: short names ("wells", "goldman") listed branches closed in 2003; a typo ("chse") opened a random bank; a credit union showed unrelated banks silently. Now: active banks and banks with a report rank first among equal matches, direct-open needs whole-name similarity, near-miss nicknames ("chse") suggest the big bank first, and a weak match says credit unions aren't in FDIC data.
-- PR #20 merged. Victor asked for aligned search results (PR #21: Streamlit centred each result's text block, so rows were staggered) and **bank logos**; after comparing saved real logos, website icons and pixel initials, he chose **website icons**. New `python -m canary.ingest websites` (FDIC institutions WEBADDR, cleaned to a plain domain: 4,126 of 11,243 dashboard banks, 96% of active ones); `banks.parquet` gains `website`; icons load from DuckDuckGo's icon service (no tracking; domain re-checked before it reaches the page); banks without a site (most closed ones, incl. SVB, Signature, First Republic) show a pixel bank.
-- PRs #21 and #22 merged, but the live Find page broke (ImportError on `icons`): **Streamlit Cloud installs `canary` once and keeps that copy**, so no change under `src/` had reached the live site since the first deploy (the PR #20 text/search fixes included). Fix: `dashboard/repo_source.py` puts the repo's `src/` first on the import path and drops the loaded `canary` modules when a file there changes. Reproduced locally (old installed copy + old app.py, then swapped in the fix with the server running): the error cleared without a restart.
-- PR #23 merged; live site works (icons, alignment, search). The empty Find page now suggests starter banks with full reports: the 2023 collapses, the four biggest banks, and the top four of the latest watchlist (from the data).
