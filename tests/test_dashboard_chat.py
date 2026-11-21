@@ -628,3 +628,13 @@ def test_system_prompt_smoke_fix_rules():
     assert "call canary_facts first" in p
     # cause 5: no spelled spans without a fact
     assert '"one quarter"' in p and '"a single score"' in p
+
+
+def test_prompt_horizon_wording_passes_with_the_horizon_fact(real_data):
+    """Fix round 2: the prompt spells the horizon the way the horizon fact holds it, so copying it passes."""
+    from canary.dashboard.chat_facts import canary_facts
+    assert "within the next four quarters" in chat.SYSTEM_PROMPT and "4 quarters" not in chat.SYSTEM_PROMPT
+    led = FactLedger(); canary_facts(led)
+    horizon = _by_label(led, "Score horizon: failing within the next four quarters")
+    assert chat._check(_memo(("Canary ranks every bank by its risk of failing within the next four quarters.",
+                              [horizon])), led) == []
