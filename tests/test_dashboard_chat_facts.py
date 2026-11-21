@@ -143,3 +143,23 @@ def test_bad_range_errors_before_issuing_facts(real_data):
     led = FactLedger()
     assert "error" in bank_profile(led, 24735, start="soon")
     assert not led.facts
+
+
+def test_watchlist_share_matches_the_model():
+    """Task 2: the flag rule the chat states is the model's own WATCHLIST_SHARE."""
+    metrics = pytest.importorskip("canary.model.metrics")
+    from canary.dashboard.chat_facts import WATCHLIST_SHARE_PCT
+    assert WATCHLIST_SHARE_PCT == pytest.approx(metrics.WATCHLIST_SHARE * 100)
+
+
+def test_run_tool_logs_the_type_of_an_unexpected_error(monkeypatch, caplog):
+    from canary.dashboard import chat_facts
+
+    def boom(ledger, **kw):
+        raise ZeroDivisionError("secret detail")
+    monkeypatch.setitem(chat_facts._TOOLS, "canary_facts", boom)
+    with caplog.at_level("WARNING", logger=chat_facts.__name__):
+        out = run_tool(FactLedger(), "canary_facts", {})
+    assert out == {"error": "canary_facts failed: ZeroDivisionError."}
+    assert any("canary_facts" in r.getMessage() and "ZeroDivisionError" in r.getMessage() for r in caplog.records)
+    assert not any("secret detail" in r.getMessage() for r in caplog.records)

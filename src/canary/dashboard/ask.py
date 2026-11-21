@@ -1,14 +1,15 @@
 """Ask Canary's shared rules (spec 5.6): the limits, the outcome categories, the daily counter and the answer checks.
 
-The chat engine (chat.py) asks the model; this module holds what it and the corner canary (chatbird.py) share.
-An answer with a link or web address, a forecast ("predicts", "is likely to fail", "the bank is safe") or advice
-("you should withdraw") fails the checker (ruling R23: the question is untrusted visitor text); the reports' own
-caveats ("not a prediction", "warning signs") are allowed. Every result carries its cost and an outcome category
-(never the question or answer) for chatbird to log.
+The chat engine (chat.py) asks the model and runs the citation checker; this module holds what it and the corner
+canary (chatbird.py) share: the model settings and limits, the outcome names chatbird logs (never the question or
+the answer), the daily counter, and the two extra answer checks the chat adds to the citation checker. Those reject
+a link or web address, a forecast ("predicts", "is likely to fail", "the bank is safe") or advice ("you should
+withdraw"), and allow the reports' own caveats ("not a prediction", "warning signs") (ruling R23: the question is
+untrusted visitor text).
 
-This is the only dashboard module that imports `anthropic`, and only inside `make_client`, so the app runs
-without the package or a key. The spending guards' numbers live here; chatbird enforces them (and hides the bird
-entirely while Ask is switched off or has no key, ruling R22).
+Only `make_client` imports `anthropic` (so the app runs without the package or a key); `account_error` tells the
+SDK's key and balance errors apart by class name. The spending guards' numbers live here; chatbird enforces them
+(and hides the bird entirely while Ask is switched off or has no key, ruling R22).
 """
 
 import re
@@ -17,7 +18,7 @@ from datetime import date
 
 from canary.analyst.sections import Section
 from canary.analyst.writer import cost_usd  # noqa: F401 (re-exported: the tests price calls with ask.cost_usd)
-from canary.dashboard.copy import ASK_CANT_CHECK, ASK_RESTING
+from canary.dashboard.copy import ASK_CANT_CHECK, ASK_RESTING, ASK_TRY_AGAIN
 
 ASK_MODEL = "claude-haiku-5-5"
 SESSION_LIMIT = 5  # questions per visitor session
@@ -32,6 +33,7 @@ CLIENT_TIMEOUT_S = 60.0
 
 RESTING = ASK_RESTING
 CANT_CHECK = ASK_CANT_CHECK
+TRY_AGAIN = ASK_TRY_AGAIN
 
 ANSWER_SECTION = Section(
     "answer", "Answer", "hindsight",
@@ -42,12 +44,22 @@ ANSWERED = "answered"
 CHECKER_FAILED = "checker_failed"  # both tries broke a checker rule
 REFUSAL = "refusal"
 TRUNCATED = "truncated"  # stop_reason max_tokens
-NO_TEXT = "no_text"
 BAD_JSON = "bad_json"  # not JSON, or JSON that isn't the answer shape
 TURN_LIMIT = "turn_limit"  # the chat ran out of model turns
 TOKEN_CEILING_HIT = "token_ceiling"  # the chat hit its token ceiling
 NO_SUBMIT = "no_submit"  # the chat ended without submitting an answer
 API_ERROR = "api_error"  # followed by ":" and the exception type, e.g. "api_error:RateLimitError"
+# Added after an API error's type when the account itself can't be used (a bad or revoked key, no permission, or
+# the prepaid credit balance used up): "api_error:AuthenticationError:account". The whole day then rests (R17).
+ACCOUNT_MARK = ":account"
+_ACCOUNT_ERRORS = ("AuthenticationError", "PermissionDeniedError")
+
+
+def account_error(exc: BaseException) -> bool:
+    """True for an SDK error no retry can fix today: authentication, permission, or a credit-balance refusal.
+    By class name, so this module still never imports anthropic outside make_client."""
+    name = type(exc).__name__
+    return name in _ACCOUNT_ERRORS or (name == "BadRequestError" and "credit balance" in str(exc).lower())
 
 
 class DailyCounter:
@@ -61,6 +73,7 @@ class DailyCounter:
         self._day: date | None = None
         self._count = 0
         self._spent = 0.0
+        self._rest_day: date | None = None
 
     def _roll(self, today: date) -> None:
         if today != self._day:
@@ -77,16 +90,21 @@ class DailyCounter:
             self._roll(today)
             return self._count, self._spent
 
+    def rest(self, today: date) -> None:
+        """Close the rest of this UTC day (ruling R17: the key or the balance can't be used)."""
+        with self._lock:
+            self._rest_day = today
+
     def available(self, today: date) -> bool:
         with self._lock:
             self._roll(today)
-            return self._count < self.limit and self._spent < self.usd_limit
+            return self._rest_day != today and self._count < self.limit and self._spent < self.usd_limit
 
     def take(self, today: date) -> bool:
         """Use one of today's questions; False (and nothing used) once the day's limit is reached."""
         with self._lock:
             self._roll(today)
-            if self._count >= self.limit:
+            if self._rest_day == today or self._count >= self.limit:
                 return False
             self._count += 1
             return True

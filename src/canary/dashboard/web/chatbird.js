@@ -7,7 +7,8 @@ const OPENED = 'canary-chat-opened';
 const FIRST_GAP_MS = 4000;     // hop and tweet this often until the first open this visit
 const LATER_GAP_MS = 60000;    // then about once a minute
 const HOP_MS = 1000;
-const WAIT_LIMIT_MS = 180000;  // give up the local thinking state if no answer ever arrives
+const WAIT_LIMIT_MS = 540000;  // give up the local thinking state if no answer ever arrives: 9 minutes, past
+                               // the Python worst case of 2 attempts x 4 calls x the 60 s client timeout
 
 function wasOpened() { try { return window.sessionStorage.getItem(OPENED) === '1'; } catch (e) { return false; } }
 function rememberOpened() { try { window.sessionStorage.setItem(OPENED, '1'); } catch (e) { /* storage blocked */ } }
@@ -158,7 +159,7 @@ const render = (S) => {
   S.wordPhone.textContent = d.bubble_phone;
   S.tweet.textContent = t.tweet;
   S.title.textContent = t.title;
-  S.launch.setAttribute('aria-label', t.open);
+  S.launch.setAttribute('aria-label', asleep ? t.open_asleep : t.open);
   S.close.setAttribute('aria-label', t.close);
   S.label.textContent = t.label;
   S.input.placeholder = t.placeholder;

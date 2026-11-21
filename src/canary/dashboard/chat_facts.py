@@ -5,6 +5,7 @@ spellings the answer checker accepts, so a later step can verify each number in 
 facts the tools actually returned. Tools never raise: bad input comes back as {"error": ...}.
 """
 
+import logging
 import re
 from dataclasses import asdict
 from datetime import date
@@ -14,6 +15,8 @@ import pandas as pd
 from canary.analyst.facts import Fact, count_forms, date_forms, decimal_ordinal_forms, label_forms, ordinal
 from canary.dashboard import copy, data
 from canary.dashboard.search import _status, search
+
+log = logging.getLogger(__name__)
 
 MAX_ROWS = 25
 MAX_QUARTERS = 12
@@ -462,4 +465,5 @@ def run_tool(ledger: FactLedger, name: str, args: dict) -> dict:
     except TypeError:
         return {"error": f"Bad arguments for {name}."}
     except Exception as exc:  # tools never raise into the chat loop
+        log.warning("Ask Canary tool %s failed: %s", name, type(exc).__name__)  # the type only, never the message
         return {"error": f"{name} failed: {type(exc).__name__}."}

@@ -5,12 +5,16 @@ visit's ledger, and then finishes by calling `submit_answer` with the answer in 
 shape. Code checks that answer against every fact the tools returned this visit, with the same rules as the
 single-bank box: the citation checker, no links, no forecasts or advice, and not empty. A failing answer (or a
 reply that never submits) gets one retry with the errors; a second failure gives "I couldn't answer that with
-checked facts." A refusal, a truncated reply, a malformed submit, an API error, the turn limit or the token
-ceiling gives "Ask Canary is resting for today."
+checked facts." A refusal, a truncated reply, a malformed submit, the turn limit or the token ceiling gives "I
+couldn't answer that one. Try asking it another way." (ruling R15: the bird stays awake); an API error or an
+unexpected error gives "Ask Canary is resting for today." and puts the bird to sleep.
 
-The loop is manual over `client.messages.create`, so every billed call is visible here and bounded: at most
-`MAX_TURNS` calls per attempt, two attempts, and `TOKEN_CEILING` input tokens summed over every call for the
-question. Follow-ups carry only each earlier turn's question, answer and the facts it cited.
+The loop is manual over `client.messages.create`, so every billed call is visible here and bounded (ruling R16):
+at most `MAX_TURNS` calls per attempt (the last one's lookups are never run), two attempts, at most
+`MAX_LOOKUPS_PER_TURN` lookups run per reply and `MAX_REPORTS_PER_QUESTION` reports per question, and before every
+call a projected size check: the call is not sent if it would take the question past `TOKEN_CEILING` input tokens
+or is over `MAX_REQUEST_TOKENS` by itself. Follow-ups carry only each earlier turn's question, answer and the facts
+it cited.
 """
 
 import json
@@ -21,13 +25,18 @@ from types import SimpleNamespace
 from canary.analyst.checker import check_memo
 from canary.analyst.writer import PRICES, _retry_message, cost_usd, memo_schema
 from canary.dashboard import data
-from canary.dashboard.ask import (ANSWER_SECTION, ANSWERED, API_ERROR, ASK_MODEL, BAD_JSON, CANT_CHECK,
+from canary.dashboard.ask import (ACCOUNT_MARK, ANSWER_SECTION, ANSWERED, API_ERROR, ASK_MODEL, BAD_JSON, CANT_CHECK,
                                   CHECKER_FAILED, EFFORT, MAX_TOKENS, NO_SUBMIT, REFUSAL, RESTING, TOKEN_CEILING_HIT,
-                                  TRUNCATED, TURN_LIMIT, _text, link_errors, wording_errors)
+                                  TRUNCATED, TRY_AGAIN, TURN_LIMIT, _text, account_error, link_errors,
+                                  wording_errors)
 from canary.dashboard.chat_facts import TOOL_SPECS, FactLedger, run_tool
 
 MAX_TURNS = 4  # model calls per attempt
-TOKEN_CEILING = 80_000  # input tokens summed over every call for one question, the retry included
+TOKEN_CEILING = 80_000  # input tokens summed over every call for one question, the retry included (projected)
+MAX_REQUEST_TOKENS = 100_000  # one request's input; above it Haiku bills the long-prompt rate (writer.LONG_PROMPT)
+MAX_LOOKUPS_PER_TURN = 4  # lookups run from one model reply; the rest get "Not run"
+MAX_REPORTS_PER_QUESTION = 3  # bank_report calls run per question (each is about 9,000 tokens)
+CHARS_PER_TOKEN = 3  # a cautious size estimate for text not yet sent (JSON and numbers run about 3 to 4)
 
 CANT_TELL = "I can't tell from Canary's data"
 OUTSIDE = "That's outside what Canary covers"
@@ -202,13 +211,53 @@ def _api_errors() -> tuple:
 
 class _Totals:
     def __init__(self) -> None:
-        self.calls = self.tool_calls = self.input_tokens = 0
+        self.calls = self.tool_calls = self.input_tokens = self.reports = 0
         self.cost = 0.0
         self.lookups: list[str] = []
+        # the request-size projection: tokens known to be in the conversation as of the last call (its input plus
+        # its output, which comes back as the assistant turn), and how many messages that covers
+        self.known = _tokens(SYSTEM_PROMPT) + _tokens(json.dumps(TOOL_SPECS + [SUBMIT_TOOL]))
+        self.counted = 0
 
     def result(self, ok, text, outcome, cited=()) -> ChatResult:
         return ChatResult(ok, text, list(cited), list(self.lookups), self.cost, outcome, self.calls, self.tool_calls,
                           self.input_tokens)
+
+
+def _tokens(text: str) -> int:
+    return -(-len(text) // CHARS_PER_TOKEN)
+
+
+def _projected(messages: list, tot: _Totals) -> int:
+    """The next request's input tokens: what the last call is known to have carried, plus an estimate for the
+    messages added since (tool results, a nudge, a retry); before the first call, the whole request."""
+    return tot.known + sum(_tokens(json.dumps(m, default=str)) for m in messages[tot.counted:])
+
+
+def _has_text(content) -> bool:
+    return any(getattr(b, "type", None) == "text" and str(getattr(b, "text", "") or "").strip() for b in content)
+
+
+def _run_lookups(uses: list, ledger: FactLedger, tot: _Totals) -> list[dict]:
+    """Run at most MAX_LOOKUPS_PER_TURN of a reply's lookups, and at most MAX_REPORTS_PER_QUESTION bank_reports per
+    question; every tool_use still gets a tool_result (one user message), the ones not run marked as errors."""
+    results, ran = [], 0
+    for b in uses:
+        if ran >= MAX_LOOKUPS_PER_TURN:
+            out = {"error": f"Not run: at most {MAX_LOOKUPS_PER_TURN} lookups at a time."}
+        elif b.name == "bank_report" and tot.reports >= MAX_REPORTS_PER_QUESTION:
+            out = {"error": f"Not run: at most {MAX_REPORTS_PER_QUESTION} written reports per question."}
+        else:
+            ran += 1
+            tot.reports += b.name == "bank_report"
+            out = run_tool(ledger, b.name, b.input)
+            tot.tool_calls += 1
+            tot.lookups.append(lookup_label(b.name, b.input))
+        res = {"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, default=str)}
+        if isinstance(out, dict) and "error" in out:
+            res["is_error"] = True
+        results.append(res)
+    return results
 
 
 def _check(memo, ledger: FactLedger) -> list[str] | None:
@@ -227,47 +276,50 @@ def _check(memo, ledger: FactLedger) -> list[str] | None:
 
 
 def _attempt(client, messages: list, ledger: FactLedger, tot: _Totals):
-    """Run model turns until a submit. Returns (outcome, submit block or None); `messages` grows in place."""
+    """Run model turns until a submit. Returns (outcome, submit block or None); `messages` grows in place.
+
+    Before every call the request is projected (ruling R16): if it would take the question past TOKEN_CEILING
+    input tokens, or be over MAX_REQUEST_TOKENS by itself, it is not sent."""
     api_errors = _api_errors()
-    for _ in range(MAX_TURNS):
-        if tot.input_tokens >= TOKEN_CEILING:
+    for turn in range(1, MAX_TURNS + 1):
+        projected = _projected(messages, tot)
+        if projected > MAX_REQUEST_TOKENS or tot.input_tokens + projected > TOKEN_CEILING:
             return TOKEN_CEILING_HIT, None
         try:
             msg = client.messages.create(model=ASK_MODEL, max_tokens=MAX_TOKENS, system=SYSTEM_PROMPT,
                                          tools=TOOL_SPECS + [SUBMIT_TOOL], tool_choice={"type": "auto"},
                                          output_config={"effort": EFFORT}, messages=list(messages))
         except api_errors as exc:
-            return f"{API_ERROR}:{type(exc).__name__}", None
+            return f"{API_ERROR}:{type(exc).__name__}{ACCOUNT_MARK if account_error(exc) else ''}", None
         tot.calls += 1
         usage = getattr(msg, "usage", None)
         if usage is not None:
             tot.input_tokens += usage.input_tokens
+            tot.known = usage.input_tokens + usage.output_tokens
             served = getattr(msg, "model", None)  # an id the price table doesn't know is priced as ASK_MODEL,
             model = served if served in PRICES else ASK_MODEL  # not as writer's Opus default
             tot.cost += cost_usd(model, usage.input_tokens, usage.output_tokens)
+        else:  # no usage reported: keep the projection (and still bound by the turn limit)
+            tot.input_tokens += projected
+            tot.known = projected
+        tot.counted = len(messages)
         if msg.stop_reason == "refusal":
             return REFUSAL, None
         if msg.stop_reason == "max_tokens":
             return TRUNCATED, None
         content = list(msg.content or [])
-        if content:
-            messages.append({"role": "assistant", "content": msg.content})  # unchanged: thinking blocks kept
         uses = [b for b in content if getattr(b, "type", None) == "tool_use"]
+        if uses or _has_text(content):  # a thinking-only or empty reply is not carried into the retry
+            messages.append({"role": "assistant", "content": msg.content})  # unchanged: thinking blocks kept
+            tot.counted = len(messages)  # its size is in the output tokens
         submit = next((b for b in uses if b.name == SUBMIT), None)
         if submit is not None:
             return None, submit
         if not uses:
             return NO_SUBMIT, None
-        results = []
-        for b in uses:
-            out = run_tool(ledger, b.name, b.input)
-            tot.tool_calls += 1
-            tot.lookups.append(lookup_label(b.name, b.input))
-            res = {"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, default=str)}
-            if isinstance(out, dict) and "error" in out:
-                res["is_error"] = True
-            results.append(res)
-        messages.append({"role": "user", "content": results})
+        if turn == MAX_TURNS:  # no call is left to read the lookups, so don't run them
+            break
+        messages.append({"role": "user", "content": _run_lookups(uses, ledger, tot)})
     return TURN_LIMIT, None
 
 
@@ -283,15 +335,20 @@ def _retry_turn(messages: list, submit, errors: list[str]) -> None:
     messages.append({"role": "user", "content": results})
 
 
-def ask(conv: Conversation, page: PageContext, question: str, client) -> ChatResult:
-    """Answer one question with lookups, a checked submit and at most one retry. Never raises (ruling R12): an
-    unexpected error gives "resting" with outcome "error:<type>" and the cost of any calls already billed, so the
-    daily dollar limit still counts them. Appends a Turn to `conv` only when the answer passes."""
+def ask(conv: Conversation, page: PageContext, question: str, client, on_cost=None) -> ChatResult:
+    """Answer one question with lookups, a checked submit and at most one retry. Never raises an Exception (ruling
+    R12): an unexpected error gives "resting" with outcome "error:<type>" and the cost of any calls already billed,
+    so the daily dollar limit still counts them. A BaseException (Streamlit's rerun or stop) is re-raised, after
+    handing the cost already billed to `on_cost(usd)`. Appends a Turn to `conv` only when the answer passes."""
     tot = _Totals()
     try:
         return _ask(conv, page, question, client, tot)
     except Exception as exc:  # SDK errors are already mapped to api_error inside _attempt
         return tot.result(False, RESTING, f"error:{type(exc).__name__}")
+    except BaseException:
+        if on_cost is not None:
+            on_cost(tot.cost)
+        raise
 
 
 def _ask(conv: Conversation, page: PageContext, question: str, client, tot: _Totals) -> ChatResult:
@@ -303,12 +360,12 @@ def _ask(conv: Conversation, page: PageContext, question: str, client, tot: _Tot
             failed = NO_SUBMIT
             messages.append({"role": "user", "content": FINISH})
             continue
-        if outcome is not None:
-            return tot.result(False, RESTING, outcome)
+        if outcome is not None:  # an API error puts the bird to sleep; anything else is this question only
+            return tot.result(False, RESTING if outcome.startswith(f"{API_ERROR}:") else TRY_AGAIN, outcome)
         memo = submit.input
         errors = _check(memo, conv.ledger)
         if errors is None:
-            return tot.result(False, RESTING, BAD_JSON)
+            return tot.result(False, TRY_AGAIN, BAD_JSON)
         if not errors:
             cited = list(dict.fromkeys(c for sec in memo.get("sections", []) for p in sec.get("paragraphs", [])
                                        for s in p.get("sentences", []) for c in (s.get("cites") or [])))
@@ -318,5 +375,5 @@ def _ask(conv: Conversation, page: PageContext, question: str, client, tot: _Tot
         failed = CHECKER_FAILED
         _retry_turn(messages, submit, errors)
     if failed == NO_SUBMIT:
-        return tot.result(False, RESTING, NO_SUBMIT)
+        return tot.result(False, TRY_AGAIN, NO_SUBMIT)
     return tot.result(False, CANT_CHECK, CHECKER_FAILED)

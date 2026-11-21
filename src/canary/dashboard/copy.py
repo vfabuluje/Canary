@@ -486,9 +486,11 @@ BANK_UNSCORED = ("Canary only scores banks from 2016 on; this bank stopped repor
 BANK_FULL_REPORT = "Read the full report"
 BANK_FAILED = "Failed {date}"
 
-# Ask Canary's two shared lines (ask.py re-exports them). The chat copy is CHAT_* below.
+# Ask Canary's shared lines (ask.py re-exports them). The chat copy is CHAT_* below. "Resting" is only for a
+# bird that has gone to sleep; a question that failed on its own (the bird still awake) gets ASK_TRY_AGAIN.
 ASK_RESTING = "Ask Canary is resting for today."
 ASK_CANT_CHECK = "I couldn't answer that with checked facts."
+ASK_TRY_AGAIN = "I couldn't answer that one. Try asking it another way."
 
 # Ask Canary chat (the corner canary on every page). Limits are filled in from canary.dashboard.ask.
 CHAT_BUBBLE = "ASK CANARY"
@@ -497,6 +499,7 @@ CHAT_ASLEEP = "RESTING"
 CHAT_ASLEEP_PHONE = "ZZZ"
 CHAT_TITLE = "ASK CANARY"
 CHAT_OPEN = "Open Ask Canary"
+CHAT_OPEN_ASLEEP = "Ask Canary is resting"  # the corner button's label while the bird sleeps
 CHAT_CLOSE = "Close Ask Canary"
 CHAT_TWEET = "tweet!"
 # {report_count} is the number of exported written reports (filled in by chatbird, like the Home cards).
@@ -505,7 +508,8 @@ CHAT_GREETING = ("Tweet! I know every FDIC bank's risk rank since 2016 and the w
 CHAT_PLACEHOLDER = "Ask about any bank..."
 CHAT_LABEL = "Your question"
 CHAT_BUTTON = "ASK"
-CHAT_FOOTER = "{left} questions left this visit · Research tool, not financial advice."
+CHAT_FOOTER = "{left} {questions} left this visit · Research tool, not financial advice."
+CHAT_QUESTION_ONE, CHAT_QUESTION_MANY = "question", "questions"
 CHAT_SESSION_DONE = "You've used this visit's {limit} questions. Thanks for trying Ask Canary!"
 CHAT_EMPTY = "Type a question first."
 CHAT_TOO_LONG = "That question is {count:,} characters long. Please keep it to {limit:,} characters or fewer."

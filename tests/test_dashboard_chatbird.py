@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 from dataclasses import asdict
 from datetime import date
 
@@ -136,6 +137,8 @@ def test_payload_left_counts_down_and_limit_text():
     conv = Conversation()
     p = payload("awake", conv, HOME, 3, None)
     assert p["left"] == 2 and "2 questions left this visit" in p["footer"]
+    assert payload("awake", conv, HOME, 4, None)["footer"].startswith("1 question left this visit ·")  # M5
+    assert payload("awake", conv, HOME, 0, None)["footer"].startswith("5 questions left this visit ·")
     done = CHAT_SESSION_DONE.format(limit=SESSION_LIMIT)
     assert done not in json.dumps(p)
     p = payload("awake", conv, HOME, 5, None)
@@ -179,15 +182,17 @@ def test_payload_carries_sprite_and_nonce():
 
 class _Calls:
     def __init__(self, result=None, exc=None):
-        self.result, self.exc, self.calls, self.keys = result, exc, [], []
+        self.result, self.exc, self.calls, self.keys, self.partial = result, exc, [], [], 0.0
 
     def client(self, key):
         self.keys.append(key)
         return object()
 
-    def ask(self, conv, page, question, client):
+    def ask(self, conv, page, question, client, on_cost=None):
         self.calls.append((page, question))
         if self.exc is not None:
+            if not isinstance(self.exc, Exception) and on_cost is not None:
+                on_cost(self.partial)  # what chat.ask does before re-raising an interrupt
             raise self.exc
         if self.result.ok:
             conv.turns.append(Turn(question, self.result.text, self.result.cited, self.result.lookups))
@@ -266,6 +271,56 @@ def test_question_sent_counts_costs_logs_and_saves(fake, daily):
     assert "flagged" not in rec.getMessage() and "sk-test" not in rec.getMessage()
 
 
+def test_try_again_outcome_keeps_the_bird_awake(fake, daily):
+    """I1 (ruling R15): a per-question failure says try again and the bird stays awake."""
+    fake.result = _result(False, ask.TRY_AGAIN, ask.TURN_LIMIT)
+    saved: dict = {}
+    r = _send(saved, "Hello?")
+    assert r.text == ask.TRY_AGAIN != RESTING
+    assert not chatbird.is_resting(TODAY, chatbird._last(saved)) and daily.available(TODAY)
+    p = payload("awake", Conversation(), HOME, saved["used"], chatbird._last(saved), "Hello?")
+    assert p["messages"][-1]["text"] == ask.TRY_AGAIN and RESTING not in json.dumps(p) and p["can_ask"]
+
+
+@pytest.mark.parametrize("outcome", ["api_error:AuthenticationError:account", "api_error:BadRequestError:account"])
+def test_account_error_rests_the_whole_day(fake, daily, outcome):
+    """M3 (ruling R17): a key, permission or balance error puts every visitor's bird to sleep until tomorrow."""
+    fake.result = _result(False, RESTING, outcome, cost=0.0)
+    _send({}, "Hello?")
+    assert not daily.available(TODAY)
+    assert chatbird.is_resting(TODAY, None)  # a different visitor
+    r = _send({}, "Anyone there?")
+    assert r.text == RESTING and r.outcome == chatbird.DAILY_REST and len(fake.calls) == 1
+    assert daily.available(date(2026, 11, 22))
+
+
+def test_other_api_error_rests_only_this_visit(fake, daily):
+    fake.result = _result(False, RESTING, f"{API_ERROR}:RateLimitError", cost=0.0)
+    _send({}, "Hello?")
+    assert daily.available(TODAY)
+
+
+class _Interrupt(BaseException):
+    """Stands in for Streamlit's RerunException / StopException."""
+
+
+def test_interrupt_still_counts_the_billed_cost(fake, daily):
+    """M2: a rerun or stop raised while chat.ask runs re-raises, but the billed cost reaches DAILY first."""
+    fake.exc, fake.partial = _Interrupt(), 0.003
+    with pytest.raises(_Interrupt):
+        _send({}, "Hello?")
+    assert daily.today(TODAY) == (1, pytest.approx(0.003))
+
+
+def test_oversize_question_is_stored_and_shown_truncated(fake, daily):
+    """M9: a forged trigger longer than MAX_CHARS is refused and only its first MAX_CHARS are kept."""
+    saved: dict = {}
+    r = _send(saved, "y" * 5000)
+    assert r.text == CHAT_TOO_LONG.format(count=5000, limit=ask.MAX_CHARS) and fake.calls == []
+    assert saved["question"] == "y" * ask.MAX_CHARS
+    assert saved["notices"][-1]["question"] == "y" * ask.MAX_CHARS
+
+
 def test_failed_answer_logs_warning_and_api_error_puts_bird_to_sleep(fake, daily):
     fake.result = _result(False, RESTING, f"{API_ERROR}:RateLimitError", cost=0.0)
     saved: dict = {}
@@ -316,6 +371,26 @@ def test_client_failure_rests_without_using_the_day(fake, daily, monkeypatch):
 
 # ---- mounting -----------------------------------------------------------------------------------------------
 
+_MISSING = object()
+
+
+def _flag(monkeypatch, value) -> None:
+    monkeypatch.setattr(chatbird, "_secret", lambda name: None if value is _MISSING else value)
+
+
+@pytest.mark.parametrize("flag", [False, "false", "False", "", "no", "yes", 1, None, _MISSING])
+def test_ask_enabled_off(monkeypatch, flag):
+    """I2: the kill switch is off for anything but true or "true"."""
+    _flag(monkeypatch, flag)
+    assert chatbird._enabled() is False
+
+
+@pytest.mark.parametrize("flag", [True, "true", "TRUE", " true "])
+def test_ask_enabled_on(monkeypatch, flag):
+    _flag(monkeypatch, flag)
+    assert chatbird._enabled() is True
+
+
 @pytest.mark.parametrize("secrets", [{}, {"ASK_ENABLED": True}, {"ASK_ENABLED": "false", "ANTHROPIC_API_KEY": "k"},
                                      {"ASK_ENABLED": True, "ANTHROPIC_API_KEY": "  "}])
 def test_render_chat_draws_nothing_when_off_or_keyless(monkeypatch, secrets):
@@ -346,3 +421,18 @@ def test_js_accessibility_and_storage_guards():
             assert "try" in line, line  # every storage access is wrapped
     assert "innerHTML" not in js  # nothing is ever parsed as HTML
     assert "setTriggerValue('question'" in js
+    # M6: the launcher says when the bird is asleep, and the close X is a 44px tap target
+    asleep = payload("asleep", Conversation(), HOME, 0, None)["text"]
+    assert asleep["open_asleep"] == "Ask Canary is resting"
+    assert "asleep ? t.open_asleep : t.open" in js
+    css = (WEB / "chatbird.css").read_text()
+    x_rule = css.split(".cb .x {", 1)[1].split("}", 1)[0]
+    assert "min-width:44px" in x_rule and "min-height:44px" in x_rule
+
+
+def test_js_wait_limit_outlasts_the_python_worst_case():
+    """M11: the browser keeps its thinking state longer than two attempts of MAX_TURNS calls at the timeout."""
+    js = (WEB / "chatbird.js").read_text()
+    wait_ms = int(re.search(r"const WAIT_LIMIT_MS = (\d+);", js).group(1))
+    worst_ms = 2 * chat.MAX_TURNS * ask.CLIENT_TIMEOUT_S * 1000
+    assert wait_ms >= worst_ms + 60_000  # a minute's margin for the lookups and the page

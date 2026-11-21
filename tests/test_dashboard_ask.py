@@ -88,7 +88,17 @@ def test_answer_section_allows_hindsight():
 def test_haiku_has_a_price():
     from canary.analyst.writer import PRICES, cost_usd
     assert PRICES[ASK_MODEL] == (0.10, 0.50)
-    assert cost_usd(ASK_MODEL, 1_000_000, 1_000_000) == pytest.approx(0.60)
+    assert cost_usd(ASK_MODEL, 100_000, 100_000) == pytest.approx(0.06)
+
+
+def test_haiku_long_prompt_price():
+    """C1: a Haiku request over 100,000 input tokens is billed $0.50 in / $2.50 out per million."""
+    from canary.analyst.writer import LONG_PROMPT, cost_usd
+    assert LONG_PROMPT[ASK_MODEL] == (100_000, (0.50, 2.50))
+    assert cost_usd(ASK_MODEL, 150_000, 1_000) == pytest.approx((150_000 * 0.50 + 1_000 * 2.50) / 1e6)
+    assert cost_usd(ASK_MODEL, 100_000, 1_000) == pytest.approx((100_000 * 0.10 + 1_000 * 0.50) / 1e6)
+    assert cost_usd("claude-opus-5-5", 150_000, 1_000) == pytest.approx((150_000 * 4.0 + 1_000 * 20.0) / 1e6)
+    assert cost_usd("claude-sonnet-5-5", 150_000, 0) == pytest.approx(150_000 * 2.0 / 1e6)
 
 
 def test_make_client_builds_without_calling():
@@ -141,6 +151,22 @@ def test_public_checks_keep_old_behaviour():
 
 def test_new_outcome_constants():
     assert (ask.TURN_LIMIT, ask.TOKEN_CEILING_HIT, ask.NO_SUBMIT) == ("turn_limit", "token_ceiling", "no_submit")
+
+def test_daily_counter_rest_closes_the_day():
+    """M3: rest(today) makes the rest of that UTC day unavailable; the next day starts fresh."""
+    c = ask.DailyCounter()
+    d = date(2026, 11, 21)
+    assert c.available(d)
+    c.rest(d)
+    assert not c.available(d) and not c.take(d) and c.today(d) == (0, 0.0)
+    assert c.available(date(2026, 11, 22)) and c.take(date(2026, 11, 22))
+
+
+def test_try_again_copy():
+    """I1: per-question failures get their own line; resting is only for a sleeping bird."""
+    assert ask.TRY_AGAIN == "I couldn't answer that one. Try asking it another way."
+    assert ask.TRY_AGAIN not in (ask.RESTING, ask.CANT_CHECK)
+
 
 def test_daily_counter_stops_at_limit():
     counter, today = DailyCounter(limit=3), date(2026, 11, 20)

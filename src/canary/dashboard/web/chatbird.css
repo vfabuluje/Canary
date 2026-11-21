@@ -57,7 +57,7 @@
 .hbird, .hbird svg { display:block; width:26px; height:22px; flex:none; }
 .title { flex:1; margin:0; font-family:var(--pix); font-weight:400; font-size:11px; line-height:1.6; color:var(--yellow); }
 .cb .x { font-family:var(--pix); font-size:10px; color:var(--paper); background:none; border:2px solid var(--paper);
-  min-width:32px; min-height:32px; padding:3px 6px; }
+  min-width:44px; min-height:44px; padding:3px 6px; }
 .msgs { flex:1 1 auto; min-height:120px; overflow:auto; overscroll-behavior:contain; padding:14px; display:grid; gap:12px;
   align-content:start; background:var(--soft); }
 .msg { display:flex; gap:8px; align-items:flex-start; min-width:0; }

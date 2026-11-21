@@ -325,8 +325,14 @@ def test_page_context_on_find_without_a_bank(chat_spy, query):
 
 def test_state_survives_page_switch(chat_spy):
     at = _chat_run("home", **ON)
-    at.session_state["chat"] = {"used": 1, "conv": {}, "nonce": 1}
+    conv = {"turns": [{"question": "How does the score work?", "answer": "It ranks banks by risk.", "cited": [],
+                       "lookups": ["Read Canary's test results"]}], "ledger": {}}
+    at.session_state["chat"] = {"used": 1, "conv": conv, "nonce": 1}
     at.switch_page("views/how.py").run()
     assert not at.exception
     assert at.session_state["chat"]["used"] == 1
-    assert chat_spy.mounts[-1]["data"]["left"] == 4
+    data_ = chat_spy.mounts[-1]["data"]
+    assert data_["left"] == 4
+    texts = [(m["who"], m["text"]) for m in data_["messages"]]
+    assert texts[1:] == [("me", "How does the score work?"), ("bird", "It ranks banks by risk.")]
+    assert data_["messages"][2]["lookups"] == ["Read Canary's test results"]

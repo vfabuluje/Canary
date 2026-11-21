@@ -8,11 +8,12 @@ component mid-run, so the browser shows its own "thinking" state until data with
 lookups are listed under the answer ("What I looked up").
 
 Hidden entirely unless secrets hold ASK_ENABLED = true and an ANTHROPIC_API_KEY (ruling R22). The bird sleeps
-("RESTING") once today's question or dollar limit is reached, or after an API or unexpected error this visit
-(whose billed cost still counts toward the dollar limit); the visitor's own SESSION_LIMIT keeps it awake and only
-disables the input. Each question sent logs one line (outcome, calls, lookups, cost and today's totals), never the
-question, the answer or the key. The conversation lives in
-`st.session_state["chat"]` for the visit only; `DAILY` is in memory for the process.
+("RESTING") once today's question or dollar limit is reached, for the rest of the UTC day after an account error
+(a bad key, no permission or no credit balance, ruling R17), or after an API or unexpected error this visit (whose
+billed cost still counts toward the dollar limit); a question that fails on its own says "try again" and leaves it
+awake (ruling R15), and the visitor's own SESSION_LIMIT keeps it awake and only disables the input. Each question
+sent logs one line (outcome, calls, lookups, cost and today's totals), never the question, the answer or the key.
+The conversation lives in `st.session_state["chat"]` for the visit only; `DAILY` is in memory for the process.
 """
 
 import functools
@@ -26,14 +27,14 @@ import streamlit as st
 from streamlit.logger import get_logger
 
 from canary.dashboard import ask, chat, data, search, theme
-from canary.dashboard.ask import API_ERROR, MAX_CHARS, RESTING, SESSION_LIMIT
+from canary.dashboard.ask import ACCOUNT_MARK, API_ERROR, MAX_CHARS, RESTING, SESSION_LIMIT
 from canary.dashboard.chat import ChatResult, Conversation, PageContext
 from canary.dashboard.chat_facts import FactLedger
 from canary.dashboard.copy import (CHAT_ASLEEP, CHAT_ASLEEP_PHONE, CHAT_BUBBLE, CHAT_BUBBLE_PHONE, CHAT_BUTTON,
                                    CHAT_CLOSE, CHAT_EMPTY, CHAT_FOOTER, CHAT_GREETING, CHAT_LABEL, CHAT_LOOKED_UP,
-                                   CHAT_OPEN, CHAT_PLACEHOLDER, CHAT_SESSION_DONE, CHAT_STARTER_BANK,
-                                   CHAT_STARTER_BANK_FLAGGED, CHAT_STARTERS_GENERAL, CHAT_THINKING, CHAT_TITLE,
-                                   CHAT_TOO_LONG, CHAT_TWEET)
+                                   CHAT_OPEN, CHAT_OPEN_ASLEEP, CHAT_PLACEHOLDER, CHAT_QUESTION_MANY,
+                                   CHAT_QUESTION_ONE, CHAT_SESSION_DONE, CHAT_STARTER_BANK, CHAT_STARTER_BANK_FLAGGED,
+                                   CHAT_STARTERS_GENERAL, CHAT_THINKING, CHAT_TITLE, CHAT_TOO_LONG, CHAT_TWEET)
 
 log = get_logger(__name__)  # Streamlit's console handler, so info lines reach the Community Cloud log
 
@@ -198,11 +199,12 @@ def payload(state: BirdState, conv: Conversation, page: PageContext, used: int, 
         "left": left,
         "limit": SESSION_LIMIT,
         "max_chars": MAX_CHARS,
-        "footer": CHAT_FOOTER.format(left=left),
+        "footer": CHAT_FOOTER.format(left=left, questions=CHAT_QUESTION_ONE if left == 1 else CHAT_QUESTION_MANY),
         "can_ask": not asleep and left > 0,
         "nonce": nonce,
         "sprite": {"grid": list(theme.BIRD), "palette": dict(theme.PALETTE)},
-        "text": {"title": CHAT_TITLE, "open": CHAT_OPEN, "close": CHAT_CLOSE, "label": CHAT_LABEL,
+        "text": {"title": CHAT_TITLE, "open": CHAT_OPEN, "open_asleep": CHAT_OPEN_ASLEEP, "close": CHAT_CLOSE,
+                 "label": CHAT_LABEL,
                  "placeholder": CHAT_PLACEHOLDER, "button": CHAT_BUTTON, "tweet": CHAT_TWEET,
                  "looked_up": CHAT_LOOKED_UP, "thinking": CHAT_THINKING},
     }
@@ -256,12 +258,14 @@ def _call(saved: dict, page: PageContext, question: str, key: str, today: date) 
         return _stopped(RESTING, DAILY_REST)
     saved["used"] = saved.get("used", 0) + 1
     conv = Conversation.from_state(saved.get("conv", {}))
-    try:
-        result = chat.ask(conv, page, question, client)
+    try:  # a Streamlit rerun or stop (a BaseException) re-raises, but chat.ask hands its billed cost over first
+        result = chat.ask(conv, page, question, client, on_cost=lambda usd: DAILY.add_cost(today, usd))
     except Exception as exc:  # last resort; chat.ask itself returns error:* with the partial cost (ruling R12)
         result = _stopped(RESTING, f"{ERROR}:{type(exc).__name__}")
     saved["conv"] = conv.to_state()
     DAILY.add_cost(today, result.cost_usd)
+    if result.outcome.startswith(f"{API_ERROR}:") and result.outcome.endswith(ACCOUNT_MARK):
+        DAILY.rest(today)  # ruling R17: the key or the balance can't be used, so every visitor's bird sleeps today
     _log_result(result, today)
     return result
 
@@ -272,11 +276,12 @@ def handle_question(saved: dict, page: PageContext, question: str, key: str, tod
     question = (question or "").strip()
     turns_before = len(saved.get("conv", {}).get("turns", []))
     result = _guard(saved, question, today) or _call(saved, page, question, key, today)
+    shown = question[:MAX_CHARS]  # a forged trigger can be any length; keep and echo only what could be asked
     saved["last"] = asdict(result)
-    saved["question"] = question
+    saved["question"] = shown
     if not result.ok:
         notices = saved.setdefault("notices", [])
-        notices.append(_notice(turns_before, question, result))
+        notices.append(_notice(turns_before, shown, result))
         del notices[:-MAX_NOTICES]
     return result
 
