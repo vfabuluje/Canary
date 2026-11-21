@@ -35,13 +35,18 @@ _SRC = "dashboard/data"
 _QUARTER = re.compile(r"^\s*Q([1-4])\s+(\d{4})\s*$", re.IGNORECASE)
 _SLIM_KEYS = ("id", "label", "quarter", "display", "hindsight")
 _PHASE = re.compile(r"\bPhase\s+\d+[a-z]?\b", re.IGNORECASE)
+_YEAR = re.compile(r"(?:19|20)\d\d")
 
 
 def label_number_forms(label: str) -> list[str]:
-    """Numbers written in a fact's own label, as the checker reads them ("1 = highest score" -> "1", "2016-2024"
-    -> "2016", "2024", "four quarters"), so a sentence citing the fact may repeat its scale anchor or years.
-    Project phase names ("Phase 3") and the post-hoc label (which names 2023) are wording, not figures."""
-    return extract_tokens(_PHASE.sub(" ", label.replace(POSTHOC_LABEL, " ")))
+    """The years and spelled spans written in a fact's own label, as the checker reads them ("Ranking score (AUC),
+    2016-2024 test" -> "2016", "2024"; "over three years" -> "three years"), so a sentence citing the fact may
+    repeat them. No other digits: a scale anchor ("1 = highest score"), a window size ("12 quarters") or a driver
+    number ("#1") would otherwise pass as the bank's own rank or percentile (the chat strips the scale-anchor
+    phrases instead, chat.ANCHOR). Project phase names ("Phase 3") and the post-hoc label (which names 2023) are
+    wording, not figures."""
+    toks = extract_tokens(_PHASE.sub(" ", label.replace(POSTHOC_LABEL, " ")))
+    return [t for t in toks if _YEAR.fullmatch(t) or not re.search(r"\d", t)]
 
 
 def _iso(d) -> str | None:
@@ -188,7 +193,7 @@ def _identity(led: FactLedger, row: pd.Series) -> list[Fact]:
 
 def _flag_rule(led: FactLedger) -> Fact:
     return led.add(FLAG_RULE_LABEL, WATCHLIST_SHARE_PCT, f"{WATCHLIST_SHARE_PCT}%",
-                   [f"{WATCHLIST_SHARE_PCT}%", str(WATCHLIST_SHARE_PCT), "two percent"],
+                   [f"{WATCHLIST_SHARE_PCT}%"],  # never a bare "2", which would pass as a rank
                    "canary.model.metrics: WATCHLIST_SHARE (fixed)")
 
 
@@ -426,9 +431,9 @@ def canary_facts(ledger: FactLedger) -> dict:
                    "canary.model.dataset: TRAIN_END"),
         _span_fact(ledger, "Test years: failures and reports scored", TEST_YEARS,
                    "canary.model.dataset: TEST_START, TEST_END"),
-        ledger.add("Score horizon: failing within the next four quarters", HORIZON_QUARTERS,
-                   f"{HORIZON_QUARTERS} quarters", [str(HORIZON_QUARTERS), f"{HORIZON_QUARTERS} quarters", "a year",
-                                                    "one year"], "canary.model.dataset: fails_within_4q"),
+        # Spelled only: the checker reads "4 quarters" as a bare "4", which would pass as a rank.
+        ledger.add("Score horizon: failing within the next four quarters", HORIZON_QUARTERS, "four quarters",
+                   ["four quarters", "a year", "one year"], "canary.model.dataset: fails_within_4q"),
     ]
     banks = data.banks().set_index("cert")
     case_lines = []

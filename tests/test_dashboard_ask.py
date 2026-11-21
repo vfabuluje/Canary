@@ -60,6 +60,19 @@ def test_answer_with_a_link_is_rejected(text):
     "This is not a prediction that any bank will fail, but this one will fail.",
     "It is not a prediction of whether any bank will fail, but the bank will fail soon.",
     "This is not a prediction that the bank will not fail.",
+    # fix round 1: the disclaimer must end the sentence, and certainty wording is a forecast
+    "Canary's flag is not a prediction that this bank will fail: it is a certainty.",
+    "This is not a prediction that the bank will fail, it is a fact.",
+    "Is it not a prediction that this bank will fail?",
+    "This bank is doomed.",
+    "it is certain that this bank fails next year",
+    "The score is not a prediction; it is certain that this bank fails next year.",
+    "It is almost certain to fail.",
+    "The bank will definitely fail.",
+    "This bank will surely collapse.",
+    "It is bound to fail.",
+    "The bank is sure to fail.",
+    "It will certainly fail within a year.",
 ])
 def test_prediction_or_advice_is_rejected(text):
     assert wording_errors(_memo((text, [])))
@@ -88,6 +101,8 @@ def test_prediction_or_advice_is_rejected(text):
     "The list is not a prediction that any banks will fail.",
     "The score is not a prediction of whether any bank will fail.",
     "Canary's rank is not a prediction about whether this bank will fail.",
+    "I can't tell for certain whether this bank will fail.",
+    "Canary missed certain failures in 2023.",
 ])
 def test_plain_wording_is_not_mistaken_for_advice(text):
     assert wording_errors(_memo((text, []))) == []

@@ -1,6 +1,7 @@
 """Ask Canary lookup tools and the per-visit fact ledger."""
 
 import json
+import re
 
 import pytest
 
@@ -184,47 +185,85 @@ def _case_ids(led, cert):
     return [i for i, f in led.facts.items() if led.bank_of.get(i, (None,))[0] == cert]
 
 
-def test_percentile_scale_anchor_in_the_label_is_citable(real_data):
-    """Cause 1: '100' is written in the percentile fact's own label ("100 = highest risk")."""
+def _chat_check(led, text, ids):
+    """The chat's full answer check (chat._check: scale-anchor phrases, citation checker, wording, links)."""
+    from canary.dashboard.chat import _check as chat_check
+    return chat_check({"sections": [{"key": "answer", "paragraphs": [
+        {"sentences": [{"text": text, "cites": list(ids)}]}]}]}, led)
+
+
+def _latest_ids(led):
+    return [_label_id(led, f"Latest {x}") for x in
+            ("National rank (1 = highest score)", "Banks ranked that quarter", "Percentile (100 = highest risk)")]
+
+
+def test_percentile_scale_anchor_passes(real_data):
+    """Cause 1: the scale anchor "100 = highest risk" may be repeated beside the percentile."""
     led = FactLedger(); canary_facts(led)
-    assert _check(led, "Canary's last score for Silicon Valley Bank was for December 31, 2022, when it ranked 3,494 "
-                       "of 4,773 banks, at the 26.8% percentile (100 is highest risk).", _case_ids(led, 24735)) == []
-    assert _check(led, "On that date it ranked 246 of 4,773 banks scored, which is a percentile of 94.9%, where 100 "
-                       "means the highest risk.", _case_ids(led, 57053)[1:]) == []
+    assert _chat_check(led, "Canary's last score for Silicon Valley Bank was for December 31, 2022, when it ranked "
+                            "3,494 of 4,773 banks, at the 26.8% percentile (100 is highest risk).",
+                       _case_ids(led, 24735)) == []
+    assert _chat_check(led, "On that date it ranked 246 of 4,773 banks scored, which is a percentile of 94.9%, where "
+                            "100 means the highest risk.", _case_ids(led, 57053)[1:]) == []
     led = FactLedger(); bank_profile(led, 24735)
-    ids = [_label_id(led, f"Latest {x}") for x in
-           ("National rank (1 = highest score)", "Banks ranked that quarter", "Percentile (100 = highest risk)")]
-    assert _check(led, "In that quarter it ranked 3,494 of 4,773 banks, a percentile of 26.8%, where 100 means the "
-                       "highest risk.", ids) == []
+    assert _chat_check(led, "In that quarter it ranked 3,494 of 4,773 banks, a percentile of 26.8%, where 100 means "
+                            "the highest risk.", _latest_ids(led)) == []
 
 
-def test_rank_scale_anchor_in_the_label_is_citable_after_watchlist(real_data):
-    """Cause 1: '1' is written in the rank fact's own label ("1 = highest score")."""
+def test_rank_scale_anchor_passes_after_watchlist(real_data):
+    """Cause 1: the scale anchor "1 = highest score" may be repeated beside the rank."""
     led = FactLedger(); out = watchlist(led, state="TX")
     r = out["rows"][0]
     assert (r["name"], r["rank"], r["n_banks"]) == ("Transpecos Banks Ssb", 6, 4313)
     ids = [r["fact_ids"][2]] + _ids(led, out, "Banks ranked that quarter")
-    assert _check(led, "Its national rank is 6, where 1 is the highest score, out of 4,313 banks ranked that "
-                       "quarter.", ids) == []
+    assert _chat_check(led, "Its national rank is 6, where 1 is the highest score, out of 4,313 banks ranked that "
+                            "quarter.", ids) == []
 
 
-def test_report_label_numbers_are_citable(real_data):
-    """Cause 1, import_report: a report's percentile fact carries its label's '100' too."""
+def test_report_percentile_scale_anchor_passes(real_data):
     led = FactLedger(); bank_report(led, 24735)
     pct = next(f for f in led.facts.values() if f.label == "Percentile (100 = highest risk)")
-    assert _check(led, f"Its percentile was {pct.display}, where 100 means the highest risk.", [pct.id]) == []
+    assert _chat_check(led, f"Its percentile was {pct.display}, where 100 means the highest risk.", [pct.id]) == []
 
 
-def test_a_number_in_no_cited_label_still_fails(real_data):
+def test_label_digits_never_pass_as_a_banks_rank_or_percentile(real_data):
+    """Fix round 1 (review probes): a label's scale anchor or window size is not a figure about the bank."""
+    led = FactLedger(); out = watchlist(led, state="TX")
+    r = out["rows"][0]
+    name, rank = r["fact_ids"][0], r["fact_ids"][2]
+    n = _label_id(led, "Banks ranked that quarter")
+    assert _chat_check(led, "Transpecos Banks Ssb ranked 1 of 4,313 banks that quarter.", [name, rank, n])  # a1
+    assert _chat_check(led, "Transpecos Banks Ssb is the No. 1 riskiest bank in the country.", [name, rank])  # a2
+    assert _chat_check(led, "Transpecos Banks Ssb ranked 1, where 1 is the highest score.", [name, rank])
+    led = FactLedger(); bank_profile(led, 24735)
+    ids = _latest_ids(led)
+    assert _chat_check(led, "Its percentile was 100.", [ids[2]])  # a5
+    assert _chat_check(led, "In that quarter it ranked 1 of 4,773 banks, a percentile of 26.8%.", ids)  # a6
+    led = FactLedger(); bank_profile(led, 628)
+    assert _chat_check(led, "Jpmorgan Chase Bank Na ranked 1 of 4,313 banks in the latest quarter, a percentile of "
+                            "100.", [_label_id(led, "Bank name")] + _latest_ids(led))  # a9
+    led = FactLedger(); bank_report(led, 24735)
+    driver = next(f.id for f in led.facts.values() if f.label.startswith("Driver up #1"))
+    assert _chat_check(led, "Silicon Valley Bank was the #1 riskiest bank in the country.", [driver])  # a10
+    # a11/a12 (the percentile-scale and comparison-window facts) carry "100" and "8" in the written report's own
+    # forms, from the analyst pipeline, not from their labels; import_report adds no label digit to them.
+    report = {f["label"]: f["forms"] for f in data.report(24735)["facts"]}
+    for f in led.facts.values():
+        added = set(f.forms) - set(report[f.label])
+        assert all(re.fullmatch(r"(?:19|20)\d\d", x) or not re.search(r"\d", x) for x in added), (f.label, added)
+
+
+def test_a_number_in_no_cited_fact_still_fails(real_data):
     led = FactLedger(); canary_facts(led)
-    svb = _case_ids(led, 24735)
-    pct_only = [_label_id(led, "Last score: percentile (100 = highest risk)", 24735)]
-    # '1' is in the rank fact's label, not the percentile fact's
-    assert any("'1' is not supported" in e for e in
-               _check(led, "It was at the 26.8% percentile, where 1 is the highest score.", pct_only))
-    # '50' is in no cited fact's label, display or forms
     assert any("'50' is not supported" in e for e in
-               _check(led, "It ranked 3,494 of 4,773 banks, where 50 means the middle.", svb))
+               _chat_check(led, "It ranked 3,494 of 4,773 banks, where 50 means the middle.", _case_ids(led, 24735)))
+
+
+def test_anchor_errors_quote_the_original_sentence(real_data):
+    led = FactLedger(); out = watchlist(led, state="TX")
+    text = "Transpecos Banks Ssb ranked 1, where 1 is the highest score."
+    [err] = _chat_check(led, text, [out["rows"][0]["fact_ids"][2]])
+    assert f'sentence "{text}"' in err and "'1' is not supported" in err
 
 
 def test_label_wording_that_is_not_a_figure_is_not_a_form():
@@ -235,6 +274,12 @@ def test_label_wording_that_is_not_a_figure_is_not_a_form():
     phase = led.add("First flag quarter (Phase 3 lead-time rule)", "2022-03-31", "Q1 2022", [], "t")
     posthoc = led.add(f"Rank ({POSTHOC_LABEL})", 5, "5", ["5"], "t")
     assert "3" not in phase.forms and "2023" not in posthoc.forms
+    # only years and spelled spans: never a scale anchor, a window size or a driver number
+    rank = led.add("National rank (1 = highest score)", 6, "6", ["6"], "t")
+    window = led.add("Comparison window: the prior 12 quarters (at least 8 with a value), 2016-2024", 1, "x", [], "t")
+    driver = led.add("Driver up #1: a ratio", 0.5, "0.5", [], "t")
+    assert "1" not in rank.forms and "#1" not in driver.forms
+    assert {"12", "8"}.isdisjoint(window.forms) and {"2016", "2024"} <= set(window.forms)
 
 
 def test_background_years_are_facts_and_pass(real_data):
@@ -249,6 +294,9 @@ def test_background_years_are_facts_and_pass(real_data):
     assert _check(led, "Canary was trained on bank reports from 2001 to 2014 and tested on 2016 to 2024.",
                   [_label_id(led, TRAIN_YEARS), _label_id(led, TEST_YEARS)]) == []
     assert _check(led, "The score ranks banks by risk of failing within a year.", [_label_id(led, HORIZON)]) == []
+    horizon = led.facts[_label_id(led, HORIZON)]
+    assert horizon.display == "four quarters" and "4" not in horizon.forms
+    assert _check(led, "The score covers failing within the next four quarters.", [horizon.id]) == []
     # a background year still needs its fact: 2009 is in no canary_facts fact
     assert _check(led, "Most of those failures came in 2009.", [_label_id(led, CRISIS_YEARS)]) != []
 
@@ -276,5 +324,6 @@ def test_watchlist_issues_the_flag_rule(real_data):
     ref = FactLedger(); canary_facts(ref)
     want = ref.facts[_label_id(ref, FLAG_RULE)]
     assert (rule.value, rule.display) == (want.value, want.display) == (2, "2%")
+    assert "2" not in rule.forms  # "2%" only: a bare 2 would pass as a rank
     assert _check(led, "The watchlist covers the riskiest 2% of banks Canary ranks, so it is a list of banks flagged "
                        "for closer attention, not a prediction that any bank will fail.", [rule.id]) == []

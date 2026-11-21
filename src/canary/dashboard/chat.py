@@ -18,11 +18,12 @@ it cited.
 """
 
 import json
+import re
 import sys
 from dataclasses import asdict, dataclass, field
 from types import SimpleNamespace
 
-from canary.analyst.checker import check_memo
+from canary.analyst.checker import _clip, check_memo
 from canary.analyst.writer import PRICES, _retry_message, cost_usd, memo_schema
 from canary.dashboard import data
 from canary.dashboard.ask import (ACCOUNT_MARK, ANSWER_SECTION, ANSWERED, API_ERROR, ASK_MODEL, BAD_JSON, CANT_CHECK,
@@ -89,6 +90,14 @@ outside Canary's data (credit unions, stock picks, news, other topics) gets "{OU
 help with: US banks' Canary ranks, failures, the watchlist and how well Canary's score tested.
 12. Always finish by calling {SUBMIT} exactly once with the whole answer: one section with key "answer". \
 Do not write the answer as plain text."""
+
+# The scales' own anchors, beside a rank or percentile: "(100 is highest risk)", "where 100 means the highest risk",
+# "where 1 is the highest score". They describe the scale, not the bank, so the answer check removes exactly these
+# phrases before the citation checker reads the numbers (a bare "1" or "100" still needs a fact that holds it).
+ANCHOR = re.compile(
+    r"(?:,?\s*\(|,?\s*\b(?:where|with)\s+)"
+    r"(?:100\s+(?:is|=|means)\s+(?:the\s+)?highest\s+(?:risk|value)|1\s+(?:is|=|means)\s+(?:the\s+)?highest\s+score)"
+    r"\)?", re.IGNORECASE)
 
 SUBMIT_TOOL: dict = {
     "name": SUBMIT,
@@ -262,13 +271,42 @@ def _run_lookups(uses: list, ledger: FactLedger, tot: _Totals) -> list[dict]:
     return results
 
 
+def _without_anchors(memo: dict) -> tuple[dict, dict[str, str]]:
+    """The memo with each sentence's scale-anchor phrases removed, and {quoted stripped text: quoted original}
+    so the checker's errors can still quote what the model wrote."""
+    quoted: dict[str, str] = {}
+    sections = []
+    for sec in memo.get("sections", []):
+        paras = []
+        for p in sec.get("paragraphs", []):
+            sents = []
+            for st in p.get("sentences", []):
+                text = st.get("text", "")
+                bare = ANCHOR.sub("", text) if isinstance(text, str) else text
+                if bare != text:
+                    quoted[f'sentence "{_clip(bare)}"'] = f'sentence "{_clip(text)}"'
+                sents.append({**st, "text": bare})
+            paras.append({**p, "sentences": sents})
+        sections.append({**sec, "paragraphs": paras})
+    return {**memo, "sections": sections}, quoted
+
+
+def _requote(error: str, quoted: dict[str, str]) -> str:
+    for bare, orig in quoted.items():
+        if bare in error:
+            return error.replace(bare, orig, 1)
+    return error
+
+
 def _check(memo, ledger: FactLedger) -> list[str] | None:
     """Checker errors, [] when the answer passes, or None when the submit isn't the answer shape."""
     if not isinstance(memo, dict):
         return None
     try:
         sheet = SimpleNamespace(facts=list(ledger.facts.values()))
-        errors = check_memo(memo, sheet, [ANSWER_SECTION]) + link_errors(memo) + wording_errors(memo)
+        bare, quoted = _without_anchors(memo)
+        errors = [_requote(e, quoted) for e in check_memo(bare, sheet, [ANSWER_SECTION])]
+        errors += link_errors(memo) + wording_errors(memo)
         empty = not _text(memo)
     except (AttributeError, TypeError):
         return None

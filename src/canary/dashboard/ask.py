@@ -135,7 +135,7 @@ def link_errors(memo: dict) -> list[str]:
 _CAVEAT = re.compile(
     # "not a prediction that any bank will fail": the disclaimer whole, before its shorter "not a prediction"
     r"\b(?:(?:is|are|was)\s+)?not\s+an?\s+(?:prediction|forecast)\s+that\s+(?:any|a|the|this|that)\s+banks?"
-    r"\s+will\s+fail\b"
+    r"\s+will\s+fail\b(?=\s*[.!]?\s*$)"  # only as the sentence's end: nothing after it to swallow
     r"|\b(?:is|are|was)\s+not\s+an?\s+(?:prediction|forecast)\b|\bnot\s+an?\s+(?:prediction|forecast)\b"
     r"|\b(?:does\s+not|doesn't|did\s+not|didn't|cannot|can't|can\s+not|could\s+not|couldn't)\s+"
     r"(?:predict|forecast|foresee)\b"
@@ -152,8 +152,12 @@ _FORECAST = re.compile(
     r"|\bwarn(?:s|ed)?\b|\bwarning\b|\bearly[- ]warning\b"
     r"|\bwould have (?:caught|flagged|warned)\b|\bshould have (?:caught|flagged|been flagged)\b"
     r"|\bsign(?:al)?s? of (?:coming |impending )?failure\b"
-    r"|\b(?:will|could|might|may|is going to|are going to|is about to|is likely to|are likely to|likely to)"
-    r"\s+(?:(?:likely|probably|soon|eventually|still|not|never)\s+)*(?:fail|collapse|go under|be closed|survive)\b"
+    r"|\b(?:will|could|might|may|is going to|are going to|is about to|is likely to|are likely to|likely to"
+    r"|(?:is|are)\s+(?:bound|sure|certain)\s+to)"
+    r"\s+(?:(?:likely|probably|soon|eventually|still|not|never|definitely|certainly|surely)\s+)*"
+    r"(?:fail|collapse|go under|be closed|survive)\b"
+    # certainty about a failure: "doomed", "it is (almost) certain that this bank fails", "certainly fail"
+    r"|\bdoomed\b|\bcertain\s+(?:that|to)\b[^.;]*?\b(?:fail|collaps)\w*|\bcertainly\s+(?:fail|collapse)\w*"
     r"|(?<!whether )(?<!if )\b(?:the bank|this bank|it|its deposits|your (?:money|deposits|savings))"
     r"\s+(?:is|are|looks|seems|remains|stays)\s+(?:\w+\s+)?(?:safe|safer|sound|healthy|secure)\b"
     r"|\bsafe\s+(?:bank|place)\b|\bsafe\s+to\s+(?:deposit|bank|keep|invest)\b",
