@@ -4,6 +4,8 @@
 
 **Research tool, not financial advice.**
 
+**Try it live: [canarybank.streamlit.app](https://canarybank.streamlit.app)**
+
 ## What Canary is
 Canary is an early-warning system for US banks. Every quarter, each FDIC-insured bank (about 4,300 today, nearly 10,000 in 2001) publishes its financial results. Canary reads all of them and ranks every bank by how likely it is to fail within the next year. The big test: would it have warned about Silicon Valley Bank, Signature Bank and First Republic before they collapsed in 2023?
 
@@ -21,6 +23,21 @@ The warning signs were in SVB's public filings months earlier. Its last report b
 | Uninsured deposits | 86% ($151.6B of $175.4B) |
 
 ("Held-to-maturity" bonds are ones a bank says it will keep until they pay out. They stay on the books at what the bank paid, so a fall in their market value doesn't reduce the bank's reported profit or its equity, its capital cushion. "Unrealized loss" means the bonds are worth less than the bank paid, but it hasn't sold them yet.)
+
+<p>
+  <a href="docs/screenshots/home.png"><img src="docs/screenshots/home.png" width="32%" alt="Home page: the pixel canary, the CANARY title and a bank search box"></a>
+  <a href="docs/screenshots/svb-report.png"><img src="docs/screenshots/svb-report.png" width="32%" alt="Silicon Valley Bank's page: three pixel agents finished building its report, with the list of AI helpers and rule checks"></a>
+  <a href="docs/screenshots/ask-canary.png"><img src="docs/screenshots/ask-canary.png" width="32%" alt="Ask Canary chat open on Silicon Valley Bank's page, explaining with checked numbers why Canary did not flag it"></a>
+</p>
+
+<sub><i>Left to right: Home, Canary's report on Silicon Valley Bank, and the Ask Canary chat answering "Why wasn't Silicon Valley Bank flagged?"</i></sub>
+
+<p align="center"><b>▶ Animated: watch Canary's agents build the report on Silicon Valley Bank</b></p>
+
+<p align="center">
+  <img src="docs/screenshots/replay.gif" width="720" alt="Animation: Canary's AI agents and rule checks building the report on Silicon Valley Bank, step by step">
+  <br><sub><i>Animation (about 18 seconds, loops). The agents at work: a rule check looks at real-estate lending, two AI detectives study the bank's trends and its peers, a fact checker verifies every number, and the lead detective writes the report.</i></sub>
+</p>
 
 ## What I found
 I trained a machine-learning model on bank reports from 2001-2014, then tested it, once, on 2016-2024, years it had never seen. That is the honest way to check whether a model would have worked at the time.
