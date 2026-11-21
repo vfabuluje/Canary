@@ -325,3 +325,42 @@ def test_round5_definitions_pass(text):
 ])
 def test_round5_forecasts_and_commands_still_fail(text):
     assert wording_errors(_memo((text, [])))
+
+
+# ---- fix round 6 (ruling R20): "move it" is advice unless it is a ranking phrase; no "unless" allowance -----------
+
+@pytest.mark.parametrize("text", [
+    "A higher score would move it onto the watchlist.",
+    "A higher score would move it into the riskiest 2%.",
+    "A higher score would move it toward the top of the ranking.",
+    "A higher score would move it into the top 5%.",
+    "A higher score would move it to the top of the list.",
+    "move it up the ranking",
+    "move it down the list",
+    "Canary ranks every bank by the risk that it fails within the next four quarters.",
+    "A flag counts only if the bank fails within the next four quarters.",
+    "A bank counts as caught when it fails within four quarters of being flagged.",
+])
+def test_round6_ranking_and_definitions_pass(text):
+    assert wording_errors(_memo((text, []))) == []
+
+
+@pytest.mark.parametrize("text", [
+    "I would move it out now.",
+    "I'd move it to another bank today.",
+    "Best to move it out.",
+    "Consider moving it.",
+    "Please move it.",
+    "Go ahead and move it.",
+    "I can't advise you on withdrawing your money, but move it out now.",
+    "Move it out now.",
+    "Your deposits are at risk, so move it.",
+    "Move it elsewhere.",
+    "move it out now",
+    "You should move it.",
+    "Just move it.",
+    "I'd move it into a safer bank.",
+    "Unless it fails within a year, it is fine.",
+])
+def test_round6_commands_and_forecasts_fail(text):
+    assert wording_errors(_memo((text, [])))
