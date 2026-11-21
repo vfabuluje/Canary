@@ -88,7 +88,7 @@ Fact ids are unique across the whole conversation (F1, F2, … continuing over t
 2. The tool loop (Haiku 5.5, low effort, like the CLI `ask` agent's `tool_runner`) with the system prompt below, the current-page line, the conversation so far and the new question in `<question>` tags. At most **4 model turns** per attempt. Then a final answer in the existing answer JSON shape (sentences with cites).
 3. Code checks the answer against all facts returned so far: `check_memo`, the link check, the forecast/advice wording rule, and a non-empty answer. The same rules and allowed caveats as today.
 4. If the check fails, **one retry** with the checker's errors, reusing the facts already fetched (no new lookups needed). If that still fails: "I couldn't answer that with checked facts."
-5. A refusal, a truncated reply, malformed JSON, hitting the turn limit or an API error shows the resting line, as today's outcomes.
+5. A refusal, a truncated reply, malformed JSON, no answer submitted, hitting the turn limit or the token ceiling fails that one question only: the visitor sees "I couldn't answer that one. Try asking it another way." and the bird stays awake. An API or unexpected error shows the resting line. *(Changed after the smoke test: this step originally showed the resting line for every one of these.)*
 
 **System prompt:** adapted from today's `ask.SYSTEM_PROMPT` rules 1–11, changed from "this bank" to "Canary's data, through the tools". It adds: look things up rather than guess; if the tools don't have it, say "I can't tell from Canary's data" plus what it does show; small talk is fine in one short sentence but steer back to the data; anything outside the data (credit unions, stock picks, news) gets a polite "that's outside what Canary covers".
 

@@ -21,7 +21,7 @@ kanban-plugin: board
 
 ## In Progress
 
-- [ ] Phase 6: Streamlit dashboard: merged (PR #15; decision 0023, data dictionary, runbook written). Ask Canary chat built on branch `ask-canary-chat` (site-wide corner canary with six lookup tools; decision 0024), paid smoke test pending, then merge (switches the live site); 39-bank expansion done (100 written reports, $5.93); live on Streamlit Community Cloud at https://canarybank.streamlit.app (2026-11-20)
+- [ ] Phase 6: Streamlit dashboard: merged (PR #15; decision 0023, data dictionary, runbook written). Ask Canary chat built and smoke-tested on branch `ask-canary-chat` (site-wide corner canary with six lookup tools; decision 0024; 10 questions, about $0.002 each), PR open, merge pending (switches the live site); 39-bank expansion done (100 written reports, $5.93); live on Streamlit Community Cloud at https://canarybank.streamlit.app (2026-11-20)
 
 
 ## Not Started

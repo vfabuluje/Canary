@@ -1,7 +1,7 @@
 # 0024 — Ask Canary becomes one site-wide chat with lookup tools
 
 **Date:** 2026-11-21
-**Status:** Accepted (design approved by the owner; built on branch `ask-canary-chat`; paid smoke test and merge still to do)
+**Status:** Accepted (design approved by the owner; built and smoke-tested on branch `ask-canary-chat`; PR open, merge still to do)
 
 ## Decision
 The old Ask box, which sat on the 100 written-report pages and knew one bank, is replaced by **one Ask Canary for the whole site**. It is a small pixel canary in the bottom-right corner of every page. Click it and a chat opens. It can answer questions about anything in Canary's exported data. In plain English:
@@ -16,14 +16,39 @@ The old Ask box, which sat on the 100 written-report pages and knew one bank, is
 
 ## Why
 - **Site-wide, because the owner wanted depth.** A real tool-using agent on the public site is more convincing than a box on 100 pages, and it is the centrepiece of the demo video and post.
-- **Tools instead of a fixed fact sheet.** The alternative was code that guesses which banks you mean, attaches their facts and makes one call. That is cheaper (about $0.003 to $0.005) but cannot answer what the code did not plan for: "which Texas banks are on the watchlist?", "compare SVB and Signature", "which banks failed in 2010?". Tools can. They cost about three times as much per question, which the caps absorb.
+- **Tools instead of a fixed fact sheet.** The alternative was code that guesses which banks you mean, attaches their facts and makes one call. That is cheaper (about $0.003 to $0.005 a question, estimated) but cannot answer what the code did not plan for: "which Texas banks are on the watchlist?", "compare SVB and Signature", "which banks failed in 2010?". Tools can. The measured cost is about $0.002 a question on average (see Cost), so the tools were cheaper than feared.
 - **A Streamlit v2 component for the bird, not a popover.** The component renders in the page itself (no iframe), so a fixed corner widget can float over every page, it matches the pixel mockup, and typing does not redraw the page. Streamlit's own popover or dialog would look like Streamlit, open as a centred modal and redraw on every keystroke.
 - **Slim facts, no report text.** `bank_report` sends only the fact id, label, quarter, display and hindsight flag (about 9,000 tokens for SVB), not the full table and the 39 KB note. The checker still uses the full facts in Python. This keeps each turn of the tool loop small.
 - **Follow-ups carry only earlier questions, answers and the facts they cited**, not the full tool results, so a long visit does not grow without limit.
 - **A dollar limit as well as a count.** The owner cut the day from 300 questions to 100 and added $1.00. A question already running may finish, so a day can end slightly over $1.
 
 ## Cost
-An estimate only, not yet measured: **under about $0.01 a typical question, about $0.03 worst case** (two banks' reports and a retry). At 100 a day that is about $1 to $3 if the cap is hit every day. The old box measured about $0.003 a question. A paid smoke test of about 10 questions (a lookup, a follow-up, a watchlist by state, an off-topic question, forecast bait, a prompt-injection attempt) runs before merge, with the owner's yes on its estimate. Its measured cost replaces this estimate here and in the README. If the typical cost is above $0.02 a question, stop and ask the owner before merging.
+Measured in a paid smoke test on 2026-11-21 (owner-approved, $0.30 cap): 10 questions, run three times, with free code changes between runs.
+
+- **Run 1:** $0.0188. 5 of 10 answered. The checks rejected honest wording.
+- **Diagnostic re-run of the 5 failures:** $0.0098.
+- **Run 2:** $0.0192. 7 of 10 answered.
+- **Run 3, on the final code:** $0.0204. 10 of 10 answered. 4 of them needed their one retry.
+- **Total:** $0.0682 (about $0.07).
+
+**About $0.002 a question on average.** The heaviest was a follow-up that read a written report: $0.0065. The $1.00 a day limit is therefore roughly 500 typical questions, well above the 100 a day cap. This is far under the $0.02 merge bar. The earlier estimate (under $0.01 typical, $0.03 worst case) was too high.
+
+What the test fixed (free code changes, no extra paid calls):
+- Scale explanations ("where 100 means the highest risk", "Rank 1 is the highest score") are allowed, but only in narrow forms.
+- Background years and the 2% flag rule became facts the model can cite.
+- Counts of capped lists became facts, only when a list is actually capped.
+- Honest disclaimers and refusals are allowed, narrowly.
+- Stricter rules against certainty ("doomed", "certain to fail"), present-tense forecasts and money advice ("move it", "withdrawing your savings").
+- Lookup caps (4 per step, 3 written reports per question) and a projected size limit, added after the final review.
+
+## Limits
+These are known and stated plainly. The checker is strong on numbers and weak on meaning (Rulings R18, R19).
+- **Numbers are matched to the facts the answer cites, not to their labels.** A deliberately mis-cited fact (for example the fixed "0 to 100" scale fact, or a background year) could still back a wrong number. The old per-bank box and the written reports have the same limit.
+- **Claims made only in words are not checked.** "Ranks first" or "topped the list" is not compared with the data.
+- **The forecast and advice rule is a phrase list.** It can miss new phrasings.
+- **Retries are common.** 4 of the 10 final-run questions needed their one retry. The phrase "at least one quarter early" is a known trigger; cutting those retries is a follow-up.
+- **Ten questions is a small test.** It shows the chat works and what it costs. It does not prove every question will pass.
+- A question that still fails says "I couldn't answer that one. Try asking it another way." (Ruling R15).
 
 ## Alternatives rejected
 - **Code picks the facts, one call:** cheaper, but cannot answer unplanned questions.
