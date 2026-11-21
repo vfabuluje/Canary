@@ -8,9 +8,10 @@ component mid-run, so the browser shows its own "thinking" state until data with
 lookups are listed under the answer ("What I looked up").
 
 Hidden entirely unless secrets hold ASK_ENABLED = true and an ANTHROPIC_API_KEY (ruling R22). The bird sleeps
-("RESTING") once today's question or dollar limit is reached, or after an API error this visit; the visitor's own
-SESSION_LIMIT keeps it awake and only disables the input. Each question sent logs one line (outcome, calls,
-lookups, cost and today's totals), never the question, the answer or the key. The conversation lives in
+("RESTING") once today's question or dollar limit is reached, or after an API or unexpected error this visit
+(whose billed cost still counts toward the dollar limit); the visitor's own SESSION_LIMIT keeps it awake and only
+disables the input. Each question sent logs one line (outcome, calls, lookups, cost and today's totals), never the
+question, the answer or the key. The conversation lives in
 `st.session_state["chat"]` for the visit only; `DAILY` is in memory for the process.
 """
 
@@ -45,6 +46,8 @@ MAX_PAIRS = 4  # "label display" pairs in a source line
 MAX_NOTICES = 10  # failed or stopped questions kept in the visible transcript
 GUARD = "guard"  # outcome of a question stopped before any call (never logged)
 DAILY_REST = "daily_limit"  # outcome when today's question or dollar limit stopped it
+ERROR = "error"  # followed by ":" and the exception type: an unexpected error (chat.ask's, or before any call)
+SLEEP_OUTCOMES = (f"{API_ERROR}:", f"{ERROR}:")  # a result with one of these puts the bird to sleep for the visit
 
 BirdState = Literal["hidden", "awake", "asleep"]
 
@@ -81,9 +84,10 @@ def bird_state(enabled: bool, resting: bool) -> BirdState:
 
 
 def is_resting(today: date, last: ChatResult | None) -> bool:
-    """Asleep once today's question or dollar limit is reached, or after an API error this visit. The visitor's
-    own per-visit limit is not resting."""
-    return not DAILY.available(today) or (last is not None and last.outcome.startswith(f"{API_ERROR}:"))
+    """Asleep once today's question or dollar limit is reached, or after an API error or unexpected error this
+    visit (ruling R12: so a failing path can't be re-triggered). The visitor's own per-visit limit is not
+    resting."""
+    return not DAILY.available(today) or (last is not None and last.outcome.startswith(SLEEP_OUTCOMES))
 
 
 def _ever_flagged(cert: int) -> bool:
@@ -216,7 +220,8 @@ def _last(saved: dict) -> ChatResult | None:
 
 
 def _guard(saved: dict, question: str, today: date) -> ChatResult | None:
-    """The checks before any call, in order: empty, too long, the visit's limit, today's limits."""
+    """The checks before any call, in order: empty, too long, the visit's limit, today's limits (and a bird
+    asleep after an error this visit)."""
     if not question:
         return _stopped(CHAT_EMPTY)
     if len(question) > MAX_CHARS:
@@ -225,6 +230,8 @@ def _guard(saved: dict, question: str, today: date) -> ChatResult | None:
         return _stopped(CHAT_SESSION_DONE.format(limit=SESSION_LIMIT))
     if not DAILY.available(today):  # the question count and the dollar limit
         return _stopped(RESTING, DAILY_REST)
+    if is_resting(today, _last(saved)):  # asleep after an error this visit
+        return _stopped(RESTING)
     return None
 
 
@@ -242,16 +249,17 @@ def _call(saved: dict, page: PageContext, question: str, key: str, today: date) 
     try:
         client = ask.make_client(key)
     except Exception as exc:  # no anthropic package, bad key format, ...: rest, never show the key
-        log.warning("Ask Canary client unavailable: %s", type(exc).__name__)
-        return _stopped(RESTING, f"{API_ERROR}:{type(exc).__name__}")
+        result = _stopped(RESTING, f"{ERROR}:{type(exc).__name__}")  # before any call, so cost 0
+        _log_result(result, today)
+        return result
     if not DAILY.take(today):
         return _stopped(RESTING, DAILY_REST)
     saved["used"] = saved.get("used", 0) + 1
     conv = Conversation.from_state(saved.get("conv", {}))
     try:
         result = chat.ask(conv, page, question, client)
-    except Exception as exc:  # last resort: chat.ask only catches the SDK's own errors
-        result = _stopped(RESTING, f"error:{type(exc).__name__}")
+    except Exception as exc:  # last resort; chat.ask itself returns error:* with the partial cost (ruling R12)
+        result = _stopped(RESTING, f"{ERROR}:{type(exc).__name__}")
     saved["conv"] = conv.to_state()
     DAILY.add_cost(today, result.cost_usd)
     _log_result(result, today)

@@ -284,9 +284,17 @@ def _retry_turn(messages: list, submit, errors: list[str]) -> None:
 
 
 def ask(conv: Conversation, page: PageContext, question: str, client) -> ChatResult:
-    """Answer one question with lookups, a checked submit and at most one retry. Never raises for a bad reply;
-    appends a Turn to `conv` only when the answer passes."""
+    """Answer one question with lookups, a checked submit and at most one retry. Never raises (ruling R12): an
+    unexpected error gives "resting" with outcome "error:<type>" and the cost of any calls already billed, so the
+    daily dollar limit still counts them. Appends a Turn to `conv` only when the answer passes."""
     tot = _Totals()
+    try:
+        return _ask(conv, page, question, client, tot)
+    except Exception as exc:  # SDK errors are already mapped to api_error inside _attempt
+        return tot.result(False, RESTING, f"error:{type(exc).__name__}")
+
+
+def _ask(conv: Conversation, page: PageContext, question: str, client, tot: _Totals) -> ChatResult:
     messages = build_messages(conv, page, question)
     failed = None
     for attempt in (1, 2):

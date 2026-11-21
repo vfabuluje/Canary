@@ -42,6 +42,8 @@ const birdSvg = (sprite, asleep) => {
   return svg;
 };
 
+const sig = (m) => JSON.stringify([m.who, m.text, m.source || '', m.lookups || []]);
+
 function renderMessage(m, ctx) {
   const row = el('div', m.who === 'me' ? 'msg me' : 'msg');
   if (m.who !== 'me') {
@@ -168,24 +170,46 @@ const render = (S) => {
   S.send.disabled = !d.can_ask || !!S.thinking;
 
   const ctx = { sprite: d.sprite, asleep, lookedUp: t.looked_up };
-  const rows = d.messages.map((m) => renderMessage(m, ctx));
-  if (d.starters.length && !S.thinking && rows.length) {
-    const chips = el('div', 'chips');
-    d.starters.forEach((q) => {
-      const c = el('button', 'chip', q); c.type = 'button';
-      c.addEventListener('click', () => S.ask(q));
-      chips.appendChild(c);
-    });
-    rows[0].querySelector('.text').appendChild(chips);
+  if (S.sigs === undefined || S.drawnAsleep !== asleep) {  // first draw, or the avatars' eyes changed
+    S.drawnAsleep = asleep; S.sigs = []; S.chipsKey = ''; S.msgs.replaceChildren();
   }
-  if (S.thinking) {
-    rows.push(renderMessage({ who: 'me', text: S.thinking.question }, ctx));
+  /* the transcript only grows, so keep the rows already drawn and append the new ones: no aria-live
+     re-announcing and no scroll jump when an unrelated rerun pushes the same data */
+  const sigs = d.messages.map(sig);
+  let keep = 0;
+  while (keep < S.sigs.length && keep < sigs.length && S.sigs[keep] === sigs[keep]) keep++;
+  const added = sigs.length - keep;
+  const local = [...S.msgs.querySelectorAll('.local')];
+  if (added > 0 || keep < S.sigs.length || !S.thinking) local.forEach((n) => n.remove());
+  [...S.msgs.querySelectorAll('.msg:not(.local)')].slice(keep).forEach((n) => n.remove());
+  d.messages.slice(keep).forEach((m) => S.msgs.appendChild(renderMessage(m, ctx)));
+  S.sigs = sigs;
+  let grew = added > 0;
+
+  const chipsKey = S.thinking ? '' : JSON.stringify(d.starters);
+  const first = S.msgs.querySelector('.msg:not(.local) .text');
+  if (first && (chipsKey !== S.chipsKey || keep === 0)) {
+    S.chipsKey = chipsKey;
+    const old = first.querySelector('.chips');
+    if (old) old.remove();
+    if (d.starters.length && !S.thinking) {
+      const chips = el('div', 'chips');
+      d.starters.forEach((q) => {
+        const c = el('button', 'chip', q); c.type = 'button';
+        c.addEventListener('click', () => S.ask(q));
+        chips.appendChild(c);
+      });
+      first.appendChild(chips);
+    }
+  }
+  if (S.thinking && !S.msgs.querySelector('.local')) {
+    const me = renderMessage({ who: 'me', text: S.thinking.question }, ctx);
     const wait = renderMessage({ who: 'bird', text: t.thinking }, ctx);
-    wait.classList.add('wait');
-    rows.push(wait);
+    me.classList.add('local'); wait.classList.add('local', 'wait');
+    S.msgs.append(me, wait);
+    grew = true;
   }
-  S.msgs.replaceChildren(...rows);
-  S.msgs.scrollTop = S.msgs.scrollHeight;
+  if (grew) S.msgs.scrollTop = S.msgs.scrollHeight;
   if (S.open && hadInput && S.input.disabled) S.close.focus();  // keep focus in the panel when asking ends
 };
 

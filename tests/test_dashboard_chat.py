@@ -309,6 +309,36 @@ def test_refusal_and_api_error_rest():
     assert (r.ok, r.text, r.outcome, r.cost_usd, r.calls) == (False, ask.RESTING, "api_error:RateLimitError", 0.0, 0)
 
 
+def test_unexpected_error_after_a_billed_call_keeps_its_cost(monkeypatch):
+    """Ruling R12: once a call may be billed, ask() never raises; the partial cost comes back for the daily cap."""
+    def broken_tool(ledger, name, args):
+        raise KeyError("boom")
+    monkeypatch.setattr(chat, "run_tool", broken_tool)
+    conv = Conversation([], FactLedger())
+    r = chat.ask(conv, PageContext("home"), "Hi", Script([tool_use("canary_facts", {})]))
+    assert (r.ok, r.text, r.outcome, r.calls) == (False, ask.RESTING, "error:KeyError", 1)
+    assert r.cost_usd == pytest.approx(ask.cost_usd(ask.ASK_MODEL, 1000, 200)) and r.input_tokens == 1000
+    assert conv.turns == []
+
+
+def test_unexpected_error_in_the_second_response_keeps_both_costs(monkeypatch):
+    real = chat.run_tool
+    seen = []
+
+    def second_breaks(ledger, name, args):
+        seen.append(name)
+        if len(seen) == 2:
+            raise ValueError("model-supplied data broke the handling")
+        return real(ledger, name, args)
+    monkeypatch.setattr(chat, "run_tool", second_breaks)
+    conv = Conversation([], FactLedger())
+    r = chat.ask(conv, PageContext("home"), "Hi",
+                 Script([tool_use("canary_facts", {}), tool_use("canary_facts", {})], conv.ledger))
+    one = ask.cost_usd(ask.ASK_MODEL, 1000, 200)
+    assert r.outcome == "error:ValueError" and r.calls == 2 and r.tool_calls == 1
+    assert r.cost_usd == pytest.approx(2 * one) and conv.turns == []
+
+
 def test_cost_uses_haiku_prices_for_an_unknown_served_id():
     msg = submit_text("I can't tell from Canary's data.")
     msg.model = "claude-haiku-5-5-20261001"

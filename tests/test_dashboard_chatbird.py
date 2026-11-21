@@ -48,7 +48,9 @@ def test_bird_hidden_awake_asleep():
 def test_resting_on_daily_cap_dollar_cap_or_api_error(daily, monkeypatch):
     assert not chatbird.is_resting(TODAY, None)
     assert not chatbird.is_resting(TODAY, _result())
-    assert not chatbird.is_resting(TODAY, _result(False, RESTING, "error:KeyError"))
+    assert chatbird.is_resting(TODAY, _result(False, RESTING, "error:KeyError"))  # ruling R12
+    assert not chatbird.is_resting(TODAY, _result(False, ask.CANT_CHECK, ask.CHECKER_FAILED))
+    assert not chatbird.is_resting(TODAY, _result(False, CHAT_EMPTY, chatbird.GUARD))
     assert chatbird.is_resting(TODAY, _result(False, RESTING, f"{API_ERROR}:RateLimitError"))
     daily.add_cost(TODAY, 1.00)
     assert chatbird.is_resting(TODAY, None)
@@ -281,14 +283,35 @@ def test_unexpected_exception_rests_and_logs_its_type(fake, daily):
     assert fake.log[-1].levelno == logging.WARNING and "outcome=error:KeyError" in fake.log[-1].getMessage()
     assert "boom-secret" not in fake.log[-1].getMessage()
     assert saved["used"] == 1 and daily.today(TODAY)[0] == 1
+    assert chatbird.is_resting(TODAY, chatbird._last(saved))
+    state = bird_state(True, chatbird.is_resting(TODAY, chatbird._last(saved)))
+    p = payload(state, Conversation(), HOME, saved["used"], chatbird._last(saved))
+    assert p["state"] == "asleep" and not p["can_ask"]
+
+
+def test_error_result_cost_counts_toward_the_daily_cap(fake, daily):
+    """chat.ask returns error:* with the partial cost of calls already billed (ruling R12): it is added to DAILY
+    and the bird sleeps, so the same failure can't be re-triggered for free."""
+    fake.result = _result(False, RESTING, "error:KeyError", cost=0.004)
+    saved: dict = {}
+    _send(saved, "Hello?")
+    assert daily.today(TODAY) == (1, pytest.approx(0.004))
+    assert "cost=$0.00400" in fake.log[-1].getMessage() and fake.log[-1].levelno == logging.WARNING
+    assert chatbird.is_resting(TODAY, chatbird._last(saved))
+    r = _send(saved, "Again?")
+    assert r.text == RESTING and len(fake.calls) == 1  # asleep: nothing more is sent this visit
 
 
 def test_client_failure_rests_without_using_the_day(fake, daily, monkeypatch):
     def broken(key):
         raise ImportError("no anthropic")
     monkeypatch.setattr(ask, "make_client", broken)
-    r = _send({}, "Hello?")
-    assert r.text == RESTING and fake.calls == [] and daily.today(TODAY)[0] == 0
+    saved: dict = {}
+    r = _send(saved, "Hello?")
+    assert r.text == RESTING and r.outcome == "error:ImportError" and fake.calls == []
+    assert daily.today(TODAY) == (0, 0.0)
+    assert "outcome=error:ImportError calls=0 tools=0 cost=$0.00000" in fake.log[-1].getMessage()
+    assert chatbird.is_resting(TODAY, chatbird._last(saved))
 
 
 # ---- mounting -----------------------------------------------------------------------------------------------
