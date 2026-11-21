@@ -1,5 +1,22 @@
 # Daily Log
 
+## 2026-11-21 (later) — Ask Canary chat built and smoke-tested
+**Done**
+- **Ask Canary is now one site-wide chat** (branch `ask-canary-chat`, PR open, not merged): a small pixel canary in the bottom-right corner of every page opens a chat about anything in the dashboard data. It replaces the per-bank box on report pages. Design: [[specs/2026-11-21-ask-canary-chat-design]]; decision [[decisions/0024-ask-canary-chat]].
+- Six read-only lookup tools (`find_bank`, `bank_profile`, `bank_report`, `failures`, `watchlist`, `canary_facts`). Every number is checked against facts looked up in the visit, plus the link and forecast/advice rules; one retry, otherwise "I couldn't answer that one. Try asking it another way."
+- Limits: 5 questions per visit, 100 a day and $1.00 a day for the whole app, 300 characters, 4 model calls per attempt, 4 lookups per step, 3 written reports per question, 80,000 input tokens per question. The bird sleeps when the day's limit is hit or after an error.
+- **Paid smoke test (Victor approved, $0.30 cap):** 10 questions, three runs. Run 1 $0.0188 (5 of 10 answered: the checks rejected honest wording). Diagnostic re-run of the 5 failures $0.0098. Run 2 $0.0192 (7 of 10). Run 3 on the final code $0.0204 (10 of 10 answered; 4 needed their one retry). Total $0.0682.
+- **Measured cost:** about $0.002 a question on average, $0.0065 for the heaviest. The $1.00 a day limit is roughly 500 typical questions. Well under the $0.02 merge bar.
+- Between runs, free code changes fixed the checks: scale explanations and background facts allowed narrowly, stricter rules against certainty, forecasts and money advice, lookup caps and a size limit. Known limits are written up in decision 0024.
+- Spec section 6 step 5 wording updated (the per-question failure message changed after the test). Runbook, README, roadmap updated.
+- **Cost:** $0.07 (Claude API). README Claude API total about $37.96. Balance about $7.04.
+
+**Next**
+- Victor reviews and merges the PR. **Merging switches the live site to the chat at once**, because `ASK_ENABLED` is true. After a deploy that changes `chatbird.js` or `.css`, use Manage app, Reboot app (this resets the daily counters).
+
+**Open questions**
+- Follow-up to cut retries on the phrase "at least one quarter early" (4 of 10 questions in the final run needed their retry).
+
 ## 2026-11-21 — housekeeping and README
 **Done**
 - Log order fixed: the 2026-11-20 entries had been added at the bottom of this newest-first file; they are now at the top. Added the missing PRs #24–#27.

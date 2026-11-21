@@ -90,8 +90,16 @@ class MemoResult:
     agents: dict = field(default_factory=dict)  # agent name -> pipeline.AgentResult
 
 
+# Long-prompt pricing: a request whose input is over the threshold is billed at these rates instead (in and out).
+# Only Haiku 5.5 has one; Opus and Sonnet keep their flat prices.
+LONG_PROMPT = {"claude-haiku-5-5": (100_000, (0.50, 2.50))}  # model -> (input-token threshold, ($ per 1M in, out))
+
+
 def cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
+    """The price of one request (its own input and output tokens; long-prompt rates apply per request)."""
     pin, pout = PRICES.get(model, PRICES[DEFAULT_MODEL])
+    if model in LONG_PROMPT and input_tokens > LONG_PROMPT[model][0]:
+        pin, pout = LONG_PROMPT[model][1]
     return (input_tokens * pin + output_tokens * pout) / 1_000_000
 
 

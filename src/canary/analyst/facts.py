@@ -80,19 +80,24 @@ def _dedupe(forms: list[str]) -> list[str]:
     return list(dict.fromkeys(forms))
 
 
+def label_forms(label: str) -> list[str]:
+    """Spelled spans in a label ("four quarters") as forms, so a label's own wording is citable."""
+    return [spelled_norm(m["sw"], m["su"]) for m in SPELLED_SPAN.finditer(label)]
+
+
 class _Builder:
     def __init__(self) -> None:
         self.facts: list[Fact] = []
 
     def add(self, label, value, display, forms, source, quarter=None, hindsight=False) -> None:
         forms = list(forms) + (date_forms(quarter) if quarter else [])
-        forms += [spelled_norm(m["sw"], m["su"]) for m in SPELLED_SPAN.finditer(label)]
+        forms += label_forms(label)
         self.facts.append(
             Fact(f"F{len(self.facts) + 1}", label, quarter, value, display, _dedupe(forms), hindsight, source)
         )
 
 
-def _ordinal(n: int) -> str:
+def ordinal(n: int) -> str:
     suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
     return f"{n}{suffix}"
 
@@ -104,8 +109,12 @@ def decimal_ordinal_forms(p: float) -> list[str]:
     return list(dict.fromkeys([f"{s}th", f"{s}{suffix}"]))
 
 
-def _count_forms(n: int) -> list[str]:
+def count_forms(n: int) -> list[str]:
     return [f"{n:,}", str(n)]
+
+
+_ordinal = ordinal  # private names kept for existing callers
+_count_forms = count_forms
 
 
 def _history(rows: pd.DataFrame) -> pd.DataFrame:
