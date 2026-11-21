@@ -1,11 +1,11 @@
-/* Ask Canary: the corner canary (option A1) and its chat panel. Fixed v6 colours: the site themes never change it. */
+/* Ask Canary: the corner canary (option A1), bottom-LEFT (Streamlit Cloud's own "Manage app" button sits bottom-right), and its chat panel. Fixed v6 colours: the site themes never change it. */
 .cb {
   --navy:#1e2240; --yellow:#ffe066; --paper:#ffffff; --soft:#f1f3f5; --muted:#5c6178; --cream:#fff8db; --orange:#e8590c;
   --pix:"Press Start 2P", ui-monospace, monospace;
   --body:"Source Sans", "Source Sans 3", "Source Sans Pro", system-ui, -apple-system, sans-serif;
-  --inset-r:calc(16px + env(safe-area-inset-right, 0px));
+  --inset-l:calc(16px + env(safe-area-inset-left, 0px));
   --inset-b:calc(16px + env(safe-area-inset-bottom, 0px));
-  position:fixed; right:var(--inset-r); bottom:var(--inset-b);
+  position:fixed; left:var(--inset-l); bottom:var(--inset-b);
   z-index:999980; /* under Streamlit's header (999990), theme picker and menus */
   color:var(--navy); font-family:var(--body); font-size:15px; line-height:1.45;
 }
@@ -15,19 +15,19 @@
 .cb .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
 /* ---- the corner button: yellow bubble + perched bird ---- */
-.launch { display:flex; align-items:flex-end; gap:6px; min-height:44px; padding:0; margin:0; background:none; border:0; }
+.launch { display:flex; flex-direction:row-reverse; align-items:flex-end; gap:6px; min-height:44px; padding:0; margin:0; background:none; border:0; }
 .bubble { position:relative; display:flex; align-items:center; gap:7px; margin-bottom:6px; white-space:nowrap;
   font-family:var(--pix); font-size:8px; line-height:1.5; background:var(--yellow); border:2px solid var(--navy);
   box-shadow:3px 3px 0 var(--navy); padding:6px 7px; }
-.bubble::after { content:""; position:absolute; right:-8px; bottom:8px; border:4px solid transparent;
-  border-left-color:var(--navy); border-top-color:var(--navy); }
+.bubble::after { content:""; position:absolute; left:-8px; bottom:8px; border:4px solid transparent;
+  border-right-color:var(--navy); border-top-color:var(--navy); }
 .word-phone { display:none; }
 .dot { width:6px; height:6px; flex:none; background:var(--orange); border:2px solid var(--navy); animation:cb-blink 1.6s steps(1) infinite; }
 .bird { position:relative; display:inline-block; line-height:0; }
 .sprite, .sprite svg { display:block; width:39px; height:33px; }
 .launch:hover .bubble { background:#ffd43b; }
 
-.tweet { position:absolute; right:22px; bottom:52px; font-family:var(--pix); font-size:7px; color:var(--orange);
+.tweet { position:absolute; left:22px; bottom:52px; font-family:var(--pix); font-size:7px; color:var(--orange);
   opacity:0; pointer-events:none; }
 .cb.hop .sprite { animation:cb-hop 1s steps(1); }
 .cb.hop .tweet { animation:cb-chirp 1s steps(1); }
@@ -49,7 +49,7 @@
   80% { opacity:1; } 100% { opacity:0; transform:translate(-4px, -8px) scale(1.15); } }
 
 /* ---- the panel ---- */
-.panel { position:fixed; right:var(--inset-r); bottom:calc(var(--inset-b) + 58px); width:min(400px, calc(100vw - 32px));
+.panel { position:fixed; left:var(--inset-l); bottom:calc(var(--inset-b) + 58px); width:min(400px, calc(100vw - 32px));
   max-height:min(620px, calc(100vh - 150px)); display:flex; flex-direction:column; background:var(--paper);
   border:3px solid var(--navy); box-shadow:6px 6px 0 var(--navy); }
 .panel[hidden] { display:none; }
@@ -91,7 +91,7 @@
   .dot { width:5px; height:5px; border-width:1px; }
   .word { display:none; }
   .word-phone { display:inline; }
-  .tweet { bottom:36px; right:14px; }
+  .tweet { bottom:36px; left:14px; }
   .zs .z1 { font-size:5px; }
   .zs .z2 { font-size:6px; }
   .zs .z3 { font-size:8px; }

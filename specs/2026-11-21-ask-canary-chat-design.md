@@ -4,7 +4,7 @@ Date: 2026-11-21. Status: approved by Victor 2026-11-21. Mockups: https://claude
 
 ## 1. Intent
 
-Today Ask Canary is a question box under the replay on the 100 written-report pages, and it can only answer about that one bank. Victor wants **one Ask Canary for the whole site**: a small pixel canary in the bottom-right corner of every page that opens a chat about anything in Canary's data.
+Today Ask Canary is a question box under the replay on the 100 written-report pages, and it can only answer about that one bank. Victor wants **one Ask Canary for the whole site**: a small pixel canary in the bottom-left corner of every page that opens a chat about anything in Canary's data.
 
 **Why:** to give the project depth (a real tool-using AI agent on the public site, not just a box) and to be a centrepiece of the demo video and LinkedIn post.
 
@@ -49,7 +49,7 @@ Today Ask Canary is a question box under the replay on the 100 written-report pa
 ## 5. What the visitor sees (decided)
 
 **The corner canary (option A1)**
-- Bottom-right of **every page**, above page content (but below Streamlit's own top bar and menus). It's the site's pixel bird (`theme.BIRD`) drawn crisply at whole-pixel scale.
+- Bottom-left of **every page** (moved from bottom-right after launch, 2026-11-21: Streamlit Cloud's own "Manage app" button covers the bottom-right corner), above page content (but below Streamlit's own top bar and menus). It's the site's pixel bird (`theme.BIRD`) drawn crisply at whole-pixel scale.
   - Computer: bird **39px** wide (3 screen px per sprite pixel), with a yellow speech-bubble button saying **"ASK CANARY"** with a small blinking orange dot. Whole button about 140 × 40px.
   - Phone (narrow screens): bird **26px** (2 px per sprite pixel), bubble says **"ASK"**. **The tappable area stays at least 44px tall.**
 - The bubble has the v6 look: yellow fill, navy 2px border, hard navy shadow, Press Start 2P text.

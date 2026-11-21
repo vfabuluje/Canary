@@ -411,6 +411,15 @@ def test_js_has_states_and_reduced_motion():
     assert "innerHTML" not in js.split("function renderMessage")[1].split("function")[0]  # model text set via textContent
 
 
+def test_corner_canary_sits_bottom_left():
+    """Bottom-left: Streamlit Cloud's "Manage app" button covers the bottom-right corner."""
+    css = (WEB / "chatbird.css").read_text()
+    root = css.split(".cb {", 1)[1].split("}", 1)[0]
+    assert "left:var(--inset-l)" in root and "right:" not in root
+    panel = css.split(".panel {", 1)[1].split("}", 1)[0]
+    assert "left:var(--inset-l)" in panel and "right:" not in panel
+
+
 def test_js_accessibility_and_storage_guards():
     js = (WEB / "chatbird.js").read_text()
     assert "aria-label" in js and "Escape" in js and "sessionStorage" in js and "focus()" in js

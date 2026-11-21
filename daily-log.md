@@ -2,6 +2,7 @@
 
 ## 2026-11-21 (later) — Ask Canary chat built and smoke-tested
 **Done**
+- PR #29 merged (chat live). The corner canary moved to the bottom-left: Streamlit Cloud's own "Manage app" button covers the bottom-right for the app owner (and would show in the demo video).
 - **Ask Canary is now one site-wide chat** (branch `ask-canary-chat`, PR open, not merged): a small pixel canary in the bottom-right corner of every page opens a chat about anything in the dashboard data. It replaces the per-bank box on report pages. Design: [[specs/2026-11-21-ask-canary-chat-design]]; decision [[decisions/0024-ask-canary-chat]].
 - Six read-only lookup tools (`find_bank`, `bank_profile`, `bank_report`, `failures`, `watchlist`, `canary_facts`). Every number is checked against facts looked up in the visit, plus the link and forecast/advice rules; one retry, otherwise "I couldn't answer that one. Try asking it another way."
 - Limits: 5 questions per visit, 100 a day and $1.00 a day for the whole app, 300 characters, 4 model calls per attempt, 4 lookups per step, 3 written reports per question, 80,000 input tokens per question. The bird sleeps when the day's limit is hit or after an error.

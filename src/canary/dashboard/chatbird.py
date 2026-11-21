@@ -1,6 +1,6 @@
 """The corner canary (spec 5): Ask Canary's floating pixel bird and chat panel on every page.
 
-A Streamlit v2 component (web/chatbird.js and web/chatbird.css) draws the bird bottom-right and the panel above
+A Streamlit v2 component (web/chatbird.js and web/chatbird.css) draws the bird bottom-left (Streamlit Cloud's "Manage app" button sits bottom-right) and the panel above
 it; this module decides what it shows and answers its questions. The browser sends a question as the trigger
 `question`; the callback only stores it, and `render_chat` (called once per run, after the page) applies the
 guards, asks `chat.ask` and sends the new transcript back as the component's data. Python can't update the
