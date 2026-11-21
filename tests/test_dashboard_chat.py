@@ -703,3 +703,11 @@ def test_a_spelled_span_claim_still_needs_a_fact():
 
 def test_system_prompt_no_numbers_in_capabilities():
     assert "When describing what you can help with, don't mention years, numbers or time spans" in chat.SYSTEM_PROMPT
+
+
+def test_cites_are_fact_ids_only():
+    """Fix round 3 follow-up: smoke run 2's Q4 cited a canary_facts text key as a fact id."""
+    assert 'Cites must be fact ids ("F1", "F2", ...) from the facts lists only' in chat.SYSTEM_PROMPT
+    assert "why_2023_missed" in chat.SYSTEM_PROMPT and "how_it_works" in chat.SYSTEM_PROMPT
+    errs = chat._check(_memo(("Canary learned mostly from the 2008 crisis.", ["why_2023_missed"])), FactLedger())
+    assert any("unknown fact id why_2023_missed" in e for e in errs)

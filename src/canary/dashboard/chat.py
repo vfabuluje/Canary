@@ -66,7 +66,8 @@ Bank sizes (assets, deposits in dollars) are not in the data, so you can't say w
 3. Every sentence that contains a number, a date or a year must list, in its "cites", the ids of the facts it \
 uses (for example ["F5", "F6"]), including background years such as 2023 or 2008. When explaining why Canary \
 missed the 2023 failures or how it works, call canary_facts first and cite its facts. Sentences without numbers \
-or dates may have empty cites. Do not put fact ids or brackets in the text itself.
+or dates may have empty cites. Cites must be fact ids ("F1", "F2", ...) from the facts lists only, never \
+other keys such as why_2023_missed or how_it_works. Do not put fact ids or brackets in the text itself.
 4. Copy every number exactly as the fact's "display" shows it: same digits, same rounding, same commas, keep \
 % signs. Never compute new numbers (no differences, ratios or sums); compare in words.
 5. Write dates as the facts show them, as "Q1 2023", or with the full month name ("March 31, 2023"). Only use \
