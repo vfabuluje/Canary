@@ -32,9 +32,11 @@ The warning signs were in SVB's public filings months earlier. Its last report b
 
 <sub><i>Left to right: Home, Canary's report on Silicon Valley Bank, and the Ask Canary chat answering "Why wasn't Silicon Valley Bank flagged?"</i></sub>
 
+<p align="center"><b>▶ Animated: watch Canary's agents build the report on Silicon Valley Bank</b></p>
+
 <p align="center">
   <img src="docs/screenshots/replay.gif" width="720" alt="Animation: Canary's AI agents and rule checks building the report on Silicon Valley Bank, step by step">
-  <br><sub><i>The agents at work: a rule check looks at real-estate lending, two AI detectives study the bank's trends and its peers, a fact checker verifies every number, and the lead detective writes the report.</i></sub>
+  <br><sub><i>Animation (about 18 seconds, loops). The agents at work: a rule check looks at real-estate lending, two AI detectives study the bank's trends and its peers, a fact checker verifies every number, and the lead detective writes the report.</i></sub>
 </p>
 
 ## What I found
