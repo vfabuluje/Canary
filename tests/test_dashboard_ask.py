@@ -268,3 +268,31 @@ def test_round3_disclaimers_pass(text):
 ])
 def test_round3_forecasts_and_advice_still_fail(text):
     assert wording_errors(_memo((text, [])))
+
+
+# ---- fix round 4: present-tense forecasts and plain advice --------------------------------------------------------
+
+@pytest.mark.parametrize("text", [
+    "Wells Fargo goes under in March.",
+    "The bank fails next quarter.",
+    "This bank collapses within a year.",
+    "It fails soon.",
+    "Your deposits are at risk, so move it.",
+    "Move it out now.",
+    "Withdrawing your savings is the obvious step.",
+])
+def test_round4_forecasts_and_advice_fail(text):
+    assert wording_errors(_memo((text, [])))
+
+
+@pytest.mark.parametrize("text", [
+    "I can't advise you on moving your money.",
+    "I can't advise you on withdrawing your savings.",
+    "I can't tell whether it will fail.",
+    "SVB failed on March 10, 2023.",
+    "The bank collapsed in 2023.",
+    "A higher score would move it up the ranking.",
+    "That money is not protected if the bank fails, so it can leave quickly.",
+])
+def test_round4_history_and_refusals_pass(text):
+    assert wording_errors(_memo((text, []))) == []

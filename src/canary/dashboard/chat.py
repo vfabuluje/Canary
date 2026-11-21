@@ -69,7 +69,8 @@ missed the 2023 failures or how it works, call canary_facts first and cite its f
 or dates may have empty cites. Cites must be fact ids ("F1", "F2", ...) from the facts lists only, never \
 other keys such as why_2023_missed or how_it_works. Do not put fact ids or brackets in the text itself.
 4. Copy every number exactly as the fact's "display" shows it: same digits, same rounding, same commas, keep \
-% signs. Never compute new numbers (no differences, ratios or sums); compare in words.
+% signs. Never compute new numbers (no differences, ratios or sums); compare in words. A "shown" count is how \
+many rows a list shows, never how many exist.
 5. Write dates as the facts show them, as "Q1 2023", or with the full month name ("March 31, 2023"). Only use \
 a date or year that belongs to a fact you cite. Small counts that are not facts are spelled out as words \
 ("three"), but never write a time span in words ("one quarter", "two years") unless a cited fact gives it; say \
@@ -93,21 +94,24 @@ what you can help with, don't mention years, numbers or time spans.
 12. Always finish by calling {SUBMIT} exactly once with the whole answer: one section with key "answer". \
 Do not write the answer as plain text."""
 
-# The scales' own anchors: "(100 is highest risk)", "where 100 means the highest risk", "with 1 meaning the highest
-# score", "with rank 1 as the highest score", or a sentence that opens with one ("Rank 1 is the highest score.", "A
-# percentile of 100 means the highest risk."). They describe the scale, not the bank, so the answer check removes
-# exactly these phrases before the citation checker reads the numbers. An anchor counts only at the start of the
-# sentence or after "(", "where" or "with", so "SVB's rank 1 means the highest score" is still read as a rank, and
-# any other "1" or "100" in the sentence still needs a fact that holds it.
+# The scales' own anchors: "(100 is highest risk)", ", where 100 means the highest risk", ", with 1 meaning the
+# highest score", or a whole sentence that is one ("Rank 1 is the highest score."). They describe the scale, not the
+# bank, so the answer check removes exactly these before the citation checker reads the numbers. An anchor counts
+# only as the whole sentence, as a closed "( ... )" aside, or after ", where"/", with" at the end of a clause, so a
+# claim around it ("Rank 1 is the highest score, and that is SVB.", "SVB ended the quarter with rank 1 as the
+# highest score.") is still read as a rank, and any other "1" or "100" in the sentence still needs its fact.
 _IS = r"\s+(?:is|=|means|meaning|as|being)\s+(?:the\s+)?highest\s+"
 _RANK_1 = rf"(?:(?:a|the)\s+)?(?:(?:national\s+)?rank\s+(?:of\s+)?)?1{_IS}(?:score|risk)"
 _PCT_100 = rf"(?:(?:a|the)\s+)?(?:percentile\s+(?:of\s+)?)?100{_IS}(?:risk|value)"
-ANCHOR = re.compile(rf"(?:^\s*|,?\s*\(\s*|,?\s*\b(?:where|with)\s+)(?:{_RANK_1}|{_PCT_100})\s*\)?", re.IGNORECASE)
+_ANCHOR = rf"(?:{_RANK_1}|{_PCT_100})"
+ANCHOR = re.compile(rf"^\s*{_ANCHOR}\s*[.!]?\s*$|\(\s*{_ANCHOR}\s*\)|,\s*(?:where|with)\s+{_ANCHOR}(?=\s*(?:[,.;)]|$))",
+                    re.IGNORECASE)
 # How often, not how long: "each quarter", "once a quarter", "flagged in a quarter". Only these exact phrases are
-# removed; "one quarter early" or "in a quarter" after any other word is still a span the checker reads.
+# removed; "one quarter early", "in a quarter" after any other word, or "in a quarter of" (a fraction) is still a
+# span the checker reads.
 FREQUENCY = re.compile(
     r"\b(?:each|every|per)\s+quarter\b|\bonce\s+a\s+quarter\b|\bquarter\s+by\s+quarter\b|\bby\s+quarter\b"
-    r"|(?:(?<=\bflagged\s)|(?<=\bscored\s)|(?<=\branked\s)|(?<=\blisted\s))in\s+a\s+(?:given\s+)?quarter\b",
+    r"|(?:(?<=\bflagged\s)|(?<=\bscored\s)|(?<=\branked\s)|(?<=\blisted\s))in\s+a\s+(?:given\s+)?quarter\b(?!\s+of\b)",
     re.IGNORECASE)
 
 SUBMIT_TOOL: dict = {

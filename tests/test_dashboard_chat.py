@@ -711,3 +711,44 @@ def test_cites_are_fact_ids_only():
     assert "why_2023_missed" in chat.SYSTEM_PROMPT and "how_it_works" in chat.SYSTEM_PROMPT
     errs = chat._check(_memo(("Canary learned mostly from the 2008 crisis.", ["why_2023_missed"])), FactLedger())
     assert any("unknown fact id why_2023_missed" in e for e in errs)
+
+
+# ---- fix round 4: the scale anchor is removed only when it is the whole sentence or a closed aside ------------------
+
+@pytest.mark.parametrize("text, cite_rank", [
+    ("Rank 1 is the highest score, and that is SVB.", True),
+    ("Rank 1 is the highest score: Silicon Valley Bank.", False),
+    ("Rank 1 is the highest score this quarter and belongs to Jpmorgan Chase Bank Na.", False),
+    ("A percentile of 100 means the highest risk, which is where JPMorgan sits.", False),
+    ("Silicon Valley Bank closed out its last quarter with a rank of 1 as the highest score in the country.", False),
+    ("Jpmorgan Chase Bank Na ended the quarter with rank 1 as the highest score.", False),
+    ("Silicon Valley Bank finished with a percentile of 100 being the highest risk of any bank.", False),
+    ("1 meaning the highest score, Silicon Valley Bank led all banks.", False),
+])
+def test_a_claim_around_the_scale_anchor_fails(real_data, text, cite_rank):
+    from canary.dashboard.chat_facts import canary_facts
+    led = FactLedger(); canary_facts(led)
+    cites = [_svb_case(led, "national rank (1 = highest score)")] if cite_rank else []
+    assert _ok(led, text, cites)
+
+
+def test_scale_anchor_forms_that_still_pass(real_data):
+    from canary.dashboard.chat_facts import bank_profile, canary_facts
+    led = FactLedger(); canary_facts(led)
+    pct = _svb_case(led, "percentile (100 = highest risk)")
+    assert _ok(led, "Its last percentile was 26.8% (100 is highest risk).", [pct]) == []
+    led = FactLedger(); bank_profile(led, SVB)
+    ids = [_by_label(led, f"Latest {x}") for x in
+           ("National rank (1 = highest score)", "Banks ranked that quarter", "Percentile (100 = highest risk)")]
+    assert _ok(led, "In that quarter it ranked 3,494 of 4,773 banks, a percentile of 26.8%, where 100 means the "
+                    "highest risk.", ids) == []
+
+
+def test_fraction_in_a_quarter_of_is_not_a_frequency():
+    assert _ok(FactLedger(), "Silicon Valley Bank ranked in a quarter of all banks.")
+    assert _ok(FactLedger(), "I can show the watchlist of banks Canary flagged in a quarter and how well its score "
+                             "tested.") == []
+
+
+def test_system_prompt_shown_count_rule():
+    assert 'A "shown" count is how many rows a list shows, never how many exist' in chat.SYSTEM_PROMPT

@@ -198,7 +198,7 @@ def _flag_rule(led: FactLedger) -> Fact:
 
 
 def _shown(led: FactLedger, label: str, n: int, source: str, quarter=None) -> Fact:
-    """How many rows a capped list shows (the total is a separate fact)."""
+    """How many rows a capped list shows; issued only when the list is capped (the total is a separate fact)."""
     return led.add(label, n, f"{n:,}", count_forms(n), f"{_SRC}/{source}", quarter)
 
 
@@ -250,7 +250,9 @@ def find_bank(ledger: FactLedger, query: str, state: str | None = None) -> dict:
         facts += _status_facts(ledger, row, kw)
         matches.append({"cert": cert, "name": name, "city": row["city"], "state": row["state"], "status": status,
                         "has_report": bool(row["has_report"])})
-    facts.append(_shown(ledger, "Matches shown in this list", len(matches), "banks.parquet: name (search)"))
+    if len(matches) == MAX_MATCHES:  # the search may have found more
+        facts.append(_shown(ledger, f"Matches shown (search returns at most {MAX_MATCHES})", len(matches),
+                            "banks.parquet: name (search)"))
     out = {"matches": matches, "facts": ledger.slim(facts)}
     if not matches:
         out["note"] = "No bank matched that name."
@@ -344,7 +346,9 @@ def failures(ledger: FactLedger, year: int | None = None, state: str | None = No
                         f"{_SRC}/banks.parquet: failure_date")]
     if year is not None:
         facts.append(ledger.add("Year shown", year, str(year), [str(year)], f"{_SRC}/banks.parquet: failure_date"))
-    facts.append(_shown(ledger, "Failures shown in this list", len(shown), "banks.parquet: failure_date"))
+    if len(shown) < total:
+        facts.append(_shown(ledger, f"Failures shown (list capped at {MAX_ROWS})", len(shown),
+                            "banks.parquet: failure_date"))
     rows = []
     for r in shown.itertuples():
         d = _day(r.failure_date)
@@ -396,7 +400,9 @@ def watchlist(ledger: FactLedger, quarter: str | None = None, state: str | None 
         facts += fs
         out_rows.append({"cert": int(r.cert), "name": r.name, "state": r.state, "rank": int(r.rank),
                          "n_banks": int(r.n_banks), "fact_ids": [f.id for f in fs]})
-    facts.append(_shown(ledger, "Banks shown in this list", len(out_rows), "scores_history.parquet: flagged", qd))
+    if len(out_rows) < total:
+        facts.append(_shown(ledger, f"Banks shown (list capped at {MAX_ROWS})", len(out_rows),
+                            "scores_history.parquet: flagged", qd))
     out = {"quarter": qd.isoformat(), "total": total, "rows": out_rows, "facts": ledger.slim(facts)}
     if total > len(out_rows):
         out["note"] = f"Showing the {len(out_rows)} highest-ranked of {total}."

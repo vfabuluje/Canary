@@ -336,16 +336,26 @@ def test_failures_rows_shown_is_a_fact(real_data):
     led = FactLedger(); out = failures(led, year=2010)
     assert (out["total"], len(out["rows"])) == (157, 25)
     first, last = out["rows"][0]["fact_ids"][2], out["rows"][-1]["fact_ids"][2]
-    ids = [_label_id(led, "Number of failed banks in this list"), _label_id(led, "Failures shown in this list"),
+    ids = [_label_id(led, "Number of failed banks in this list"), _label_id(led, "Failures shown (list capped at 25)"),
            first, last]
     assert _check(led, "The list shows 25 of those failures, sorted by date, from October 22, 2010 to December 17, "
                        "2010.", ids) == []
 
 
-def test_watchlist_and_find_bank_rows_shown_are_facts(real_data):
+SHOWN = ("Failures shown", "Banks shown", "Matches shown")
+
+
+def test_rows_shown_fact_only_when_the_list_is_capped(real_data):
+    """Fix round 4: a shown count exists only for a capped list, labelled so it can't read as a total."""
     led = FactLedger(); out = watchlist(led)
-    shown = led.facts[_label_id(led, "Banks shown in this list")]
-    assert shown.value == len(out["rows"])
+    assert out["total"] > len(out["rows"]) == 25
+    assert led.facts[_label_id(led, "Banks shown (list capped at 25)")].value == 25
+    led = FactLedger(); out = watchlist(led, state="TX")
+    assert out["total"] == len(out["rows"]) and not any(f.label.startswith(SHOWN) for f in led.facts.values())
+    led = FactLedger(); out = failures(led, year=2023)
+    assert out["total"] == len(out["rows"]) and not any(f.label.startswith(SHOWN) for f in led.facts.values())
     led = FactLedger(); out = find_bank(led, "first")
-    shown = led.facts[_label_id(led, "Matches shown in this list")]
-    assert shown.value == len(out["matches"])
+    assert len(out["matches"]) == 8
+    assert led.facts[_label_id(led, "Matches shown (search returns at most 8)")].value == 8
+    led = FactLedger(); find_bank(led, "silicon valley")
+    assert not any(f.label.startswith(SHOWN) for f in led.facts.values())
