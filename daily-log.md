@@ -1,5 +1,13 @@
 # Daily Log
 
+## 2026-11-23 — README: SVB's depositors
+**Done**
+- PR #32: one paragraph in the README's "Why it missed" section on what the data can't see: SVB's depositors were one connected industry (startups and VC firms), the run took a day, and FDIC call reports are quarterly and have no depositor-industry field. Framed as a data limit, not a tested finding.
+- **Cost:** $0. Balance about $7.04.
+
+**Next**
+- Victor merges PR #32. Then the demo video and LinkedIn post (the "ready for the last crisis, not the next one" angle fits as the hook).
+
 ## 2026-11-21 (later) — Ask Canary chat built and smoke-tested
 **Done**
 - README: a row of three screenshots under the title (Home, SVB's report, the chat answering "Why wasn't Silicon Valley Bank flagged?") and an animation of the agents building SVB's report; files in `docs/screenshots/`. Taken from a local run; the chat shot cost one question (about $0.002).
