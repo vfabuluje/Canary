@@ -1,0 +1,35 @@
+name: Keep dashboard awake
+
+# Ping the Streamlit Community Cloud app so it registers activity and
+# doesn't go to sleep. Scheduled runs only fire from the default branch.
+on:
+  schedule:
+    - cron: "0 */8 * * *" # 00:00, 08:00 and 16:00 UTC every day
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      APP_URL: https://canarybank.streamlit.app/
+    steps:
+      - name: Ping dashboard
+        run: |
+          # Streamlit bounces first-time visitors through an auth redirect
+          # that sets a cookie, so keep a cookie jar or curl loops forever.
+          jar="$(mktemp)"
+          status=$(curl -sS -L -c "$jar" -b "$jar" -o /dev/null \
+            --max-time 60 --retry 2 --retry-delay 10 \
+            -w "%{http_code}" "$APP_URL") || status="curl-error"
+
+          if [ "$status" = "200" ]; then
+            echo "OK: $APP_URL responded 200"
+            echo "OK: $APP_URL responded 200 at $(date -u +%FT%TZ)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::FAILED: $APP_URL responded $status"
+            echo "FAILED: $APP_URL responded $status at $(date -u +%FT%TZ)" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
