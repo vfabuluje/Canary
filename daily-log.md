@@ -1,5 +1,19 @@
 # Daily Log
 
+## 2026-11-24 — Keep-alive ping for the dashboard
+**Done**
+- PR #33: `.github/workflows/keep-alive.yml` sends a GET to https://canarybank.streamlit.app/ every 8 hours (00:00, 08:00 and 16:00 UTC). It also has a manual "Run workflow" button. It checks for a 200 and logs one OK or FAILED line; a failed run turns red and GitHub sends an email. Decision [[decisions/0025-keep-alive-ping]].
+- curl needs a cookie jar: Streamlit's auth redirect sets a cookie, and without it curl looped until it hit its 50-redirect limit. With the jar, a local test returned 200 after 3 redirects.
+- The schedule started at every 3 days, then 12 hours, then 8. Free apps are believed to sleep after about 12 hours without traffic, and GitHub often starts scheduled runs late, so 8 hours leaves a margin.
+- **Cost:** $0. Balance about $7.04.
+
+**Next**
+- Victor merges PR #33, then runs it once by hand (Actions, Keep dashboard awake, Run workflow) and checks the run is green.
+- Then the demo video and LinkedIn post.
+
+**Open questions**
+- Does a plain GET count as a visit? Streamlit apps run over a live browser connection, so it may not. If the app still sleeps, add a headless-browser step that clicks "Yes, get this app back up!".
+
 ## 2026-11-23 — README: SVB's depositors
 **Done**
 - PR #32: one paragraph in the README's "Why it missed" section on what the data can't see: SVB's depositors were one connected industry (startups and VC firms), the run took a day, and FDIC call reports are quarterly and have no depositor-industry field. Framed as a data limit, not a tested finding.
