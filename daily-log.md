@@ -1,5 +1,27 @@
 # Daily Log
 
+## 2026-11-26 — Keep-alive now visits with a real browser
+**Done**
+- Found that the curl keep-alive (PR #33) couldn't tell whether the app was awake. Its 200 comes from Streamlit Cloud's page shell (about 10 KB), which is the same awake or asleep, and curl never opens the app's live connection, so it most likely wasn't a visit. GitHub also ran the 8-hour schedule late: 3 runs out of 5, gaps of about 11.5 and 12 hours.
+- Branch `keep-alive-browser`: `.github/scripts/keep_alive.py` opens the site in headless Chromium (Playwright 1.48.0), checks for the `CANARY` heading inside the app's iframe, stays 15 s, and clicks "Yes, get this app back up!" if the sleep screen shows. A woken app fails the run on purpose (`ASLEEP`), so a red run means the schedule isn't keeping it awake. Schedule now every 6 hours at :23. Decision [[decisions/0025-keep-alive-ping]] revised.
+- Tested locally: the live site gives `OK`, exit 0 (23 s); a non-Streamlit page gives `FAILED`, exit 1. The wake-up click is untested (the app was awake).
+- **Cost:** $0. Balance about $7.04.
+
+**Next**
+- Victor merges the PR, runs the workflow once by hand and checks it is green. Watch for any red `ASLEEP` run over the next few days.
+- Then the demo video and LinkedIn post.
+
+## 2026-11-25 — Demo video clips recorded
+**Done**
+- Seven silent 1080p clips in `docs/demo/clips/` (not committed), recorded from the live site by Claude driving Chrome with an in-page drawn cursor (clicks show a yellow ring): `1_hook` (21 s), `2_search` (32 s), `3a_watchlist` (28 s; TOP 1% / 5% / back to 2%), `3b_4_svb_2023` (41 s; SVB's risk line, then the 98.1% bond losses; 2.4 s cut where the screen switched to the terminal), `5a_agents_report` (78 s; agents build the report, memo scroll), `5b_ask_canary` (73 s), `6_close` (31 s).
+- Shot order differs from `script.md`: section 3 uses the watchlist clip and the start of `3b_4`; section 2 uses the search clip (the risk line is on the 2023 page, not the bank page).
+- Each clip has a few seconds of still lead-in and lead-out to trim. Chrome's "Claude is working" indicators are not in any clip.
+- **Cost:** one Ask Canary question (about $0.002-$0.0065). Balance about $7.04.
+
+**Next**
+- Victor records the voiceover per section and edits the clips together (captions on). Possibly zoom in on the chat panel in `5b` so the answer is readable on a phone, and add an end card with the URL.
+- Then the LinkedIn post.
+
 ## 2026-11-24 — Keep-alive ping for the dashboard
 **Done**
 - PR #33: `.github/workflows/keep-alive.yml` sends a GET to https://canarybank.streamlit.app/ every 8 hours (00:00, 08:00 and 16:00 UTC). It also has a manual "Run workflow" button. It checks for a 200 and logs one OK or FAILED line; a failed run turns red and GitHub sends an email. Decision [[decisions/0025-keep-alive-ping]].

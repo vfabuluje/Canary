@@ -1,35 +1,33 @@
 name: Keep dashboard awake
 
-# Ping the Streamlit Community Cloud app so it registers activity and
-# doesn't go to sleep. Scheduled runs only fire from the default branch.
+# Visit the Streamlit Community Cloud app in a headless browser so it
+# registers a real visitor and doesn't go to sleep. A plain curl GET only
+# fetched Streamlit's page shell (200 even when asleep), so it didn't count.
+# Scheduled runs only fire from the default branch.
 on:
   schedule:
-    - cron: "0 */8 * * *" # 00:00, 08:00 and 16:00 UTC every day
+    # Every 6 hours at :23. GitHub often starts top-of-the-hour runs hours
+    # late or skips them; an odd minute and a shorter gap keep us under 12 h.
+    - cron: "23 */6 * * *"
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  ping:
+  visit:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     env:
       APP_URL: https://canarybank.streamlit.app/
     steps:
-      - name: Ping dashboard
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Playwright and Chromium
         run: |
-          # Streamlit bounces first-time visitors through an auth redirect
-          # that sets a cookie, so keep a cookie jar or curl loops forever.
-          jar="$(mktemp)"
-          status=$(curl -sS -L -c "$jar" -b "$jar" -o /dev/null \
-            --max-time 60 --retry 2 --retry-delay 10 \
-            -w "%{http_code}" "$APP_URL") || status="curl-error"
-
-          if [ "$status" = "200" ]; then
-            echo "OK: $APP_URL responded 200"
-            echo "OK: $APP_URL responded 200 at $(date -u +%FT%TZ)" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "::error::FAILED: $APP_URL responded $status"
-            echo "FAILED: $APP_URL responded $status at $(date -u +%FT%TZ)" >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
+          pip install playwright==1.48.0
+          python -m playwright install --with-deps chromium
+      - name: Visit dashboard
+        run: python .github/scripts/keep_alive.py
