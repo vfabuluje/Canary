@@ -1,20 +1,23 @@
-# 0025 — A GitHub Actions ping keeps the dashboard from going to sleep
+# 0025 — A GitHub Actions browser visit keeps the dashboard from going to sleep
 
-**Date:** 2026-11-24
+**Date:** 2026-11-24 (revised 2026-11-26)
 **Status:** Accepted
 
 ## Decision
-A GitHub Actions workflow, `.github/workflows/keep-alive.yml`, visits https://canarybank.streamlit.app/ **every 8 hours** (00:00, 08:00 and 16:00 UTC). It can also be run by hand from the Actions tab ("Run workflow"), for example before someone is expected to look at the dashboard. In plain English:
+A GitHub Actions workflow, `.github/workflows/keep-alive.yml`, visits https://canarybank.streamlit.app/ **every 6 hours at 23 minutes past** (00:23, 06:23, 12:23 and 18:23 UTC) with a **headless Chromium browser** (Playwright, script `.github/scripts/keep_alive.py`). It can also be run by hand from the Actions tab ("Run workflow"). In plain English:
 
-- **One HTTP GET, checked for a 200.** It does not read the page. It retries twice and gives up after 60 seconds.
-- **It keeps a cookie jar.** Streamlit sends a first-time visitor through an auth redirect that sets a cookie. Without the cookie, curl redirects forever (it stopped at 50). With it, the page answers 200 after 3 redirects.
-- **It logs one line.** `OK: … responded 200` or `FAILED: … responded <code>`, in the run log and on the run's summary page. A failed run turns red, and GitHub emails the owner.
+- **It loads the page like a person would.** The browser opens the site, which starts the app's live connection, and stays on the page for 15 seconds.
+- **It checks that the app itself is showing.** The app runs inside an iframe at `/~/+/`; the run passes only when the `CANARY` heading appears there. If that heading is ever renamed, the script must be updated too.
+- **If the sleep screen shows, it wakes the app.** It clicks "Yes, get this app back up!", waits up to 3 minutes for the app to boot, and then **fails the run on purpose** with `ASLEEP: … woke it, but the pings are not keeping it awake`. A red run means the schedule isn't working, and GitHub emails the owner.
+- **It logs one line:** `OK`, `ASLEEP` or `FAILED`, in the run log and on the run's summary page.
 
 ## Why
-- **Every 8 hours, not 12 or every 3 days.** Streamlit Community Cloud is believed to put free apps to sleep after about 12 hours without traffic. GitHub often starts scheduled runs late (minutes, sometimes more), so a 12-hour gap would sometimes miss the window. Eight hours leaves room for that delay. The repo is public, so the runs cost nothing.
-- **GitHub Actions, not AWS.** It is free, it needs no credentials and it is already part of the stack.
+- **A browser, not curl (the first version, 2026-11-24).** The first version sent a plain HTTP GET and checked for a 200. That page is Streamlit Cloud's own page shell (about 10 KB, the same whether the app is awake or asleep); the sleep screen is drawn inside it later by JavaScript. So every run was green even if the app was asleep, and curl never opens the app's live connection, so it most likely did not count as a visit.
+- **Every 6 hours at :23, not every 8 hours on the hour.** Streamlit Community Cloud is believed to put free apps to sleep after about 12 hours without traffic. In the first 1.5 days the 8-hour schedule fired 3 times out of 5, with gaps of about 11.5 and 12 hours, because GitHub delays or skips scheduled runs set for the top of the hour when it is busy. An odd minute is less crowded, and a 6-hour gap still stays under 12 hours if one run is skipped.
+- **GitHub Actions, not AWS.** It is free (public repo), it needs no credentials and it is already part of the stack. Each run takes about a minute, most of it installing Chromium. It never opens Ask Canary, so it makes no Claude API calls.
 
 ## Limitations
-- **A plain GET may not count as a visit.** A Streamlit app only really runs once a browser opens a live connection to it, and curl does not. If the app still sleeps, the fix is a headless-browser step that loads the page and clicks "Yes, get this app back up!" when the sleep screen appears.
+- **The wake-up click has not been seen working yet.** The app was awake on every test. If the button's text changes, the run fails with `FAILED` instead of `ASLEEP`; either way it is red.
 - **GitHub turns off scheduled workflows in public repos after 60 days without commits.** It emails a warning first. Re-enable the workflow from the Actions tab.
 - Scheduled runs only fire from the default branch (`main`).
+- The visits show up in the app's viewer count on Streamlit Cloud.
